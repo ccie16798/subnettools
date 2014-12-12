@@ -605,7 +605,7 @@ int get_subnet_or_ip(const char *string, struct subnet *subnet) {
 		debug(PARSEIP, 5, "invalid prefix %s, null IP\n", s);
 		return BAD_IP;
 	}
-	debug(PARSEIP, 9, "prefix %s length %d\n", s, strlen(s));
+	debug(PARSEIP, 9, "prefix %s length %d\n", s, (int)strlen(s));
 	for (i = 0; i < strlen(s); i++) {
 		if (s[i] == '/')
 			count_slash++;

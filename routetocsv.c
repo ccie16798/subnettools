@@ -367,7 +367,7 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 		badline = 0;
 		if (res) {
 			debug(PARSEROUTE, 1, "File %s line %lu is longer than max size %d, discarding %d chars\n",
-					name, line, sizeof(buffer), res);
+					name, line, (int)sizeof(buffer), res);
 		}
 		debug(PARSEROUTE, 9, "parsing line %lu : %s\n", line, s);
 		if (strstr(s, "variably subnetted")!=NULL ) {
@@ -617,7 +617,7 @@ int cisco_route_conf_to_csv(char *name, FILE *f, FILE *output) {
 		MOVE_TO_NEXT_TOKEN(s);
 		if (res) {
 			debug(PARSEROUTE, 1, "File %s line %lu is longer than max size %d, discarding %d chars\n",
-					name, line, sizeof(buffer), res);
+					name, line, (int)sizeof(buffer), res);
 
 		}
 		if (!strcmp(s, "ip")) {

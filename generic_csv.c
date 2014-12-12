@@ -115,7 +115,7 @@ static int read_csv_body(FILE *f, char *name, struct csv_file *cf, struct csv_st
 		state->line++;
 		if (res) { /* BFB; BIG FUCKING BUFFER; try to handle that  */
 			debug(LOAD_CSV, 1, "File %s line %lu is longer than max size %d, discarding %d chars\n",
-					name, state->line, sizeof(buffer), res);
+					name, state->line, (int)sizeof(buffer), res);
 		}
 		debug(LOAD_CSV, 5, "Parsing line %lu : %s \n", state->line, s);
 		s = cf->strtok_r(s, cf->delim, &save_s);
@@ -205,7 +205,7 @@ int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state* stat
 		fprintf(stderr, "empty file %s\n", filename);
 		return CSV_EMPTY_FILE;
         } else if (res) {
-		fprintf(stderr, "%s CSV header is longer than the allowed size %d\n", filename, sizeof(buffer));
+		fprintf(stderr, "%s CSV header is longer than the allowed size %d\n", filename, (int)sizeof(buffer));
 		return CSV_HEADER_TOOLONG;
 	}
 	res = read_csv_header(filename, buffer, cf);
