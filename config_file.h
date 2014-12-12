@@ -1,0 +1,27 @@
+#ifndef CONFIG_FILE_H
+#define CONFIG_FILE_H
+
+#define TYPE_STRING     1
+#define TYPE_INT        2
+
+struct file_options {
+        char *name;
+        int type; /* int or string */
+        int size;
+        size_t object_offset; /*offset in a  struct; don't set it manually, set it with offsetuf(struct mystruct, my_field */
+	char *long_desc;
+};
+
+
+#define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
+#define sizeofmember(TYPE, MEMBER) sizeof(((TYPE *)0)->MEMBER)
+
+#define  FILEOPT_LINE(__truc, __STRUCT, __TYPE)  #__truc, __TYPE, sizeof(((__STRUCT *)0)->__truc), offsetof(__STRUCT, __truc)
+extern struct file_options fileoptions[];
+
+int open_config_file(char *name, void *nof);
+void config_file_describe();
+
+#else
+#endif
+

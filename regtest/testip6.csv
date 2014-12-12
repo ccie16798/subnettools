@@ -1,0 +1,8 @@
+2002::1;64;toto
+2003::1;64;toto2
+2003:db8::32;44;toto2
+2003:db8:1;40;40;INVALID
+2003::db8::1;40;40;INVALID
+jock_me;4;INVALID
+2004::t;64;toto2
+

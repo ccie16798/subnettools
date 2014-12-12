@@ -1,0 +1,18 @@
+IPv6 Routing Table - Default - 6 entries
+Codes: C - Connected, L - Local, S - Static, U - Per-user Static route
+       B - BGP, R - RIP, I1 - ISIS L1, I2 - ISIS L2
+       IA - ISIS interarea, IS - ISIS summary, D - EIGRP, EX - EIGRP external
+       O - OSPF Intra, OI - OSPF Inter, OE1 - OSPF ext 1, OE2 - OSPF ext 2
+       ON1 - OSPF NSSA ext 1, ON2 - OSPF NSSA ext 2
+B   ::/0 [20/0]
+     via 2A02:8400:0:3::7AA
+C   2A02:8400:0:3::7A8/126 [0/0]
+     via Port-channel11.991, directly connected
+L   2A02:8400:0:3::7A9/128 [0/0]
+     via Port-channel11.991, receive
+LC  2A02:8400:0:41::2:1/128 [0/0]
+     via Loopback491, receive
+S   2A02:8400:0:41::2:2/128 [1/0]
+     via FE80::253, Vlan491
+L   FF00::/8 [0/0]
+     via Null0, receive

@@ -1,0 +1,61 @@
+IP Route Table for VRF "APP"
+'*' denotes best ucast next-hop
+'**' denotes best mcast next-hop
+'[x/y]' denotes [preference/metric]
+
+0.0.0.0/0, ubest/mbest: 1/0
+    *via 10.24.133.1, [1/0], 1y7w, static
+10.24.0.0/22, ubest/mbest: 1/0, attached
+    *via 10.24.0.2, Vlan100, [0/0], 1y7w, direct
+10.24.0.1/32, ubest/mbest: 1/0
+    *via 10.24.0.1, Vlan100, [0/0], 1y7w, hsrp
+10.24.0.2/32, ubest/mbest: 1/0, attached
+    *via 10.24.0.2, Vlan100, [0/0], 1y7w, local
+10.24.4.0/22, ubest/mbest: 1/0, attached
+    *via 10.24.4.2, Vlan101, [0/0], 1y7w, direct
+10.24.4.1/32, ubest/mbest: 1/0
+    *via 10.24.4.1, Vlan101, [0/0], 1y7w, hsrp
+10.24.4.2/32, ubest/mbest: 1/0, attached
+    *via 10.24.4.2, Vlan101, [0/0], 1y7w, local
+10.24.8.0/22, ubest/mbest: 1/0, attached
+    *via 10.24.8.2, Vlan102, [0/0], 1y7w, direct
+10.24.8.1/32, ubest/mbest: 1/0
+    *via 10.24.8.1, Vlan102, [0/0], 1y7w, hsrp
+10.24.8.2/32, ubest/mbest: 1/0, attached
+    *via 10.24.8.2, Vlan102, [0/0], 1y7w, local
+10.24.12.0/22, ubest/mbest: 1/0, attached
+    *via 10.24.12.2, Vlan103, [0/0], 1y7w, direct
+10.24.12.1/32, ubest/mbest: 1/0
+    *via 10.24.12.1, Vlan103, [0/0], 1y7w, hsrp
+10.24.12.2/32, ubest/mbest: 1/0, attached
+    *via 10.24.12.2, Vlan103, [0/0], 1y7w, local
+10.24.16.0/22, ubest/mbest: 1/0, attached
+    *via 10.24.16.2, Vlan104, [0/0], 1y7w, direct
+10.24.16.1/32, ubest/mbest: 1/0
+    *via 10.24.16.1, Vlan104, [0/0], 1y7w, hsrp
+10.24.16.2/32, ubest/mbest: 1/0, attached
+    *via 10.24.16.2, Vlan104, [0/0], 1y7w, local
+10.24.20.0/22, ubest/mbest: 1/0, attached
+    *via 10.24.20.2, Vlan105, [0/0], 1y7w, direct
+10.24.20.1/32, ubest/mbest: 1/0
+    *via 10.24.20.1, Vlan105, [0/0], 1y7w, hsrp
+10.24.20.2/32, ubest/mbest: 1/0, attached
+    *via 10.24.20.2, Vlan105, [0/0], 1y7w, local
+10.24.24.0/22, ubest/mbest: 1/0, attached
+    *via 10.24.24.2, Vlan106, [0/0], 1y7w, direct
+10.24.24.1/32, ubest/mbest: 1/0
+    *via 10.24.24.1, Vlan106, [0/0], 1y7w, hsrp
+10.24.24.2/32, ubest/mbest: 1/0, attached
+    *via 10.24.24.2, Vlan106, [0/0], 1y7w, local
+10.24.28.0/22, ubest/mbest: 1/0, attached
+    *via 10.24.28.2, Vlan107, [0/0], 1y7w, direct
+10.24.28.1/32, ubest/mbest: 1/0
+    *via 10.24.28.1, Vlan107, [0/0], 1y7w, hsrp
+10.24.28.2/32, ubest/mbest: 1/0, attached
+    *via 10.24.28.2, Vlan107, [0/0], 1y7w, local
+10.24.133.0/29, ubest/mbest: 1/0, attached
+    *via 10.24.133.5, Vlan600, [0/0], 1y7w, direct
+10.24.133.4/32, ubest/mbest: 1/0
+    *via 10.24.133.4, Vlan600, [0/0], 1y7w, hsrp
+10.24.133.5/32, ubest/mbest: 1/0, attached
+    *via 10.24.133.5, Vlan600, [0/0], 1y7w, local
