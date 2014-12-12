@@ -5,21 +5,21 @@ subnet file tool !
 
 a tools designed to help network engineer manipulate large route/subnet file
 - compare files (common routes, missing routes)
-- get a subnet file declaration from an IPAM file
+- get a subnet file declaration from an IPAM file (IPAM format fully dynamic)
 - grep files for subnets
 - simplifying route files (removing duplicates, sorting)
 - aggregating subnet as much as possible
--converting 'sh ip route' files to a CSV
+- converting 'sh ip route' files to a CSV
 
 -subnettools main format is CSV; delimitors and field are fully configurable
--subnettools understands IPv5 and IPv6
+-subnettools understands IPv4 and IPv6
 -subnettools has a default config file (st.conf)
 -subnettools has a debug system (subnettools -D help), mostly helped me to create it
 -subnettools a small regression testing suite
 
 
 LIMITS :
-- file size : more than enough (i aggretated a 8millions line CSv in 2-3minutes)
+- file size : more than enough (aggretated a 8millions line CSV in 2-3minutes)
 - line size : 1024 (subnettools truncates too long lines)
 it should work OK today for most functions
 
