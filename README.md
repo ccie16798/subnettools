@@ -12,6 +12,7 @@ a tools designed to help network engineer manipulate large route/subnet file
 -converting 'sh ip route' files to a CSV
 
 -subnettools main format is CSV; delimitors and field are fully configurable
+-subnettools understands IPv5 and IPv6
 -subnettools has a default config file (st.conf)
 -subnettools has a debug system (subnettools -D help), mostly helped me to create it
 -subnettools a small regression testing suite
@@ -25,6 +26,6 @@ it should work OK today for most functions
 work TODO
 -make sure everything work
 -fixing file diff 
--adding more converters
+-adding more converters (and fixing IPv6 converters)
 
 
