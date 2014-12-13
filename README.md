@@ -46,7 +46,9 @@ CODING
 work TODO
 =========
 - make sure everything work
-- fixing file diff 
+- making GW Aware version of (aggregate)
+- fixing simplify (GW check is incorrect)
+- fixing file diff (semantics is difficult, what do we want)
 - adding more converters (and fixing IPv6 converters)
 
 
