@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "debug.h"
+#include <sys/resource.h>
 #include "iptools.h"
 #include "routetocsv.h"
 #include "utils.h"
@@ -455,13 +456,26 @@ static int option_config(int argc, char **argv, void *options) {
 	nof->config_file = argv[1];
 	return 0;
 }
+/* ensure a core dump is generated in cae of BUG
+ * subnettool is bug free of course :) 
+ */
+static void allow_core_dumps() {
+	struct rlimit core_limits;
+	int res;
+	
+	core_limits.rlim_cur = RLIM_INFINITY;
+	core_limits.rlim_max = RLIM_INFINITY;
+	res = setrlimit(RLIMIT_CORE, &core_limits);
+	if (res == -1)
+		fprintf(stderr, "couldnt set CORE dump size\n");
+}
 int main(int argc, char **argv) {
 	struct options nof;
 	int res;
 
 	memset(&nof, 0 , sizeof(nof));
 	nof.output_file = stdout;
-
+	allow_core_dumps();
 	res = generic_parse_options(argc, argv, PROG_NAME, &nof);
 	if (res < 0)
 		exit(1);
