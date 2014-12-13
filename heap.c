@@ -1,7 +1,7 @@
 /*
  *  generic HEAP implementation
  *
- * Copyright (C) 1999-2014 Etienne Basset <etienne.basset@ensta.org>
+ * Copyright (C) 1999-2014 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
