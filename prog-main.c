@@ -457,18 +457,20 @@ static int option_config(int argc, char **argv, void *options) {
 	return 0;
 }
 /* ensure a core dump is generated in cae of BUG
- * subnettool is bug free of course :) 
+ * subnettool is bug free of course :)
+ * man page says it is POSIX, let s hope so
  */
 static void allow_core_dumps() {
-	struct rlimit core_limits;
+	struct rlimit limits;
 	int res;
-	
-	core_limits.rlim_cur = RLIM_INFINITY;
-	core_limits.rlim_max = RLIM_INFINITY;
-	res = setrlimit(RLIMIT_CORE, &core_limits);
+
+	limits.rlim_cur = RLIM_INFINITY;
+	limits.rlim_max = RLIM_INFINITY;
+	res = setrlimit(RLIMIT_CORE, &limits);
 	if (res == -1)
 		fprintf(stderr, "couldnt set CORE dump size\n");
 }
+
 int main(int argc, char **argv) {
 	struct options nof;
 	int res;
