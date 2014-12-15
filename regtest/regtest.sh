@@ -54,8 +54,8 @@ reg_test simplify2 simplify1
 reg_test sort aggipv6
 reg_test sort sort1
 reg_test sort sort1-ipv6
-reg_test read CiscoRouter iproute_cisco
-reg_test read IPSO iproute_nokia
-reg_test read CiscoNexus iproute_nexus
-reg_test read CiscoRouter ipv6route2
+reg_test convert CiscoRouter iproute_cisco
+reg_test convert IPSO iproute_nokia
+reg_test convert CiscoNexus iproute_nexus
+reg_test convert CiscoRouter ipv6route2
 reg_test grep mergeipv6 2001:db8::
