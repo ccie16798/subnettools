@@ -36,7 +36,7 @@ static int run_compare(int argc, char **argv, void *options);
 static int run_missing(int argc, char **argv, void *options);
 static int run_paip(int argc, char **argv, void *options);
 static int run_grep(int argc, char **argv, void *options);
-static int run_read(int argc, char **argv, void *options);
+static int run_convert(int argc, char **argv, void *options);
 static int run_simplify1(int argc, char **argv, void *options);
 static int run_simplify2(int argc, char **argv, void *options);
 static int run_common(int argc, char **argv, void *options);
@@ -66,7 +66,7 @@ struct st_command commands[] = {
 	{ "missing",	&run_missing,	2},
 	{ "paip",	&run_paip,	2},
 	{ "grep",	&run_grep,	2},
-	{ "read",	&run_read,	1},
+	{ "convert",	&run_convert,	1},
 	{ "simplify1",	&run_simplify1,	1},
 	{ "simplify2",	&run_simplify2,	1},
 	{ "common",	&run_common,	2},
@@ -97,22 +97,24 @@ struct st_command options[] = {
 
 void usage() {
 	printf("Usage: %s [OPTIONS] COMMAND FILES ....\n", PROG_NAME);
-	printf("Files must be in  CSV format : \n");
+	printf("Files must be in  CSV format\n");
 	printf("\n");
 	printf("\nCOMMAND := \n");
 	printf("compare FILE1 FILE2 : compare FILE1 & FILE2, printing subnets in FILE1 INCLUDED in FILE2\n");
-	printf("missing FILE1 FILE2 : prints subnets from FILE1 that are not covered by FILE2\n");
+	printf("missing FILE1 FILE2 : prints subnets from FILE1 that are not covered by FILE2; GW is not checked\n");
 	printf("paip PAIP FILE1     : load IPAM, and print FILE1 subnet with comment extracted from IPAM\n");
-	printf("sum FILE            : get total numbers of hosts included in the list of subnets; for IPv6, get total number of /64 routes\n");
+	printf("sum IPv4FILE        : get total number of hosts included in the list of subnets\n");
+	printf("sum IPv6FILE        : get total number of /64 subnets included\n");
 	printf("grep FILE prefix    : grep FILE for prefix/mask\n");
-	printf("read PARSER FILE1   : convert FILE1 to csv using parser PARSER; use '%s -r help' for available parsers \n", PROG_NAME);
-	printf("diff FILE1 FILE2    : diff FILE1 & FILE2\n");
+	printf("convert PARSER FILE1: convert FILE1 to csv using parser PARSER\n");
+	printf("convert help        : use '%s convert help' for available parsers \n", PROG_NAME);
+	printf("diff FILE1 FILE2    : diff FILE1 & FILE2 (BUGGY)\n");
 	printf("sort FILE1          : sort CSV FILE1\n");
-	printf("subnetagg FILE1     : sort and aggregate subnets in CSV FILE1 (doesn't take GW into account)\n");
-	printf("routeagg  FILE1     : sort and aggregate subnets in CSV FILE1 (take GW into account)\n");
-	printf("simplify1 FILE1     : simplify CSV subnet file FILE1; duplicate or included networks are removed\n");
+	printf("subnetagg FILE1     : sort and aggregate subnets in CSV FILE1; GW is not checked\n");
+	printf("routeagg  FILE1     : sort and aggregate subnets in CSV FILE1; GW is checked\n");
+	printf("simplify1 FILE1     : simplify CSV subnet file FILE1; duplicate or included networks are removed; GW is checked\n");
 	printf("simplify2 FILE1     : simplify CSV subnet file FILE1; prints redundant routes that can be removed\n");
-	printf("common FILE1 FILE2  : merge CSV subnet files FILE1 & FILE2; prints common routes only\n");
+	printf("common FILE1 FILE2  : merge CSV subnet files FILE1 & FILE2; prints common routes only; GW isn't checked\n");
 	printf("addfiles FILE1 FILE2: merge CSV subnet files FILE1 & FILE2; prints the sum of both files\n");
 	printf("confdesc            : print a small explanation of %s configuration file\n", PROG_NAME);
 	printf("help                : This HELP \n");
@@ -215,7 +217,7 @@ static int run_grep(int arc, char **argv, void *options) {
 	return 0;
 }
 
-static int run_read(int arc, char **argv, void *options) {
+static int run_convert(int arc, char **argv, void *options) {
 	struct options *nof = options;
 
 	runcsv(argv[2], argv[3], nof->output_file);
