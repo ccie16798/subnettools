@@ -138,20 +138,20 @@ void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 	fprintf(output, "%s\n", outbuf);
 }
 
-void fprint_subnet_file(struct subnet_file sf, FILE *output, int compress_level) {
+void fprint_subnet_file(const struct subnet_file *sf, FILE *output, int compress_level) {
 	unsigned long i;
 
-	for (i = 0; i < sf.nr; i++)
-		fprint_route(&sf.routes[i], output, compress_level);
+	for (i = 0; i < sf->nr; i++)
+		fprint_route(&sf->routes[i], output, compress_level);
 }
 
-void fprint_subnet_file_fmt(struct subnet_file sf, FILE *output, const char *fmt) {
+void fprint_subnet_file_fmt(const struct subnet_file *sf, FILE *output, const char *fmt) {
 	unsigned long i;
 
-	for (i = 0; i < sf.nr; i++)
-		fprint_route_fmt(&sf.routes[i], output, fmt);
+	for (i = 0; i < sf->nr; i++)
+		fprint_route_fmt(&sf->routes[i], output, fmt);
 }
-void print_subnet_file(struct subnet_file sf, int compress_level) {
+void print_subnet_file(const struct subnet_file *sf, int compress_level) {
 	fprint_subnet_file(sf, stdout, compress_level);
 }
 #define SIZE_T_MAX ((size_t)0 - 1)
