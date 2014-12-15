@@ -13,8 +13,12 @@ struct file_options {
 };
 
 
+/* macro from linux kernel */
 #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 #define sizeofmember(TYPE, MEMBER) sizeof(((TYPE *)0)->MEMBER)
+#define container_of(ptr, type, member) ({                      \
+                const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
+                (type *)( (char *)__mptr - offsetof(type,member) );})
 
 #define  FILEOPT_LINE(__truc, __STRUCT, __TYPE)  #__truc, __TYPE, sizeof(((__STRUCT *)0)->__truc), offsetof(__STRUCT, __truc)
 extern struct file_options fileoptions[];
