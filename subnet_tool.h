@@ -3,7 +3,7 @@
 
 #define MAX_DELIM 32
 #define PROG_NAME "subnet_tool"
-#define PROG_VERS "0.2"
+#define PROG_VERS "0.4"
 
 struct options {
         int subnet_off;
