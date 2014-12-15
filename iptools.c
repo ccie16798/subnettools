@@ -97,14 +97,20 @@ int is_equal_gw(struct route *r1, struct route *r2) {
 		return 0;
 	if (r1->subnet.ip_ver == IPV4_A && r1->gw == r2->gw)
 		return 1;
-	else if (r1->subnet.ip_ver == IPV6_A && is_equal_ipv6(r1->gw6, r2->gw6))
-		return 1;
+	else if (r1->subnet.ip_ver == IPV6_A) {
+		if (!is_equal_ipv6(r1->gw6, r2->gw6))
+			return 0;
+		if (!is_link_local(r1->gw6))
+			return 1;
+		/* if link local adress, we must check if the device is the same */
+		return !strcmp(r1->device, r2->device);
+	}
 	return 0;
 }
 
 int is_link_local(ipv6 a) {
-	unsigned short x = a.n16[0]; 
-	
+	unsigned short x = a.n16[0];  
+/* link_local address is FE80::/10 */
 	return (x >> 6 == 0xFE80 >> 6);
 }
 

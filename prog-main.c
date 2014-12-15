@@ -414,6 +414,8 @@ static int run_test(int arc, char **argv, void *options) {
 	get_single_ip(argv[2], &subnet) ;
 	subnet2str(&subnet, buffer);
 	printf("%s \n", buffer);
+	if (is_link_local(subnet.ip6))
+		printf("its a link local address\n");
 	return 0;
 }
 /*
