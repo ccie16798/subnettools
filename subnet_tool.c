@@ -428,7 +428,8 @@ void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *
 			mask2 = paip->routes[j].subnet.mask;
 			res = subnet_compare(&sf1->routes[i].subnet, &paip->routes[j].subnet);
 			if (res == EQUALS) {
-				fprintf(nof->output_file, "%s;%d;%s\n", buffer1, mask1, paip->routes[j].comment);
+				strxcpy(sf1->routes[i].comment, paip->routes[j].comment, sizeof(sf1->routes[i].comment));
+				fprint_route_fmt(sf1->routes[i], nof->output_file, nof->output_fmt);
 				find_equals = 1;
 				break;
 			}
@@ -439,7 +440,8 @@ void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *
 		find_included = 0;
 		includes = 0;
 		find_mask = 0;
-		printf("%s;%d;%s\n", buffer1, mask1, "NOT FOUND");
+		strcpy(sf1->routes[i].comment, "NOT FOUND");
+		fprint_route_fmt(sf1->routes[i], nof->output_file, nof->output_fmt);
 
 		/**
 		 ** we look a second time for a match

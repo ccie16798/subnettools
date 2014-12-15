@@ -35,7 +35,7 @@ void print_route(struct route r, FILE *output, int compress_level) {
 	fprintf(output, "%s;%d;%s;%s;%s\n", buffer, r.subnet.mask, r.device, buffer2, r.comment);
 }
 
-void print_route_fmt(struct route r, FILE *output, const char *fmt) {
+void fprint_route_fmt(struct route r, FILE *output, const char *fmt) {
 	int i, j, a;
 	char c;
 	char outbuf[512 + 140];
@@ -149,7 +149,7 @@ void fprint_subnet_file_fmt(struct subnet_file sf, FILE *output, const char *fmt
 	unsigned long i;
 
 	for (i = 0; i < sf.nr; i++)
-		print_route_fmt(sf.routes[i], output, fmt);
+		fprint_route_fmt(sf.routes[i], output, fmt);
 }
 void print_subnet_file(struct subnet_file sf, int compress_level) {
 	fprint_subnet_file(sf, stdout, compress_level);
