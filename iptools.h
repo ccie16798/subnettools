@@ -58,8 +58,8 @@ int is_equal_gw(struct route *r1, struct route *r2);
 int is_link_local(ipv6 a);
 
 int alloc_subnet_file(struct subnet_file *sf, unsigned long n) ;
-void print_route(struct route r, FILE *output, int comp_level);
-void fprint_route_fmt(struct route r, FILE *output,  const char *fmt);
+void print_route(const struct route *r, FILE *output, int comp_level);
+void fprint_route_fmt(const struct route *r, FILE *output,  const char *fmt);
 void print_subnet_file(struct subnet_file sf, int comp_level);
 void fprint_subnet_file(struct subnet_file sf, FILE *output, int comp_level);
 void fprint_subnet_file_fmt(struct subnet_file sf, FILE *output, const char *fmt);

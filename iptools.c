@@ -23,19 +23,19 @@ static inline int is_valid_ip_char(char c) {
 }
 
 
-void print_route(struct route r, FILE *output, int compress_level) {
+void fprint_route(const struct route *r, FILE *output, int compress_level) {
 	char buffer[52];
 	char buffer2[52];
 	struct subnet s;
 
-	subnet2str(&r.subnet, buffer, compress_level);
-	memcpy(&s.ip6, &r.gw, 16);
-	s.ip_ver = r.subnet.ip_ver;
+	subnet2str(&r->subnet, buffer, compress_level);
+	memcpy(&s.ip6, &r->gw, 16);
+	s.ip_ver = r->subnet.ip_ver;
 	subnet2str(&s, buffer2, 2);
-	fprintf(output, "%s;%d;%s;%s;%s\n", buffer, r.subnet.mask, r.device, buffer2, r.comment);
+	fprintf(output, "%s;%d;%s;%s;%s\n", buffer, r->subnet.mask, r->device, buffer2, r->comment);
 }
 
-void fprint_route_fmt(struct route r, FILE *output, const char *fmt) {
+void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 	int i, j, a;
 	char c;
 	char outbuf[512 + 140];
@@ -67,21 +67,21 @@ void fprint_route_fmt(struct route r, FILE *output, const char *fmt) {
 					break;
 				case 'M':
 				case 'm':
-					a = sprintf(outbuf + j, "%d", r.subnet.mask);
+					a = sprintf(outbuf + j, "%d", r->subnet.mask);
 					break;
 				case 'D': 
-					a = sprintf(outbuf + j, "%s", r.device);
+					a = sprintf(outbuf + j, "%s", r->device);
 					break;
 				case 'C': 
-					a = sprintf(outbuf + j, "%s", r.comment);
+					a = sprintf(outbuf + j, "%s", r->comment);
 					break;
 				case 'I':
-					subnet2str(&r.subnet, buffer, 2);
+					subnet2str(&r->subnet, buffer, 2);
 					a = sprintf(outbuf + j, "%s", buffer);
 					break;
 				case 'G':
-					memcpy(&sub.ip6, &r.gw6, sizeof(ipv6));
-					sub.ip_ver = r.subnet.ip_ver;
+					memcpy(&sub.ip6, &r->gw6, sizeof(ipv6));
+					sub.ip_ver = r->subnet.ip_ver;
 					subnet2str(&sub, buffer, 2);
 					a = sprintf(outbuf + j, "%s", buffer);
 					break;
@@ -93,10 +93,10 @@ void fprint_route_fmt(struct route r, FILE *output, const char *fmt) {
 						exit(1);
 					}
 					if (fmt[i + 2] == 'I')
-						memcpy(&sub, &r.subnet, sizeof(struct subnet));
+						memcpy(&sub, &r->subnet, sizeof(struct subnet));
 					else if (fmt[i + 2] == 'G') {
-						memcpy(&sub.ip6, &r.gw6, sizeof(ipv6));
-						sub.ip_ver = r.subnet.ip_ver;
+						memcpy(&sub.ip6, &r->gw6, sizeof(ipv6));
+						sub.ip_ver = r->subnet.ip_ver;
 					}
 					subnet2str(&sub, buffer, fmt[i + 1] - '0');
 					a = sprintf(outbuf + j, "%s", buffer);
@@ -142,14 +142,14 @@ void fprint_subnet_file(struct subnet_file sf, FILE *output, int compress_level)
 	unsigned long i;
 
 	for (i = 0; i < sf.nr; i++)
-		print_route(sf.routes[i], output, compress_level);
+		fprint_route(&sf.routes[i], output, compress_level);
 }
 
 void fprint_subnet_file_fmt(struct subnet_file sf, FILE *output, const char *fmt) {
 	unsigned long i;
 
 	for (i = 0; i < sf.nr; i++)
-		fprint_route_fmt(sf.routes[i], output, fmt);
+		fprint_route_fmt(&sf.routes[i], output, fmt);
 }
 void print_subnet_file(struct subnet_file sf, int compress_level) {
 	fprint_subnet_file(sf, stdout, compress_level);
