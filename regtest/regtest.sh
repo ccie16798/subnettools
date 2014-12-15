@@ -45,6 +45,8 @@ reg_test simplify1 simple
 reg_test simplify2 simple
 reg_test sort aggipv4
 reg_test sort aggipv6
+reg_test sort sort1
+reg_test sort sort1-ipv6
 reg_test read CiscoRouter iproute_cisco
 reg_test read IPSO iproute_nokia
 reg_test read CiscoNexus iproute_nexus
