@@ -667,7 +667,12 @@ int subnet_is_superior(struct subnet *s1, struct subnet *s2) {
 	}
 	res = 0;
 	if (s1->ip_ver == IPV4_A) {
-		if  (s1->ip < s2->ip)
+		if (s1->ip == s2->ip) {
+			if (s1->mask < s2->mask)
+				res = 1;
+			else 
+ 				res = 0;
+		} else if  (s1->ip < s2->ip)
 			res =  1;
 		else
 			res =  0;
@@ -676,13 +681,20 @@ int subnet_is_superior(struct subnet *s1, struct subnet *s2) {
 	}
 
 	if (s1->ip_ver == IPV6_A) {
-		for (i = 0; i < 4; i++) {
-			if (s1->ip6.n32[i] < s2->ip6.n32[i]) {
+		if (is_equal_ipv6(s1->ip6, s2->ip6)) {
+			if (s1->mask < s2->mask)
 				res = 1;
-				break;
-			} else if (s1->ip6.n32[i] > s2->ip6.n32[i]) {
+			else 
 				res = 0;
-				break;
+		} else {
+			for (i = 0; i < 4; i++) {
+				if (s1->ip6.n32[i] < s2->ip6.n32[i]) {
+					res = 1;
+					break;
+				} else if (s1->ip6.n32[i] > s2->ip6.n32[i]) {
+					res = 0;
+					break;
+				}
 			}
 		}
 		debug(ADDRCOMP, 5, "%s %c %s\n", buffer1, (res ? '>' : '<' ), buffer2);
