@@ -381,7 +381,19 @@ int subnet2str(const struct subnet *s, char *out_buffer, int comp_level) {
 	return -1;
 }
 
+/* IPv4 only, mask to Dot Decimal Notation */
+int mask2ddn(u32 mask, char *out) {
+	int i;
+	int s[4];
 
+        for (i = 0; i < mask / 8; i++)
+                s[i] = 255;
+        s[i++] = 256 - (1 << (8 - (mask % 8)));
+        for ( ; i < 4; i++)
+                s[i] = 0;
+        sprintf(out, "%d.%d.%d.%d", s[0], s[1], s[2], s[3]);
+	return 0;
+}
 /*
  * input must be  IPv6
  * out must be at least 41 bytes
@@ -537,7 +549,6 @@ u32 string2mask(const char *string) {
 	return a;
 
 }
-
 
 static int get_single_ipv4(char *s, struct subnet *subnet) {
 	int i, a;

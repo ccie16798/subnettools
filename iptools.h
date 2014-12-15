@@ -81,6 +81,7 @@ int subnet_is_superior(struct subnet *s1, struct subnet *s2);
 int subnet2str(const struct subnet *s, char *out_buffer, int comp_level);
 int addrv42str(ipv4 z, char *out_buffer);
 int addrv62str(ipv6 z, char *out_buffer, int compress);
+int mask2ddn(u32 mask, char *out_buffer);
 /* un-compress an IPv6 address */
 int ipv6expand(const char *input, char *out);
 
