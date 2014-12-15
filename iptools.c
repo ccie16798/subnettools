@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdarg.h>
 #include "debug.h"
 #include "iptools.h"
 #include "bitmap.h"
@@ -27,10 +28,10 @@ void print_route(struct route r, FILE *output) {
 	char buffer2[52];
 	struct subnet s;
 
-	subnet2str(&r.subnet, buffer);
+	subnet2str(&r.subnet, buffer, 2);
 	memcpy(&s.ip6, &r.gw, 16);
 	s.ip_ver = r.subnet.ip_ver;
-	subnet2str(&s, buffer2);
+	subnet2str(&s, buffer2, 2);
 	fprintf(output, "%s;%d;%s;%s;%s\n", buffer, r.subnet.mask, r.device, buffer2, r.comment);
 }
 
@@ -78,7 +79,7 @@ int subnet_compare(const struct subnet *sub1, const struct subnet *sub2) {
 		return subnet_compare_ipv4(sub1->ip, sub1->mask, sub2->ip, sub2->mask);
 	else if (sub1->ip_ver == IPV6_A)
 		return subnet_compare_ipv6(sub1->ip6, sub1->mask, sub2->ip6, sub2->mask);
-	subnet2str(sub1, buffer1);
+	subnet2str(sub1, buffer1, 2);
 	debug(ADDRCOMP, 1, "Impossible to get here, %s version = %d BUG?\n", buffer1, sub1->ip_ver);
 	return -1;
 }
@@ -261,7 +262,7 @@ int addrv62str(ipv6 z, char *out_buffer, int compress) {
 }
 
 /* outbuffer must be large enough **/
-int subnet2str(const struct subnet *s, char *out_buffer) {
+int subnet2str(const struct subnet *s, char *out_buffer, int comp_level) {
 	if (s->ip_ver == IPV4_A || s->ip_ver == IPV4_N)
 		return addrv42str(s->ip, out_buffer);
 	if (s->ip_ver == IPV6_A || s->ip_ver == IPV6_N)
@@ -671,8 +672,8 @@ int subnet_is_superior(struct subnet *s1, struct subnet *s2) {
 	char buffer1[51], buffer2[51];
 	int i, res;
 
-	subnet2str(s1, buffer1);
-	subnet2str(s2, buffer2);
+	subnet2str(s1, buffer1, 2);
+	subnet2str(s2, buffer2, 2);
 	if (s1->ip_ver != s2->ip_ver) {
 		debug(ADDRCOMP, 1, "cannot compare, different IP version\n");
 		return -1;
@@ -722,8 +723,8 @@ static int aggregate_subnet_ipv4(const struct subnet *s1, const struct subnet *s
 	ipv4 a, b;
 	char buffer1[51], buffer2[51], buffer3[51];
 
-	subnet2str(s1, buffer1);
-	subnet2str(s2, buffer2);
+	subnet2str(s1, buffer1, 2);
+	subnet2str(s2, buffer2, 2);
 	if (s1->mask != s2->mask) {
 		debug(AGGREGATE, 5, "different masks for %s/%u and %s/%u, can't aggregate\n", buffer1, s1->mask, buffer2, s2->mask);
 		return -1;
@@ -744,7 +745,7 @@ static int aggregate_subnet_ipv4(const struct subnet *s1, const struct subnet *s
 	s3->ip_ver = IPV4_A;
 	s3->mask = s1->mask - 1;
 	s3->ip   = (a >> 1) << (32 - s3->mask);
-	subnet2str(s3, buffer3);
+	subnet2str(s3, buffer3, 2);
 	debug(AGGREGATE, 5, "can aggregate %s/%u and %s/%u into : %s/%u\n", buffer1, s1->mask, buffer2, s2->mask, buffer3, s3->mask);
 	return 1;
 }
@@ -753,8 +754,8 @@ static int aggregate_subnet_ipv6(const struct subnet *s1, const struct subnet *s
 	ipv6 a, b;
 	char buffer1[51], buffer2[51], buffer3[51];
 
-	subnet2str(s1, buffer1);
-	subnet2str(s2, buffer2);
+	subnet2str(s1, buffer1, 2);
+	subnet2str(s2, buffer2, 2);
 	if (s1->mask != s2->mask) {
 		debug(AGGREGATE, 5, "different masks for %s/%u and %s/%u, can't aggregate\n", buffer1, s1->mask, buffer2, s2->mask);
 		return -1;
@@ -778,7 +779,7 @@ static int aggregate_subnet_ipv6(const struct subnet *s1, const struct subnet *s
 	shift_left(a.n16, 8, 128 - s3->mask);
 	s3->ip_ver = IPV6_A;
 	memcpy(&s3->ip6, &a, sizeof(a));
-	subnet2str(s3, buffer3);
+	subnet2str(s3, buffer3, 2);
 	debug(AGGREGATE, 5, "can aggregate %s/%u and %s/%u into : %s/%u\n", buffer1, s1->mask, buffer2, s2->mask, buffer3, s3->mask);
 	return 1;
 }

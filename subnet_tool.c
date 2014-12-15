@@ -229,11 +229,11 @@ void compare_files(struct subnet_file *sf1, struct subnet_file *sf2, struct opti
 
 	for (i = 0; i < sf1->nr; i++) {
 		mask1 = sf1->routes[i].subnet.mask;
-		subnet2str(&sf1->routes[i].subnet, buffer1);
+		subnet2str(&sf1->routes[i].subnet, buffer1, 2);
 		find = 0;
 		for (j = 0; j < sf2->nr; j++) {
 			mask2 = sf2->routes[j].subnet.mask;
-			subnet2str(&sf2->routes[j].subnet, buffer2);
+			subnet2str(&sf2->routes[j].subnet, buffer2, 2);
 			res = subnet_compare(&sf1->routes[i].subnet, &sf2->routes[j].subnet);
 			if (res == INCLUDES) {
 				fprintf(nof->output_file, "%s;%d;INCLUDES;%s;%d\n", buffer1, mask1, buffer2, mask2);
@@ -260,8 +260,8 @@ void missing_routes(const struct subnet_file *sf1, const struct subnet_file *sf2
 		for (j = 0; j < sf2->nr; j++) {
 			res = subnet_compare(&sf1->routes[i].subnet, &sf2->routes[j].subnet);
 			if (res == INCLUDED || res == EQUALS) {
-				subnet2str(&sf1->routes[i].subnet, buffer1);
-				subnet2str(&sf2->routes[j].subnet, buffer2);
+				subnet2str(&sf1->routes[i].subnet, buffer1, 2);
+				subnet2str(&sf2->routes[j].subnet, buffer2, 2);
 				debug(ADDRCOMP, 2, "skipping %s/%u, included in %s/%u\n", buffer1, sf1->routes[i].subnet.mask,
 						buffer2, sf2->routes[j].subnet.mask);
 				find = 1;
@@ -269,7 +269,7 @@ void missing_routes(const struct subnet_file *sf1, const struct subnet_file *sf2
 			}
 		}
 		if (find == 0) {
-			subnet2str(&sf1->routes[i].subnet, buffer1);
+			subnet2str(&sf1->routes[i].subnet, buffer1, 2);
 			fprintf(nof->output_file, "%s;%d\n", buffer1, sf1->routes[i].subnet.mask);
 		}
 	}
@@ -294,7 +294,7 @@ void diff_files(const struct subnet_file *sf1, const struct subnet_file *sf2, st
 
 		if (i == sf1->nr) { /* FILE1 ended  print remaining FILE2 lines */
 			mask2 = sf2->routes[j].subnet.mask;
-			subnet2str(&sf2->routes[j].subnet, buffer2);
+			subnet2str(&sf2->routes[j].subnet, buffer2, 2);
 			fprintf(nof->output_file, ";;;%s;%d\n", buffer2, mask2);
 			j++;
 			if (j == sf2->nr)
@@ -303,7 +303,7 @@ void diff_files(const struct subnet_file *sf1, const struct subnet_file *sf2, st
 		}
 		if (j == sf2->nr) { /* FILE2 ended  print remaining FILE1 lines */
 			mask1 = sf1->routes[i].subnet.mask;
-			subnet2str(&sf1->routes[i].subnet, buffer1);
+			subnet2str(&sf1->routes[i].subnet, buffer1, 2);
 			printf("%s;%d;;;\n", buffer1, mask1);
 			i++;
 			if (i == sf1->nr)
@@ -311,9 +311,9 @@ void diff_files(const struct subnet_file *sf1, const struct subnet_file *sf2, st
 			continue;
 		}
 		mask1 = sf1->routes[i].subnet.mask;
-		subnet2str(&sf1->routes[i].subnet, buffer1);
+		subnet2str(&sf1->routes[i].subnet, buffer1, 2);
 		mask2 = sf2->routes[j].subnet.mask;
-		subnet2str(&sf2->routes[j].subnet, buffer2);
+		subnet2str(&sf2->routes[j].subnet, buffer2, 2);
 		a = 0;
 		res = subnet_compare(&sf1->routes[i].subnet, &sf2->routes[j].subnet);
 		debug(ADDRCOMP, 5, "i=%lu j=%lu comparing %s/%d  to %s/%d : %d \n", i, j, buffer1, mask1, buffer2, mask2, res);
@@ -327,7 +327,7 @@ void diff_files(const struct subnet_file *sf1, const struct subnet_file *sf2, st
 				jmax++;
 				if (jmax == sf2->nr)
 					break;
-				subnet2str(&sf2->routes[jmax].subnet, buffer2);
+				subnet2str(&sf2->routes[jmax].subnet, buffer2, 2);
 				mask2 = sf2->routes[jmax].subnet.mask;
 				res = subnet_compare(&sf1->routes[i].subnet, &sf2->routes[jmax].subnet);
 				debug(ADDRCOMP, 5, "i=%lu jmax=%lu comparing %s/%d  to %s/%d : %d \n", i, jmax, buffer1, mask1, buffer2, mask2, res);
@@ -349,7 +349,7 @@ void diff_files(const struct subnet_file *sf1, const struct subnet_file *sf2, st
 				if (imax == sf1->nr)
 					break;
 
-				subnet2str(&sf1->routes[imax].subnet, buffer1);
+				subnet2str(&sf1->routes[imax].subnet, buffer1, 2);
 				mask1 = sf1->routes[imax].subnet.mask;
 				res   = subnet_compare(&sf1->routes[imax].subnet, &sf2->routes[j].subnet);
 				debug(ADDRCOMP, 5, "imax=%lu j=%lu comparing %s/%d  to %s/%d : %d \n", i, jmax, buffer1, mask1, buffer2, mask2, res);
@@ -373,7 +373,7 @@ void diff_files(const struct subnet_file *sf1, const struct subnet_file *sf2, st
 			fprintf(nof->output_file, ";;;%s;%d\n", buffer2, mask2);
 			while (1) { /* we increase until FILE2 is EQUALS or superior to FILE1 */
 				mask2 = sf2->routes[j].subnet.mask;
-				subnet2str(&sf2->routes[j].subnet, buffer2);
+				subnet2str(&sf2->routes[j].subnet, buffer2, 2);
 				res = subnet_compare(&sf1->routes[i].subnet, &sf2->routes[j].subnet);
 				if (res == EQUALS || res == INCLUDED )
 					break;
@@ -389,7 +389,7 @@ void diff_files(const struct subnet_file *sf1, const struct subnet_file *sf2, st
 			fprintf(nof->output_file, "%s;%d;;;\n", buffer1, mask1);
 			while (1) {
 				mask1 = sf1->routes[i].subnet.mask;
-				subnet2str(&sf1->routes[i].subnet, buffer1);
+				subnet2str(&sf1->routes[i].subnet, buffer1, 2);
 				res = subnet_compare(&sf1->routes[i].subnet, &sf2->routes[j].subnet);
 				if (res == EQUALS || res == INCLUDES)
 					break;
@@ -420,7 +420,7 @@ void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *
 	debug_timing_start();
 	for (i = 0; i < sf1->nr; i++) {
 		mask1 = sf1->routes[i].subnet.mask;
-		subnet2str(&sf1->routes[i].subnet, buffer1);
+		subnet2str(&sf1->routes[i].subnet, buffer1, 2);
 		find_equals = 0;
 
 		/** first try an exact match **/
@@ -448,7 +448,7 @@ void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *
 		 **/
 		for (j = 0; j < paip->nr; j++) {
 			mask2 = paip->routes[j].subnet.mask;
-			subnet2str(&paip->routes[j].subnet, buffer2);
+			subnet2str(&paip->routes[j].subnet, buffer2, 2);
 			res = subnet_compare( &sf1->routes[i].subnet, &paip->routes[j].subnet);
 			if (res == INCLUDED) {
 				find_included = 1;
@@ -467,7 +467,7 @@ void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *
 			}
 		}
 		if (find_included) {
-			subnet2str(&find_subnet, buffer2);
+			subnet2str(&find_subnet, buffer2, 2);
 			fprintf(nof->output_file, "###%s;%d is included in  %s;%d;%s\n", buffer1, mask1, buffer2, find_mask, find_comment);
 		}
 	}
@@ -603,7 +603,7 @@ static void __heap_print_subnet(void *v) {
 	struct subnet *s = &((struct route*)v)->subnet;
 	char buffer1[54];
 
-	subnet2str(s, buffer1);
+	subnet2str(s, buffer1, 2);
 	printf("%s/%d", buffer1, s->mask);
 }
 /*
@@ -640,8 +640,8 @@ int subnet_file_simplify(struct subnet_file *sf) {
                         break;
 		res = subnet_compare(&r->subnet, &new_r[i - 1].subnet);
 		if (res == INCLUDED || res == EQUALS ) {
-			subnet2str(&r->subnet, buffer1);
-			subnet2str(&new_r[i - 1].subnet, buffer2);
+			subnet2str(&r->subnet, buffer1, 2);
+			subnet2str(&new_r[i - 1].subnet, buffer2, 2);
 			debug(ADDRCOMP, 3, "%s/%d is included in %s/%d, skipping\n", buffer1, r->subnet.mask, buffer2, new_r[i - 1].subnet.mask);
 			continue;
 		}
@@ -692,8 +692,8 @@ int route_file_simplify(struct subnet_file *sf,  int mode) {
 		while (1) { 
 			res = subnet_compare(&r->subnet, &new_r[a].subnet);
 			if (res == INCLUDED || res == EQUALS ) {
-					subnet2str(&r->subnet, buffer1);
-					subnet2str(&new_r[a].subnet, buffer2);
+					subnet2str(&r->subnet, buffer1, 2);
+					subnet2str(&new_r[a].subnet, buffer2, 2);
 					/* because the 'new_r' list is sorted, we know the first 'backward' match is the longest one
 					 * and the longest match is the one that matters
 					 */
@@ -757,8 +757,8 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 	memcpy(&new_r[0], &sf->routes[0], sizeof(struct route));
 	j = 0; /* i is the index in the original file, j is the index in the file we are building */
 	for (i = 1; i < sf->nr; i++) {
-		subnet2str(&new_r[j].subnet, buffer1);
-		subnet2str(&sf->routes[i].subnet, buffer2);
+		subnet2str(&new_r[j].subnet, buffer1, 2);
+		subnet2str(&sf->routes[i].subnet, buffer2, 2);
 		if (mode == 1 && !is_equal_gw(&new_r[j],  &sf->routes[i])) {
 			debug(AGGREGATE, 4, "Entry %lu [%s/%u] & %lu [%s/%u] cant aggregate, different GW\n", j, buffer1, new_r[j].subnet.mask,
 					i, buffer2, sf->routes[i].subnet.mask);
@@ -788,8 +788,8 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 				break;
 			res = aggregate_subnet(&new_r[j].subnet, &new_r[j - 1].subnet, &s);
 			if (res >= 0) {
-				subnet2str(&new_r[j - 1].subnet, buffer1);
-				subnet2str(&new_r[j].subnet, buffer2);
+				subnet2str(&new_r[j - 1].subnet, buffer1, 2);
+				subnet2str(&new_r[j].subnet, buffer2, 2);
 				debug(AGGREGATE, 4, "Rewinding, entry %lu [%s/%u] & %lu [%s/%u] can aggregate\n", j - 1, buffer1, new_r[j - 1].subnet.mask,
 						j, buffer2, new_r[j].subnet.mask);
 				j--;
@@ -822,7 +822,7 @@ int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct
 	debug_timing_start();
 	alloc_tas(&tas, sf1->nr + sf2->nr, &__heap_subnet_is_superior);
 	if (tas.tab == NULL||sf3->routes == NULL) {
-		fprintf(stderr, "No memory\n");
+		fprintf(stderr, "%s : no memory\n", __FUNCTION__);
 		debug_timing_end();
 		return -1;
 	}
@@ -831,8 +831,8 @@ int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct
 		for (j = 0; j < sf2->nr; j++) {
 			res = subnet_compare(&sf1->routes[i].subnet, &sf2->routes[j].subnet);
 			if (res == INCLUDED || res == EQUALS) {
-				subnet2str(&sf1->routes[i].subnet, buffer1);
-				subnet2str(&sf2->routes[j].subnet, buffer2);
+				subnet2str(&sf1->routes[i].subnet, buffer1, 2);
+				subnet2str(&sf2->routes[j].subnet, buffer2, 2);
 				debug(ADDRCOMP, 3, "Loop #1 adding %s/%u (included in : %s/%u)\n", buffer1, sf1->routes[i].subnet.mask,
 						buffer2, sf2->routes[j].subnet.mask);
 				addTAS(&tas, &sf1->routes[i]);
@@ -846,8 +846,8 @@ int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct
 		for (i = 0; i < sf1->nr; i++) {
 			res = subnet_compare(&sf2->routes[j].subnet, &sf1->routes[i].subnet);
 			if (res == INCLUDED) {
-				subnet2str(&sf2->routes[j].subnet, buffer1);
-				subnet2str(&sf1->routes[i].subnet, buffer2);
+				subnet2str(&sf2->routes[j].subnet, buffer1, 2);
+				subnet2str(&sf1->routes[i].subnet, buffer2, 2);
 				debug(ADDRCOMP, 3, "Loop #2 may add %s/%u (included in : %s/%u)\n", buffer1, sf2->routes[j].subnet.mask,
 						buffer2, sf1->routes[i].subnet.mask);
 				can_add = 1;
@@ -911,7 +911,7 @@ int subnet_sort_ascending(struct subnet_file *sf) {
 	new_r = malloc(sf->max_nr * sizeof(struct route));
 
 	if (tas.tab == NULL||new_r == NULL) {
-		fprintf(stderr, "no memory \n"); // memory leak here :)
+		fprintf(stderr, "%s : no memory\n", __FUNCTION__);
 		debug_timing_end();
 		return -1;
 	}

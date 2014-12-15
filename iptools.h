@@ -46,9 +46,9 @@ struct route {
 };
 
 struct subnet_file {
-        struct route *routes;
-        unsigned long nr;
-        unsigned long max_nr; /* the number of routes that has been malloced */
+	struct route *routes;
+	unsigned long nr;
+	unsigned long max_nr; /* the number of routes that has been malloced */
 };
 
 
@@ -76,7 +76,7 @@ int subnet_compare_ipv6(ipv6 ip1, u32 mask1, ipv6 ip2, u32 mask2);
 int subnet_is_superior(struct subnet *s1, struct subnet *s2);
 
 /* for the following functions, output buffer MUST be allocated by caller and large enough */
-int subnet2str(const struct subnet *s, char *out_buffer);
+int subnet2str(const struct subnet *s, char *out_buffer, int comp_level);
 int addrv42str(ipv4 z, char *out_buffer);
 int addrv62str(ipv6 z, char *out_buffer, int compress);
 /* un-compress an IPv6 address */

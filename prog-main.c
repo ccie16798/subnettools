@@ -412,7 +412,7 @@ static int run_test(int arc, char **argv, void *options) {
 	struct subnet subnet;
 	char buffer[51];
 	get_single_ip(argv[2], &subnet) ;
-	subnet2str(&subnet, buffer);
+	subnet2str(&subnet, buffer, 2);
 	printf("%s \n", buffer);
 	if (is_link_local(subnet.ip6))
 		printf("its a link local address\n");
