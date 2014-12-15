@@ -729,7 +729,11 @@ int route_file_simplify(struct subnet_file *sf,  int mode) {
 	return 1;
 }
 
-int aggregate_route_file(struct subnet_file *sf) {
+/*
+ * mode == 1 means we take the GW into acoount
+ * mode == 0 means we dont take the GW into account
+ */
+int aggregate_route_file(struct subnet_file *sf, int mode) {
 	unsigned long i, j;
 	int res;
 	struct subnet s;

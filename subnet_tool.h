@@ -10,7 +10,8 @@ struct options {
         int grep_field; /** when grepping, grep only on this field **/
         int mask_off;
         int gw_off;
-        int simplify_mode;
+        int simplify_mode; /* mode == 0 means we print the simpliefied routes, == 1 print the routes we can discard */
+	int aggregate_mode;
 	char *config_file;
         char delim[MAX_DELIM];
         FILE *output_file;
@@ -43,7 +44,11 @@ int subnet_sort_ascending(struct subnet_file *sf);
 int subnet_file_simplify(struct subnet_file *sf);
 /* same but take GW into account, must be equal */
 int route_file_simplify(struct subnet_file *sf,  int mode);
-int aggregate_route_file(struct subnet_file *sf);
+/*
+ * mode == 1 means we take the GW into acoount
+ * mode == 0 means we dont take the GW into account
+ */
+int aggregate_route_file(struct subnet_file *sf, int mode);
 int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct subnet_file *sf2, struct subnet_file *sf3);
 unsigned long long sum_subnet_file(struct subnet_file *sf);
 

@@ -351,7 +351,7 @@ static int run_aggregate(int arc, char **argv, void *options) {
 	res = load_netcsv_file(argv[2], &sf, nof);
 	if (res < 0)
 		return res;
-	res = aggregate_route_file(&sf);
+	res = aggregate_route_file(&sf, nof->aggregate_mode);
 	if (res < 0) {
 		fprintf(stderr, "Couldnt aggregate file %s\n", argv[2]);
 		return res;
