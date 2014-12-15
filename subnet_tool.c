@@ -27,7 +27,7 @@
 #include "subnet_tool.h"
 
 #define PROG_NAME "subnet_tool"
-#define PROG_VERS "0.2"
+#define PROG_VERS "0.4"
 
 #define SIZE_T_MAX ((size_t)0 - 1)
 
