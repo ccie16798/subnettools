@@ -55,6 +55,8 @@ struct subnet_file {
 int is_equal_ipv6(ipv6 ip1, ipv6 ip2);
 int is_equal_gw(struct route *r1, struct route *r2);
 
+int is_link_local(ipv6 a);
+
 int alloc_subnet_file(struct subnet_file *sf, unsigned long n) ;
 void print_route(struct route r, FILE *output);
 void print_subnet_file(struct subnet_file sf);

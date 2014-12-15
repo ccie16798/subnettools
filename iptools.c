@@ -102,6 +102,12 @@ int is_equal_gw(struct route *r1, struct route *r2) {
 	return 0;
 }
 
+int is_link_local(ipv6 a) {
+	unsigned short x = a.n16[0]; 
+	
+	return (x >> 6 == 0xFE80 >> 6);
+}
+
 int subnet_compare_ipv6(ipv6 ip1, u32 mask1, ipv6 ip2, u32 mask2) {
 	if (mask1 > mask2) {
 		shift_right(ip1.n16, 8, (128 - mask2));
