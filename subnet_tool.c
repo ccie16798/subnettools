@@ -661,9 +661,8 @@ int subnet_file_simplify(struct subnet_file *sf) {
  * simply_route_file takes GW into account, must be equal
  */
 int route_file_simplify(struct subnet_file *sf,  int mode) {
-	unsigned long i, j;
+	unsigned long i, j ,a;
 	int res, skip;
-	int ipver;
 	char buffer1[45], buffer2[45];
 	TAS tas;
 	struct route *new_r, *r, *discard;
@@ -677,28 +676,38 @@ int route_file_simplify(struct subnet_file *sf,  int mode) {
 		fprintf(stderr, "%s : no memory\n", __FUNCTION__);
 		return -1;
 	}
-	ipver = sf->routes[0].subnet.ip_ver;
 	for (i = 0; i < sf->nr; i++) {
 		addTAS(&tas, &sf->routes[i]);
 	} // for i
 	r = popTAS(&tas);
 	memcpy(&new_r[0], r, sizeof(struct route));
-	i = 1;
-	j = 0;
+	i = 1; /* index in the 'new_r' struct */
+	j = 0; /* index in the 'discard' struct */
 	while (1) {
                 r = popTAS(&tas);
                 if (r == NULL)
                         break;
-		res = subnet_compare(&r->subnet, &new_r[i - 1].subnet);
+		a = i - 1;
 		skip = 0;
-		if (res == INCLUDED || res == EQUALS ) {
-			subnet2str(&r->subnet, buffer1);
-			subnet2str(&new_r[i - 1].subnet, buffer2);
-			if ((ipver == IPV4_A && r->gw == new_r[i - 1].gw)
-					||(ipver == IPV6_A && is_equal_ipv6(r->gw6, new_r[i - 1].gw6))) {
-				debug(ADDRCOMP, 3, "%s/%d is included in %s/%d\n", buffer1, r->subnet.mask, buffer2, new_r[i - 1].subnet.mask);
-				skip = 1;
+		while (1) { 
+			res = subnet_compare(&r->subnet, &new_r[a].subnet);
+			if (res == INCLUDED || res == EQUALS ) {
+					subnet2str(&r->subnet, buffer1);
+					subnet2str(&new_r[a].subnet, buffer2);
+					/* because the 'new_r' list is sorted, we know the first 'backward' match is the longest one
+					 * and the longest match is the one that matters
+					 */
+					if (is_equal_gw(r, &new_r[a])) {
+						debug(ADDRCOMP, 3, "%s/%d is included in %s/%d, discarding it\n", buffer1, r->subnet.mask, buffer2, new_r[a].subnet.mask);
+						skip = 1;
+					} else {
+						debug(ADDRCOMP, 3, "%s/%d is included in %s/%d but GW is different, keeping it\n", buffer1, r->subnet.mask, buffer2, new_r[a].subnet.mask);	
+					}
+					break;
 			}
+			if (a == 0)
+				break;
+			a--;
 		}
 		if (skip == 0)
                 	memcpy(&new_r[i++], r, sizeof(struct route));
