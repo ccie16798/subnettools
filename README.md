@@ -25,6 +25,11 @@ LIMITS
 =======
 - file size : more than enough (aggretated a 8millions line CSV in 2-3minutes)
 - line size : 1024 (subnettools truncates too long lines)
+- comment size : 128 bytes (i butcher it if too long)
+- name of CSV fields : 32 bytes (OK unless you use stupids name to describe a prefix, mask, comment... french longest word is 26 bytes anyway, anticonstitutionnellement)
+- max number of delimiters : 30 (why would you want more?)
+- device name : 32 bytes (should be enough, but could be increased, TenGigabitethernet2/2/0.4121  is 29 bytes) 
+
 it should work OK today for most functions
 
 CSV format 
