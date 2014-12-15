@@ -46,9 +46,8 @@ int mylog2(unsigned int x) {
 	return a;
 }
 
-/* variante perso de strtok qui peut renvoyer une chaine vide si plusieurs  delimiteurs de suite 
- * strtok standard traite n delim successif comme un seul delim ce qui peut gener dans un fichier ou des champs sont vides
- */
+/* strtok variant ; treat consecutive delims one by one
+ * standard strtok treats n successives delims as one, which is not always what we want in CSV files*/
 char *simple_strtok(char *s, const char *delim) {
 	int i;
 	static char *s2;
