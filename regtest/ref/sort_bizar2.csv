@@ -1,0 +1,4 @@
+HELLO my mask is 24 my prefix is 1.1.1.0 ma GW est 10.1.1.1, et je te dit 'TRUC'
+HELLO my mask is 16 my prefix is 10.0.0.0 ma GW est 10.1.1.4, et je te dit 'TRUC3'
+HELLO my mask is 16 my prefix is 10.2.0.0 ma GW est 10.1.1.2, et je te dit 'TRUC2'
+HELLO my mask is 16 my prefix is 10.3.0.0 ma GW est 10.1.1.2, et je te dit 'TRUC3'
