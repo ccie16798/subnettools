@@ -26,9 +26,9 @@ reg_test() {
 	$PROG -c $conf_name $1 $2 $3  > res/$output_file
 	diff res/$output_file ref/$ref_file > /dev/null
 	if [ $? -eq 0 ]; then
-		echo "\033[32mOK\033[0m"
+		echo -e "\033[32mOK\033[0m"
 	else
-		echo "\033[31mKO\033[0m"
+		echo -e "\033[31mKO\033[0m"
 	fi
 }
 # a CSV with strange fields names :)
