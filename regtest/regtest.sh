@@ -38,7 +38,9 @@ reg_test common  BURP2 BURP
 reg_test subnetagg aggipv4
 # this one should test enough IPv6 functionnality
 reg_test subnetagg aggipv6
-reg_test  subnetagg bigcsv
+reg_test subnetagg bigcsv
+reg_test routeagg route_aggipv6
+reg_test routeagg route_aggipv4
 reg_test simplify1 BURP
 reg_test simplify2 BURP
 reg_test simplify1 simple
