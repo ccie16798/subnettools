@@ -50,7 +50,7 @@ void print_route_fmt(struct route r, FILE *output, const char *fmt) {
 	j = 0; /* index int outbuf */
 	while (1) {
 		c = fmt[i];
-		if ( i > sizeof(outbuf) - 140) { /* 128 is the max size (comment) */
+		if ( j > sizeof(outbuf) - 140) { /* 128 is the max size (comment) */
 			debug(FMT, 1, "output buffer maybe too small, aborting\n");
 			break;
 
