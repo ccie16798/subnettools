@@ -36,6 +36,17 @@ CSV format
 - IPAM CSV MUST have a CSV header; there is a defaut header, but it is derived from my company's one
 - thus IPAM CSV header MUST be described in the configuration file
 
+OUTPUT FMT
+==========
+- %I : the prefix
+- %[0-2]I : the prefix, but with 0-2 compression for IPv6
+- %G : the gateway (next-hop)
+- %[0-2]G : the gateway (next-hop) 
+- %m : the mask
+- %D : the device
+- %C : the comment
+
+
 CODING
 ======
 - in C because i like that, and i know only that

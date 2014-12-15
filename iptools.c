@@ -107,8 +107,27 @@ void print_route_fmt(struct route r, FILE *output, const char *fmt) {
 					outbuf[j] = '%';
 					outbuf[j + 1] = fmt[i + 1];
 					a = 2;
-			} //switch
+			} //switc
 			j += a;
+			i += 2;
+		} else if (c == '\\') {
+			switch (fmt[i + 1]) {
+			case '\0':
+				outbuf[j++] = '\\';
+				debug(FMT, 2, "End of String after a %c\n", '\\');
+				a = 1;
+				i--;
+				break;
+			case 'n':
+				outbuf[j++] = '\n';
+				break;
+			case 't':
+				outbuf[j++] = '\t';
+				break;
+			default:
+				debug(FMT, 2, "%c is not a valid char after a %c\n", fmt[i + 1], '\\');
+				outbuf[j++] = fmt[i + 1];
+			}
 			i += 2;
 		} else {
 			outbuf[j++] = c;
