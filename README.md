@@ -14,6 +14,7 @@ FEATURES
 - converting 'sh ip route' files to a CSV
 
 - subnettools main format is CSV; delimitors and field are fully configurable
+- subnettools output format is configurable ; you can configure FMT (%I %m %D %G %C)
 - subnettools supports IPv4 and IPv6
 - subnettools has a default config file (st.conf)
 - subnettools has a debug system (subnettools -D help), mostly helped me to create it
@@ -46,9 +47,8 @@ CODING
 work TODO
 =========
 - make sure everything work
-- making GW Aware version of (aggregate)
-- fixing simplify (GW check is incorrect)
 - fixing file diff (semantics is difficult, what do we want)
 - adding more converters (and fixing IPv6 converters)
+- complete dynamic output format
 
 

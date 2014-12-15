@@ -48,6 +48,7 @@ static int run_help(int argc, char **argv, void *options);
 static int run_version(int argc, char **argv, void *options);
 static int run_confdesc(int argc, char **argv, void *options);
 static int run_test(int argc, char **argv, void *options);
+static int run_test2(int argc, char **argv, void *options);
 
 static int option_verbose(int argc, char **argv, void *options);
 static int option_delim(int argc, char **argv, void *options);
@@ -76,6 +77,7 @@ struct st_command commands[] = {
 	{ "version",	&run_version,	0},
 	{ "confdesc",	&run_confdesc,	0},
 	{ "test",	&run_test,	1},
+	{ "test2",	&run_test2,	2},
 	{NULL, 		NULL,		0}
 };
 
@@ -418,6 +420,24 @@ static int run_test(int arc, char **argv, void *options) {
 	printf("%s \n", buffer);
 	if (is_link_local(subnet.ip6))
 		printf("its a link local address\n");
+	return 0;
+}
+
+
+static int run_test2(int arc, char **argv, void *options) {
+	int res;
+	struct subnet_file sf;
+	struct options *nof = options;
+
+        res = load_netcsv_file(argv[2], &sf, nof);
+        if (res < 0)
+                return res;
+        res = subnet_sort_ascending(&sf);
+        if (res < 0) {
+                fprintf(stderr, "Couldnt sort file %s\n", argv[2]);
+                return res;
+        }
+        fprint_subnet_file_fmt(sf, nof->output_file, argv[3]);
 	return 0;
 }
 /*

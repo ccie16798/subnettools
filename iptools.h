@@ -61,6 +61,7 @@ int alloc_subnet_file(struct subnet_file *sf, unsigned long n) ;
 void print_route(struct route r, FILE *output, int comp_level);
 void print_subnet_file(struct subnet_file sf, int comp_level);
 void fprint_subnet_file(struct subnet_file sf, FILE *output, int comp_level);
+void fprint_subnet_file_fmt(struct subnet_file sf, FILE *output, const char *fmt);
 /*
  * compare sub1 & sub2 for inclusion
  * returns :

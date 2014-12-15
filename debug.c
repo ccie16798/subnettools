@@ -24,6 +24,7 @@ struct debug debugs[] = {
 	{ "debug",	__D_DEBUG,	"debug DEBUG, yes we can! :)" },
 	{ "tryguess",	__D_TRYGUESS,	"debug TRYGUESS" },
 	{ "configfile",	__D_CONFIGFILE,	"debug config file parsing" },
+	{ "fmt",	__D_FMT,	"debug FMT dynamic output" },
 	{0, 0}
 };
 
