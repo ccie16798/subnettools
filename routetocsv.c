@@ -263,7 +263,7 @@ int cisco_nexus_to_csv(char *name, FILE *f, FILE *output) {
 
 	generic_load_csv(name, &cf, &state, &sf);
 	fprintf(output, "prefix;mask;device;GW;comment\n");
-	print_subnet_file(sf);
+	fprint_subnet_file(sf, output, 2);
 	return 1;
 }
 
@@ -339,7 +339,7 @@ int ipso_route_to_csv(char *name, FILE *f, FILE *output) {
 
 	generic_load_csv(name, &cf, &state, &sf);
 	fprintf(output, "prefix;mask;device;GW;comment\n");
-	print_subnet_file(sf);
+	fprint_subnet_file(sf, output, 2);
 	return 1;
 }
 
@@ -600,7 +600,7 @@ int cisco_fw_to_csv(char *name, FILE *f, FILE *output) {
 
 	generic_load_csv(name, &cf, &state, &sf);
 	fprintf(output, "prefix;mask;device;GW;comment\n");
-	print_subnet_file(sf);
+	fprint_subnet_file(sf, output, 2);
 	return 1;
 }
 

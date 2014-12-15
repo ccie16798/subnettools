@@ -231,7 +231,7 @@ static int run_simplify1(int arc, char **argv, void *options) {
 		fprintf(stderr, "Couldnt simplify file %s\n", argv[2]);
 		return res;
 	}
-	fprint_subnet_file(sf, nof->output_file);
+	fprint_subnet_file(sf, nof->output_file, nof->ip_compress_mode);
 	free(sf.routes);
 	return 0;
 }
@@ -251,7 +251,7 @@ static int run_simplify2(int arc, char **argv, void *options) {
 		fprintf(stderr, "Couldnt simplify file %s\n", argv[2]);
 		return res;
 	}
-	fprint_subnet_file(sf, nof->output_file);
+	fprint_subnet_file(sf, nof->output_file, nof->ip_compress_mode);
 	free(sf.routes);
 	return 0;
 }
@@ -272,7 +272,7 @@ static int run_common(int arc, char **argv, void *options) {
 		return res;
 	res = subnet_file_merge_common_routes(&sf1, &sf2, &sf3);
 	if (res >= 0)
-		fprint_subnet_file(sf3, nof->output_file);
+		fprint_subnet_file(sf3, nof->output_file, nof->ip_compress_mode);
 	free(sf3.routes);
 	free(sf2.routes);
 	free(sf1.routes);
@@ -306,7 +306,7 @@ static int run_addfiles(int arc, char **argv, void *options) {
 		memcpy(&sf3.routes[i+j], &sf2.routes[j], sizeof(struct route));
 	sf3.nr = i + j;
 	subnet_file_simplify(&sf3);
-	fprint_subnet_file(sf3, nof->output_file);
+	fprint_subnet_file(sf3, nof->output_file, nof->ip_compress_mode);
 	free(sf1.routes);
 	free(sf2.routes);
 	free(sf3.routes);
@@ -329,7 +329,7 @@ static int run_sort(int arc, char **argv, void *options) {
 		fprintf(stderr, "Couldnt sort file %s\n", argv[2]);
 		return res;
 	}
-	print_subnet_file(sf);
+	fprint_subnet_file(sf, nof->output_file, nof->ip_compress_mode);
 	free(sf.routes);
 	return 0;
 }
@@ -361,7 +361,7 @@ static int run_subnetagg(int arc, char **argv, void *options) {
 		fprintf(stderr, "Couldnt aggregate file %s\n", argv[2]);
 		return res;
 	}
-	print_subnet_file(sf);
+	fprint_subnet_file(sf, nof->output_file, nof->ip_compress_mode);
 	free(sf.routes);
 	return 0;
 }
@@ -379,7 +379,7 @@ static int run_routeagg(int arc, char **argv, void *options) {
 		fprintf(stderr, "Couldnt aggregate file %s\n", argv[2]);
 		return res;
 	}
-	print_subnet_file(sf);
+	fprint_subnet_file(sf, nof->output_file, nof->ip_compress_mode);
 	free(sf.routes);
 	return 0;
 }

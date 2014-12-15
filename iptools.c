@@ -23,26 +23,26 @@ static inline int is_valid_ip_char(char c) {
 }
 
 
-void print_route(struct route r, FILE *output) {
+void print_route(struct route r, FILE *output, int compress_level) {
 	char buffer[52];
 	char buffer2[52];
 	struct subnet s;
 
-	subnet2str(&r.subnet, buffer, 2);
+	subnet2str(&r.subnet, buffer, compress_level);
 	memcpy(&s.ip6, &r.gw, 16);
 	s.ip_ver = r.subnet.ip_ver;
 	subnet2str(&s, buffer2, 2);
 	fprintf(output, "%s;%d;%s;%s;%s\n", buffer, r.subnet.mask, r.device, buffer2, r.comment);
 }
 
-void fprint_subnet_file(struct subnet_file sf, FILE *output) {
+void fprint_subnet_file(struct subnet_file sf, FILE *output, int compress_level) {
 	unsigned long i;
 
 	for (i = 0; i < sf.nr; i++)
-		print_route(sf.routes[i], output);
+		print_route(sf.routes[i], output, compress_level);
 }
-void print_subnet_file(struct subnet_file sf) {
-	fprint_subnet_file(sf, stdout);
+void print_subnet_file(struct subnet_file sf, int compress_level) {
+	fprint_subnet_file(sf, stdout, compress_level);
 }
 #define SIZE_T_MAX ((size_t)0 - 1)
 int alloc_subnet_file(struct subnet_file *sf, unsigned long n) {
