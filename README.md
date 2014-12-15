@@ -13,7 +13,7 @@ FEATURES
 - aggregating subnets as much as possible
 - converting 'sh ip route' files to a CSV
 
-- subnettools main format is CSV; delimitors and field are fully configurable
+- subnettools main format is CSV; delimitors, name of the fields describing (prefix, mask, gw, dev, comment) are fully configurable
 - subnettools output format is configurable ; you can configure FMT (%I %m %D %G %C)
 - subnettools supports IPv4 and IPv6
 - subnettools has a default config file (st.conf)
@@ -29,12 +29,12 @@ it should work OK today for most functions
 
 CSV format 
 ===========
-- subnet files SHOULD have a CSV header describing its structure (prefix, mask,, GW, comment, etc...)
-- subnet files without a CSV header are assumed to be : prefix;mask;GW;comment
+- Input subnet files SHOULD have a CSV header describing its structure (prefix, mask,, GW, comment, etc...)
+- Input subnet files without a CSV header are assumed to be : prefix;mask;GW;comment or prefix;mask;comment
 - default CSV header is "prefix;mask;device;GW;comment"
-- CSV header can be change byt using the configuration file (subnettools confdesc for more info)
-- IPAM CSV MUST have a CSV header; there is a defaut header, but it is derived from my company's one
-- thus IPAM CSV header MUST be described in the configuration file
+- CSV header can be changed by using the configuration file (subnettools confdesc for more info)
+- Input IPAM CSV MUST have a CSV header; there is a defaut header, but it is derived from my company's one
+- So IPAM CSV header MUST be described in the configuration file
 
 OUTPUT FMT
 ==========
@@ -46,13 +46,15 @@ OUTPUT FMT
 - %D : the device
 - %C : the comment
 
-
 CODING
 ======
 - in C because i like that, and i know only that
+- coding style is close to linux kernel coding style
 - the first version was a BASH script doing IPAM search and subnet file diff; it was sooooo slow
 - will never be rewriten in C++, java, perl, etc...
-- some code is clearly NIH; but i don't want to rely on linux or specific libraries so obvious function a re recoded
+- some code is clearly NIH; but i don't want to rely on linux or specific libraries so obvious functions a recoded
+- all code is original except a few MACROs (from linux kernel); 
+- original as in i did it myself, without copy&paste 
 - is careful of verifiying every user input value so it doesnt crash
 
 work TODO
@@ -60,6 +62,5 @@ work TODO
 - make sure everything work
 - fixing file diff (semantics is difficult, what do we want)
 - adding more converters (and fixing IPv6 converters)
-- complete dynamic output format
 
 
