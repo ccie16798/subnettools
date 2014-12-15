@@ -71,12 +71,12 @@ static int netcsv_GW_handle(char *s, void *data, struct csv_state *state) {
 	struct subnet subnet;
 	int res;
 
-	if (!isdigit(s[0])) {  /* we accept that there's no gateway but we treat it has a comment instead */
+	res = get_single_ip(s, &subnet);
+	if (res != IPV4_A && res != IPV6_A) {  /* we accept that there's no gateway but we treat it has a comment instead */
 		strxcpy(sf->routes[sf->nr].comment, s, sizeof(sf->routes[sf->nr].comment));
 		if (strlen(s) >= sizeof(sf->routes[sf->nr].comment))
 			debug(LOAD_CSV, 1, "line %lu STRING comment '%s'  too long, truncating to '%s'\n", state->line, s, sf->routes[sf->nr].comment);
 	} else {
-		res = get_single_ip(s, &subnet);
 		if (res == sf->routes[sf->nr].subnet.ip_ver ) {/* does the gw have same IPversion*/
 			memcpy(&sf->routes[sf->nr].gw6, &subnet.ip6, sizeof(ipv6));
 		} else {
@@ -129,9 +129,9 @@ static int netcsv_endofline_callback(struct csv_state *state, void *data) {
 
 static int netcsv_validate_header(struct csv_field *field) {
 	int i;
-/* ENHANCE ME
- * we could check if ( (prefix AND mask) OR (prefix/mask) )
- */
+	/* ENHANCE ME
+	 * we could check if ( (prefix AND mask) OR (prefix/mask) )
+	 */
 	for (i = 0; ; i++) {
 		if (field[i].name == NULL)
 			break;
@@ -165,7 +165,7 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct options *nof) {
 		csv_field[4].name = nof->netcsv_comment;
 
 	init_csv_file(&cf, csv_field, nof->delim, &strtok_r);
-        cf.is_header = &netcsv_is_header;
+	cf.is_header = &netcsv_is_header;
 	cf.endofline_callback = &netcsv_endofline_callback;
 	cf.validate_header = &netcsv_validate_header;
 
@@ -757,9 +757,16 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 	memcpy(&new_r[0], &sf->routes[0], sizeof(struct route));
 	j = 0; /* i is the index in the original file, j is the index in the file we are building */
 	for (i = 1; i < sf->nr; i++) {
-		res = aggregate_subnet(&new_r[j].subnet, &sf->routes[i].subnet, &s);
 		subnet2str(&new_r[j].subnet, buffer1);
 		subnet2str(&sf->routes[i].subnet, buffer2);
+		if (mode == 1 && !is_equal_gw(&new_r[j],  &sf->routes[i])) {
+			debug(AGGREGATE, 4, "Entry %lu [%s/%u] & %lu [%s/%u] cant aggregate, different GW\n", j, buffer1, new_r[j].subnet.mask,
+					i, buffer2, sf->routes[i].subnet.mask);
+			j++;
+			memcpy(&new_r[j], &sf->routes[i], sizeof(struct route));
+			continue;
+		}
+		res = aggregate_subnet(&new_r[j].subnet, &sf->routes[i].subnet, &s);
 		if (res < 0) {
 			debug(AGGREGATE, 4, "Entry %lu [%s/%u] & %lu [%s/%u] cant aggregate\n", j, buffer1, new_r[j].subnet.mask,
 					i, buffer2, sf->routes[i].subnet.mask);
@@ -770,9 +777,15 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 		debug(AGGREGATE, 4, "Entry %lu [%s/%u] & %lu [%s/%u] can aggregate\n", j, buffer1, new_r[j].subnet.mask,
 			i, buffer2, sf->routes[i].subnet.mask);
 		memcpy(&new_r[j].subnet, &s, sizeof(struct subnet));
+		if (mode == 1)
+			memcpy(&new_r[j].gw6, &sf->routes[i].gw6, sizeof(ipv6)); /* copy the gateway */
+		else
+			memset(&new_r[j].gw6, 0, sizeof(ipv6)); /* the aggregate route has null gateway */
 		strcpy(new_r[j].comment, "AGGREGATE");
 		/* rewinding and aggregating backwards as much as we can; the aggregate we just created may aggregate with j - 1 */
 		while (j > 0) {
+			if (mode == 1 && !is_equal_gw(&new_r[j], &new_r[j - 1]))
+				break;
 			res = aggregate_subnet(&new_r[j].subnet, &new_r[j - 1].subnet, &s);
 			if (res >= 0) {
 				subnet2str(&new_r[j - 1].subnet, buffer1);
@@ -781,6 +794,10 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 						j, buffer2, new_r[j].subnet.mask);
 				j--;
 				memcpy(&new_r[j].subnet, &s, sizeof(struct subnet));
+				if (mode == 1)
+					memcpy(&new_r[j].gw6, &sf->routes[i].gw6, sizeof(ipv6)); /* copy the gateway */
+				else
+					memset(&new_r[j].gw6, 0, sizeof(ipv6)); /* the aggregate route has null gateway */
 				strcpy(new_r[j].comment, "AGGREGATE");
 			} else
 				break;
