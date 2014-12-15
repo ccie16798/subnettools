@@ -92,6 +92,16 @@ int is_equal_ipv6(ipv6 ip1, ipv6 ip2) {
 }
 
 
+int is_equal_gw(struct route *r1, struct route *r2) {
+	if (r1->subnet.ip_ver != r2->subnet.ip_ver)
+		return 0;
+	if (r1->subnet.ip_ver == IPV4_A && r1->gw == r2->gw)
+		return 1;
+	else if (r1->subnet.ip_ver == IPV6_A && is_equal_ipv6(r1->gw6, r2->gw6))
+		return 1;
+	return 0;
+}
+
 int subnet_compare_ipv6(ipv6 ip1, u32 mask1, ipv6 ip2, u32 mask2) {
 	if (mask1 > mask2) {
 		shift_right(ip1.n16, 8, (128 - mask2));
