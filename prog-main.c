@@ -55,6 +55,7 @@ static int option_grepfield(int argc, char **argv, void *options);
 static int option_output(int argc, char **argv, void *options);
 static int option_debug(int argc, char **argv, void *options);
 static int option_config(int argc, char **argv, void *options);
+static int option_addr_compress(int argc, char **argv, void *options);
 
 struct st_command commands[] = {
 	{ "diff",	&run_diff,	2},
@@ -85,6 +86,7 @@ struct st_command options[] = {
 	{"-o",		&option_output,		1},
 	{"-D",		&option_debug,		1},
 	{"-c",		&option_config,		1},
+	{"-p",		&option_addr_compress,	1},
 	{NULL, NULL, 0}
 };
 
@@ -479,6 +481,24 @@ static int option_config(int argc, char **argv, void *options) {
 	nof->config_file = argv[1];
 	return 0;
 }
+
+static int option_addr_compress(int argc, char **argv, void *options) {
+	struct options *nof = options;
+	int a;
+
+	if (!isUnsignedInt(argv[1])) {
+		fprintf(stderr, "expected an unsigned int after option '-p', but got '%s'\n", argv[1]);
+		return 0;
+	}
+	a = atoi(argv[1]);
+	if (a < 0 || a > 2) {
+		fprintf(stderr, "out of bound value for option '-p', [0-2], got '%s'\n", argv[1]);
+		return 0;
+	}
+	nof->ip_compress_mode = a;
+	return 0;
+}
+
 /* ensure a core dump is generated in cae of BUG
  * subnettool is bug free of course :)
  * man page says it is POSIX, let s hope so
@@ -500,6 +520,7 @@ int main(int argc, char **argv) {
 
 	memset(&nof, 0 , sizeof(nof));
 	nof.output_file = stdout;
+	nof.ip_compress_mode = 2; /* full IPv6 address compression */
 	allow_core_dumps();
 	res = generic_parse_options(argc, argv, PROG_NAME, &nof);
 	if (res < 0)
