@@ -27,7 +27,7 @@ struct st_command {
 	{ NULL, NULL, 0}  ==> MUST END with this
  };
 
- Then main shoud call  :
+ Then main(int argc, char **argv)  shoud call :
 
  res = generic_parse_options(argc, argv, PROG_NAME, &nof);
  if (res < 0)

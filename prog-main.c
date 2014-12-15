@@ -1,3 +1,12 @@
+/*
+ * subnet tools MAIN 
+ *
+ * Copyright (C) 2014 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of version 2 of the GNU General Public License
+ * as published by the Free Software Foundation.
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -403,6 +412,7 @@ static int run_version(int arc, char **argv, void *options) {
 #ifdef __DATE__
 	printf("Compiled %s\n", __DATE__);
 #endif
+	printf("%s is licenced under the GPLv2.0\n", PROG_NAME);
 	return 0;
 }
 

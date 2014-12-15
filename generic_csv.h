@@ -1,6 +1,6 @@
 /*
- * Generic CSV  parser functions
- *
+ * Generic CSV parser functions
+ * 
  * Copyright (C) 2014 Etienne Basset <etienne.basset@ensta.org>
  *
  * This program is free software; you can redistribute it and/or modify it
