@@ -35,10 +35,10 @@ reg_test() {
 reg_test -c st-bizarr.conf sort bizar.csv 
 reg_test missing  BURP2 BURP
 reg_test common  BURP2 BURP
-reg_test aggregate aggipv4
+reg_test subnetagg aggipv4
 # this one should test enough IPv6 functionnality
-reg_test aggregate aggipv6
-reg_test aggregate bigcsv
+reg_test subnetagg aggipv6
+reg_test  subnetagg bigcsv
 reg_test simplify1 BURP
 reg_test simplify2 BURP
 reg_test simplify1 simple

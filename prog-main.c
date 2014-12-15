@@ -42,7 +42,8 @@ static int run_common(int argc, char **argv, void *options);
 static int run_addfiles(int argc, char **argv, void *options);
 static int run_sort(int argc, char **argv, void *options);
 static int run_sum(int argc, char **argv, void *options);
-static int run_aggregate(int argc, char **argv, void *options);
+static int run_subnetagg(int argc, char **argv, void *options);
+static int run_routeagg(int argc, char **argv, void *options);
 static int run_help(int argc, char **argv, void *options);
 static int run_version(int argc, char **argv, void *options);
 static int run_confdesc(int argc, char **argv, void *options);
@@ -68,7 +69,8 @@ struct st_command commands[] = {
 	{ "addfiles",	&run_addfiles,	2},
 	{ "sort",	&run_sort,	1},
 	{ "sum",	&run_sum,	1},
-	{ "aggregate",	&run_aggregate,	1},
+	{ "subnetagg",	&run_subnetagg,	1},
+	{ "routeagg",	&run_routeagg,	1},
 	{ "help",	&run_help,	0},
 	{ "version",	&run_version,	0},
 	{ "confdesc",	&run_confdesc,	0},
@@ -99,7 +101,8 @@ void usage() {
 	printf("read PARSER FILE1   : convert FILE1 to csv using parser PARSER; use '%s -r help' for available parsers \n", PROG_NAME);
 	printf("diff FILE1 FILE2    : diff FILE1 & FILE2\n");
 	printf("sort FILE1          : sort CSV FILE1\n");
-	printf("aggregate FILE1     : sort and aggregate subnets in CSV FILE1\n");
+	printf("subnetagg FILE1     : sort and aggregate subnets in CSV FILE1 (doesn't take GW into account)\n");
+	printf("routeagg  FILE1     : sort and aggregate subnets in CSV FILE1 (take GW into account)\n");
 	printf("simplify1 FILE1     : simplify CSV subnet file FILE1; duplicate or included networks are removed\n");
 	printf("simplify2 FILE1     : simplify CSV subnet file FILE1; prints redundant routes that can be removed\n");
 	printf("common FILE1 FILE2  : merge CSV subnet files FILE1 & FILE2; prints common routes only\n");
@@ -343,7 +346,7 @@ static int run_sum(int arc, char **argv, void *options) {
 	return 0;
 }
 
-static int run_aggregate(int arc, char **argv, void *options) {
+static int run_subnetagg(int arc, char **argv, void *options) {
 	int res;
 	struct subnet_file sf;
 	struct options *nof = options;
@@ -351,7 +354,25 @@ static int run_aggregate(int arc, char **argv, void *options) {
 	res = load_netcsv_file(argv[2], &sf, nof);
 	if (res < 0)
 		return res;
-	res = aggregate_route_file(&sf, nof->aggregate_mode);
+	res = aggregate_route_file(&sf, 0);
+	if (res < 0) {
+		fprintf(stderr, "Couldnt aggregate file %s\n", argv[2]);
+		return res;
+	}
+	print_subnet_file(sf);
+	free(sf.routes);
+	return 0;
+}
+
+static int run_routeagg(int arc, char **argv, void *options) {
+	int res;
+	struct subnet_file sf;
+	struct options *nof = options;
+
+	res = load_netcsv_file(argv[2], &sf, nof);
+	if (res < 0)
+		return res;
+	res = aggregate_route_file(&sf, 1);
 	if (res < 0) {
 		fprintf(stderr, "Couldnt aggregate file %s\n", argv[2]);
 		return res;

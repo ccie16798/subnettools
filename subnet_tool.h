@@ -11,7 +11,6 @@ struct options {
         int mask_off;
         int gw_off;
         int simplify_mode; /* mode == 0 means we print the simpliefied routes, == 1 print the routes we can discard */
-	int aggregate_mode;
 	char *config_file;
         char delim[MAX_DELIM];
         FILE *output_file;
