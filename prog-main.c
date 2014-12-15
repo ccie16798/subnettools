@@ -12,10 +12,10 @@
 #include "generic_command.h"
 #include "config_file.h"
 
-
+const char *default_fmt = "%I;%m;%D;%G;%C";
 struct file_options fileoptions[] = {
 	{ FILEOPT_LINE(ipam_prefix_field, struct options, TYPE_STRING), "IPAM CSV header field describing the prefix"  },
-	{ FILEOPT_LINE(ipam_mask, struct options, TYPE_STRING), "IPAM CSV header field describing the prefix" },
+	{ FILEOPT_LINE(ipam_mask, struct options, TYPE_STRING), "IPAM CSV header field describing the mask" },
 	{ FILEOPT_LINE(ipam_comment1, struct options, TYPE_STRING), "IPAM CSV header field describing comment" },
 	{ FILEOPT_LINE(ipam_comment2, struct options, TYPE_STRING),  "IPAM CSV header field describing comment" },
 	{ FILEOPT_LINE(ipam_delim, struct options, TYPE_STRING),  "IPAM CSV delimitor" },
@@ -25,6 +25,7 @@ struct file_options fileoptions[] = {
 	{ FILEOPT_LINE(netcsv_comment, struct options, TYPE_STRING), "Subnet CSV header field describing the comment" },
 	{ FILEOPT_LINE(netcsv_device, struct options, TYPE_STRING), "Subnet CSV header field describing the device" },
 	{ FILEOPT_LINE(netcsv_gw, struct options, TYPE_STRING), "Subnet CSV header field describing the gateway" },
+	{ FILEOPT_LINE(output_fmt, struct options, TYPE_STRING), "Default Output Format String" },
 	{ FILEOPT_LINE(subnet_off, struct options, TYPE_INT) },
 	{NULL,                  0, 0}
 };
@@ -57,6 +58,7 @@ static int option_output(int argc, char **argv, void *options);
 static int option_debug(int argc, char **argv, void *options);
 static int option_config(int argc, char **argv, void *options);
 static int option_addr_compress(int argc, char **argv, void *options);
+static int option_fmt(int argc, char **argv, void *options);
 
 struct st_command commands[] = {
 	{ "diff",	&run_diff,	2},
@@ -89,6 +91,7 @@ struct st_command options[] = {
 	{"-D",		&option_debug,		1},
 	{"-c",		&option_config,		1},
 	{"-p",		&option_addr_compress,	1},
+	{"-fmt",	&option_fmt,		1},
 	{NULL, NULL, 0}
 };
 
@@ -119,6 +122,7 @@ void usage() {
 	printf("-o <file >      : write output in <file> \n");
 	printf("-grep_field N   : grep field N only\n");
 	printf("-D <debug>      : DEBUG MODE ; use '%s -D help' for more info\n", PROG_NAME);
+	printf("-fmt            : change the output format (default :%s)\n", default_fmt);
 	printf("-V              : verbose mode; same as '-D all:1'\n");
 }
 
@@ -519,6 +523,14 @@ static int option_addr_compress(int argc, char **argv, void *options) {
 	return 0;
 }
 
+static int option_fmt(int argc, char **argv, void *options) {
+	struct options *nof = options;
+
+	strxcpy(nof->output_fmt, argv[1], sizeof(nof->output_fmt));
+	return 0;
+}
+
+
 /* ensure a core dump is generated in cae of BUG
  * subnettool is bug free of course :)
  * man page says it is POSIX, let s hope so
@@ -566,6 +578,10 @@ int main(int argc, char **argv) {
 		nof.ipam_delim[strlen(nof.ipam_delim) + 1]= '\0';
 		nof.ipam_delim[strlen(nof.ipam_delim)]= '\n';
 	}
+	/* if the default output format has not been set */
+	if (strlen(nof.output_fmt) < 2)
+		strcpy(nof.output_fmt, default_fmt);
+
 	res = generic_command_run(argc, argv, PROG_NAME, &nof);
 	fclose(nof.output_file);
 	exit(res);
