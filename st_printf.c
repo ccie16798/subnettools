@@ -304,7 +304,7 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap)  {
 					} else
 						compression_level = 2;
 					/* safegard a little */
-					if (v_sub->ip_ver == IPV4_A || v_sub->ip_ver == IPV6_A)
+					if (v_addr && (v_addr->ip_ver == IPV4_A || v_addr->ip_ver == IPV6_A))
 						addr2str(v_addr, buffer, compression_level);
 					else
 						strcpy(buffer,"<Invalid IP>");
@@ -317,8 +317,7 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap)  {
 						i++;
 					} else
 						compression_level = 2;
-					/* safegard a little */
-					if (v_sub->ip_ver == IPV4_A || v_sub->ip_ver == IPV6_A)
+					if (v_sub && (v_sub->ip_ver == IPV4_A || v_sub->ip_ver == IPV6_A))
 						subnet2str(v_sub, buffer, compression_level);
 					else
 						strcpy(buffer,"<Invalid IP>");
