@@ -33,7 +33,7 @@ static int netcsv_prefix_handle(char *s, void *data, struct csv_state *state) {
 	int res;
 	struct subnet subnet;
 
-	res = get_single_ip(s, &subnet);
+	res = get_subnet_or_ip(s, &subnet);
 	if (res == BAD_IP) {
 		debug(LOAD_CSV, 3, "invalid IP %s line %lu\n", s, state->line);
 		return CSV_INVALID_FIELD_BREAK;
@@ -65,17 +65,17 @@ static int netcsv_device_handle(char *s, void *data, struct csv_state *state) {
 
 static int netcsv_GW_handle(char *s, void *data, struct csv_state *state) {
 	struct subnet_file *sf = data;
-	struct subnet subnet;
+	struct ip_addr addr;
 	int res;
 
-	res = get_single_ip(s, &subnet);
+	res = get_single_ip(s, &addr);
 	if (res != IPV4_A && res != IPV6_A) {  /* we accept that there's no gateway but we treat it has a comment instead */
 		strxcpy(sf->routes[sf->nr].comment, s, sizeof(sf->routes[sf->nr].comment));
 		if (strlen(s) >= sizeof(sf->routes[sf->nr].comment))
 			debug(LOAD_CSV, 1, "line %lu STRING comment '%s'  too long, truncating to '%s'\n", state->line, s, sf->routes[sf->nr].comment);
 	} else {
 		if (res == sf->routes[sf->nr].subnet.ip_ver ) {/* does the gw have same IPversion*/
-			copy_ipaddr(&sf->routes[sf->nr].gw, &subnet.ip_addr);
+			copy_ipaddr(&sf->routes[sf->nr].gw, &addr);
 		} else {
 			memset(&sf->routes[sf->nr].gw, 0, sizeof(struct ip_addr));
 			debug(LOAD_CSV, 3, "invalid GW %s line %lu\n", s, state->line);

@@ -424,7 +424,7 @@ u32 string2mask(const char *string) {
 
 }
 
-static int get_single_ipv4(char *s, struct ip_addr *subnet) {
+static int get_single_ipv4(char *s, struct ip_addr *addr) {
 	int i, a;
 	int count_dot = 0;
 	int truc[4];
@@ -463,12 +463,12 @@ static int get_single_ipv4(char *s, struct ip_addr *subnet) {
 			return BAD_IP;
 		}
 	}
-	subnet->ip = truc[0] * 256 * 256 * 256  + truc[1] * 256 * 256 + truc[2] * 256 + truc[3];
-	subnet->ip_ver = IPV4_A;
+	addr->ip = truc[0] * 256 * 256 * 256  + truc[1] * 256 * 256 + truc[2] * 256 + truc[3];
+	addr->ip_ver = IPV4_A;
 	return IPV4_A;
 }
 
-static int get_single_ipv6(char *s, struct ip_addr *subnet) {
+static int get_single_ipv6(char *s, struct ip_addr *addr) {
 	int i,j;
 	int do_skip = 0;
 	int out_i = 0;
@@ -479,8 +479,8 @@ static int get_single_ipv6(char *s, struct ip_addr *subnet) {
 	if ((s[0] == s[1]) && (s[0] == ':')) { /** loopback addr **/
 		do_skip = 1;
 		if (s[2] == '\0') { /* special :: */
-			memset(&subnet->ip6, 0, sizeof(subnet->ip6));
-			subnet->ip_ver = IPV6_A;
+			memset(&addr->ip6, 0, sizeof(addr->ip6));
+			addr->ip_ver = IPV6_A;
 			return IPV6_A;
 		}
 		s2 = s+2;
@@ -518,7 +518,7 @@ static int get_single_ipv6(char *s, struct ip_addr *subnet) {
 			/* we refill the skipped 0000: blocks */
 			debug(PARSEIPV6, 9, "copying %d skipped '0000:' blocks\n", 8 - count);
 			for (j = 0; j < 8 - count; j++) {
-				subnet->ip6.n16[out_i] = 0;
+				addr->ip6.n16[out_i] = 0;
 				out_i++;
 			}
 			do_skip = 0;
@@ -528,9 +528,9 @@ static int get_single_ipv6(char *s, struct ip_addr *subnet) {
 			s[i] = '\0';
 			debug(PARSEIPV6, 8, "copying block '%s' to block %d\n", s2, out_i);
 			if (s2[0] == '\0') /* in case input ends with '::' */
-				subnet->ip6.n16[out_i] = 0;
+				addr->ip6.n16[out_i] = 0;
 			else
-				sscanf(s2, "%hx", &subnet->ip6.n16[out_i]);
+				sscanf(s2, "%hx", &addr->ip6.n16[out_i]);
 			if (stop) /* we are here because s[i] was 0 before we replaced it*/
 				break;
 
@@ -549,16 +549,15 @@ static int get_single_ipv6(char *s, struct ip_addr *subnet) {
 			return BAD_IP;
 		}
 	}
-	subnet->ip_ver = IPV6_A;
+	addr->ip_ver = IPV6_A;
 	return IPV6_A;
 }
 
-int get_single_ip(const char *string, struct subnet *subnet) {
+int get_single_ip(const char *string, struct ip_addr *addr) {
 	int i;
 	int may_ipv4 = 0, may_ipv6 = 0;
 	char s3[52];
 	char *s;
-	struct ip_addr a;
 
 	strxcpy(s3, string, sizeof(s3)); /** we copy because we dont want to modify s2 */
 	s = s3;
@@ -587,16 +586,10 @@ int get_single_ip(const char *string, struct subnet *subnet) {
 		}
 	}
 	if (may_ipv4) {
-		i = get_single_ipv4(s, &a);
-		subnet->mask = 32;
-		copy_ipaddr(&subnet->ip_addr, &a);
-		return i;
+		return  get_single_ipv4(s, addr);
 	}
 	if (may_ipv6 == 1) {
-		i = get_single_ipv6(s, &a);
-		copy_ipaddr(&subnet->ip_addr, &a);
-		subnet->mask = 128;
-		return i;
+		return get_single_ipv6(s, addr);
 	}
 
 	debug(PARSEIP, 5, "invalid IPv4 or IPv6 : %s\n", s);
@@ -617,6 +610,7 @@ int get_subnet_or_ip(const char *string, struct subnet *subnet) {
 	int count_slash = 0;
 	char *s, *save_s;
 	char s2[128];
+	struct ip_addr addr;
 
 	strxcpy(s2, string, sizeof(s2));
 	s = s2;
@@ -641,11 +635,17 @@ int get_subnet_or_ip(const char *string, struct subnet *subnet) {
 
 	if (count_slash == 0) {
 		debug(PARSEIP, 5, "trying to parse ip %s\n", s);
-		return get_single_ip(s, subnet);
+		a =  get_single_ip(s, &addr);
+		if (a == BAD_IP)
+			return a;
+		copy_ipaddr(&subnet->ip_addr, &addr);
+		subnet->mask = (a == IPV6_A ? 128 : 32);
+		return a;
 	} else if (count_slash == 1) {
 		debug(PARSEIP, 5, "trying to parse ip/mask %s\n", s);
 		s = strtok_r(s, "/", &save_s);
-		a = get_single_ip(s, subnet);
+		a = get_single_ip(s, &addr);
+		copy_ipaddr(&subnet->ip_addr, &addr);
 		if (a == BAD_IP) {
 			debug(PARSEIP, 5, "bad IP %s\n", s);
 			return a;

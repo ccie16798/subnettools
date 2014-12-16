@@ -170,16 +170,16 @@ static int cisco_nexus_prefix_handle(char *s, void *data, struct csv_state *stat
 static int cisco_nexus_gw_handle(char *s, void *data, struct csv_state *state)  {
         struct  subnet_file *sf = data;
         int res;
-        struct subnet subnet;
+        struct ip_addr addr;
 
-	res = get_single_ip(s, &subnet);
+	res = get_single_ip(s, &addr);
 	if (state->state[1] == IPV4_A && res == IPV4_A) {
 		debug(PARSEROUTE, 5, "line %lu gw %s \n", state->line, s);
-		copy_ipaddr(&sf->routes[sf->nr].gw,  &subnet.ip_addr);
+		copy_ipaddr(&sf->routes[sf->nr].gw,  &addr);
 		return CSV_VALID_FIELD;
 	} else if  (state->state[1] == IPV6_A && res == IPV6_A)  {
 		debug(PARSEROUTE, 5, "line %lu gw6 %s \n", state->line, s);
-		copy_ipaddr(&sf->routes[sf->nr].gw,  &subnet.ip_addr);
+		copy_ipaddr(&sf->routes[sf->nr].gw,  &addr);
 		return CSV_VALID_FIELD;
 	} else if (state->state[1] == IPV6_A && res > 1000)  { /** for IPv6, there can be no NH or in case of MPBGP a NH in global table CHECK ME NEXUS**/
                         debug(PARSEROUTE, 5, "line %lu gw6 %s \n", state->line, s);
@@ -302,16 +302,16 @@ static int ipso_prefix_handle(char *s, void *data, struct csv_state *state) {
 static int ipso_gw_handle(char *s, void *data, struct csv_state *state) {
         struct  subnet_file *sf = data;
         int res;
-        struct subnet subnet;
+        struct ip_addr addr;
 
 	if (state->state[0] == 1) /* connected route, s = "directly" */
 		return CSV_VALID_FIELD;
-	res = get_single_ip(s, &subnet);
+	res = get_single_ip(s, &addr);
         if ( res == BAD_IP) {
                 debug(PARSEROUTE, 2, "line %lu bad GW %s \n", state->line, s);
                 return CSV_INVALID_FIELD_BREAK;
         }
-	copy_ipaddr(&sf->routes[sf->nr].gw, &subnet.ip_addr);
+	copy_ipaddr(&sf->routes[sf->nr].gw, &addr);
         return CSV_VALID_FIELD;
 }
 static int ipso_device_handle(char *s, void *data, struct csv_state *state) {
@@ -366,6 +366,7 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 	int num_mask;
 	char ip2[51];
 	int ip_ver = -1;
+	struct ip_addr addr;
 	COMMON_PARSER_HEADER
 
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
@@ -498,14 +499,14 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 			continue;
 		}
 
-		res = get_single_ip(s, &subnet);
+		res = get_single_ip(s, &addr);
 		if (ip_ver == IPV4_A && res == IPV4_A) {
 			debug(PARSEROUTE, 5, "line %lu gw %s \n", line, s);
 			gw = s;
-		} else if  (ip_ver == IPV6_A && res == IPV6_A)  {
+		} else if (ip_ver == IPV6_A && res == IPV6_A) {
 			debug(PARSEROUTE, 5, "line %lu gw6 %s \n", line, s);
 			gw = s;
-		} else if  (ip_ver == IPV6_A && res  > 1000)  { /** for IPv6, there can be no NH or in case of MPBGP a NH in global table **/
+		} else if (ip_ver == IPV6_A && res  > 1000) { /** for IPv6, there can be no NH or in case of MPBGP a NH in global table **/
                         debug(PARSEROUTE, 5, "line %lu gw6 %s \n", line, s);
                         dev = s;
 			gw = "";
@@ -533,14 +534,15 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 static int cisco_fw_prefix_handle(char *s, void *data, struct csv_state *state) {
         struct  subnet_file *sf = data;
         int res;
-        struct subnet subnet;
+        struct ip_addr addr;
 
-	res = get_single_ip(s, &subnet);
+	res = get_single_ip(s, &addr);
 	if ( res == BAD_IP) {
 		debug(PARSEROUTE, 2, "line %lu bad IP %s \n", state->line, s);
 		return CSV_INVALID_FIELD_BREAK;
 	}
-	memcpy(&sf->routes[sf->nr], &subnet, sizeof(subnet));
+	copy_ipaddr(&sf->routes[sf->nr].subnet.ip_addr, &addr);
+	//memcpy(&sf->routes[sf->nr], &subnet, sizeof(subnet));
 	return CSV_VALID_FIELD;
 }
 
@@ -574,15 +576,15 @@ static int cisco_fw_dev_handle(char *s, void *data, struct csv_state *state) {
 
 static int cisco_fw_gw_handle(char *s, void *data, struct csv_state *state) {
         struct  subnet_file *sf = data;
-	struct subnet subnet;
+	struct ip_addr addr;
 	int res;
 
-	res = get_single_ip(s, &subnet);
+	res = get_single_ip(s, &addr);
         if (res == BAD_IP) {
                 debug(PARSEROUTE, 2, "line %lu bad GW %s \n", state->line, s);
                 return CSV_INVALID_FIELD_BREAK;
         }
-	copy_ipaddr(&sf->routes[sf->nr].gw, &subnet.ip_addr);
+	copy_ipaddr(&sf->routes[sf->nr].gw, &addr);
 	return CSV_VALID_FIELD;
 }
 
@@ -618,6 +620,7 @@ int cisco_route_conf_to_csv(char *name, FILE *f, FILE *output) {
 	int ip_ver = -1;
 	char ip1[51];
 	int num_mask;
+	struct ip_addr addr;
 	COMMON_PARSER_HEADER
 
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
@@ -682,7 +685,7 @@ int cisco_route_conf_to_csv(char *name, FILE *f, FILE *output) {
 			dev =  s;
 			MOVE_TO_NEXT_TOKEN(NULL);
 		}
-		res = get_single_ip(s, &subnet);
+		res = get_single_ip(s, &addr);
 		if (res == BAD_IP) {
 			debug(PARSEROUTE, 2, "line %lu bad GW %s \n", line, s);
 			continue;

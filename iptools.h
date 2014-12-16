@@ -94,7 +94,7 @@ int ipv6expand(const char *input, char *out);
 
 /* fill struct subnet from a string */
 int get_subnet_or_ip(const char *s, struct subnet *subnet);
-int get_single_ip(const char *s, struct subnet *subnet);
+int get_single_ip(const char *s, struct ip_addr *addr);
 u32 string2mask(const char *s) ;
 
 /* try to aggregate s1 & s2, putting the result 'in aggregated_subnet' if possible
