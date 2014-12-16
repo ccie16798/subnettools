@@ -112,6 +112,7 @@ void usage() {
 	printf("Files must be in  CSV format\n");
 	printf("\n");
 	printf("\nCOMMAND := \n");
+	printf("echo FMT ARG2       : try to get subnet from ARG2 and echo it according to FMT\n");
 	printf("compare FILE1 FILE2 : compare FILE1 & FILE2, printing subnets in FILE1 INCLUDED in FILE2\n");
 	printf("missing FILE1 FILE2 : prints subnets from FILE1 that are not covered by FILE2; GW is not checked\n");
 	printf("paip PAIP FILE1     : load IPAM, and print FILE1 subnet with comment extracted from IPAM\n");
