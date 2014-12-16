@@ -20,6 +20,7 @@
 #include "subnet_tool.h"
 #include "generic_command.h"
 #include "config_file.h"
+#include "st_printf.h"
 
 const char *default_fmt = "%I;%m;%D;%G;%C";
 struct file_options fileoptions[] = {
@@ -431,10 +432,9 @@ static int run_confdesc(int arc, char **argv, void *options) {
 
 static int run_test(int arc, char **argv, void *options) {
 	struct subnet subnet;
-	char buffer[510];
+
 	get_subnet_or_ip(argv[2], &subnet);
-	st_sprintf(buffer,"%I %m %s %d\n", &subnet, &subnet, "toto", 5);
-	printf(buffer);
+	st_printf("%I %m %M %s %d %u\n", &subnet, &subnet, &subnet, "toto", 5, 40);
 	if (is_link_local(subnet.ip6))
 		printf("its a link local address\n");
 	return 0;
