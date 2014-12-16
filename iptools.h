@@ -26,23 +26,34 @@ struct ipv6_a {
 };
 
 typedef struct ipv6_a ipv6;
-struct subnet {
+
+struct ip_addr {
 	int ip_ver;
 	union {
-        	ipv4 ip;
+		ipv4 ip;
 		ipv6 ip6;
 	};
-        u32 mask;
+};
+
+struct subnet {
+	union {
+		struct {
+			int ip_ver;
+			union {
+				ipv4 ip;
+				ipv6 ip6;
+			};
+		};
+		struct ip_addr ip_addr;
+	};
+	u32 mask;
 };
 
 struct route {
 	struct subnet subnet;
 	char device[32];
-	union {
-		ipv4 gw;
-		ipv6 gw6;
-	};
-        char comment[128];
+	struct ip_addr gw;
+	char comment[128];
 };
 
 struct subnet_file {
