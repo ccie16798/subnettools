@@ -424,7 +424,7 @@ u32 string2mask(const char *string) {
 
 }
 
-static int get_single_ipv4(char *s, struct subnet *subnet) {
+static int get_single_ipv4(char *s, struct ip_addr *subnet) {
 	int i, a;
 	int count_dot = 0;
 	int truc[4];
@@ -464,11 +464,11 @@ static int get_single_ipv4(char *s, struct subnet *subnet) {
 		}
 	}
 	subnet->ip = truc[0] * 256 * 256 * 256  + truc[1] * 256 * 256 + truc[2] * 256 + truc[3];
-	subnet->mask = 32;
+	subnet->ip_ver = IPV4_A;
 	return IPV4_A;
 }
 
-static int get_single_ipv6(char *s, struct subnet *subnet) {
+static int get_single_ipv6(char *s, struct ip_addr *subnet) {
 	int i,j;
 	int do_skip = 0;
 	int out_i = 0;
@@ -476,12 +476,11 @@ static int get_single_ipv6(char *s, struct subnet *subnet) {
 	int stop = 0;
 	int count = 0, count2 = 0;
 
-	subnet->ip_ver = IPV6_A;
 	if ((s[0] == s[1]) && (s[0] == ':')) { /** loopback addr **/
 		do_skip = 1;
 		if (s[2] == '\0') { /* special :: */
 			memset(&subnet->ip6, 0, sizeof(subnet->ip6));
-			subnet->mask = 128;
+			subnet->ip_ver = IPV6_A;
 			return IPV6_A;
 		}
 		s2 = s+2;
@@ -550,7 +549,7 @@ static int get_single_ipv6(char *s, struct subnet *subnet) {
 			return BAD_IP;
 		}
 	}
-	subnet->mask = 128;
+	subnet->ip_ver = IPV6_A;
 	return IPV6_A;
 }
 
@@ -559,6 +558,7 @@ int get_single_ip(const char *string, struct subnet *subnet) {
 	int may_ipv4 = 0, may_ipv6 = 0;
 	char s3[52];
 	char *s;
+	struct ip_addr a;
 
 	strxcpy(s3, string, sizeof(s3)); /** we copy because we dont want to modify s2 */
 	s = s3;
@@ -587,12 +587,16 @@ int get_single_ip(const char *string, struct subnet *subnet) {
 		}
 	}
 	if (may_ipv4) {
-		subnet->ip_ver = IPV4_A;
-		return get_single_ipv4(s, subnet);
+		i = get_single_ipv4(s, &a);
+		subnet->mask = 32;
+		copy_ipaddr(&subnet->ip_addr, &a);
+		return i;
 	}
 	if (may_ipv6 == 1) {
-		subnet->ip_ver = IPV6_A;
-		return get_single_ipv6(s, subnet);
+		i = get_single_ipv6(s, &a);
+		copy_ipaddr(&subnet->ip_addr, &a);
+		subnet->mask = 128;
+		return i;
 	}
 
 	debug(PARSEIP, 5, "invalid IPv4 or IPv6 : %s\n", s);

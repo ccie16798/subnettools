@@ -102,6 +102,7 @@ work TODO
 - make sure everything work
 - fixing file diff (semantics is difficult, what do we want)
 - adding more converters (and fixing IPv6 converters)
+- fixing ECMP in converters (maybe)
 - enhance OUTPUT FMT (%M : ddn mask ; %L : last subnet ip)
 - implement next_subnet, previous_subnet
 - implement subnet_substract
