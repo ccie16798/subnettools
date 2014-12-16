@@ -5,7 +5,7 @@ CFLAGS= -g  -Wall
 EXEC=subnet-tools
 
 
-OBJS =  subnet_tool.o debug.o iptools.o bitmap.o routetocsv.o utils.o heap.o generic_csv.o prog-main.o generic_command.o config_file.o
+OBJS =  subnet_tool.o debug.o iptools.o bitmap.o routetocsv.o utils.o heap.o generic_csv.o prog-main.o generic_command.o config_file.o output.o
 
 %.o: %.c %.h
 	$(CC) -c -o $@ $< $(CFLAGS)
