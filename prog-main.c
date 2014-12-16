@@ -58,6 +58,7 @@ static int run_routeagg(int argc, char **argv, void *options);
 static int run_help(int argc, char **argv, void *options);
 static int run_version(int argc, char **argv, void *options);
 static int run_confdesc(int argc, char **argv, void *options);
+static int run_echo(int argc, char **argv, void *options);
 static int run_test(int argc, char **argv, void *options);
 static int run_test2(int argc, char **argv, void *options);
 
@@ -71,6 +72,7 @@ static int option_addr_compress(int argc, char **argv, void *options);
 static int option_fmt(int argc, char **argv, void *options);
 
 struct st_command commands[] = {
+	{ "echo",	&run_echo,	1},
 	{ "diff",	&run_diff,	2},
 	{ "compare",	&run_compare,	2},
 	{ "missing",	&run_missing,	2},
@@ -155,6 +157,21 @@ void debug_usage() {
 /*
  * COMMAND HANDLERS
  */
+static int run_echo(int arc, char **argv, void *options) {
+	int res;
+	struct subnet subnet;
+
+	res = get_subnet_or_ip(argv[3], &subnet);
+	if (res == IPV4_A || res == IPV6_A)
+		st_printf(argv[2], &subnet, &subnet);
+	else if (res == IPV4_N || res == IPV6_N)
+		st_printf(argv[2], &subnet, &subnet, &subnet);
+	else
+		printf("Invalid IP");
+	printf("\n");
+	return 0;
+}
+
 static int run_diff(int arc, char **argv, void *options) {
 	int res;
 	struct subnet_file sf1, sf2;
@@ -429,7 +446,6 @@ static int run_confdesc(int arc, char **argv, void *options) {
 	return 0;
 }
 
-
 static int run_test(int arc, char **argv, void *options) {
 	struct subnet subnet;
 
@@ -439,7 +455,6 @@ static int run_test(int arc, char **argv, void *options) {
 		printf("its a link local address\n");
 	return 0;
 }
-
 
 static int run_test2(int arc, char **argv, void *options) {
 	int res;
