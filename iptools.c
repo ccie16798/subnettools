@@ -73,14 +73,16 @@ int is_equal_ipv6(ipv6 ip1, ipv6 ip2) {
 
 
 int is_equal_gw(struct route *r1, struct route *r2) {
-	if (r1->subnet.ip_ver != r2->subnet.ip_ver)
+	if (r1->gw.ip_ver != r2->gw.ip_ver)
 		return 0;
-	if (r1->subnet.ip_ver == IPV4_A && r1->gw == r2->gw)
+	if (r1->gw.ip_ver == 0) /* unset GW*/
 		return 1;
-	else if (r1->subnet.ip_ver == IPV6_A) {
-		if (!is_equal_ipv6(r1->gw6, r2->gw6))
+	if (r1->gw.ip_ver == IPV4_A && r1->gw.ip == r2->gw.ip)
+		return 1;
+	else if (r1->gw.ip_ver == IPV6_A) {
+		if (!is_equal_ipv6(r1->gw.ip6, r2->gw.ip6))
 			return 0;
-		if (!is_link_local(r1->gw6))
+		if (!is_link_local(r1->gw.ip6))
 			return 1;
 		/* if link local adress, we must check if the device is the same */
 		return !strcmp(r1->device, r2->device);
@@ -772,6 +774,7 @@ static int aggregate_subnet_ipv6(const struct subnet *s1, const struct subnet *s
 	debug(AGGREGATE, 5, "can aggregate %s/%u and %s/%u into : %s/%u\n", buffer1, s1->mask, buffer2, s2->mask, buffer3, s3->mask);
 	return 1;
 }
+
 int aggregate_subnet(const struct subnet *s1, const struct subnet *s2, struct subnet *s3) {
 	if (s1->ip_ver != s2->ip_ver)
 		return -4;

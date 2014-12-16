@@ -175,16 +175,16 @@ static int cisco_nexus_gw_handle(char *s, void *data, struct csv_state *state)  
 	res = get_single_ip(s, &subnet);
 	if (state->state[1] == IPV4_A && res == IPV4_A) {
 		debug(PARSEROUTE, 5, "line %lu gw %s \n", state->line, s);
-		memcpy(&sf->routes[sf->nr].gw6,  &subnet.ip6, sizeof(subnet.ip6));
+		memcpy(&sf->routes[sf->nr].gw,  &subnet.ip_addr, sizeof(struct ip_addr));
 		return CSV_VALID_FIELD;
 	} else if  (state->state[1] == IPV6_A && res == IPV6_A)  {
 		debug(PARSEROUTE, 5, "line %lu gw6 %s \n", state->line, s);
-		memcpy(&sf->routes[sf->nr].gw6,  &subnet.ip6, sizeof(subnet.ip6));
+		memcpy(&sf->routes[sf->nr].gw,  &subnet.ip_addr, sizeof(struct ip_addr));
 		return CSV_VALID_FIELD;
 	}  else if  (state->state[1] == IPV6_A && res  > 1000)  { /** for IPv6, there can be no NH or in case of MPBGP a NH in global table CHECK ME NEXUS**/
                         debug(PARSEROUTE, 5, "line %lu gw6 %s \n", state->line, s);
                         strxcpy(sf->routes[sf->nr].device, s, sizeof(sf->routes[sf->nr].device));
-                        memset(&sf->routes[sf->nr].gw6, 0, 16);
+                        memset(&sf->routes[sf->nr].gw, 0, sizeof(struct ip_addr));
 			state->state[0] = 0;
 			return CSV_VALID_FIELD_BREAK;
 	} else {
@@ -311,7 +311,7 @@ static int ipso_gw_handle(char *s, void *data, struct csv_state *state) {
                 debug(PARSEROUTE, 2, "line %lu bad GW %s \n", state->line, s);
                 return CSV_INVALID_FIELD_BREAK;
         }
-        memcpy(&sf->routes[sf->nr].gw6, &subnet.ip6, sizeof(subnet.ip6));
+        memcpy(&sf->routes[sf->nr].gw, &subnet.ip_addr, sizeof(struct ip_addr));
         return CSV_VALID_FIELD;
 }
 static int ipso_device_handle(char *s, void *data, struct csv_state *state) {
@@ -487,7 +487,7 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 			s = strtok(NULL, "\n, ");
 			token++;
 		}
-		if (found_gw==0 ) {
+		if (found_gw == 0) {
 			debug(PARSEROUTE, 2, "line %lu no gw found for route\n", line);
 			continue;
 		}
@@ -582,7 +582,7 @@ static int cisco_fw_gw_handle(char *s, void *data, struct csv_state *state) {
                 debug(PARSEROUTE, 2, "line %lu bad GW %s \n", state->line, s);
                 return CSV_INVALID_FIELD_BREAK;
         }
-	memcpy(&sf->routes[sf->nr].gw6, &subnet.ip6, sizeof(subnet.ip6));
+	memcpy(&sf->routes[sf->nr].gw, &subnet.ip_addr, sizeof(struct ip_addr));
 	return CSV_VALID_FIELD;
 }
 

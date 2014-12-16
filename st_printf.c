@@ -25,7 +25,7 @@ void fprint_route(const struct route *r, FILE *output, int compress_level) {
 	struct subnet s;
 
 	subnet2str(&r->subnet, buffer, compress_level);
-	memcpy(&s.ip6, &r->gw, 16);
+	memcpy(&s.ip_addr, &r->gw, sizeof(struct ip_addr));
 	s.ip_ver = r->subnet.ip_ver;
 	subnet2str(&s, buffer2, 2);
 	fprintf(output, "%s;%d;%s;%s;%s\n", buffer, r->subnet.mask, r->device, buffer2, r->comment);
@@ -133,7 +133,7 @@ void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 						i++;
 					} else
 						compression_level = 2;
-					memcpy(&sub.ip6, &r->gw6, sizeof(ipv6));
+					memcpy(&sub.ip_addr, &r->gw, sizeof(struct ip_addr));
 					sub.ip_ver = r->subnet.ip_ver;
 					subnet2str(&sub, buffer, compression_level);
 					a += sprintf(outbuf + j, BUFFER_FMT, buffer);

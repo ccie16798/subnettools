@@ -75,9 +75,9 @@ static int netcsv_GW_handle(char *s, void *data, struct csv_state *state) {
 			debug(LOAD_CSV, 1, "line %lu STRING comment '%s'  too long, truncating to '%s'\n", state->line, s, sf->routes[sf->nr].comment);
 	} else {
 		if (res == sf->routes[sf->nr].subnet.ip_ver ) {/* does the gw have same IPversion*/
-			memcpy(&sf->routes[sf->nr].gw6, &subnet.ip6, sizeof(ipv6));
+			memcpy(&sf->routes[sf->nr].gw, &subnet.ip_addr, sizeof(struct ip_addr));
 		} else {
-			memset(&sf->routes[sf->nr].gw6, 0, sizeof(ipv6));
+			memset(&sf->routes[sf->nr].gw, 0, sizeof(struct ip_addr));
 			debug(LOAD_CSV, 3, "invalid GW %s line %lu\n", s, state->line);
 		}
 	}
@@ -121,6 +121,7 @@ static int netcsv_endofline_callback(struct csv_state *state, void *data) {
 		}
 		sf->routes = new_r;
 	}
+	memset(&sf->routes[sf->nr], 0, sizeof(struct route));
 	return CSV_CONTINUE;
 }
 
@@ -777,9 +778,9 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 			i, buffer2, sf->routes[i].subnet.mask);
 		memcpy(&new_r[j].subnet, &s, sizeof(struct subnet));
 		if (mode == 1)
-			memcpy(&new_r[j].gw6, &sf->routes[i].gw6, sizeof(ipv6)); /* copy the gateway */
+			memcpy(&new_r[j].gw, &sf->routes[i].gw, sizeof(struct ip_addr)); /* copy the gateway */
 		else
-			memset(&new_r[j].gw6, 0, sizeof(ipv6)); /* the aggregate route has null gateway */
+			memset(&new_r[j].gw, 0, sizeof(struct ip_addr)); /* the aggregate route has null gateway */
 		strcpy(new_r[j].comment, "AGGREGATE");
 		/* rewinding and aggregating backwards as much as we can; the aggregate we just created may aggregate with j - 1 */
 		while (j > 0) {
@@ -794,9 +795,9 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 				j--;
 				memcpy(&new_r[j].subnet, &s, sizeof(struct subnet));
 				if (mode == 1)
-					memcpy(&new_r[j].gw6, &sf->routes[i].gw6, sizeof(ipv6)); /* copy the gateway */
+					memcpy(&new_r[j].gw, &sf->routes[i].gw, sizeof(struct ip_addr)); /* copy the gateway */
 				else
-					memset(&new_r[j].gw6, 0, sizeof(ipv6)); /* the aggregate route has null gateway */
+					memset(&new_r[j].gw, 0, sizeof(struct ip_addr)); /* the aggregate route has null gateway */
 				strcpy(new_r[j].comment, "AGGREGATE");
 			} else
 				break;
