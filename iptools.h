@@ -1,4 +1,4 @@
-#ifndef IPTOOLs_H
+#ifndef IPTOOLS_H
 #define IPTOOLS_H
 
 #define EQUALS 1
