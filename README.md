@@ -43,16 +43,18 @@ CSV format
 
 OUTPUT FMT
 ==========
-- %I : the prefix
-- %[0-2]I : the prefix, but with 0-2 compression for IPv6
-- %G : the gateway (next-hop)
-- %[0-2]G : the gateway (next-hop) 
-- %m : the mask
-- %D : the device
-- %C : the comment
+- %I  : the prefix
+- %I0 : the prefix, but with 0 compression for IPv6
+- %G  : the gateway (next-hop)
+- %m  : the mask
+- %M  : for IPv4, the mask in Dotted Decimal Notation
+- %D  : the device
+- %C  : the comment
 
-EXAMPLE:
---------
+
+The character % may de  followed by a field width (see printf man pages)
+EXAMPLE 1 (stupid print):
+-------------------------
 [etienne@me]$ ./subnet-tools -fmt "HELLO my mask is %m my prefix is %I ma GW est %G, i say '%C'" route regtest/route_aggipv4
 
 HELLO my mask is 23 my prefix is 10.1.0.0 ma GW est 192.168.1.1, i say 'AGGREGATE'
@@ -62,6 +64,22 @@ HELLO my mask is 24 my prefix is 10.1.2.0 ma GW est 192.168.1.1, i say 'test1'
 HELLO my mask is 24 my prefix is 10.1.3.0 ma GW est 192.168.1.2, i say 'test1'
 
 HELLO my mask is 22 my prefix is 10.1.4.0 ma GW est 192.168.1.2, i say 'AGGREGATE'
+
+EXAMPLE 2 (using field width to align colons):
+----------------------------------------------
+etienne@debian:~/st$ ./subnet-tools -fmt "%-16I;%-3m;%-10D;%-32G" route regtest/route_aggipv6-2 
+2000:1::        ;32 ;eth0/1    ;fe80::254                      
+ 
+2001:db4::      ;30 ;eth0/1    ;fe80::251                      
+ 
+2001:db8::      ;32 ;eth0/2    ;fe80::251                      
+ 
+2001:db9::      ;32 ;eth0/1    ;fe80::251                       
+
+2001:dba::      ;31 ;eth0/1    ;fe80::251                  
+
+
+
 
 
 CODING
@@ -80,5 +98,6 @@ work TODO
 - make sure everything work
 - fixing file diff (semantics is difficult, what do we want)
 - adding more converters (and fixing IPv6 converters)
-
-
+- enhance OUTPUT FMT (%M : ddn mask ; %L : last subnet ip)
+- implement next_subnet, previous_subnet
+- implement subnet_substract
