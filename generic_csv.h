@@ -72,7 +72,7 @@ struct csv_file {
 
 	int (*endofline_callback)(struct csv_state *state, void *data);
 	int (*endoffile_callback)(struct csv_state *state, void *data);
-	char * (*strtok_r)(char *s, const char *delim, char **save_ptr);
+	char * (*csv_strtok_r)(char *s, const char *delim, char **save_ptr);
 };
 
 /* will only set the mandatory things (field, delim, and strtok_r function */

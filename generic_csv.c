@@ -28,7 +28,7 @@ static int read_csv_header(char *filename, char *buffer, struct csv_file *cf) {
 	debug(CSVHEADER, 4, "CSV header : '%s'\n", s);
 
 	if (cf->is_header == NULL || cf->is_header(s)) { /* check if valid header */
-		s = cf->strtok_r(s, cf->delim, &save_s);
+		s = cf->csv_strtok_r(s, cf->delim, &save_s);
 		while (s) {
 			debug(CSVHEADER, 8, "parsing token '%s' at pos %d\n", s, pos);
 			for (i = 0; ; i++) {
@@ -41,7 +41,7 @@ static int read_csv_header(char *filename, char *buffer, struct csv_file *cf) {
 				}
 			}
 			pos++;
-			s = cf->strtok_r(NULL, cf->delim, &save_s);
+			s = cf->csv_strtok_r(NULL, cf->delim, &save_s);
 		} // while s
 		debug(CSVHEADER, 3, "found %d fields\n", pos - 1);
 	} else  {
@@ -118,7 +118,7 @@ static int read_csv_body(FILE *f, char *name, struct csv_file *cf, struct csv_st
 					name, state->line, (int)sizeof(buffer), res);
 		}
 		debug(LOAD_CSV, 5, "Parsing line %lu : %s \n", state->line, s);
-		s = cf->strtok_r(s, cf->delim, &save_s);
+		s = cf->csv_strtok_r(s, cf->delim, &save_s);
 		pos  = 0;
 		state->badline = 0;
 		while (s) {
@@ -148,14 +148,14 @@ static int read_csv_body(FILE *f, char *name, struct csv_file *cf, struct csv_st
 				} else if (res == CSV_VALID_FIELD_SKIP) {
 					debug(LOAD_CSV, 5, "caller %s  told us to skip %d fields\n", csv_field->name, state->skip);
 					for (i = 0; i < state->skip && s != NULL; i++) {
-						s = cf->strtok_r(NULL, cf->delim, &save_s);
+						s = cf->csv_strtok_r(NULL, cf->delim, &save_s);
 						debug(LOAD_CSV, 6, "Skipping %s\n", s);
 					}
 					if (s == NULL)
 						break;
 				}
 			} /* if csv_field->handle != NULL */
-			s = cf->strtok_r(NULL, cf->delim, &save_s);
+			s = cf->csv_strtok_r(NULL, cf->delim, &save_s);
 		} /* while s */
 		if (pos < cf->max_mandatory_pos) {
 			state->badline++;
@@ -191,7 +191,7 @@ int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state* stat
 	char *s;
 	int res;
 
-	if (cf->strtok_r == NULL) {
+	if (cf->csv_strtok_r == NULL) {
 		fprintf(stderr, "coding error:  no strtok function provided\n");
 		return -2;
 	}
@@ -233,7 +233,7 @@ void init_csv_file(struct csv_file *cf, struct csv_field *csv_field, char *delim
 	/* mandatory fields */
 	cf->csv_field = csv_field;
 	cf->delim = delim;
-	cf->strtok_r = func;
+	cf->csv_strtok_r = func;
 	/* optional fields */
 	cf->is_header = NULL;
 	cf->validate_header = NULL;
