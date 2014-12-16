@@ -44,7 +44,6 @@ CSV format
 OUTPUT FMT
 ==========
 - %I  : the prefix
-- %I : the prefix, but with 0 compression for IPv6
 - %G  : the gateway (next-hop)
 - %m  : the mask
 - %M  : for IPv4, the mask in Dotted Decimal Notation
@@ -70,6 +69,8 @@ HELLO my mask is 22 my prefix is 10.1.4.0 ma GW est 192.168.1.2, i say 'AGGREGAT
 
 EXAMPLE 2 (using field width to align colons):
 ----------------------------------------------
+Note : GitHub pretty print will not print that correcly, use a text editor
+
 etienne@debian:~/st$ ./subnet-tools -fmt "%-16I;%-3m;%-10D;%-32G" route regtest/route_aggipv6-2 
 2000:1::        ;32 ;eth0/1    ;fe80::254                      
  
