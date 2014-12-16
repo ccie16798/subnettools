@@ -44,15 +44,18 @@ CSV format
 OUTPUT FMT
 ==========
 - %I  : the prefix
-- %I0 : the prefix, but with 0 compression for IPv6
+- %I : the prefix, but with 0 compression for IPv6
 - %G  : the gateway (next-hop)
 - %m  : the mask
 - %M  : for IPv4, the mask in Dotted Decimal Notation
 - %D  : the device
 - %C  : the comment
 
+%I and %G MAY be followed by a IPv6 compression level (0, 1, or 2)
 
-The character % may de  followed by a field width (see printf man pages)
+The character % MAY be followed by a field width (see printf man pages); this can help to align the results vertically, but please note in case width is smaller
+than ouptut string, it WILL NOT be truncated
+
 EXAMPLE 1 (stupid print):
 -------------------------
 [etienne@me]$ ./subnet-tools -fmt "HELLO my mask is %m my prefix is %I ma GW est %G, i say '%C'" route regtest/route_aggipv4
