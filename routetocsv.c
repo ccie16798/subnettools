@@ -181,7 +181,7 @@ static int cisco_nexus_gw_handle(char *s, void *data, struct csv_state *state)  
 		debug(PARSEROUTE, 5, "line %lu gw6 %s \n", state->line, s);
 		copy_ipaddr(&sf->routes[sf->nr].gw,  &subnet.ip_addr);
 		return CSV_VALID_FIELD;
-	}  else if  (state->state[1] == IPV6_A && res  > 1000)  { /** for IPv6, there can be no NH or in case of MPBGP a NH in global table CHECK ME NEXUS**/
+	} else if (state->state[1] == IPV6_A && res > 1000)  { /** for IPv6, there can be no NH or in case of MPBGP a NH in global table CHECK ME NEXUS**/
                         debug(PARSEROUTE, 5, "line %lu gw6 %s \n", state->line, s);
                         strxcpy(sf->routes[sf->nr].device, s, sizeof(sf->routes[sf->nr].device));
                         memset(&sf->routes[sf->nr].gw, 0, sizeof(struct ip_addr));
@@ -446,13 +446,13 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 			debug(PARSEROUTE, 5, "line %lu found IP %s without mask\n", line, s);
 			s = strtok(NULL, "\n, ");
 			debug(PARSEROUTE, 9, "line %lu parsing token %d : %s \n", line, token++, s);
-		} else if ( res == IPV4_N) {
+		} else if (res == IPV4_N) {
 			subnet2str(&subnet, ip2, 2);
 			num_mask = subnet.mask;
 			debug(PARSEROUTE, 5, "line %lu found IP/mask %s\n", line, s);
 			s = strtok(NULL, "\n, ");
 			debug(PARSEROUTE, 9, "line %lu parsing token %d : %s \n", line, token++, s);
-		} else if ( res == IPV6_N) {
+		} else if (res == IPV6_N) {
 			subnet2str(&subnet, ip2, 2);
 			num_mask = subnet.mask;
 			debug(PARSEROUTE, 5, "line %lu found IPv6/mask %s\n", line, s);
@@ -466,7 +466,7 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 			}
 			s = strtok(s, "\n, ");
 			debug(PARSEROUTE, 9, "line %lu parsing token %d : %s \n", line, token++, s);
-		} else if ( res == IPV6_A) {
+		} else if (res == IPV6_A) {
 			debug(PARSEROUTE, 5, "line %lu found IPv6 %s without a mask, BUG\n", line, s);
 			continue;
 		}
@@ -478,7 +478,7 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 		}
 
 		while (s) { /** the gateway is after the 'via' keyword */
-			if (s==NULL)
+			if (s == NULL)
 				break;
 			if (!strcasecmp(s, "via")) {
 				found_gw = 1;
@@ -659,8 +659,8 @@ int cisco_route_conf_to_csv(char *name, FILE *f, FILE *output) {
 			MOVE_TO_NEXT_TOKEN(NULL);
 			MOVE_TO_NEXT_TOKEN(NULL);
 		}
-		res = get_single_ip(s, &subnet);
-		if ( res == IPV4_A && ip_ver == IPV4_A ) {
+		res = get_subnet_or_ip(s, &subnet);
+		if (res == IPV4_A && ip_ver == IPV4_A) {
 			strcpy(ip1, s);
 		} else if (res == IPV6_N && ip_ver == IPV6_A) {
 			subnet2str(&subnet, ip1, 2);
@@ -669,7 +669,7 @@ int cisco_route_conf_to_csv(char *name, FILE *f, FILE *output) {
 			debug(PARSEROUTE, 2, "line %lu bad IP %s \n", line, s);
 			continue;
 		}
-		if (ip_ver == IPV4_A ) { /* ipv6 got a mask in previous token */
+		if (ip_ver == IPV4_A) { /* ipv6 got a mask in previous token */
 			MOVE_TO_NEXT_TOKEN(NULL);
 			num_mask = string2mask(s);
 			if ( res == BAD_MASK) {
@@ -683,7 +683,7 @@ int cisco_route_conf_to_csv(char *name, FILE *f, FILE *output) {
 			MOVE_TO_NEXT_TOKEN(NULL);
 		}
 		res = get_single_ip(s, &subnet);
-		if ( res == BAD_IP) {
+		if (res == BAD_IP) {
 			debug(PARSEROUTE, 2, "line %lu bad GW %s \n", line, s);
 			continue;
 		}
