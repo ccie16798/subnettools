@@ -23,16 +23,6 @@ static inline int is_valid_ip_char(char c) {
 }
 
 
-
-void fprint_subnet_file_fmt(const struct subnet_file *sf, FILE *output, const char *fmt) {
-	unsigned long i;
-
-	for (i = 0; i < sf->nr; i++)
-		fprint_route_fmt(&sf->routes[i], output, fmt);
-}
-void print_subnet_file(const struct subnet_file *sf, int compress_level) {
-	fprint_subnet_file(sf, stdout, compress_level);
-}
 #define SIZE_T_MAX ((size_t)0 - 1)
 int alloc_subnet_file(struct subnet_file *sf, unsigned long n) {
 	if (n > SIZE_T_MAX / sizeof(struct route)) { /* being paranoid */
@@ -667,8 +657,7 @@ int get_subnet_or_ip(const char *string, struct subnet *subnet) {
 	return BAD_IP;
 }
 
-
-int subnet_is_superior(struct subnet *s1, struct subnet *s2) {
+int subnet_is_superior(const struct subnet *s1, const struct subnet *s2) {
 	char buffer1[51], buffer2[51];
 	int i, res;
 
@@ -793,4 +782,3 @@ int aggregate_subnet(const struct subnet *s1, const struct subnet *s2, struct su
 		return aggregate_subnet_ipv6(s1, s2, s3);
 	return -3;
 }
-

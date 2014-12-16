@@ -179,3 +179,13 @@ void fprint_subnet_file(const struct subnet_file *sf, FILE *output, int compress
 	for (i = 0; i < sf->nr; i++)
 		fprint_route(&sf->routes[i], output, compress_level);
 }
+void fprint_subnet_file_fmt(const struct subnet_file *sf, FILE *output, const char *fmt) {
+	unsigned long i;
+
+	for (i = 0; i < sf->nr; i++)
+		fprint_route_fmt(&sf->routes[i], output, fmt);
+}
+
+void print_subnet_file(const struct subnet_file *sf, int compress_level) {
+	fprint_subnet_file(sf, stdout, compress_level);
+}

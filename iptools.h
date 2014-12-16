@@ -75,7 +75,7 @@ int subnet_compare(const struct subnet *sub1, const struct subnet *sub2);
 int subnet_compare_ipv4(ipv4 ip1, u32 mask1, ipv4 ip2, u32 mask2);
 int subnet_compare_ipv6(ipv6 ip1, u32 mask1, ipv6 ip2, u32 mask2);
 
-int subnet_is_superior(struct subnet *s1, struct subnet *s2);
+int subnet_is_superior(const struct subnet *s1, const struct subnet *s2);
 
 /* for the following functions, output buffer MUST be allocated by caller and large enough */
 int subnet2str(const struct subnet *s, char *out_buffer, int comp_level);
