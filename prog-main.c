@@ -87,7 +87,7 @@ struct st_command commands[] = {
 	{ "help",	&run_help,	0},
 	{ "version",	&run_version,	0},
 	{ "confdesc",	&run_confdesc,	0},
-	{ "test",	&run_test,	1},
+	{ "test1",	&run_test,	1},
 	{ "test2",	&run_test2,	2},
 	{NULL, 		NULL,		0}
 };
@@ -431,10 +431,10 @@ static int run_confdesc(int arc, char **argv, void *options) {
 
 static int run_test(int arc, char **argv, void *options) {
 	struct subnet subnet;
-	char buffer[51];
-	get_single_ip(argv[2], &subnet) ;
-	subnet2str(&subnet, buffer, 2);
-	printf("%s \n", buffer);
+	char buffer[510];
+	get_subnet_or_ip(argv[2], &subnet);
+	st_sprintf(buffer,"%I %m %s %d\n", &subnet, &subnet, "toto", 5);
+	printf(buffer);
 	if (is_link_local(subnet.ip6))
 		printf("its a link local address\n");
 	return 0;
