@@ -44,9 +44,11 @@ CSV format
 OUTPUT FMT
 ==========
 - %I  : the prefix
+- %N  : the network address of the prefix
+- %B  : the 'broadcast' address of the prefix (last subnet IP, since IPv6 has no broadcast)
 - %G  : the gateway (next-hop)
 - %m  : the mask
-- %M  : for IPv4, the mask in Dotted Decimal Notation
+- %M  : for IPv4, the mask in Dotted Decimal Notation; for IPv6 I DO REFUSE and print prefix length
 - %D  : the device
 - %C  : the comment
 
@@ -82,8 +84,18 @@ etienne@debian:~/st$ ./subnet-tools -fmt "%-16I;%-3m;%-10D;%-32G" route regtest/
 
 2001:dba::      ;31 ;eth0/1    ;fe80::251                  
 
+EXAMPLE3 (converting subnets to address  ranges)
+------------------------------------------------
+[etienne@ARODEF subnet_tools]$ ./subnet-tools -fmt "%13I/%2m [%N-%B]" sort regtest/aggipv4 
+      1.1.1.0/23 [1.1.0.0-1.1.1.255]
 
+     10.0.0.0/24 [10.0.0.0-10.0.0.255]
 
+     10.0.1.0/24 [10.0.1.0-10.0.1.255]
+
+     10.0.2.0/23 [10.0.2.0-10.0.3.255]
+
+     10.0.4.0/22 [10.0.4.0-10.0.7.255]
 
 
 CODING
