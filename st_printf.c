@@ -40,11 +40,12 @@ void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 	struct subnet sub;
 	char BUFFER_FMT[32];
 	int field_width;
-/* %I for IP */
-/* %m for mask */
-/* %D for device */
-/* %g for gateway */
-/* %C for comment */
+	struct subnet v_sub;
+	/* %I for IP */
+	/* %m for mask */
+	/* %D for device */
+	/* %g for gateway */
+	/* %C for comment */
 	i = 0;
 	j = 0; /* index in outbuf */
 	while (1) {
@@ -118,13 +119,20 @@ void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 				case 'C':
 					a += sprintf(outbuf + j, BUFFER_FMT, r->comment);
 					break;
-				case 'I':
+				case 'I': /* IP address */
+				case 'B': /* last IP Address of the subnet */
+				case 'N': /* network adress of the subnet */
 					if (fmt[i2 + 1] == '0' || fmt[i2 + 1] == '1' || fmt[i2 + 1] == '2') {
 						compression_level = fmt[i2 + 1] - '0';
 						i++;
 					} else
 						compression_level = 2;
-					subnet2str(&r->subnet, buffer, compression_level);
+					memcpy(&v_sub, &r->subnet, sizeof(struct subnet));
+					if (fmt[i2] == 'B')
+						last_ip(&v_sub);
+					else if (fmt[i2] == 'N')
+						first_ip(&v_sub);
+					subnet2str(&v_sub, buffer, compression_level);
 					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
 					break;
 				case 'G':
@@ -311,8 +319,8 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap)  {
 					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
 					break;
 				case 'I': /* IP address */
-				case 'N': /* Network IP address */
-				case 'B': /* Broadcast IP address */
+				case 'B': /* last IP Address of the subnet */
+				case 'N': /* network adress of the subnet */
 					v_sub = va_arg(ap, struct subnet *);
 					if (fmt[i2 + 1] == '0' || fmt[i2 + 1] == '1' || fmt[i2 + 1] == '2') {
 						compression_level = fmt[i2 + 1] - '0';
