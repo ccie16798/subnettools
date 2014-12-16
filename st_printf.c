@@ -190,13 +190,15 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap)  {
 	int field_width;
 	/* variables from va_list */ 
 	struct  subnet *v_sub;
+	struct  ip_addr *v_addr;
 	char *v_s;
 	int v_int;
 	unsigned v_unsigned;
 	long v_long;
 	unsigned long v_ulong;
-	/* %I for IP */
-	/* %m for mask */
+	/* %a for ip_addr */
+	/* %I for subnet_IP */
+	/* %m for subnet_mask */
 	i = 0;
 	j = 0; /* index in outbuf */
 	while (1) {
@@ -292,6 +294,20 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap)  {
 						v_long = va_arg(ap, long);
 						sprintf(buffer, "%ld", v_long);
 					}
+					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
+					break;
+				case 'a':
+					v_addr = va_arg(ap, struct ip_addr *);
+					if (fmt[i2 + 1] == '0' || fmt[i2 + 1] == '1' || fmt[i2 + 1] == '2') {
+						compression_level = fmt[i2 + 1] - '0';
+						i++;
+					} else
+						compression_level = 2;
+					/* safegard a little */
+					if (v_sub->ip_ver == IPV4_A || v_sub->ip_ver == IPV6_A)
+						addr2str(v_addr, buffer, compression_level);
+					else
+						strcpy(buffer,"<Invalid IP>");
 					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
 					break;
 				case 'I': /* IP address */
