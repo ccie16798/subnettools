@@ -36,11 +36,13 @@ void fprint_route(const struct route *r, FILE *output, int compress_level) {
 }
 
 void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
-	int i, j, a;
+	int i, j, a ,i2, compression_level;
 	char c;
 	char outbuf[512 + 140];
-	char buffer[128];
+	char buffer[128], temp[32];
 	struct subnet sub;
+	char BUFFER_FMT[32];
+	int field_width;
 /* %I or %1I or %0I for IP */
 /* %m for mask */
 /* %D for device */
@@ -50,64 +52,101 @@ void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 	j = 0; /* index int outbuf */
 	while (1) {
 		c = fmt[i];
+		debug(FMT, 5, "Still to parse : '%s'\n", fmt + i);
 		if ( j > sizeof(outbuf) - 140) { /* 128 is the max size (comment) */
 			debug(FMT, 1, "output buffer maybe too small, aborting\n");
 			break;
-
 		}
 		if (c == '\0')
 			break;
 		if (c == '%') {
-			switch (fmt[i + 1]) {
+			i2 = i + 1;
+			a = 0;
+			/* try to get a field width (if any) */
+			if (fmt[i2] == '\0') {
+				debug(FMT, 2, "End of String after a %c\n", '%');
+				outbuf[j++] = '%';
+				break;
+			} else if (fmt[i2] == '-') {
+				temp[0] = '-';
+				i2++;
+			}
+			/* 
+			 * try to get an int into temp[]
+			 * temp should hold the size of the ouput buf
+			 */
+			while (isdigit(fmt[i2])) {
+				temp[i2 - i - 1] = fmt[i2];
+				i2++;
+			}
+			temp[i2 - i - 1] = '\0';
+			debug(FMT, 9, "Field width String  is '%s'\n", temp);
+			if (temp[0] == '-' && temp[1] == '\0') {
+				debug(FMT, 2, "Invalid field width '-'");
+				field_width = 0;		
+
+			} else if (temp[0] == '\0') {
+				field_width = 0;
+			} else {
+				field_width = atoi(temp);
+			}
+			debug(FMT, 9, "Field width Int is '%d'\n", field_width);
+			i += strlen(temp);
+			/* preparing FMT */
+			if (field_width)
+				sprintf(BUFFER_FMT, "%%%ds", field_width);
+			else
+				sprintf(BUFFER_FMT, "%%s");
+			switch (fmt[i2]) {
 				case '\0':
 					outbuf[j] = '%';
 					debug(FMT, 2, "End of String after a %c\n", '%');
-					a = 1;
+					a += 1;
 					i--;
 					break;
 				case 'M':
+					if (r->subnet.ip_ver == IPV4_A)
+						mask2ddn(r->subnet.mask, buffer);
+					else
+						sprintf(buffer, "%d", r->subnet.mask);
+					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
+					break;
 				case 'm':
-					a = sprintf(outbuf + j, "%d", r->subnet.mask);
+					sprintf(buffer, "%d", r->subnet.mask);
+					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
 					break;
 				case 'D': 
-					a = sprintf(outbuf + j, "%s", r->device);
+					a += sprintf(outbuf + j, BUFFER_FMT, r->device);
 					break;
 				case 'C': 
-					a = sprintf(outbuf + j, "%s", r->comment);
+					a += sprintf(outbuf + j, BUFFER_FMT, r->comment);
 					break;
 				case 'I':
-					subnet2str(&r->subnet, buffer, 2);
-					a = sprintf(outbuf + j, "%s", buffer);
+					if (fmt[i2 + 1] == '0' || fmt[i2 + 1] == '1' || fmt[i2 + 1] == '2') {
+						compression_level = fmt[i2 + 1] - '0';
+						i++;
+					} else
+						 compression_level = 2;
+					subnet2str(&r->subnet, buffer, compression_level);
+					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
 					break;
 				case 'G':
+					if (fmt[i2 + 1] == '0' || fmt[i2 + 1] == '1' || fmt[i2 + 1] == '2') {
+						compression_level = fmt[i2 + 1] - '0';
+						i++;
+					} else
+						 compression_level = 2;
 					memcpy(&sub.ip6, &r->gw6, sizeof(ipv6));
 					sub.ip_ver = r->subnet.ip_ver;
-					subnet2str(&sub, buffer, 2);
-					a = sprintf(outbuf + j, "%s", buffer);
-					break;
-				case '0':
-				case '1':
-				case '2':
-					if (fmt[i + 2] == '\0') {
-						fprintf(stderr, "INVALID fmt no 'I' after %c[0-2]\n", '%');
-						exit(1);
-					}
-					if (fmt[i + 2] == 'I')
-						memcpy(&sub, &r->subnet, sizeof(struct subnet));
-					else if (fmt[i + 2] == 'G') {
-						memcpy(&sub.ip6, &r->gw6, sizeof(ipv6));
-						sub.ip_ver = r->subnet.ip_ver;
-					}
-					subnet2str(&sub, buffer, fmt[i + 1] - '0');
-					a = sprintf(outbuf + j, "%s", buffer);
-					i++;
+					subnet2str(&sub, buffer, compression_level);
+					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
 					break;
 				default:
-					debug(FMT, 2, "%c is not a valid char after a %c\n", fmt[i + 1], '%');
+					debug(FMT, 2, "%c is not a valid char after a %c\n", fmt[i2], '%');
 					outbuf[j] = '%';
-					outbuf[j + 1] = fmt[i + 1];
+					outbuf[j + 1] = fmt[i2];
 					a = 2;
-			} //switc
+			} //switch
 			j += a;
 			i += 2;
 		} else if (c == '\\') {
@@ -123,6 +162,9 @@ void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 				break;
 			case 't':
 				outbuf[j++] = '\t';
+				break;
+			case ' ':
+				outbuf[j++] = ' ';
 				break;
 			default:
 				debug(FMT, 2, "%c is not a valid char after a %c\n", fmt[i + 1], '\\');
