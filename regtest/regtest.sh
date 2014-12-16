@@ -15,22 +15,23 @@ reg_test() {
 	else
 		conf_name=st.conf
 	fi
-	output_file=`echo $@| sed s/\ /_/g`
-	ref_file=`echo $@| sed s/\ /_/g`
+	output_file=`echo $@| sed s/\ /_/g | tr / -`
 	echo -n "reg test [$@] : "
-	if [ ! -f ref/$ref_file ]; then
+	if [ ! -f ref/$output_file ]; then
 		echo "No ref file found for this test, creating it '$ref_file'"
-		$PROG -c $conf_name $1 $2 $3  > ref/$ref_file	
+		$PROG -c $conf_name $1 $2 $3  > ref/$output_file	
 		return
 	fi
 	$PROG -c $conf_name $1 $2 $3  > res/$output_file
-	diff res/$output_file ref/$ref_file > /dev/null
+	diff res/$output_file ref/$output_file > /dev/null
 	if [ $? -eq 0 ]; then
 		echo -e "\033[32mOK\033[0m"
 	else
 		echo -e "\033[31mKO\033[0m"
 	fi
 }
+
+
 # a CSV with strange fields names :)
 reg_test -c st-bizarr.conf sort bizar.csv 
 # a CSV with strange fields names, output more strange 
