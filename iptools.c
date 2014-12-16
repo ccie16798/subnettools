@@ -255,6 +255,15 @@ int subnet2str(const struct subnet *s, char *out_buffer, int comp_level) {
 	return -1;
 }
 
+/* outbuffer must be large enough **/
+int addr2str(const struct ip_addr *a, char *out_buffer, int comp_level) {
+	if (a->ip_ver == IPV4_A || a->ip_ver == IPV4_N)
+		return addrv42str(a->ip, out_buffer);
+	if (a->ip_ver == IPV6_A || a->ip_ver == IPV6_N)
+		return addrv62str(a->ip6, out_buffer, comp_level);
+	out_buffer[0] = '\0';
+	return -1;
+}
 /* IPv4 only, mask to Dot Decimal Notation */
 int mask2ddn(u32 mask, char *out) {
 	int i;
