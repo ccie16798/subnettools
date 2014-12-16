@@ -311,15 +311,21 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap)  {
 					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
 					break;
 				case 'I': /* IP address */
+				case 'N': /* Network IP address */
+				case 'B': /* Broadcast IP address */
 					v_sub = va_arg(ap, struct subnet *);
 					if (fmt[i2 + 1] == '0' || fmt[i2 + 1] == '1' || fmt[i2 + 1] == '2') {
 						compression_level = fmt[i2 + 1] - '0';
 						i++;
 					} else
 						compression_level = 2;
-					if (v_sub && (v_sub->ip_ver == IPV4_A || v_sub->ip_ver == IPV6_A))
+					if (v_sub && (v_sub->ip_ver == IPV4_A || v_sub->ip_ver == IPV6_A)) {
+						if (fmt[i2] == 'B')
+							last_ip(v_sub);
+						else if (fmt[i2] == 'N')
+							first_ip(v_sub);
 						subnet2str(v_sub, buffer, compression_level);
-					else
+					} else
 						strcpy(buffer,"<Invalid IP>");
 					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
 					break;
