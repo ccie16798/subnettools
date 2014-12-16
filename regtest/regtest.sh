@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 
 PROG=../subnet-tools
