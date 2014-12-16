@@ -43,7 +43,7 @@ void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 	struct subnet sub;
 	char BUFFER_FMT[32];
 	int field_width;
-/* %I or %1I or %0I for IP */
+/* %I for IP */
 /* %m for mask */
 /* %D for device */
 /* %g for gateway */
@@ -71,7 +71,7 @@ void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 				temp[0] = '-';
 				i2++;
 			}
-			/* 
+			/*
 			 * try to get an int into temp[]
 			 * temp should hold the size of the ouput buf
 			 */
@@ -83,7 +83,7 @@ void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 			debug(FMT, 9, "Field width String  is '%s'\n", temp);
 			if (temp[0] == '-' && temp[1] == '\0') {
 				debug(FMT, 2, "Invalid field width '-'");
-				field_width = 0;		
+				field_width = 0;
 
 			} else if (temp[0] == '\0') {
 				field_width = 0;
@@ -115,10 +115,10 @@ void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 					sprintf(buffer, "%d", r->subnet.mask);
 					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
 					break;
-				case 'D': 
+				case 'D':
 					a += sprintf(outbuf + j, BUFFER_FMT, r->device);
 					break;
-				case 'C': 
+				case 'C':
 					a += sprintf(outbuf + j, BUFFER_FMT, r->comment);
 					break;
 				case 'I':
@@ -262,7 +262,7 @@ int is_equal_gw(struct route *r1, struct route *r2) {
 }
 
 int is_link_local(ipv6 a) {
-	unsigned short x = a.n16[0];  
+	unsigned short x = a.n16[0];
 /* link_local address is FE80::/10 */
 	return (x >> 6 == 0xFE80 >> 6);
 }
@@ -846,7 +846,7 @@ int subnet_is_superior(struct subnet *s1, struct subnet *s2) {
 		if (s1->ip == s2->ip) {
 			if (s1->mask < s2->mask)
 				res = 1;
-			else 
+			else
  				res = 0;
 		} else if  (s1->ip < s2->ip)
 			res =  1;
@@ -860,7 +860,7 @@ int subnet_is_superior(struct subnet *s1, struct subnet *s2) {
 		if (is_equal_ipv6(s1->ip6, s2->ip6)) {
 			if (s1->mask < s2->mask)
 				res = 1;
-			else 
+			else
 				res = 0;
 		} else {
 			for (i = 0; i < 4; i++) {

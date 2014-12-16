@@ -1,5 +1,5 @@
 /*
- * subnet tools MAIN 
+ * subnet tools MAIN
  *
  * Copyright (C) 2014 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *

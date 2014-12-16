@@ -688,7 +688,7 @@ int route_file_simplify(struct subnet_file *sf,  int mode) {
                         break;
 		a = i - 1;
 		skip = 0;
-		while (1) { 
+		while (1) {
 			res = subnet_compare(&r->subnet, &new_r[a].subnet);
 			if (res == INCLUDED || res == EQUALS ) {
 					subnet2str(&r->subnet, buffer1, 2);
@@ -700,7 +700,7 @@ int route_file_simplify(struct subnet_file *sf,  int mode) {
 						debug(ADDRCOMP, 3, "%s/%d is included in %s/%d, discarding it\n", buffer1, r->subnet.mask, buffer2, new_r[a].subnet.mask);
 						skip = 1;
 					} else {
-						debug(ADDRCOMP, 3, "%s/%d is included in %s/%d but GW is different, keeping it\n", buffer1, r->subnet.mask, buffer2, new_r[a].subnet.mask);	
+						debug(ADDRCOMP, 3, "%s/%d is included in %s/%d but GW is different, keeping it\n", buffer1, r->subnet.mask, buffer2, new_r[a].subnet.mask);
 					}
 					break;
 			}
