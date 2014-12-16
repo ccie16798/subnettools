@@ -1,7 +1,8 @@
 CC=gcc
 # Hey!, I am comment number 2. I want to say that CFLAGS will be the
 # options I'll pass to the compiler.
-CFLAGS= -g  -Wall
+CFLAGS= -Wall -g
+CFLAGS2= -O3
 EXEC=subnet-tools
 
 

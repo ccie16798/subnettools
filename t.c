@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <unistd.h>
-
+/* staging testing file 
+ * not used in Makefile */
 struct options {
         int subnet_off;
         int grep_field; /** when grepping, grep only on this field **/
