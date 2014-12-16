@@ -102,6 +102,7 @@ u32 string2mask(const char *s) ;
  * returns negative if impossible to aggregate, positive if possible */
 int aggregate_subnet(const struct subnet *s1, const struct subnet *s2, struct subnet *aggregated_subnet);
 
+/* those 2 function DO MODIFY their argument */
 void first_ip(struct subnet *s);
 void last_ip(struct subnet *s);
 #else
