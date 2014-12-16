@@ -22,6 +22,9 @@ static inline int is_valid_ip_char(char c) {
 	return isdigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
 }
 
+inline void copy_ipaddr(struct ip_addr *a, struct ip_addr *b) {
+	memcpy(a, b, sizeof(struct ip_addr));
+}
 
 #define SIZE_T_MAX ((size_t)0 - 1)
 int alloc_subnet_file(struct subnet_file *sf, unsigned long n) {

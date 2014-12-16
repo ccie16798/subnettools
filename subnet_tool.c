@@ -75,7 +75,7 @@ static int netcsv_GW_handle(char *s, void *data, struct csv_state *state) {
 			debug(LOAD_CSV, 1, "line %lu STRING comment '%s'  too long, truncating to '%s'\n", state->line, s, sf->routes[sf->nr].comment);
 	} else {
 		if (res == sf->routes[sf->nr].subnet.ip_ver ) {/* does the gw have same IPversion*/
-			memcpy(&sf->routes[sf->nr].gw, &subnet.ip_addr, sizeof(struct ip_addr));
+			copy_ipaddr(&sf->routes[sf->nr].gw, &subnet.ip_addr);
 		} else {
 			memset(&sf->routes[sf->nr].gw, 0, sizeof(struct ip_addr));
 			debug(LOAD_CSV, 3, "invalid GW %s line %lu\n", s, state->line);
@@ -778,7 +778,7 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 			i, buffer2, sf->routes[i].subnet.mask);
 		memcpy(&new_r[j].subnet, &s, sizeof(struct subnet));
 		if (mode == 1)
-			memcpy(&new_r[j].gw, &sf->routes[i].gw, sizeof(struct ip_addr)); /* copy the gateway */
+			copy_ipaddr(&new_r[j].gw, &sf->routes[i].gw);
 		else
 			memset(&new_r[j].gw, 0, sizeof(struct ip_addr)); /* the aggregate route has null gateway */
 		strcpy(new_r[j].comment, "AGGREGATE");
@@ -795,7 +795,7 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 				j--;
 				memcpy(&new_r[j].subnet, &s, sizeof(struct subnet));
 				if (mode == 1)
-					memcpy(&new_r[j].gw, &sf->routes[i].gw, sizeof(struct ip_addr)); /* copy the gateway */
+					copy_ipaddr(&new_r[j].gw, &sf->routes[i].gw);
 				else
 					memset(&new_r[j].gw, 0, sizeof(struct ip_addr)); /* the aggregate route has null gateway */
 				strcpy(new_r[j].comment, "AGGREGATE");
