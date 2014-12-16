@@ -801,3 +801,27 @@ int aggregate_subnet(const struct subnet *s1, const struct subnet *s2, struct su
 		return aggregate_subnet_ipv6(s1, s2, s3);
 	return -3;
 }
+
+void first_ip(struct subnet *s) {
+	if (s->ip_ver == IPV4_A) {
+		s->ip >>= (32 - s->mask);
+		s->ip <<= (32 - s->mask);
+	} else if (s->ip_ver == IPV6_A) {
+		shift_right(s->ip6.n16, 8, 128 - s->mask);
+		shift_left(s->ip6.n16, 8, 128 -s->mask);
+	}
+}
+
+void last_ip(struct subnet *s) {
+	int i, j;
+
+	if (s->ip_ver == IPV4_A) {
+		for (i = 0; i < (32 - s->mask); i++)	
+			s->ip |= (1 << i);
+	} else if (s->ip_ver == IPV6_A) { /* do you love binary math? yes you do! */
+		for (i = 0; i < (128 - s->mask) / 16; i++)
+			s->ip6.n16[7 - i] = 0xFFFF;
+		for (j = 0; j < ((128 - s->mask) % 16); j++)
+			s->ip6.n16[7 - i] |= (1 << j);
+	}
+}

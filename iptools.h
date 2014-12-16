@@ -101,5 +101,8 @@ u32 string2mask(const char *s) ;
 /* try to aggregate s1 & s2, putting the result 'in aggregated_subnet' if possible
  * returns negative if impossible to aggregate, positive if possible */
 int aggregate_subnet(const struct subnet *s1, const struct subnet *s2, struct subnet *aggregated_subnet);
+
+void first_ip(struct subnet *s);
+void last_ip(struct subnet *s);
 #else
 #endif
