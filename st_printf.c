@@ -219,6 +219,7 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap)  {
 	struct  ip_addr *v_addr;
 	char *v_s;
 	int v_int;
+	char v_c;
 	unsigned v_unsigned;
 	long v_long;
 	unsigned long v_ulong;
@@ -305,6 +306,11 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap)  {
 					v_int = va_arg(ap, int);
 					sprintf(buffer, "%d", v_int);
 					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
+					break;
+				case 'c':
+					v_c = va_arg(ap, int);
+					outbuf[j] = v_c;
+					a++;
 					break;
 				case 'u':
 					v_unsigned = va_arg(ap, unsigned);
