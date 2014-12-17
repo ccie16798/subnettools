@@ -833,9 +833,11 @@ void next_subnet(struct subnet *s) {
 	if (s->ip_ver == IPV4_A) {
 		s->ip >>= (32 - s->mask);
 		s->ip += 1;
-		s->ip >>= (32 - s->mask);
+		s->ip <<= (32 - s->mask);
 	} else if (s->ip_ver == IPV6_A) {
-
+		shift_ipv6_right(s->ip6, 128 - s->mask);
+		increase_bitmap(s->ip6.n16, 8);
+		shift_ipv6_left(s->ip6, 128 - s->mask);
 	}
 }
 
@@ -843,8 +845,11 @@ void previous_subnet(struct subnet *s) {
 	if (s->ip_ver == IPV4_A) {
 		s->ip >>= (32 - s->mask);
 		s->ip -= 1;
-		s->ip >>= (32 - s->mask);
+		s->ip <<= (32 - s->mask);
 	} else if (s->ip_ver == IPV6_A) {
+		shift_ipv6_right(s->ip6, 128 - s->mask);
+		decrease_bitmap(s->ip6.n16, 8);
+		shift_ipv6_left(s->ip6, 128 - s->mask);
 
 	}
 }
