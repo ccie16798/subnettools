@@ -58,6 +58,7 @@ static int run_routeagg(int argc, char **argv, void *options);
 static int run_help(int argc, char **argv, void *options);
 static int run_version(int argc, char **argv, void *options);
 static int run_confdesc(int argc, char **argv, void *options);
+static int run_relation(int argc, char **argv, void *options);
 static int run_echo(int argc, char **argv, void *options);
 static int run_print(int argc, char **argv, void *options);
 static int run_test(int argc, char **argv, void *options);
@@ -75,6 +76,7 @@ static int option_fmt(int argc, char **argv, void *options);
 struct st_command commands[] = {
 	{ "echo",	&run_echo,	2},
 	{ "print",	&run_print,	1},
+	{ "relation",	&run_relation,	2},
 	{ "diff",	&run_diff,	2},
 	{ "compare",	&run_compare,	2},
 	{ "missing",	&run_missing,	2},
@@ -116,6 +118,7 @@ void usage() {
 	printf("\nCOMMAND := \n");
 	printf("echo FMT ARG2       : try to get subnet from ARG2 and echo it according to FMT\n");
 	printf("print FILE1         : just read & print FILE1; use a -fmt FMT to print CSV fields you want\n");
+	printf("relation IP1 IP2    : prints a relationship between IP1 and IP2\n");
 	printf("compare FILE1 FILE2 : compare FILE1 & FILE2, printing subnets in FILE1 INCLUDED in FILE2\n");
 	printf("missing FILE1 FILE2 : prints subnets from FILE1 that are not covered by FILE2; GW is not checked\n");
 	printf("paip PAIP FILE1     : load IPAM, and print FILE1 subnet with comment extracted from IPAM\n");
@@ -161,6 +164,42 @@ void debug_usage() {
 /*
  * COMMAND HANDLERS
  */
+static int run_relation(int arc, char **argv, void *options) {
+	int res;
+	struct subnet subnet1, subnet2;
+
+	res = get_subnet_or_ip(argv[2], &subnet1);
+	if (res == BAD_IP) {
+		printf("%s is not an IP\n", argv[2]);
+		return 0;
+	}
+	res = get_subnet_or_ip(argv[3], &subnet2);
+	if (res == BAD_IP) {
+		printf("%s is not an IP\n", argv[3]);
+		return 0;
+	}
+	if (subnet1.ip_ver != subnet2.ip_ver) {
+		printf("IP version is different\n");
+		return 0;
+	}
+	res = subnet_compare(&subnet1, &subnet2);
+	switch (res) {
+		case EQUALS:
+			st_printf("%I/%m equals %I/%m (subnet address : %N)\n", &subnet1, &subnet1,
+				&subnet2, &subnet2, &subnet2);
+			break;
+		case INCLUDED:
+			st_printf("%s is included in %s\n", argv[2], argv[3]);
+			break;
+		case INCLUDES:
+			st_printf("%s includes %s\n", argv[2], argv[3]);
+			break;
+		default:
+			st_printf("%s has no relation with %s\n", argv[2], argv[3]);
+			break;
+	}
+	return 0;
+}
 static int run_echo(int arc, char **argv, void *options) {
 	int res;
 	struct subnet subnet;
@@ -467,7 +506,12 @@ static int run_test(int arc, char **argv, void *options) {
 	struct subnet subnet;
 
 	get_subnet_or_ip(argv[2], &subnet);
-	st_printf("%I %m %M %s %d %u\n", &subnet, &subnet, &subnet, "toto", 5, 40);
+	st_printf("%I \n", &subnet);
+	next_subnet(&subnet);
+	st_printf("%I \n", &subnet);
+	previous_subnet(&subnet);
+	previous_subnet(&subnet);
+	st_printf("%I \n", &subnet);
 	if (is_link_local(subnet.ip6))
 		printf("its a link local address\n");
 	return 0;
