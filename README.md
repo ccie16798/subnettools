@@ -60,6 +60,7 @@ OUTPUT FMT
 - %C  : the comment
 - %U  : upper subnet of %I (lower subnet of 10.1.3.0/24 is 10.1.2.0/24)
 - %L  : lower subnet 
+- %P  : prefix/mask
 %I, %N, %B and %G MAY be followed by a IPv6 compression level (0, 1, or 2)
 
 The character % MAY be followed by a field width (see printf man pages); this can help to align the results vertically, but please note in case width is smaller
@@ -123,6 +124,7 @@ work TODO
 - fixing file diff (semantics is difficult, what do we want)
 - adding more converters (and fixing IPv6 converters)
 - fixing ECMP in converters (maybe)
-- implement subnet_substract
-- implement st_scanf & friends 
-- implement progress bar (what is your 1M line aggregation doing??)
+- implement subnet_substract (v0.5)
+- implement subnet_info (IPver, Network IP, Last IP, class (ipv4), type(multicast)
+- implement st_scanf & friends (v0.7)
+- implement progress bar (what is your 1M line aggregation doing??) (v0.6)

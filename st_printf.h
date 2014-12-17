@@ -23,5 +23,15 @@ void print_subnet_file(const struct subnet_file *sf, int comp_level);
 void fprint_subnet_file(const struct subnet_file *sf, FILE *output, int comp_level);
 void fprint_subnet_file_fmt(const struct subnet_file *sf, FILE *output, const char *fmt);
 
+#define st_debug(__EVENT, __DEBUG_LEVEL, __FMT...) \
+	do { \
+		int ___x = (__D_##__EVENT); \
+		if (debugs_level[___x] >= __DEBUG_LEVEL || debugs_level[__D_ALL] >= __DEBUG_LEVEL) { \
+			st_fprintf(stderr,"%s : ", __FUNCTION__  ); \
+			st_fprintf(stderr, __FMT); \
+		} \
+	} while (0);
+
+
 #else
 #endif

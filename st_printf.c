@@ -36,7 +36,7 @@ void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 	int i, j, a ,i2, compression_level;
 	char c;
 	char outbuf[512 + 140];
-	char buffer[128], temp[32];
+	char buffer[128], buffer2[128], temp[32];
 	struct subnet sub;
 	char BUFFER_FMT[32];
 	int field_width;
@@ -140,6 +140,17 @@ void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 						next_subnet(&v_sub);
 					subnet2str(&v_sub, buffer, compression_level);
 					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
+					break;
+				case 'P': /* Prefix */
+					if (fmt[i2 + 1] == '0' || fmt[i2 + 1] == '1' || fmt[i2 + 1] == '2') {
+						compression_level = fmt[i2 + 1] - '0';
+						i++;
+					} else
+						compression_level = 2;
+					copy_subnet(&v_sub, &r->subnet);
+					subnet2str(&v_sub, buffer2, compression_level);
+					sprintf(buffer, "%s/%d", buffer2, (int)v_sub.mask);
+					a += sprintf(outbuf + j, BUFFER_FMT, buffer);	
 					break;
 				case 'G':
 					if (fmt[i2 + 1] == '0' || fmt[i2 + 1] == '1' || fmt[i2 + 1] == '2') {
@@ -348,8 +359,23 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap)  {
 							next_subnet(&subnet);
 						subnet2str(&subnet, buffer, compression_level);
 					} else
-						strcpy(buffer,"<Invalid IP>");
+						strcpy(buffer, "<Invalid IP>");
 					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
+					break;
+				case 'P': /* Prefix */
+					v_sub = va_arg(ap, struct subnet *);
+					if (fmt[i2 + 1] == '0' || fmt[i2 + 1] == '1' || fmt[i2 + 1] == '2') {
+						compression_level = fmt[i2 + 1] - '0';
+						i++;
+					} else
+						compression_level = 2;
+					if (v_sub && (v_sub->ip_ver == IPV4_A || v_sub->ip_ver == IPV6_A)) {
+						char buffer2[128];
+						subnet2str(v_sub, buffer2, compression_level);
+						sprintf(buffer, "%s/%d", buffer2, (int)v_sub->mask);
+					} else
+						strcpy(buffer, "<Invalid IP/mask>");
+					a += sprintf(outbuf + j, BUFFER_FMT, buffer);	
 					break;
 				default:
 					debug(FMT, 2, "%c is not a valid char after a %c\n", fmt[i2], '%');
