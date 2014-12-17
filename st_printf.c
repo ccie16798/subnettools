@@ -119,6 +119,8 @@ void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 				case 'C':
 					a += sprintf(outbuf + j, BUFFER_FMT, r->comment);
 					break;
+				case 'U': /* upper subnet */
+				case 'L': /* lower subnet */
 				case 'I': /* IP address */
 				case 'B': /* last IP Address of the subnet */
 				case 'N': /* network adress of the subnet */
@@ -127,11 +129,15 @@ void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 						i++;
 					} else
 						compression_level = 2;
-					memcpy(&v_sub, &r->subnet, sizeof(struct subnet));
+					copy_subnet(&v_sub, &r->subnet);
 					if (fmt[i2] == 'B')
 						last_ip(&v_sub);
 					else if (fmt[i2] == 'N')
 						first_ip(&v_sub);
+					else if (fmt[i2] == 'L')
+						previous_subnet(&v_sub);
+					else if (fmt[i2] == 'U')
+						next_subnet(&v_sub);
 					subnet2str(&v_sub, buffer, compression_level);
 					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
 					break;
@@ -196,6 +202,7 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap)  {
 	char buffer[128], temp[32];
 	char BUFFER_FMT[32];
 	int field_width;
+	struct subnet subnet;
 	/* variables from va_list */ 
 	struct  subnet *v_sub;
 	struct  ip_addr *v_addr;
@@ -318,6 +325,8 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap)  {
 						strcpy(buffer,"<Invalid IP>");
 					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
 					break;
+				case 'U': /* upper subnet */
+				case 'L': /* lower subnet */
 				case 'I': /* IP address */
 				case 'B': /* last IP Address of the subnet */
 				case 'N': /* network adress of the subnet */
@@ -328,11 +337,16 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap)  {
 					} else
 						compression_level = 2;
 					if (v_sub && (v_sub->ip_ver == IPV4_A || v_sub->ip_ver == IPV6_A)) {
+						copy_subnet(&subnet, v_sub);
 						if (fmt[i2] == 'B')
-							last_ip(v_sub);
+							last_ip(&subnet);
 						else if (fmt[i2] == 'N')
-							first_ip(v_sub);
-						subnet2str(v_sub, buffer, compression_level);
+							first_ip(&subnet);
+						else if (fmt[i2] == 'L')
+							previous_subnet(&subnet);
+						else if (fmt[i2] == 'U')
+							next_subnet(&subnet);
+						subnet2str(&subnet, buffer, compression_level);
 					} else
 						strcpy(buffer,"<Invalid IP>");
 					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
