@@ -16,11 +16,11 @@ FEATURES
 - native IPv6 & IPv4 support
 
 - subnettools FILE format is a CSV where each line represent a route ; a route is
--- a subnet
--- a subnet mask
--- a gateway
--- a device
--- a comment 
+-* a subnet
+-* a subnet mask
+-* a gateway
+-* a device
+-* a comment 
 - delimitors, name of the fields describing (prefix, mask, gw, dev, comment) are fully configurable
 - subnettools output format is configurable ; you can configure a FMT (%I %m %D %G %C)
 - subnettools has a default config file (st.conf)
@@ -83,6 +83,7 @@ EXAMPLE 2 (using field width to align colons):
 Note : GitHub pretty print will not print that correcly, use a text editor
 
 etienne@debian:~/st$ ./subnet-tools -fmt "%-16I;%-3m;%-10D;%-32G" route regtest/route_aggipv6-2 
+
 2000:1::        ;32 ;eth0/1    ;fe80::254                      
  
 2001:db4::      ;30 ;eth0/1    ;fe80::251                      
@@ -96,16 +97,12 @@ etienne@debian:~/st$ ./subnet-tools -fmt "%-16I;%-3m;%-10D;%-32G" route regtest/
 EXAMPLE3 (converting subnets to address ranges)
 -----------------------------------------------
 [etienne@ARODEF subnet_tools]$ ./subnet-tools -fmt "%13I/%2m [%N-%B]" sort regtest/aggipv4 
-      1.1.1.0/23 [1.1.0.0-1.1.1.255]
-
+   
+     1.1.1.0/23  [1.1.0.0-1.1.1.255]
      10.0.0.0/24 [10.0.0.0-10.0.0.255]
-
      10.0.1.0/24 [10.0.1.0-10.0.1.255]
-
      10.0.2.0/23 [10.0.2.0-10.0.3.255]
-
      10.0.4.0/22 [10.0.4.0-10.0.7.255]
-
 
 CODING
 ======
