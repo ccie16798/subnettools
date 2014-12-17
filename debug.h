@@ -21,16 +21,16 @@
 #define __D_FMT	17
 
 #define debug(__EVENT, __DEBUG_LEVEL, __FMT...) \
-        do { \
-                int ___x = (__D_##__EVENT); \
-                if (debugs_level[___x] >= __DEBUG_LEVEL || debugs_level[__D_ALL] >= __DEBUG_LEVEL) { \
-                        fprintf(stderr,"%s : ", __FUNCTION__  ); \
-                        fprintf(stderr, __FMT); \
-                } \
-        } while (0);
+	do { \
+		int ___x = (__D_##__EVENT); \
+		if (debugs_level[___x] >= __DEBUG_LEVEL || debugs_level[__D_ALL] >= __DEBUG_LEVEL) { \
+			fprintf(stderr,"%s : ", __FUNCTION__  ); \
+			fprintf(stderr, __FMT); \
+		} \
+	} while (0);
 struct debug {
-        const char *name;
-        unsigned num;
+	const char *name;
+	unsigned num;
 	const char *long_desc;
 };
 
