@@ -12,14 +12,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MYTYPE    unsigned short
-#define TYPE_SIZE (sizeof(MYTYPE) * 8)
-
 void shift_right(MYTYPE *buffer, int len, int shift) {
-	int shift1;
-	int shift2;
+	int shift1, shift2;
 	int i;
 	unsigned short reminder;
+
 	shift1 = shift / TYPE_SIZE;
 	shift2 = shift % TYPE_SIZE;
 
@@ -41,10 +38,10 @@ void shift_right(MYTYPE *buffer, int len, int shift) {
 
 
 void shift_left(MYTYPE *buffer, int len, int shift) {
-        int shift1;
-        int shift2;
+        int shift1, shift2;
         int i;
         unsigned short reminder;
+
         shift1 = shift / TYPE_SIZE;
         shift2 = shift % TYPE_SIZE;
 
@@ -56,7 +53,7 @@ void shift_left(MYTYPE *buffer, int len, int shift) {
 		return;
 	for (i = 0; i < len - 1; i++) {
                 buffer[i] <<= shift2;
-                reminder = buffer[i + 1] >> (TYPE_SIZE- shift2);
+                reminder = buffer[i + 1] >> (TYPE_SIZE - shift2);
                 buffer[i] |= reminder;
         }
 	buffer[len - 1] <<= shift2;
@@ -90,17 +87,31 @@ int sprint_bitmap(char *outbuf, MYTYPE *buffer, int len) {
 	return b;
 }
 
+void increase_bitmap(MYTYPE *buffer, int len) {
+	int i = len - 1;
 
-void increase_bitmap(unsigned short *buffer, int len) {
-
-
-
-
-
-
+	for (  ; i >= 0; i--) {
+		if (buffer[i] != TYPE_MAX)
+			break;
+		else
+			buffer[i] = 0;
+	}
+	if (i >= 0)
+		buffer[i]++;
 }
 
+void decrease_bitmap(MYTYPE *buffer, int len) {
+	int i = len - 1;
 
+	for (  ; i >= 0; i--) {
+		if (buffer[i] != 0)
+			break;
+		else
+			buffer[i] = TYPE_MAX;
+	}
+	if (i >= 0)
+		buffer[i]--;
+}
 /*
 int main(int argc, char **argv) {
 	unsigned short  *buffer;
