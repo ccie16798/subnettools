@@ -6,16 +6,23 @@ subnet file tool !
 a tool designed to help network engineer manipulate large route/subnet CSV files
 FEATURES
 ========
-- compare CSV files (common routes, missing routes)
-- get a subnet file declaration from an IPAM file (IPAM format fully dynamic)
-- grep files for subnets
-- simplifying CSV route files (removing duplicates, sorting)
-- aggregating subnets as much as possible
+- CSV files comparison (common routes, missing routes)
+- CSV subnet file COMMENT extraction from an IPAM file (IPAM format fully dynamic)
+- Random file grepping for subnets
+- CSV route files simplification (duplicates removal, sorting)
+- subnet arithmetics (convert mask notation to/from CIDR, compute Network Address, Broadcast address...)
+- subnet aggregation
 - converting 'sh ip route' files to a CSV
+- native IPv6 & IPv4 support
 
-- subnettools main format is CSV; delimitors, name of the fields describing (prefix, mask, gw, dev, comment) are fully configurable
-- subnettools output format is configurable ; you can configure FMT (%I %m %D %G %C)
-- subnettools supports IPv4 and IPv6
+- subnettools FILE format is a CSV where each line represent a route ; a route is
+-- a subnet
+-- a subnet mask
+-- a gateway
+-- a device
+-- a comment 
+- delimitors, name of the fields describing (prefix, mask, gw, dev, comment) are fully configurable
+- subnettools output format is configurable ; you can configure a FMT (%I %m %D %G %C)
 - subnettools has a default config file (st.conf)
 - subnettools has a debug system (subnettools -D help), mostly helped me to create it
 - subnettools has a small regression testing suite
@@ -34,8 +41,8 @@ it should work OK today for most functions
 
 CSV format 
 ===========
-- Input subnet files SHOULD have a CSV header describing its structure (prefix, mask,, GW, comment, etc...)
-- Input subnet files without a CSV header are assumed to be : prefix;mask;GW;comment or prefix;mask;comment
+- Input subnet/routes files SHOULD have a CSV header describing its structure (prefix, mask,, GW, comment, etc...)
+- Input subnet/routes files without a CSV header are assumed to be : prefix;mask;GW;comment or prefix;mask;comment
 - default CSV header is "prefix;mask;device;GW;comment"
 - CSV header can be changed by using the configuration file (subnettools confdesc for more info)
 - Input IPAM CSV MUST have a CSV header; there is a defaut header, but it is derived from my company's one
@@ -47,7 +54,7 @@ OUTPUT FMT
 - %N  : the network address of the prefix
 - %B  : the 'broadcast' address of the prefix (last subnet IP, since IPv6 has no broadcast)
 - %G  : the gateway (next-hop)
-- %m  : the mask
+- %m  : the subnet mask, prefix length
 - %M  : for IPv4, the mask in Dotted Decimal Notation; for IPv6 I DO REFUSE and print prefix length
 - %D  : the device
 - %C  : the comment
@@ -84,8 +91,8 @@ etienne@debian:~/st$ ./subnet-tools -fmt "%-16I;%-3m;%-10D;%-32G" route regtest/
 
 2001:dba::      ;31 ;eth0/1    ;fe80::251                  
 
-EXAMPLE3 (converting subnets to address  ranges)
-------------------------------------------------
+EXAMPLE3 (converting subnets to address ranges)
+-----------------------------------------------
 [etienne@ARODEF subnet_tools]$ ./subnet-tools -fmt "%13I/%2m [%N-%B]" sort regtest/aggipv4 
       1.1.1.0/23 [1.1.0.0-1.1.1.255]
 
@@ -118,3 +125,4 @@ work TODO
 - implement next_subnet, previous_subnet
 - implement subnet_substract
 - implement st_scanf & friends 
+- implement progress bar (what is your 1M line aggregation doing??)
