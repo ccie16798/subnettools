@@ -12,14 +12,16 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define MYTYPE    unsigned short
+#define TYPE_SIZE (sizeof(MYTYPE) * 8)
 
-void shift_right(unsigned  short *buffer, int len, int shift) {
+void shift_right(MYTYPE *buffer, int len, int shift) {
 	int shift1;
 	int shift2;
 	int i;
 	unsigned short reminder;
-	shift1 = shift / 16;
-	shift2 = shift % 16;
+	shift1 = shift / TYPE_SIZE;
+	shift2 = shift % TYPE_SIZE;
 
 	for (i = len - 1; i >= shift1; i--)
 		buffer[i] = buffer[i - shift1];
@@ -30,7 +32,7 @@ void shift_right(unsigned  short *buffer, int len, int shift) {
 
 	for (i = len - 1; i > 0; i--) {
 		buffer[i] >>= shift2;
-		reminder = buffer[i - 1] << (16 - shift2);
+		reminder = buffer[i - 1] << (TYPE_SIZE - shift2);
 		buffer[i] |= reminder;
 	}
 	buffer[0] >>= shift2;
@@ -38,13 +40,13 @@ void shift_right(unsigned  short *buffer, int len, int shift) {
 
 
 
-void shift_left(unsigned  short *buffer, int len, int shift) {
+void shift_left(MYTYPE *buffer, int len, int shift) {
         int shift1;
         int shift2;
         int i;
         unsigned short reminder;
-        shift1 = shift / 16;
-        shift2 = shift % 16;
+        shift1 = shift / TYPE_SIZE;
+        shift2 = shift % TYPE_SIZE;
 
 	for (i = 0; i < len - shift1; i++)
 		buffer[i] = buffer[i + shift1];
@@ -54,38 +56,50 @@ void shift_left(unsigned  short *buffer, int len, int shift) {
 		return;
 	for (i = 0; i < len - 1; i++) {
                 buffer[i] <<= shift2;
-                reminder = buffer[i + 1] >> (16 - shift2);
+                reminder = buffer[i + 1] >> (TYPE_SIZE- shift2);
                 buffer[i] |= reminder;
         }
 	buffer[len - 1] <<= shift2;
 }
-void print_bitmap(unsigned  short *buffer, int len) {
+
+void print_bitmap(MYTYPE *buffer, int len) {
 	int i;
 	int i1, i2;
 	int a;
-	for (i = 0; i < len * 16; i++) {
-		i1 = i / 16;
-		i2 = 15 - i % 16;
+	for (i = 0; i < len * TYPE_SIZE; i++) {
+		i1 = i / TYPE_SIZE;
+		i2 = TYPE_SIZE - 1 - i % TYPE_SIZE;
 		a = !! ((buffer[i1]) & (1 << i2));
 		printf("%d", a);
 	}
 	printf("\n");
 }
 
-int sprint_bitmap(char *outbuf, unsigned  short *buffer, int len) {
+int sprint_bitmap(char *outbuf, MYTYPE *buffer, int len) {
 	int i;
         int i1, i2;
         int a, b = 0;
 
-        for (i = 0; i < len * 16; i++) {
-                i1 = i / 16;
-                i2 = 15 - i % 16;
+        for (i = 0; i < len * TYPE_SIZE; i++) {
+		i1 = i / TYPE_SIZE;
+		i2 = TYPE_SIZE - 1 - i % TYPE_SIZE;
                 a = !! ((buffer[i1]) & (1 << i2));
                 b += sprintf(outbuf++, "%d", a);
         }
 	*outbuf = '\0';
 	return b;
 }
+
+
+void increase_bitmap(unsigned short *buffer, int len) {
+
+
+
+
+
+
+}
+
 
 /*
 int main(int argc, char **argv) {
