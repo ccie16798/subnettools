@@ -17,6 +17,7 @@
 #include "bitmap.h"
 #include "utils.h"
 #include "heap.h"
+#include "st_printf.h"
 
 static inline int is_valid_ip_char(char c) {
 	return isdigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
@@ -56,7 +57,6 @@ int alloc_subnet_file(struct subnet_file *sf, unsigned long n) {
  * -1 otherwise
  */
 int subnet_compare(const struct subnet *sub1, const struct subnet *sub2) {
-	char buffer1[51];
 	if (sub1->ip_ver != sub2->ip_ver) {
 		debug(ADDRCOMP, 2, "different address FAMILY\n");
 		return -1;
@@ -65,8 +65,7 @@ int subnet_compare(const struct subnet *sub1, const struct subnet *sub2) {
 		return subnet_compare_ipv4(sub1->ip, sub1->mask, sub2->ip, sub2->mask);
 	else if (sub1->ip_ver == IPV6_A)
 		return subnet_compare_ipv6(sub1->ip6, sub1->mask, sub2->ip6, sub2->mask);
-	subnet2str(sub1, buffer1, 2);
-	debug(ADDRCOMP, 1, "Impossible to get here, %s version = %d BUG?\n", buffer1, sub1->ip_ver);
+	debug(ADDRCOMP, 1, "Impossible to get here, IP version = %d BUG?\n", sub1->ip_ver);
 	return -1;
 }
 
@@ -682,11 +681,8 @@ int get_subnet_or_ip(const char *string, struct subnet *subnet) {
 }
 
 int subnet_is_superior(const struct subnet *s1, const struct subnet *s2) {
-	char buffer1[51], buffer2[51];
 	int i, res;
 
-	subnet2str(s1, buffer1, 2);
-	subnet2str(s2, buffer2, 2);
 	if (s1->ip_ver != s2->ip_ver) {
 		debug(ADDRCOMP, 1, "cannot compare, different IP version\n");
 		return -1;
@@ -702,7 +698,7 @@ int subnet_is_superior(const struct subnet *s1, const struct subnet *s2) {
 			res =  1;
 		else
 			res =  0;
-		debug(ADDRCOMP, 5, "%s %c %s\n", buffer1, (res ? '>' : '<' ), buffer2);
+		st_debug(ADDRCOMP, 5, "%P %c %P\n", s1, (res ? '>' : '<' ), s2);
 		return res;
 	}
 
@@ -723,10 +719,10 @@ int subnet_is_superior(const struct subnet *s1, const struct subnet *s2) {
 				}
 			}
 		}
-		debug(ADDRCOMP, 5, "%s %c %s\n", buffer1, (res ? '>' : '<' ), buffer2);
+		st_debug(ADDRCOMP, 5, "%P %c %P\n", s1, (res ? '>' : '<' ), s2);
 		return res;
 	}
-	debug(ADDRCOMP, 1, "Invalid comparison for %s ipver %d\n", buffer1, s1->ip_ver);
+	debug(ADDRCOMP, 1, "Invalid comparison ipver %d\n", s1->ip_ver);
 	return -1;
 }
 
@@ -734,43 +730,36 @@ int subnet_is_superior(const struct subnet *s1, const struct subnet *s2) {
  * returns negative if impossible to aggregate, positive if possible */
 static int aggregate_subnet_ipv4(const struct subnet *s1, const struct subnet *s2, struct subnet *s3) {
 	ipv4 a, b;
-	char buffer1[51], buffer2[51], buffer3[51];
 
-	subnet2str(s1, buffer1, 2);
-	subnet2str(s2, buffer2, 2);
 	if (s1->mask != s2->mask) {
-		debug(AGGREGATE, 5, "different masks for %s/%u and %s/%u, can't aggregate\n", buffer1, s1->mask, buffer2, s2->mask);
+		st_debug(AGGREGATE, 5, "different masks for %P and %P, can't aggregate\n", s1, s2);
 		return -1;
 	}
 	a = s1->ip >> (32 - s1->mask);
 	b = s2->ip >> (32 - s1->mask);
 	if (a == b) {
-		debug(AGGREGATE, 6, "same subnet %s/%u\n", buffer1, s1->mask);
+		st_debug(AGGREGATE, 6, "same subnet %P\n", s1);
 		s3->ip_ver = IPV4_A;
 		s3->ip     = s1->ip;
 		s3->mask   = s1->mask;
 		return 1;
 	}
 	if (a >> 1 != b >> 1) {
-		debug(AGGREGATE, 5, "cannot aggregate %s/%u and %s/%u\n", buffer1, s1->mask, buffer2, s2->mask);
+		st_debug(AGGREGATE, 5, "cannot aggregate %P and %P\n", s1, s2);
 		return -1;
 	}
 	s3->ip_ver = IPV4_A;
 	s3->mask = s1->mask - 1;
 	s3->ip   = (a >> 1) << (32 - s3->mask);
-	subnet2str(s3, buffer3, 2);
-	debug(AGGREGATE, 5, "can aggregate %s/%u and %s/%u into : %s/%u\n", buffer1, s1->mask, buffer2, s2->mask, buffer3, s3->mask);
+	st_debug(AGGREGATE, 5, "can aggregate %P and %P into : %P\n", s1, s2, s3);
 	return 1;
 }
 
 static int aggregate_subnet_ipv6(const struct subnet *s1, const struct subnet *s2, struct subnet *s3) {
 	ipv6 a, b;
-	char buffer1[51], buffer2[51], buffer3[51];
 
-	subnet2str(s1, buffer1, 2);
-	subnet2str(s2, buffer2, 2);
 	if (s1->mask != s2->mask) {
-		debug(AGGREGATE, 5, "different masks for %s/%u and %s/%u, can't aggregate\n", buffer1, s1->mask, buffer2, s2->mask);
+		st_debug(AGGREGATE, 5, "different masks for %P and %P, can't aggregate\n", s1, s2);
 		return -1;
 	}
 	memcpy(&a, &s1->ip6, sizeof(a));
@@ -778,22 +767,21 @@ static int aggregate_subnet_ipv6(const struct subnet *s1, const struct subnet *s
 	shift_ipv6_right(a, (128 - s1->mask));
 	shift_ipv6_right(b, (128 - s1->mask));
 	if (is_equal_ipv6(a, b)) {
-		debug(AGGREGATE, 5, "same subnet %s/%u\n", buffer1, s1->mask);
+		st_debug(AGGREGATE, 5, "same subnet %P\n", s1);
 		memcpy(s3, s1, sizeof(struct subnet));
 		return 1;
 	}
 	shift_ipv6_right(a, 1);
 	shift_ipv6_right(b, 1);
 	if (!is_equal_ipv6(a, b)) {
-		debug(AGGREGATE, 5, "cannot aggregate %s/%u and %s/%u\n", buffer1, s1->mask, buffer2, s2->mask);
+		st_debug(AGGREGATE, 5, "cannot aggregate %P and %P\n", s1, s2);
 		return -1;
 	}
 	s3->mask = s1->mask - 1;
 	shift_ipv6_left(a, 128 - s3->mask);
 	s3->ip_ver = IPV6_A;
 	memcpy(&s3->ip6, &a, sizeof(a));
-	subnet2str(s3, buffer3, 2);
-	debug(AGGREGATE, 5, "can aggregate %s/%u and %s/%u into : %s/%u\n", buffer1, s1->mask, buffer2, s2->mask, buffer3, s3->mask);
+	st_debug(AGGREGATE, 5, "can aggregate %P and %P into : %P\n", s1, s2, s3);
 	return 1;
 }
 
