@@ -261,10 +261,8 @@ void missing_routes(const struct subnet_file *sf1, const struct subnet_file *sf2
 				break;
 			}
 		}
-		if (find == 0) {
-			subnet2str(&sf1->routes[i].subnet, buffer1, 2);
-			fprintf(nof->output_file, "%s;%d\n", buffer1, sf1->routes[i].subnet.mask);
-		}
+		if (find == 0)
+			st_fprintf(nof->output_file, "%I;%m\n", &sf1->routes[i].subnet, &sf1->routes[i].subnet);
 	}
 }
 /**
@@ -596,10 +594,8 @@ static  int __heap_subnet_is_superior(void *v1, void *v2) {
 
 static void __heap_print_subnet(void *v) {
 	struct subnet *s = &((struct route*)v)->subnet;
-	char buffer1[54];
 
-	subnet2str(s, buffer1, 2);
-	printf("%s/%d", buffer1, s->mask);
+	st_printf("%I/%m", s, s);
 }
 /*
  * simplify subnet file (removes redundant entries)
