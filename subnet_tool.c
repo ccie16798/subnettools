@@ -606,7 +606,6 @@ int subnet_file_simplify(struct subnet_file *sf) {
 	int  res;
 	TAS tas;
 	struct route *new_r, *r;
-	char buffer1[45], buffer2[45];
 
 	if (sf->nr == 0)
 		return 0;
@@ -631,9 +630,7 @@ int subnet_file_simplify(struct subnet_file *sf) {
                         break;
 		res = subnet_compare(&r->subnet, &new_r[i - 1].subnet);
 		if (res == INCLUDED || res == EQUALS ) {
-			subnet2str(&r->subnet, buffer1, 2);
-			subnet2str(&new_r[i - 1].subnet, buffer2, 2);
-			debug(ADDRCOMP, 3, "%s/%d is included in %s/%d, skipping\n", buffer1, r->subnet.mask, buffer2, new_r[i - 1].subnet.mask);
+			st_debug(ADDRCOMP, 3, "%P is included in %P, skipping\n", &r->subnet, &new_r[i - 1].subnet);
 			continue;
 		}
 		memcpy(&new_r[i], r, sizeof(struct route));
