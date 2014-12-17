@@ -54,12 +54,13 @@ OUTPUT FMT
 - %N  : the network address of the prefix
 - %B  : the 'broadcast' address of the prefix (last subnet IP, since IPv6 has no broadcast)
 - %G  : the gateway (next-hop)
-- %m  : the subnet mask, prefix length
+- %m  : the subnet mask (prefix length notation)
 - %M  : for IPv4, the mask in Dotted Decimal Notation; for IPv6 I DO REFUSE and print prefix length
 - %D  : the device
 - %C  : the comment
-
-%I and %G MAY be followed by a IPv6 compression level (0, 1, or 2)
+- %U  : upper subnet of %I (lower subnet of 10.1.3.0/24 is 10.1.2.0/24)
+- %L  : lower subnet 
+%I, %N, %B and %G MAY be followed by a IPv6 compression level (0, 1, or 2)
 
 The character % MAY be followed by a field width (see printf man pages); this can help to align the results vertically, but please note in case width is smaller
 than ouptut string, it WILL NOT be truncated
@@ -122,7 +123,6 @@ work TODO
 - fixing file diff (semantics is difficult, what do we want)
 - adding more converters (and fixing IPv6 converters)
 - fixing ECMP in converters (maybe)
-- implement next_subnet, previous_subnet
 - implement subnet_substract
 - implement st_scanf & friends 
 - implement progress bar (what is your 1M line aggregation doing??)
