@@ -94,8 +94,8 @@ struct st_command commands[] = {
 	{ "help",	&run_help,	0},
 	{ "version",	&run_version,	0},
 	{ "confdesc",	&run_confdesc,	0},
-	{ "test",	&run_test,	1},
-	{ "test2",	&run_test2,	2},
+	{ "test",	&run_test,	1, 1},
+	{ "test2",	&run_test2,	2, 1},
 	{NULL, 		NULL,		0}
 };
 

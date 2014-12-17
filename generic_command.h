@@ -5,6 +5,7 @@ struct st_command {
         char *name;
         int (*run_cmd)(int argc, char **argv, void *options);
         int required_args;
+	int hidden;
 };
 /* generic command line parser
  * command line syntax for software using this library is :

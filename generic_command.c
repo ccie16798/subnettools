@@ -45,9 +45,11 @@ int generic_command_run(int argc, char **argv, char *progname, void *opt) {
 			if (found >= 39) /* enough is enough, OK??? */
 				break;
 			/* if more than one match, means the caller used an ambiguious abbreviation */
+			if (commands[i].hidden)
+				continue;
 			founds[found++] = i; 
 			found_i = i;
-			debug(PARSEOPTS, 5, "found possible handler for %s\n", argv[1]);
+			debug(PARSEOPTS, 5, "found possible handler %s for %s\n", commands[i].name, argv[1]);
 		}
 	}
 	if (found == 0) {
