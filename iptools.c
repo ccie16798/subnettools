@@ -99,10 +99,13 @@ int is_link_local(ipv6 a) {
 	return (x >> 6 == 0xFE80 >> 6);
 }
 
+#define shift_ipv6_left(__z, __len) shift_left(__z.n16, 8, __len)
+#define shift_ipv6_right(__z, __len) shift_right(__z.n16, 8, __len)
+
 int subnet_compare_ipv6(ipv6 ip1, u32 mask1, ipv6 ip2, u32 mask2) {
 	if (mask1 > mask2) {
-		shift_right(ip1.n16, 8, (128 - mask2));
-		shift_right(ip2.n16, 8, (128 - mask2));
+		shift_ipv6_right(ip1, (128 - mask2));
+		shift_ipv6_right(ip2, (128 - mask2));
 		/*print_bitmap(ip1.n16, 8);
 		print_bitmap(ip2.n16, 8);	*/
 		if (is_equal_ipv6(ip1, ip2))
@@ -110,8 +113,8 @@ int subnet_compare_ipv6(ipv6 ip1, u32 mask1, ipv6 ip2, u32 mask2) {
 		else
 			return -1;
         } else if (mask1 < mask2) {
-		shift_right(ip1.n16, 8, (128 - mask1));
-		shift_right(ip2.n16, 8, (128 - mask1));
+		shift_ipv6_right(ip1, (128 - mask1));
+		shift_ipv6_right(ip2, (128 - mask1));
 		/*print_bitmap(ip1.n16, 8);
 		print_bitmap(ip2.n16, 8); */
                 if (is_equal_ipv6(ip1, ip2))
@@ -119,8 +122,8 @@ int subnet_compare_ipv6(ipv6 ip1, u32 mask1, ipv6 ip2, u32 mask2) {
                 else
                         return -1;
         } else {
-		shift_right(ip1.n16, 8, (128 - mask1));
-		shift_right(ip2.n16, 8, (128 - mask1));
+		shift_ipv6_right(ip1, (128 - mask1));
+		shift_ipv6_right(ip2, (128 - mask1));
                 if (is_equal_ipv6(ip1, ip2))
                         return EQUALS;
                 else
@@ -768,21 +771,21 @@ static int aggregate_subnet_ipv6(const struct subnet *s1, const struct subnet *s
 	}
 	memcpy(&a, &s1->ip6, sizeof(a));
 	memcpy(&b, &s2->ip6, sizeof(a));
-	shift_right(a.n16, 8, (128 - s1->mask));
-	shift_right(b.n16, 8, (128 - s1->mask));
+	shift_ipv6_right(a, (128 - s1->mask));
+	shift_ipv6_right(b, (128 - s1->mask));
 	if (is_equal_ipv6(a, b)) {
 		debug(AGGREGATE, 5, "same subnet %s/%u\n", buffer1, s1->mask);
 		memcpy(s3, s1, sizeof(struct subnet));
 		return 1;
 	}
-	shift_right(a.n16, 8, 1);
-	shift_right(b.n16, 8, 1);
+	shift_ipv6_right(a, 1);
+	shift_ipv6_right(b, 1);
 	if (!is_equal_ipv6(a, b)) {
 		debug(AGGREGATE, 5, "cannot aggregate %s/%u and %s/%u\n", buffer1, s1->mask, buffer2, s2->mask);
 		return -1;
 	}
 	s3->mask = s1->mask - 1;
-	shift_left(a.n16, 8, 128 - s3->mask);
+	shift_ipv6_left(a, 128 - s3->mask);
 	s3->ip_ver = IPV6_A;
 	memcpy(&s3->ip6, &a, sizeof(a));
 	subnet2str(s3, buffer3, 2);
@@ -822,5 +825,26 @@ void last_ip(struct subnet *s) {
 			s->ip6.n16[7 - i] = 0xFFFF;
 		for (j = 0; j < ((128 - s->mask) % 16); j++)
 			s->ip6.n16[7 - i] |= (1 << j);
+	}
+}
+
+
+void next_subnet(struct subnet *s) {
+	if (s->ip_ver == IPV4_A) {
+		s->ip >>= (32 - s->mask);
+		s->ip += 1;
+		s->ip >>= (32 - s->mask);
+	} else if (s->ip_ver == IPV6_A) {
+
+	}
+}
+
+void previous_subnet(struct subnet *s) {
+	if (s->ip_ver == IPV4_A) {
+		s->ip >>= (32 - s->mask);
+		s->ip -= 1;
+		s->ip >>= (32 - s->mask);
+	} else if (s->ip_ver == IPV6_A) {
+
 	}
 }

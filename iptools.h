@@ -105,5 +105,8 @@ int aggregate_subnet(const struct subnet *s1, const struct subnet *s2, struct su
 /* those 2 function DO MODIFY their argument */
 void first_ip(struct subnet *s);
 void last_ip(struct subnet *s);
+
+void previous_subnet(struct subnet *s);
+void next_subnet(struct subnet *s);
 #else
 #endif
