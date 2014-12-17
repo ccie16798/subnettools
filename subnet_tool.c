@@ -219,30 +219,25 @@ int load_PAIP(char  *name, struct subnet_file *sf, struct options *nof) {
 
 void compare_files(struct subnet_file *sf1, struct subnet_file *sf2, struct options *nof) {
 	unsigned long i, j;
-	u32 mask1, mask2;
 	int res;
-	char buffer1[51];
-	char buffer2[51];
 	int find = 0;
 
 	for (i = 0; i < sf1->nr; i++) {
-		mask1 = sf1->routes[i].subnet.mask;
-		subnet2str(&sf1->routes[i].subnet, buffer1, 2);
 		find = 0;
 		for (j = 0; j < sf2->nr; j++) {
-			mask2 = sf2->routes[j].subnet.mask;
-			subnet2str(&sf2->routes[j].subnet, buffer2, 2);
 			res = subnet_compare(&sf1->routes[i].subnet, &sf2->routes[j].subnet);
 			if (res == INCLUDES) {
-				fprintf(nof->output_file, "%s;%d;INCLUDES;%s;%d\n", buffer1, mask1, buffer2, mask2);
+				st_fprintf(nof->output_file, "%I;%m;INCLUDES;%I;%m\n", &sf1->routes[i].subnet, &sf1->routes[i].subnet,
+						&sf2->routes[j].subnet,  &sf2->routes[j].subnet);
 				find = 1;
 			} else if (res == EQUALS) {
-				fprintf(nof->output_file, "%s;%d;EQUALS;%s;%d\n", buffer1, mask1, buffer2, mask2);
+				st_fprintf(nof->output_file, "%I;%m;EQUALS;%I;%m\n", &sf1->routes[i].subnet, &sf1->routes[i].subnet,
+						&sf2->routes[j].subnet,  &sf2->routes[j].subnet);
 				find = 1;
 			}
 		}
 		if (find == 0)
-			fprintf(nof->output_file, "%s;%d;;;\n", buffer1, mask1);
+			st_fprintf(nof->output_file, "%I;%m;;;\n", &sf1->routes[i].subnet, &sf1->routes[i].subnet);
 	} // for sf1
 }
 
