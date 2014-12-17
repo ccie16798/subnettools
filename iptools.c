@@ -247,9 +247,9 @@ int addrv62str(ipv6 z, char *out_buffer, int compress) {
 
 /* outbuffer must be large enough **/
 int subnet2str(const struct subnet *s, char *out_buffer, int comp_level) {
-	if (s->ip_ver == IPV4_A || s->ip_ver == IPV4_N)
+	if (s->ip_ver == IPV4_A)
 		return addrv42str(s->ip, out_buffer);
-	if (s->ip_ver == IPV6_A || s->ip_ver == IPV6_N)
+	if (s->ip_ver == IPV6_A)
 		return addrv62str(s->ip6, out_buffer, comp_level);
 	out_buffer[0] = '\0';
 	return -1;
@@ -257,9 +257,9 @@ int subnet2str(const struct subnet *s, char *out_buffer, int comp_level) {
 
 /* outbuffer must be large enough **/
 int addr2str(const struct ip_addr *a, char *out_buffer, int comp_level) {
-	if (a->ip_ver == IPV4_A || a->ip_ver == IPV4_N)
+	if (a->ip_ver == IPV4_A)
 		return addrv42str(a->ip, out_buffer);
-	if (a->ip_ver == IPV6_A || a->ip_ver == IPV6_N)
+	if (a->ip_ver == IPV6_A)
 		return addrv62str(a->ip6, out_buffer, comp_level);
 	out_buffer[0] = '\0';
 	return -1;
