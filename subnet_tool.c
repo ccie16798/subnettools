@@ -729,7 +729,6 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 	int res;
 	struct subnet s;
 	struct route *new_r;
-	char buffer1[51], buffer2[51];
 
 	/* first, remove duplicates and sort the crap*/
 	debug_timing_start();
@@ -748,25 +747,23 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 	memcpy(&new_r[0], &sf->routes[0], sizeof(struct route));
 	j = 0; /* i is the index in the original file, j is the index in the file we are building */
 	for (i = 1; i < sf->nr; i++) {
-		subnet2str(&new_r[j].subnet, buffer1, 2);
-		subnet2str(&sf->routes[i].subnet, buffer2, 2);
 		if (mode == 1 && !is_equal_gw(&new_r[j],  &sf->routes[i])) {
-			debug(AGGREGATE, 4, "Entry %lu [%s/%u] & %lu [%s/%u] cant aggregate, different GW\n", j, buffer1, new_r[j].subnet.mask,
-					i, buffer2, sf->routes[i].subnet.mask);
+			st_debug(AGGREGATE, 4, "Entry %lu [%P] & %lu [%P] cant aggregate, different GW\n", j, &new_r[j].subnet,
+					i, &sf->routes[i].subnet);
 			j++;
 			memcpy(&new_r[j], &sf->routes[i], sizeof(struct route));
 			continue;
 		}
 		res = aggregate_subnet(&new_r[j].subnet, &sf->routes[i].subnet, &s);
 		if (res < 0) {
-			debug(AGGREGATE, 4, "Entry %lu [%s/%u] & %lu [%s/%u] cant aggregate\n", j, buffer1, new_r[j].subnet.mask,
-					i, buffer2, sf->routes[i].subnet.mask);
+			st_debug(AGGREGATE, 4, "Entry %lu [%P] & %lu [%P] cant aggregate\n", j, &new_r[j].subnet,
+					i, &sf->routes[i].subnet);
 			j++;
 			memcpy(&new_r[j], &sf->routes[i], sizeof(struct route));
 			continue;
 		}
-		debug(AGGREGATE, 4, "Entry %lu [%s/%u] & %lu [%s/%u] can aggregate\n", j, buffer1, new_r[j].subnet.mask,
-			i, buffer2, sf->routes[i].subnet.mask);
+		st_debug(AGGREGATE, 4, "Entry %lu [%P] & %lu [%P] can aggregate\n", j, &new_r[j].subnet,
+			i, &sf->routes[i].subnet);
 		memcpy(&new_r[j].subnet, &s, sizeof(struct subnet));
 		if (mode == 1)
 			copy_ipaddr(&new_r[j].gw, &sf->routes[i].gw);
@@ -779,10 +776,7 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 				break;
 			res = aggregate_subnet(&new_r[j].subnet, &new_r[j - 1].subnet, &s);
 			if (res >= 0) {
-				subnet2str(&new_r[j - 1].subnet, buffer1, 2);
-				subnet2str(&new_r[j].subnet, buffer2, 2);
-				debug(AGGREGATE, 4, "Rewinding, entry %lu [%s/%u] & %lu [%s/%u] can aggregate\n", j - 1, buffer1, new_r[j - 1].subnet.mask,
-						j, buffer2, new_r[j].subnet.mask);
+				st_debug(AGGREGATE, 4, "Rewinding, entry %lu [%P] & %lu [%P] can aggregate\n", j - 1, &new_r[j - 1].subnet, j, &new_r[j].subnet);
 				j--;
 				memcpy(&new_r[j].subnet, &s, sizeof(struct subnet));
 				if (mode == 1)
