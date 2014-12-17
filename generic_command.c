@@ -29,7 +29,8 @@ extern struct st_command options[];
 int generic_command_run(int argc, char **argv, char *progname, void *opt) {
         int i, res;
 	int found = 0, found_i = 0;
-
+	int founds[30];
+	
 	debug(PARSEOPTS, 2, "parsing command : %s\n", argv[1]);
         for (i = 0; ;i++) {
                 if (commands[i].name == NULL)
@@ -41,20 +42,22 @@ int generic_command_run(int argc, char **argv, char *progname, void *opt) {
 				debug(PARSEOPTS, 5, "found EXACT handler for %s\n", argv[1]);
 				break;
 			}
-			found++;  /* if more than one match, means the caller used an ambiguious abbreviation */
-			if (found == 2) // FIXME
-				fprintf(stderr, "ambiguious command '%s', matches : \n %s\n", argv[1], commands[found_i].name);
-			if (found >= 2)
-				fprintf(stderr, " %s \n", commands[i].name);
+			if (found >= 39) /* enough is enough, OK??? */
+				break;
+			/* if more than one match, means the caller used an ambiguious abbreviation */
+			founds[found++] = i; 
 			found_i = i;
 			debug(PARSEOPTS, 5, "found possible handler for %s\n", argv[1]);
 		}
 	}
 	if (found == 0) {
-		fprintf(stderr, "unknow command '%s'\n", argv[1] );
+		fprintf(stderr, "unknow command '%s'\n", argv[1]);
 		fprintf(stderr, "use '%s help' for more help\n", progname);
 		res = -1;
 	} else if (found >= 2) {
+		fprintf(stderr, "ambiguous command '%s', matches : \n", argv[1]);
+		for (i = 0; i < found; i++)
+			fprintf(stderr, " %s\n", commands[founds[i]].name);
 		res = -2;
 	} else if (found == 1) {
 		enough_args(argc - 2,  commands[found_i].required_args, commands[found_i].name, progname);
