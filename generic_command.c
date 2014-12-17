@@ -35,8 +35,14 @@ int generic_command_run(int argc, char **argv, char *progname, void *opt) {
                 if (commands[i].name == NULL)
 			break;
 		if (!strncmp(commands[i].name, argv[1], strlen(argv[1]))) {
+			if (strlen(argv[1]) == strlen(commands[i].name)) {
+				found = 1;
+				found_i = i;
+				debug(PARSEOPTS, 5, "found EXACT handler for %s\n", argv[1]);
+				break;
+			}
 			found++;  /* if more than one match, means the caller used an ambiguious abbreviation */
-			if (found == 2)
+			if (found == 2) // FIXME
 				fprintf(stderr, "ambiguious command '%s', matches : \n %s\n", argv[1], commands[found_i].name);
 			if (found >= 2)
 				fprintf(stderr, " %s \n", commands[i].name);
