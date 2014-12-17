@@ -246,17 +246,14 @@ void compare_files(struct subnet_file *sf1, struct subnet_file *sf2, struct opti
 void missing_routes(const struct subnet_file *sf1, const struct subnet_file *sf2, struct options *nof) {
 	unsigned long i, j;
 	int res, find;
-	char buffer1[51], buffer2[51];;
 
 	for (i = 0; i < sf1->nr; i++) {
 		find = 0;
 		for (j = 0; j < sf2->nr; j++) {
 			res = subnet_compare(&sf1->routes[i].subnet, &sf2->routes[j].subnet);
 			if (res == INCLUDED || res == EQUALS) {
-				subnet2str(&sf1->routes[i].subnet, buffer1, 2);
-				subnet2str(&sf2->routes[j].subnet, buffer2, 2);
-				debug(ADDRCOMP, 2, "skipping %s/%u, included in %s/%u\n", buffer1, sf1->routes[i].subnet.mask,
-						buffer2, sf2->routes[j].subnet.mask);
+				st_debug(ADDRCOMP, 2, "skipping %P, included in %P\n", &sf1->routes[i].subnet,
+						&sf2->routes[j].subnet);
 				find = 1;
 				break;
 			}
@@ -651,7 +648,6 @@ int subnet_file_simplify(struct subnet_file *sf) {
 int route_file_simplify(struct subnet_file *sf,  int mode) {
 	unsigned long i, j ,a;
 	int res, skip;
-	char buffer1[45], buffer2[45];
 	TAS tas;
 	struct route *new_r, *r, *discard;
 
@@ -679,17 +675,15 @@ int route_file_simplify(struct subnet_file *sf,  int mode) {
 		skip = 0;
 		while (1) {
 			res = subnet_compare(&r->subnet, &new_r[a].subnet);
-			if (res == INCLUDED || res == EQUALS ) {
-					subnet2str(&r->subnet, buffer1, 2);
-					subnet2str(&new_r[a].subnet, buffer2, 2);
+			if (res == INCLUDED || res == EQUALS) {
 					/* because the 'new_r' list is sorted, we know the first 'backward' match is the longest one
 					 * and the longest match is the one that matters
 					 */
 					if (is_equal_gw(r, &new_r[a])) {
-						debug(ADDRCOMP, 3, "%s/%d is included in %s/%d, discarding it\n", buffer1, r->subnet.mask, buffer2, new_r[a].subnet.mask);
+						st_debug(ADDRCOMP, 3, "%P is included in %P, discarding it\n", &r->subnet, &new_r[a].subnet);
 						skip = 1;
 					} else {
-						debug(ADDRCOMP, 3, "%s/%d is included in %s/%d but GW is different, keeping it\n", buffer1, r->subnet.mask, buffer2, new_r[a].subnet.mask);
+						st_debug(ADDRCOMP, 3, "%P is included in %P but GW is different, keeping it\n", &r->subnet, &new_r[a].subnet);
 					}
 					break;
 			}
@@ -793,12 +787,10 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 	return 1;
 }
 
-
 int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct subnet_file *sf2, struct subnet_file *sf3) {
 	unsigned long  i, j, can_add;
 	int res;
 	struct route *r;
-	char buffer1[51], buffer2[51];
 	TAS tas;
 
 	debug_timing_start();
@@ -813,10 +805,8 @@ int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct
 		for (j = 0; j < sf2->nr; j++) {
 			res = subnet_compare(&sf1->routes[i].subnet, &sf2->routes[j].subnet);
 			if (res == INCLUDED || res == EQUALS) {
-				subnet2str(&sf1->routes[i].subnet, buffer1, 2);
-				subnet2str(&sf2->routes[j].subnet, buffer2, 2);
-				debug(ADDRCOMP, 3, "Loop #1 adding %s/%u (included in : %s/%u)\n", buffer1, sf1->routes[i].subnet.mask,
-						buffer2, sf2->routes[j].subnet.mask);
+				st_debug(ADDRCOMP, 3, "Loop #1 adding %P (included in : %P)\n", &sf1->routes[i].subnet,
+						&sf2->routes[j].subnet);
 				addTAS(&tas, &sf1->routes[i]);
 				break;
 			}
@@ -828,10 +818,8 @@ int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct
 		for (i = 0; i < sf1->nr; i++) {
 			res = subnet_compare(&sf2->routes[j].subnet, &sf1->routes[i].subnet);
 			if (res == INCLUDED) {
-				subnet2str(&sf2->routes[j].subnet, buffer1, 2);
-				subnet2str(&sf1->routes[i].subnet, buffer2, 2);
-				debug(ADDRCOMP, 3, "Loop #2 may add %s/%u (included in : %s/%u)\n", buffer1, sf2->routes[j].subnet.mask,
-						buffer2, sf1->routes[i].subnet.mask);
+				st_debug(ADDRCOMP, 3, "Loop #2 may add %P (included in : %P)\n", &sf2->routes[j].subnet,
+						&sf1->routes[i].subnet);
 				can_add = 1;
 			} else if (res == EQUALS) {/* already added, skipping */
 				can_add = 0; /* maybe the route we are matching is included in something; in that case we wont add it again */
@@ -839,7 +827,7 @@ int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct
 			}
 		} // for i
 		if (can_add) {
-			debug(ADDRCOMP, 3, "Loop #2 add %s/%u\n", buffer1, sf2->routes[j].subnet.mask);
+			st_debug(ADDRCOMP, 3, "Loop #2 add %P\n", &sf2->routes[j].subnet);
 			addTAS(&tas, &sf2->routes[j]);
 		}
 	}
@@ -854,7 +842,6 @@ int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct
 	debug_timing_end();
 	return 1;
 }
-
 
 unsigned long long sum_subnet_file(struct subnet_file *sf) {
 	unsigned long i;
