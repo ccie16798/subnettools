@@ -178,8 +178,8 @@ int addrv42str(ipv4 z, char *out_buffer) {
  */
 int addrv62str(ipv6 z, char *out_buffer, int compress) {
 	int a, i, j;
-	int skip, max_skip = 0;
-	int skip_index, max_skip_index = 0;
+	int skip = 0, max_skip = 0;
+	int skip_index = 0, max_skip_index = 0;
 
 	if (compress == 0) {
 		a = sprintf(out_buffer, "%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x", z.n16[0], z.n16[1], z.n16[2], z.n16[3], z.n16[4], z.n16[5], z.n16[6], z.n16[7]);
@@ -191,7 +191,6 @@ int addrv62str(ipv6 z, char *out_buffer, int compress) {
 	/**
 	 ** longest 0000 block sequence will be replaced
 	 */
-	skip = 0;
 	for (i = 0; i < 8; i++) {
 		if (z.n16[i] == 0) {
 			if (skip == 0)  {
@@ -212,7 +211,7 @@ int addrv62str(ipv6 z, char *out_buffer, int compress) {
 			}
 		}
 	}
-	if (skip >= max_skip) {
+	if (skip && (skip >= max_skip)) {
 		/* happens in case address ENDS with :0000, we then left the loop without setting max_skip__ */
 		max_skip =  skip;
 		max_skip_index = skip_index;
@@ -232,7 +231,7 @@ int addrv62str(ipv6 z, char *out_buffer, int compress) {
 		debug(PARSEIPV6, 9, "building output  %d : %s\n", i, out_buffer);
 		j += a;
 	}
-	for (i = max_skip_index+max_skip; i < 7; i++) {
+	for (i = max_skip_index + max_skip; i < 7; i++) {
 		a = sprintf(out_buffer + j, "%x:", z.n16[i]);
 		debug(PARSEIPV6, 9, "building output  %d : %s\n", i, out_buffer);
 		j += a;
