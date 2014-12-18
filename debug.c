@@ -25,6 +25,7 @@ struct debug debugs[] = {
 	{ "tryguess",	__D_TRYGUESS,	"debug TRYGUESS" },
 	{ "configfile",	__D_CONFIGFILE,	"debug config file parsing" },
 	{ "fmt",	__D_FMT,	"debug FMT dynamic output" },
+	{ "addrremove",	__D_ADDRREMOVE,	"debug address removal" },
 	{0, 0}
 };
 
