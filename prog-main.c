@@ -503,6 +503,7 @@ static int run_remove(int arc, char **argv, void *options) {
 		}
 		for (i = 0; i < n; i++)
 			st_printf("%P\n", &r[i]);
+		free(r);
 		return 0;
 	} else  if (!strcasecmp(argv[2], "file")) {
 		res = load_netcsv_file(argv[3], &sf, nof);
