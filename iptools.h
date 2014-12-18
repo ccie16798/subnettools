@@ -110,6 +110,14 @@ void last_ip(struct subnet *s);
 void previous_subnet(struct subnet *s);
 void next_subnet(struct subnet *s);
 
+/* will return the largest number X where network_address(IP, mask) == network_address(IP, mask - X)
+ * for example f(10.1.4.0/24) will return 2 since :
+ *    network_address(10.1.4.0/22) == 10.1.4.0/22 (OK)
+ *    network_address(10.1.4.0/21) == 10.1.0.0/21 (NOT OK)
+ * in a bitmap, that is the number of right most 0 in (IP >> mask)
+ * let's hope you followed me :)
+ */
+int can_decrease_mask(const struct subnet *s);
 /*
  * remove s2 from s1 if possible
  * alloc a new struct subnet * 
