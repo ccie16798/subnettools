@@ -19,10 +19,10 @@ reg_test() {
 	echo -n "reg test [$@] : "
 	if [ ! -f ref/$output_file ]; then
 		echo "No ref file found for this test, creating it '$ref_file'"
-		$PROG -c $conf_name $1 $2 $3  > ref/$output_file	
+		$PROG -c $conf_name $1 $2 $3 $4 > ref/$output_file	
 		return
 	fi
-	$PROG -c $conf_name $1 $2 $3  > res/$output_file
+	$PROG -c $conf_name $1 $2 $3 $4 > res/$output_file
 	diff res/$output_file ref/$output_file > /dev/null
 	if [ $? -eq 0 ]; then
 		echo -e "\033[32mOK\033[0m"
@@ -55,6 +55,14 @@ reg_test simplify2 simplify1
 reg_test sort aggipv6
 reg_test sort sort1
 reg_test sort sort1-ipv6
+# removal
+reg_test remove subnet 10.1.1.2/16  10.1.2.0/24
+reg_test remove subnet 10.1.0.0/16  10.1.0.0/28
+reg_test remove subnet 10.1.0.0/16  10.1.255.240/28
+reg_test remove subnet 2001:db8::/32 2001:db8::/64
+reg_test remove subnet 2001:db8::/32 2001:db8:a::/64
+reg_test remove subnet 2001:db8::/32 2001:db8:ffff:ffff::/64
+
 # converter
 reg_test convert CiscoRouter iproute_cisco
 reg_test convert CiscoRouter iproutecisco_ECMP 
