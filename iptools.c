@@ -911,6 +911,21 @@ struct subnet *subnet_remove(const struct subnet *s1, const struct subnet *s2, i
 	}
 	copy_subnet(&test, s1);
 	i = 0;
+	/** strategy is as follow :
+	test = S1/2;
+	do
+		do
+			increase test mask 
+		until test doesn't include S2 any more
+		
+		test = test + 1 (next subnet)
+	until test != S2
+	test = S2
+	do
+		test = test +1 (next subnet)
+		decrease test mask as much as we can (aggregation)
+	until test included in S1
+	  */
 	while (1) { /* getting subnet before s2*/
 		a = 0;
 		while (1) {
