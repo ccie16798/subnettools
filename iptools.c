@@ -14,8 +14,8 @@
 #include <stdarg.h>
 #include "debug.h"
 #include "iptools.h"
-#include "bitmap.h"
 #include "utils.h"
+#include "bitmap.h"
 #include "heap.h"
 #include "st_printf.h"
 
@@ -114,7 +114,7 @@ int subnet_compare_ipv6(ipv6 ip1, u32 mask1, ipv6 ip2, u32 mask2) {
 		if (is_equal_ipv6(ip1, ip2))
 			return INCLUDED;
 		else
-			return -1;
+			return NOMATCH;
         } else if (mask1 < mask2) {
 		shift_ipv6_right(ip1, (128 - mask1));
 		shift_ipv6_right(ip2, (128 - mask1));
@@ -123,16 +123,15 @@ int subnet_compare_ipv6(ipv6 ip1, u32 mask1, ipv6 ip2, u32 mask2) {
                 if (is_equal_ipv6(ip1, ip2))
                         return INCLUDES;
                 else
-                        return -1;
+                        return NOMATCH;
         } else {
 		shift_ipv6_right(ip1, (128 - mask1));
 		shift_ipv6_right(ip2, (128 - mask1));
                 if (is_equal_ipv6(ip1, ip2))
                         return EQUALS;
                 else
-                        return -1;
+                        return NOMATCH;
         }
-	return -1;
 }
 
 int subnet_compare_ipv4(ipv4 prefix1, u32 mask1, ipv4 prefix2, u32 mask2) {
@@ -144,21 +143,21 @@ int subnet_compare_ipv4(ipv4 prefix1, u32 mask1, ipv4 prefix2, u32 mask2) {
 		if (a == b)
 			return INCLUDED;
 		else
-			return -1;
+			return NOMATCH;
 	} else if  (mask1 < mask2) {
 		a = prefix1 >> (32 - mask1);
 		b = prefix2 >> (32 - mask1);
 		if (a == b)
 			return INCLUDES;
 		else
-			return -1;
+			return NOMATCH;
 	} else {
 		a = prefix1 >> (32 - mask1);
 		b = prefix2 >> (32 - mask1);
 		if (a == b)
 			return EQUALS;
 		else
-			return -1;
+			return NOMATCH;
 	}
 }
 
@@ -845,3 +844,123 @@ void previous_subnet(struct subnet *s) {
 
 	}
 }
+
+int can_decrease_mask(const struct subnet *s) {
+	ipv4 a;
+	ipv6 b;
+	int i = 0;
+
+	if (s->ip_ver == IPV4_A) {
+		a = (s->ip >> (32 - s->mask));
+		while (i < s->mask) {
+			if (a & 1)
+				break;
+			i++;
+			a >>= 1;
+		}
+		return i;
+	}
+	if (s->ip_ver == IPV6_A) {
+		memcpy(&b, &s->ip6, sizeof(ipv6));
+		shift_ipv6_right(b, 128 - s->mask);
+		while (i < s->mask) {
+			if (b.n16[7] & 1)
+				break;
+			i++;
+			shift_ipv6_right(b, 1);
+		}
+		return i;
+	}
+	return 0;
+}
+
+
+/*
+ * remove s2 from s1 if possible
+ * alloc a new struct subnet * 
+ * number of element is stored in *n
+ */
+struct subnet *subnet_remove(const struct subnet *s1, const struct subnet *s2, int *n) {
+	int res;
+	struct subnet *news;
+	struct subnet test;
+	int a, i;
+
+	res = subnet_compare(s1, s2);
+	if (res == EQUALS) {
+		st_debug(ADDRREMOVE, 5, "same prefix %P\n", s1);
+		*n = 0;
+		return NULL;
+	} else if (res == NOMATCH || res == INCLUDED) {
+		news = malloc(sizeof(struct subnet));
+		if (news == NULL) {
+			*n = -1;
+			return NULL;
+		}
+		st_debug(ADDRREMOVE, 5, "%P is not included in %P\n", s2, s1);
+		copy_subnet(news, s1);
+		*n = 1;
+		return news;
+	}
+	/* s2 in included in s1 */
+	res = s2->mask - s1->mask;
+	news = malloc(sizeof(struct subnet) * res);
+	if (news == NULL) {
+		*n = -1;
+		return NULL;
+	}
+	copy_subnet(&test, s1);
+	i = 0;
+	while (1) { /* getting subnet before s2*/
+		a = 0;
+		while (1) {
+			test.mask += 1;
+			st_debug(ADDRREMOVE, 3, "Loop#1 testing %P\n", &test);
+			res = subnet_compare(&test, s2);
+			if (res == INCLUDES) {
+				st_debug(ADDRREMOVE, 3, "Loop#1 %P too BIG, includes %P, continuing loop\n", &test, s2);
+				continue;
+			} else if (res == NOMATCH) {
+				st_debug(ADDRREMOVE, 3, "Loop#1 %P BIG enough, breaking loop\n", &test);
+				copy_subnet(&news[i], &test);
+				i++;
+				break;
+			} else if (res == EQUALS) {
+				st_debug(ADDRREMOVE, 3, "Loop#1 %P EQUALS, breaking final loop\n", &test);
+				a++;
+				break;
+			}
+		}
+		if (a) {
+			break;
+		} else {
+			next_subnet(&test);
+			st_debug(ADDRREMOVE, 3, "Loop#1 advancing to %P\n", &test);
+			res = subnet_compare(&test, s2);
+			if (res == EQUALS) {
+				st_debug(ADDRREMOVE, 3, "Loop#1 finally we reached %P\n", s2);
+				break;
+			}
+		}
+	}
+	/* getting subnet after s2 */
+	copy_subnet(&test, s2);
+	
+	while (1) {
+		next_subnet(&test);
+		st_debug(ADDRREMOVE, 3, "Loop#2 testing %P\n", &test);
+		a = can_decrease_mask(&test);
+		test.mask -= a;
+		st_debug(ADDRREMOVE, 3, "Loop#2 increased to %P\n", &test);
+		res = subnet_compare(&test, s1);
+		if (res == NOMATCH) {
+			st_debug(ADDRREMOVE, 3, "Loop#2 finally %P bigger than %P\n", &test, s1);
+			break;
+		}
+		copy_subnet(&news[i], &test);
+		i++;
+	}
+	*n = i;
+	return news;
+}
+

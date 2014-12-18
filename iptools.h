@@ -109,5 +109,12 @@ void last_ip(struct subnet *s);
 
 void previous_subnet(struct subnet *s);
 void next_subnet(struct subnet *s);
+
+/*
+ * remove s2 from s1 if possible
+ * alloc a new struct subnet * 
+ * number of element is stored in *n
+ */
+struct subnet *subnet_remove(const struct subnet *s1, const struct subnet *s2, int *n);
 #else
 #endif
