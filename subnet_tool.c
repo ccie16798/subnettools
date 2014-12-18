@@ -898,3 +898,50 @@ int subnet_sort_ascending(struct subnet_file *sf) {
 	debug_timing_end();
 	return 0;
 }
+
+int subnet_file_remove(const struct subnet_file *sf1, struct subnet_file *sf2, const struct subnet *subnet) {
+	unsigned long i, j;
+	int res, n;
+	struct subnet *r;
+	struct route *new_r;
+	
+	j = 0;
+	
+	for (i = 0; i < sf1->nr; i++) {
+		res = subnet_compare(&sf1->routes[i].subnet, subnet);
+		if (res == NOMATCH || res == INCLUDED) {
+			memcpy(&sf2->routes[j],  &sf1->routes[i], sizeof(struct route));
+			j++;
+			st_debug(ADDRREMOVE, 2, "%P is not included in %P\n", subnet, &sf1->routes[i]);
+			continue;
+		} else if (res == EQUALS) {
+			st_debug(ADDRREMOVE, 2, "removing entire subnet %P\n", subnet);
+			continue;
+
+		}
+		r = subnet_remove(&sf1->routes[i].subnet, subnet, &n);
+		if (n == -1) {
+			fprintf(stderr, "%s : no memory\n", __FUNCTION__);
+			return n;
+		}
+		/* realloc memory if necessary */
+		if (n + sf2->nr >= sf2->max_nr) {
+			sf2->max_nr *= 2;
+			 new_r = realloc(sf2->routes,  sizeof(struct route) * sf2->max_nr);
+			 if (new_r == NULL) {
+				 fprintf(stderr, "unable to reallocate, need to abort\n");
+				 return -3;
+			 }
+			 sf2->routes = new_r;
+		} /* realloc */
+		for (res = 0; res < n; res++) {
+			memcpy(&sf2->routes[j],  &sf1->routes[i], sizeof(struct route));
+			copy_subnet(&sf2->routes[j].subnet, &r[res]);
+			j++;
+		}
+		free(r);
+	}
+	sf2->nr = j;
+
+	return 1;
+}

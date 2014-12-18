@@ -51,5 +51,6 @@ int aggregate_route_file(struct subnet_file *sf, int mode);
 int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct subnet_file *sf2, struct subnet_file *sf3);
 unsigned long long sum_subnet_file(struct subnet_file *sf);
 
+int subnet_file_remove(const struct subnet_file *sf1, struct subnet_file *sf2, const struct subnet *s2);
 #else
 #endif

@@ -481,7 +481,7 @@ static int run_routeagg(int arc, char **argv, void *options) {
 
 static int run_remove(int arc, char **argv, void *options) {
 	struct subnet subnet1, subnet2, *r;
-	struct subnet_file sf;
+	struct subnet_file sf1, sf2;
 	struct options *nof = options;
 	int n, i, res;
 
@@ -506,7 +506,7 @@ static int run_remove(int arc, char **argv, void *options) {
 		free(r);
 		return 0;
 	} else  if (!strcasecmp(argv[2], "file")) {
-		res = load_netcsv_file(argv[3], &sf, nof);
+		res = load_netcsv_file(argv[3], &sf1, nof);
 		if (res < 0) {
 			fprintf(stderr, "Invalid csv file %s\n", argv[3]);
 			return res;
@@ -516,6 +516,10 @@ static int run_remove(int arc, char **argv, void *options) {
 			printf("Invalid IP %s\n", argv[4]);
 			return -1;
 		}
+		subnet_file_remove(&sf1, &sf2, &subnet2);
+		fprint_subnet_file_fmt(&sf2, nof->output_file, nof->output_fmt);
+		free(sf1.routes);
+		free(sf2.routes);
 		return 0;
 	} else {
 		fprintf(stderr, "invalid objet %s after %s, expecting 'subnet' or 'file'\n", argv[2], argv[1]);
