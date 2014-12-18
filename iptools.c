@@ -809,7 +809,7 @@ void last_ip(struct subnet *s) {
 	int i, j;
 
 	if (s->ip_ver == IPV4_A) {
-		for (i = 0; i < (32 - s->mask); i++)	
+		for (i = 0; i < (32 - s->mask); i++)
 			s->ip |= (1 << i);
 	} else if (s->ip_ver == IPV6_A) { /* do you love binary math? yes you do! */
 		for (i = 0; i < (128 - s->mask) / 16; i++)
@@ -877,7 +877,7 @@ int can_decrease_mask(const struct subnet *s) {
 
 /*
  * remove s2 from s1 if possible
- * alloc a new struct subnet * 
+ * alloc a new struct subnet *
  * number of element is stored in *n
  */
 struct subnet *subnet_remove(const struct subnet *s1, const struct subnet *s2, int *n) {
@@ -945,7 +945,7 @@ struct subnet *subnet_remove(const struct subnet *s1, const struct subnet *s2, i
 	}
 	/* getting subnet after s2 */
 	copy_subnet(&test, s2);
-	
+
 	while (1) {
 		next_subnet(&test);
 		st_debug(ADDRREMOVE, 3, "Loop#2 testing %P\n", &test);
