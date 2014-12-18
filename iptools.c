@@ -910,6 +910,7 @@ struct subnet *subnet_remove(const struct subnet *s1, const struct subnet *s2, i
 		return NULL;
 	}
 	copy_subnet(&test, s1);
+	first_ip(&test);
 	i = 0;
 	/** strategy is as follow :
 	test = S1/2;
