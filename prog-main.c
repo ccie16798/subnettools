@@ -125,16 +125,16 @@ void usage() {
 	printf("sum IPv4FILE        : get total number of hosts included in the list of subnets\n");
 	printf("sum IPv6FILE        : get total number of /64 subnets included\n");
 	printf("grep FILE prefix    : grep FILE for prefix/mask\n");
-	printf("convert PARSER FILE1: convert FILE1 to csv using parser PARSER\n");
-	printf("convert help        : use '%s convert help' for available parsers \n", PROG_NAME);
-	printf("diff FILE1 FILE2    : diff FILE1 & FILE2 (BUGGY)\n");
+	printf("diff FILE1 FILE2    : diff FILE1 & FILE2 (EXPERIMENTAL)\n");
 	printf("sort FILE1          : sort CSV FILE1\n");
 	printf("subnetagg FILE1     : sort and aggregate subnets in CSV FILE1; GW is not checked\n");
 	printf("routeagg  FILE1     : sort and aggregate subnets in CSV FILE1; GW is checked\n");
 	printf("simplify1 FILE1     : simplify CSV subnet file FILE1; duplicate or included networks are removed; GW is checked\n");
 	printf("simplify2 FILE1     : simplify CSV subnet file FILE1; prints redundant routes that can be removed\n");
 	printf("common FILE1 FILE2  : merge CSV subnet files FILE1 & FILE2; prints common routes only; GW isn't checked\n");
-	printf("addfiles FILE1 FILE2: merge CSV subnet files FILE1 & FILE2; prints the sum of both files\n");
+	printf("addfiles FILE1 FILE2: merge CSV subnet files FILE1 & FILE2; prints the sum of both files (EXPERIMENTAL)\n");
+	printf("convert PARSER FILE1: convert FILE1 to csv using parser PARSER\n");
+	printf("convert help        : use '%s convert help' for available parsers \n", PROG_NAME);
 	printf("confdesc            : print a small explanation of %s configuration file\n", PROG_NAME);
 	printf("help                : This HELP \n");
 	printf("version             : %s version \n", PROG_NAME);
@@ -503,17 +503,14 @@ static int run_confdesc(int arc, char **argv, void *options) {
 }
 
 static int run_test(int arc, char **argv, void *options) {
-	struct subnet subnet;
+	struct subnet subnet1, subnet2, *r;
+	int n, i;
 
-	get_subnet_or_ip(argv[2], &subnet);
-	st_printf("%I \n", &subnet);
-	next_subnet(&subnet);
-	st_printf("%I \n", &subnet);
-	previous_subnet(&subnet);
-	previous_subnet(&subnet);
-	st_printf("%I \n", &subnet);
-	if (is_link_local(subnet.ip6))
-		printf("its a link local address\n");
+	get_subnet_or_ip(argv[2], &subnet1);
+	get_subnet_or_ip(argv[3], &subnet2);
+	r = subnet_remove(&subnet1, &subnet2, &n);
+	for (i = 0; i <n; i++)
+		st_printf("%P\n", &r[i]);
 	return 0;
 }
 
