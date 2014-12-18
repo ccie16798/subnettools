@@ -55,6 +55,7 @@ static int run_sort(int argc, char **argv, void *options);
 static int run_sum(int argc, char **argv, void *options);
 static int run_subnetagg(int argc, char **argv, void *options);
 static int run_routeagg(int argc, char **argv, void *options);
+static int run_remove(int argc, char **argv, void *options);
 static int run_help(int argc, char **argv, void *options);
 static int run_version(int argc, char **argv, void *options);
 static int run_confdesc(int argc, char **argv, void *options);
@@ -91,6 +92,7 @@ struct st_command commands[] = {
 	{ "sum",	&run_sum,	1},
 	{ "subnetagg",	&run_subnetagg,	1},
 	{ "routeagg",	&run_routeagg,	1},
+	{ "removesubnet", &run_remove,	3},
 	{ "help",	&run_help,	0},
 	{ "version",	&run_version,	0},
 	{ "confdesc",	&run_confdesc,	0},
@@ -129,6 +131,7 @@ void usage() {
 	printf("sort FILE1          : sort CSV FILE1\n");
 	printf("subnetagg FILE1     : sort and aggregate subnets in CSV FILE1; GW is not checked\n");
 	printf("routeagg  FILE1     : sort and aggregate subnets in CSV FILE1; GW is checked\n");
+	printf("removesub TYPE O1 S1: remove Subnet S from Object O1; if TYPE=file O1=a file, if TYPE=subnet 01=a subnet\n");
 	printf("simplify1 FILE1     : simplify CSV subnet file FILE1; duplicate or included networks are removed; GW is checked\n");
 	printf("simplify2 FILE1     : simplify CSV subnet file FILE1; prints redundant routes that can be removed\n");
 	printf("common FILE1 FILE2  : merge CSV subnet files FILE1 & FILE2; prints common routes only; GW isn't checked\n");
@@ -476,6 +479,51 @@ static int run_routeagg(int arc, char **argv, void *options) {
 	return 0;
 }
 
+static int run_remove(int arc, char **argv, void *options) {
+	struct subnet subnet1, subnet2, *r;
+	struct subnet_file sf;
+	struct options *nof = options;
+	int n, i, res;
+
+	if (!strcasecmp(argv[2], "subnet")) {
+		res = get_subnet_or_ip(argv[3], &subnet1);
+		if (res == BAD_IP) {
+			printf("Invalid IP %s\n", argv[3]);
+			return -1;
+		}
+		res = get_subnet_or_ip(argv[4], &subnet2);
+		if (res == BAD_IP) {
+			printf("Invalid IP %s\n", argv[4]);
+			return -1;
+		}
+		r = subnet_remove(&subnet1, &subnet2, &n);
+		if (n == -1) {
+			printf("no memory for subnet_remove\n");
+			return -1;
+		}
+		for (i = 0; i < n; i++)
+			st_printf("%P\n", &r[i]);
+		return 0;
+	} else  if (!strcasecmp(argv[2], "file")) {
+		res = load_netcsv_file(argv[3], &sf, nof);
+		if (res < 0) {
+			fprintf(stderr, "Invalid csv file %s\n", argv[3]);
+			return res;
+		}
+		res = get_subnet_or_ip(argv[4], &subnet2);
+		if (res == BAD_IP) {
+			printf("Invalid IP %s\n", argv[4]);
+			return -1;
+		}
+		return 0;
+	} else {
+		fprintf(stderr, "invalid objet %s after %s, expecting 'subnet' or 'file'\n", argv[2], argv[1]);
+		return -1;
+
+	}
+	return 0;
+}
+
 static int run_help(int arc, char **argv, void *options) {
 	usage();
 	return 0;
@@ -617,7 +665,7 @@ static int option_fmt(int argc, char **argv, void *options) {
 }
 
 
-/* ensure a core dump is generated in cae of BUG
+/* ensure a core dump is generated in case of BUG
  * subnettool is bug free of course :)
  * man page says it is POSIX, let s hope so
  */
