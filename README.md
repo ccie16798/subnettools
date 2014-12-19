@@ -61,7 +61,7 @@ OUTPUT FMT
 - %U  : upper subnet of %I (lower subnet of 10.1.3.0/24 is 10.1.2.0/24)
 - %L  : lower subnet 
 - %P  : prefix/mask
-%I, %N, %B and %G MAY be followed by a IPv6 compression level (0, 1, or 2)
+%I, %N, %B and %G MAY be followed by a IPv6 compression level (0, 1, 2, 3)
 
 The character % MAY be followed by a field width (see printf man pages); this can help to align the results vertically, but please note in case width is smaller
 than ouptut string, it WILL NOT be truncated

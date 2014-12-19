@@ -179,7 +179,8 @@ int addrv42str(ipv4 z, char *out_buffer) {
  * output MUST be large enough
  * compress = 0 ==> no adress compression
  * compress = 1 ==> remove leading zeros
- * compress = 2 ==> FULL compression
+ * compress = 2 ==> FULL compression but doesnt convert Embedded IPv4 
+ * compress = 3 ==> FULL compression but and convert Embedded IPv4 
  */
 int addrv62str(ipv6 z, char *out_buffer, int compress) {
 	int a, i, j;
@@ -222,6 +223,17 @@ int addrv62str(ipv6 z, char *out_buffer, int compress) {
 		max_skip_index = skip_index;
 	}
 	debug(PARSEIPV6, 5, "can skip %d blocks at index %d\n", max_skip, max_skip_index);
+	if (compress == 3 && (skip_index == 0 && (max_skip >= 5 && max_skip < 8))) {
+		/* Mapped& Compatible IPv4 address */
+		if (z.n16[5] == 0x0) {
+			if (z.n16[6] == 0 && z.n16[7] == 1) /** the loopback address */
+				return sprintf(out_buffer, "::1");
+			else
+				return sprintf(out_buffer, "::%d.%d.%d.%d", z.n16[6]>>8, z.n16[6]&0xff, z.n16[7]>>8, z.n16[7]&0xff);
+		}
+		if (z.n16[5] == 0xffff)
+			return sprintf(out_buffer, "::ffff:%d.%d.%d.%d", z.n16[6]>>8, z.n16[6]&0xff, z.n16[7]>>8, z.n16[7]&0xff);
+	}
 	j = 0;
 	for (i = 0; i < max_skip_index; i++) {
 		a = sprintf(out_buffer + j, "%x:", z.n16[i]);
