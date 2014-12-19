@@ -143,6 +143,7 @@ void usage() {
 	printf("version             : %s version \n", PROG_NAME);
 	printf("\nOPTION := \n");
 	printf("-d <delim>      : change the default field delim (;) \n");
+	printf("-c <file >      : use config file <file>  instead of st.conf\n");
 	printf("-o <file >      : write output in <file> \n");
 	printf("-grep_field N   : grep field N only\n");
 	printf("-D <debug>      : DEBUG MODE ; use '%s -D help' for more info\n", PROG_NAME);
