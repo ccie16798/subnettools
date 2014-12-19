@@ -124,11 +124,11 @@ void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 				case 'I': /* IP address */
 				case 'B': /* last IP Address of the subnet */
 				case 'N': /* network adress of the subnet */
-					if (fmt[i2 + 1] == '0' || fmt[i2 + 1] == '1' || fmt[i2 + 1] == '2') {
+					if (fmt[i2 + 1] >= '0' && fmt[i2 + 1] <= '3') {
 						compression_level = fmt[i2 + 1] - '0';
 						i++;
 					} else
-						compression_level = 2;
+						compression_level = 3;
 					copy_subnet(&v_sub, &r->subnet);
 					if (fmt[i2] == 'B')
 						last_ip(&v_sub);
@@ -142,22 +142,22 @@ void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
 					break;
 				case 'P': /* Prefix */
-					if (fmt[i2 + 1] == '0' || fmt[i2 + 1] == '1' || fmt[i2 + 1] == '2') {
+					if (fmt[i2 + 1] >= '0' && fmt[i2 + 1] <= '3') {
 						compression_level = fmt[i2 + 1] - '0';
 						i++;
 					} else
-						compression_level = 2;
+						compression_level = 3;
 					copy_subnet(&v_sub, &r->subnet);
 					subnet2str(&v_sub, buffer2, compression_level);
 					sprintf(buffer, "%s/%d", buffer2, (int)v_sub.mask);
 					a += sprintf(outbuf + j, BUFFER_FMT, buffer);	
 					break;
 				case 'G':
-					if (fmt[i2 + 1] == '0' || fmt[i2 + 1] == '1' || fmt[i2 + 1] == '2') {
+					if (fmt[i2 + 1] >= '0' && fmt[i2 + 1] <= '3') {
 						compression_level = fmt[i2 + 1] - '0';
 						i++;
 					} else
-						compression_level = 2;
+						compression_level = 3;
 					memcpy(&sub.ip_addr, &r->gw, sizeof(struct ip_addr));
 					sub.ip_ver = r->subnet.ip_ver;
 					subnet2str(&sub, buffer, compression_level);
@@ -329,11 +329,11 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap)  {
 					break;
 				case 'a':
 					v_addr = va_arg(ap, struct ip_addr);
-					if (fmt[i2 + 1] == '0' || fmt[i2 + 1] == '1' || fmt[i2 + 1] == '2') {
+					if (fmt[i2 + 1] >= '0' && fmt[i2 + 1] <= '3') {
 						compression_level = fmt[i2 + 1] - '0';
 						i++;
 					} else
-						compression_level = 2;
+						compression_level = 3;
 					/* safegard a little */
 					if (v_addr.ip_ver == IPV4_A || v_addr.ip_ver == IPV6_A)
 						addr2str(&v_addr, buffer, compression_level);
@@ -347,11 +347,11 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap)  {
 				case 'B': /* last IP Address of the subnet */
 				case 'N': /* network adress of the subnet */
 					v_sub = va_arg(ap, struct subnet);
-					if (fmt[i2 + 1] == '0' || fmt[i2 + 1] == '1' || fmt[i2 + 1] == '2') {
+					if (fmt[i2 + 1] >= '0' && fmt[i2 + 1] <= '3') {
 						compression_level = fmt[i2 + 1] - '0';
 						i++;
 					} else
-						compression_level = 2;
+						compression_level = 3;
 					if (v_sub.ip_ver == IPV4_A || v_sub.ip_ver == IPV6_A) {
 						if (fmt[i2] == 'B')
 							last_ip(&v_sub);
@@ -368,11 +368,11 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap)  {
 					break;
 				case 'P': /* Prefix */
 					v_sub = va_arg(ap, struct subnet);
-					if (fmt[i2 + 1] == '0' || fmt[i2 + 1] == '1' || fmt[i2 + 1] == '2') {
+					if (fmt[i2 + 1] >= '0' && fmt[i2 + 1] <= '3') {
 						compression_level = fmt[i2 + 1] - '0';
 						i++;
 					} else
-						compression_level = 2;
+						compression_level = 3;
 					if (v_sub.ip_ver == IPV4_A || v_sub.ip_ver == IPV6_A) {
 						char buffer2[128];
 						subnet2str(&v_sub, buffer2, compression_level);
