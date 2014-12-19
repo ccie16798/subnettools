@@ -62,7 +62,8 @@ reg_test remove subnet 10.1.0.0/16  10.1.255.240/28
 reg_test remove subnet 2001:db8::/32 2001:db8::/64
 reg_test remove subnet 2001:db8::/32 2001:db8:a::/64
 reg_test remove subnet 2001:db8::/32 2001:db8:ffff:ffff::/64
-
+reg_test remove file route_aggipv6-2 2001:dbb::/64
+reg_test remove file route_aggipv4 10.1.4.0/32
 # converter
 reg_test convert CiscoRouter iproute_cisco
 reg_test convert CiscoRouter iproutecisco_ECMP 
