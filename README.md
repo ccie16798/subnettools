@@ -61,7 +61,7 @@ OUTPUT FMT
 - %U  : upper subnet of %I (lower subnet of 10.1.3.0/24 is 10.1.2.0/24)
 - %L  : lower subnet 
 - %P  : prefix/mask
-%I, %N, %B and %G MAY be followed by a IPv6 compression level (0, 1, 2, 3)
+%I, %N, %B and %G MAY be followed by a IPv6 address compression level (0, 1, 2, 3)
 
 - compression level 0 : No compression  
 - compression level 1 : remove leading 0
@@ -85,19 +85,13 @@ HELLO my mask is 22 my prefix is 10.1.4.0 ma GW est 192.168.1.2, i say 'AGGREGAT
 
 EXAMPLE 2 (using field width to align colons):
 ----------------------------------------------
-Note : GitHub pretty print will not print that correcly, use a text editor
 
-etienne@debian:~/st$ ./subnet-tools -fmt "%-16I;%-3m;%-10D;%-32G" route regtest/route_aggipv6-2 
-
-2000:1::        ;32 ;eth0/1    ;fe80::254                      
- 
-2001:db4::      ;30 ;eth0/1    ;fe80::251                      
- 
-2001:db8::      ;32 ;eth0/2    ;fe80::251                      
- 
-2001:db9::      ;32 ;eth0/1    ;fe80::251                       
-
-2001:dba::      ;31 ;eth0/1    ;fe80::251                  
+	etienne@debian:~/st$ ./subnet-tools -fmt "%-16I;%-3m;%-10D;%-32G" route regtest/route_aggipv6-2 
+	2000:1::        ;32 ;eth0/1    ;fe80::254                      
+	2001:db4::      ;30 ;eth0/1    ;fe80::251                      
+	2001:db8::      ;32 ;eth0/2    ;fe80::251                      
+	2001:db9::      ;32 ;eth0/1    ;fe80::251                       
+	2001:dba::      ;31 ;eth0/1    ;fe80::251                  
 
 EXAMPLE3 (converting subnets to address ranges)
 -----------------------------------------------
@@ -140,8 +134,8 @@ work TODO
 - fixing file diff (semantics is difficult, what do we want)
 - adding more converters (and fixing IPv6 converters)
 - fixing ECMP in converters (maybe)
-- teach IPv6 about IPv4 compatible addresses ::FFFF:IPv4, ::IPv4
 - bitmap printing
+- subnet splitting
 - implement subnet_info (IPver, Network IP, Last IP, class (ipv4), IPv6 interpretation
 - implement st_scanf & friends (v0.7)
 - implement progress bar (what is your 1M line aggregation doing??) ()
