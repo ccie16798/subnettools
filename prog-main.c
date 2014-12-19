@@ -114,8 +114,7 @@ struct st_command options[] = {
 };
 
 void usage() {
-	printf("Usage: %s [OPTIONS] COMMAND FILES ....\n", PROG_NAME);
-	printf("Files must be in  CSV format\n");
+	printf("Usage: %s [OPTIONS] COMMAND ARGUMENTS ....\n", PROG_NAME);
 	printf("\n");
 	printf("\nCOMMAND := \n");
 	printf("echo FMT ARG2       : try to get subnet from ARG2 and echo it according to FMT\n");
@@ -141,14 +140,21 @@ void usage() {
 	printf("confdesc            : print a small explanation of %s configuration file\n", PROG_NAME);
 	printf("help                : This HELP \n");
 	printf("version             : %s version \n", PROG_NAME);
-	printf("\nOPTION := \n");
+	printf("\nOPTIONS := \n");
 	printf("-d <delim>      : change the default field delim (;) \n");
 	printf("-c <file >      : use config file <file>  instead of st.conf\n");
 	printf("-o <file >      : write output in <file> \n");
 	printf("-grep_field N   : grep field N only\n");
 	printf("-D <debug>      : DEBUG MODE ; use '%s -D help' for more info\n", PROG_NAME);
 	printf("-fmt            : change the output format (default :%s)\n", default_fmt);
-	printf("-V              : verbose mode; same as '-D all:1'\n");
+	printf("-V              : verbose mode; same as '-D all:1'\n\n");
+	printf("INPUT CSV format :=\n");
+	printf("- Input subnet/routes files SHOULD have a CSV header describing its structure (prefix, mask,, GW, comment, etc...)\n");
+	printf("- Input subnet/routes files without a CSV header are assumed to be : prefix;mask;GW;comment or prefix;mask;comment\n");
+	printf("- default CSV header is 'prefix;mask;device;GW;comment'\n");
+	printf("- CSV header can be changed by using the configuration file (subnettools confdesc for more info)\n");
+	printf("- Input IPAM CSV MUST have a CSV header; there is a defaut header, but it is derived from my company's one\n");
+	printf("- So IPAM CSV header MUST be described in the configuration file\n");
 }
 
 void debug_usage() {
