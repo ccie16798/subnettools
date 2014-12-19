@@ -93,8 +93,6 @@ int addr2str(const struct ip_addr *a, char *out_buffer, int comp_level);
 int addrv42str(ipv4 z, char *out_buffer);
 int addrv62str(ipv6 z, char *out_buffer, int compress);
 int mask2ddn(u32 mask, char *out_buffer);
-/* un-compress an IPv6 address */
-int ipv6expand(const char *input, char *out);
 
 /* fill struct subnet from a string */
 int get_subnet_or_ip(const char *s, struct subnet *subnet);
