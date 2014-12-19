@@ -697,7 +697,7 @@ int subnet_is_superior(const struct subnet *s1, const struct subnet *s2) {
 			res =  1;
 		else
 			res =  0;
-		st_debug(ADDRCOMP, 5, "%P %c %P\n", s1, (res ? '>' : '<' ), s2);
+		st_debug(ADDRCOMP, 5, "%P %c %P\n", *s1, (res ? '>' : '<' ), *s2);
 		return res;
 	}
 
@@ -718,7 +718,7 @@ int subnet_is_superior(const struct subnet *s1, const struct subnet *s2) {
 				}
 			}
 		}
-		st_debug(ADDRCOMP, 5, "%P %c %P\n", s1, (res ? '>' : '<' ), s2);
+		st_debug(ADDRCOMP, 5, "%P %c %P\n", *s1, (res ? '>' : '<' ), *s2);
 		return res;
 	}
 	debug(ADDRCOMP, 1, "Invalid comparison ipver %d\n", s1->ip_ver);
@@ -731,26 +731,26 @@ static int aggregate_subnet_ipv4(const struct subnet *s1, const struct subnet *s
 	ipv4 a, b;
 
 	if (s1->mask != s2->mask) {
-		st_debug(AGGREGATE, 5, "different masks for %P and %P, can't aggregate\n", s1, s2);
+		st_debug(AGGREGATE, 5, "different masks for %P and %P, can't aggregate\n", *s1, *s2);
 		return -1;
 	}
 	a = s1->ip >> (32 - s1->mask);
 	b = s2->ip >> (32 - s1->mask);
 	if (a == b) {
-		st_debug(AGGREGATE, 6, "same subnet %P\n", s1);
+		st_debug(AGGREGATE, 6, "same subnet %P\n", *s1);
 		s3->ip_ver = IPV4_A;
 		s3->ip     = s1->ip;
 		s3->mask   = s1->mask;
 		return 1;
 	}
 	if (a >> 1 != b >> 1) {
-		st_debug(AGGREGATE, 5, "cannot aggregate %P and %P\n", s1, s2);
+		st_debug(AGGREGATE, 5, "cannot aggregate %P and %P\n", *s1, *s2);
 		return -1;
 	}
 	s3->ip_ver = IPV4_A;
 	s3->mask = s1->mask - 1;
 	s3->ip   = (a >> 1) << (32 - s3->mask);
-	st_debug(AGGREGATE, 5, "can aggregate %P and %P into : %P\n", s1, s2, s3);
+	st_debug(AGGREGATE, 5, "can aggregate %P and %P into : %P\n", *s1, *s2, *s3);
 	return 1;
 }
 
@@ -758,7 +758,7 @@ static int aggregate_subnet_ipv6(const struct subnet *s1, const struct subnet *s
 	ipv6 a, b;
 
 	if (s1->mask != s2->mask) {
-		st_debug(AGGREGATE, 5, "different masks for %P and %P, can't aggregate\n", s1, s2);
+		st_debug(AGGREGATE, 5, "different masks for %P and %P, can't aggregate\n", *s1, *s2);
 		return -1;
 	}
 	memcpy(&a, &s1->ip6, sizeof(a));
@@ -766,21 +766,21 @@ static int aggregate_subnet_ipv6(const struct subnet *s1, const struct subnet *s
 	shift_ipv6_right(a, (128 - s1->mask));
 	shift_ipv6_right(b, (128 - s1->mask));
 	if (is_equal_ipv6(a, b)) {
-		st_debug(AGGREGATE, 5, "same subnet %P\n", s1);
+		st_debug(AGGREGATE, 5, "same subnet %P\n", *s1);
 		memcpy(s3, s1, sizeof(struct subnet));
 		return 1;
 	}
 	shift_ipv6_right(a, 1);
 	shift_ipv6_right(b, 1);
 	if (!is_equal_ipv6(a, b)) {
-		st_debug(AGGREGATE, 5, "cannot aggregate %P and %P\n", s1, s2);
+		st_debug(AGGREGATE, 5, "cannot aggregate %P and %P\n", *s1, *s2);
 		return -1;
 	}
 	s3->mask = s1->mask - 1;
 	shift_ipv6_left(a, 128 - s3->mask);
 	s3->ip_ver = IPV6_A;
 	memcpy(&s3->ip6, &a, sizeof(a));
-	st_debug(AGGREGATE, 5, "can aggregate %P and %P into : %P\n", s1, s2, s3);
+	st_debug(AGGREGATE, 5, "can aggregate %P and %P into : %P\n", *s1, *s2, *s3);
 	return 1;
 }
 
@@ -888,7 +888,7 @@ struct subnet *subnet_remove(const struct subnet *s1, const struct subnet *s2, i
 
 	res = subnet_compare(s1, s2);
 	if (res == EQUALS) {
-		st_debug(ADDRREMOVE, 5, "same prefix %P\n", s1);
+		st_debug(ADDRREMOVE, 5, "same prefix %P\n", *s1);
 		*n = 0;
 		return NULL;
 	} else if (res == NOMATCH || res == INCLUDED) {
@@ -897,7 +897,7 @@ struct subnet *subnet_remove(const struct subnet *s1, const struct subnet *s2, i
 			*n = -1;
 			return NULL;
 		}
-		st_debug(ADDRREMOVE, 5, "%P is not included in %P\n", s2, s1);
+		st_debug(ADDRREMOVE, 5, "%P is not included in %P\n", *s2, *s1);
 		copy_subnet(news, s1);
 		*n = 1;
 		return news;
@@ -931,18 +931,18 @@ struct subnet *subnet_remove(const struct subnet *s1, const struct subnet *s2, i
 		a = 0;
 		while (1) {
 			test.mask += 1;
-			st_debug(ADDRREMOVE, 3, "Loop#1 testing %P\n", &test);
+			st_debug(ADDRREMOVE, 3, "Loop#1 testing %P\n", test);
 			res = subnet_compare(&test, s2);
 			if (res == INCLUDES) {
-				st_debug(ADDRREMOVE, 3, "Loop#1 %P too BIG, includes %P, continuing loop\n", &test, s2);
+				st_debug(ADDRREMOVE, 3, "Loop#1 %P too BIG, includes %P, continuing loop\n", test, *s2);
 				continue;
 			} else if (res == NOMATCH) {
-				st_debug(ADDRREMOVE, 3, "Loop#1 %P BIG enough, breaking loop\n", &test);
+				st_debug(ADDRREMOVE, 3, "Loop#1 %P BIG enough, breaking loop\n", test);
 				copy_subnet(&news[i], &test);
 				i++;
 				break;
 			} else if (res == EQUALS) {
-				st_debug(ADDRREMOVE, 3, "Loop#1 %P EQUALS, breaking final loop\n", &test);
+				st_debug(ADDRREMOVE, 3, "Loop#1 %P EQUALS, breaking final loop\n", test);
 				a++;
 				break;
 			}
@@ -951,10 +951,10 @@ struct subnet *subnet_remove(const struct subnet *s1, const struct subnet *s2, i
 			break;
 		} else {
 			next_subnet(&test);
-			st_debug(ADDRREMOVE, 3, "Loop#1 advancing to %P\n", &test);
+			st_debug(ADDRREMOVE, 3, "Loop#1 advancing to %P\n", test);
 			res = subnet_compare(&test, s2);
 			if (res == EQUALS) {
-				st_debug(ADDRREMOVE, 3, "Loop#1 finally we reached %P\n", s2);
+				st_debug(ADDRREMOVE, 3, "Loop#1 finally we reached %P\n", *s2);
 				break;
 			}
 		}
@@ -964,13 +964,13 @@ struct subnet *subnet_remove(const struct subnet *s1, const struct subnet *s2, i
 
 	while (1) {
 		next_subnet(&test);
-		st_debug(ADDRREMOVE, 3, "Loop#2 testing %P\n", &test);
+		st_debug(ADDRREMOVE, 3, "Loop#2 testing %P\n", test);
 		a = can_decrease_mask(&test);
 		test.mask -= a;
-		st_debug(ADDRREMOVE, 3, "Loop#2 increased to %P\n", &test);
+		st_debug(ADDRREMOVE, 3, "Loop#2 increased to %P\n", test);
 		res = subnet_compare(&test, s1);
 		if (res == NOMATCH) {
-			st_debug(ADDRREMOVE, 3, "Loop#2 finally %P bigger than %P\n", &test, s1);
+			st_debug(ADDRREMOVE, 3, "Loop#2 finally %P bigger than %P\n", test, *s1);
 			break;
 		}
 		copy_subnet(&news[i], &test);

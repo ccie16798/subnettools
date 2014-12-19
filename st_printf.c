@@ -213,10 +213,9 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap)  {
 	char buffer[128], temp[32];
 	char BUFFER_FMT[32];
 	int field_width;
-	struct subnet subnet;
 	/* variables from va_list */ 
-	struct  subnet *v_sub;
-	struct  ip_addr *v_addr;
+	struct  subnet  v_sub;
+	struct  ip_addr v_addr;
 	char *v_s;
 	int v_int;
 	char v_c;
@@ -283,16 +282,16 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap)  {
 					i--;
 					break;
 				case 'M':
-					v_sub = va_arg(ap, struct subnet *);
-					if (v_sub->ip_ver == IPV4_A)
-						mask2ddn(v_sub->mask, buffer);
+					v_sub = va_arg(ap, struct subnet);
+					if (v_sub.ip_ver == IPV4_A)
+						mask2ddn(v_sub.mask, buffer);
 					else
-						sprintf(buffer, "%d", v_sub->mask);
+						sprintf(buffer, "%d", (int)v_sub.mask);
 					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
 					break;
 				case 'm':
-					v_sub = va_arg(ap, struct subnet *);
-					sprintf(buffer, "%d", v_sub->mask);
+					v_sub = va_arg(ap, struct subnet);
+					sprintf(buffer, "%d", (int)v_sub.mask);
 					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
 					break;
 				case 's': /* almost standard %s printf, except that size is limited to 128 */
@@ -329,15 +328,15 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap)  {
 					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
 					break;
 				case 'a':
-					v_addr = va_arg(ap, struct ip_addr *);
+					v_addr = va_arg(ap, struct ip_addr);
 					if (fmt[i2 + 1] == '0' || fmt[i2 + 1] == '1' || fmt[i2 + 1] == '2') {
 						compression_level = fmt[i2 + 1] - '0';
 						i++;
 					} else
 						compression_level = 2;
 					/* safegard a little */
-					if (v_addr && (v_addr->ip_ver == IPV4_A || v_addr->ip_ver == IPV6_A))
-						addr2str(v_addr, buffer, compression_level);
+					if (v_addr.ip_ver == IPV4_A || v_addr.ip_ver == IPV6_A)
+						addr2str(&v_addr, buffer, compression_level);
 					else
 						strcpy(buffer,"<Invalid IP>");
 					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
@@ -347,38 +346,37 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap)  {
 				case 'I': /* IP address */
 				case 'B': /* last IP Address of the subnet */
 				case 'N': /* network adress of the subnet */
-					v_sub = va_arg(ap, struct subnet *);
+					v_sub = va_arg(ap, struct subnet);
 					if (fmt[i2 + 1] == '0' || fmt[i2 + 1] == '1' || fmt[i2 + 1] == '2') {
 						compression_level = fmt[i2 + 1] - '0';
 						i++;
 					} else
 						compression_level = 2;
-					if (v_sub && (v_sub->ip_ver == IPV4_A || v_sub->ip_ver == IPV6_A)) {
-						copy_subnet(&subnet, v_sub);
+					if (v_sub.ip_ver == IPV4_A || v_sub.ip_ver == IPV6_A) {
 						if (fmt[i2] == 'B')
-							last_ip(&subnet);
+							last_ip(&v_sub);
 						else if (fmt[i2] == 'N')
-							first_ip(&subnet);
+							first_ip(&v_sub);
 						else if (fmt[i2] == 'L')
-							previous_subnet(&subnet);
+							previous_subnet(&v_sub);
 						else if (fmt[i2] == 'U')
-							next_subnet(&subnet);
-						subnet2str(&subnet, buffer, compression_level);
+							next_subnet(&v_sub);
+						subnet2str(&v_sub, buffer, compression_level);
 					} else
 						strcpy(buffer, "<Invalid IP>");
 					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
 					break;
 				case 'P': /* Prefix */
-					v_sub = va_arg(ap, struct subnet *);
+					v_sub = va_arg(ap, struct subnet);
 					if (fmt[i2 + 1] == '0' || fmt[i2 + 1] == '1' || fmt[i2 + 1] == '2') {
 						compression_level = fmt[i2 + 1] - '0';
 						i++;
 					} else
 						compression_level = 2;
-					if (v_sub && (v_sub->ip_ver == IPV4_A || v_sub->ip_ver == IPV6_A)) {
+					if (v_sub.ip_ver == IPV4_A || v_sub.ip_ver == IPV6_A) {
 						char buffer2[128];
-						subnet2str(v_sub, buffer2, compression_level);
-						sprintf(buffer, "%s/%d", buffer2, (int)v_sub->mask);
+						subnet2str(&v_sub, buffer2, compression_level);
+						sprintf(buffer, "%s/%d", buffer2, (int)v_sub.mask);
 					} else
 						strcpy(buffer, "<Invalid IP/mask>");
 					a += sprintf(outbuf + j, BUFFER_FMT, buffer);	

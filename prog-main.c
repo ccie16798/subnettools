@@ -188,8 +188,7 @@ static int run_relation(int arc, char **argv, void *options) {
 	res = subnet_compare(&subnet1, &subnet2);
 	switch (res) {
 		case EQUALS:
-			st_printf("%I/%m equals %I/%m (subnet address : %N)\n", &subnet1, &subnet1,
-				&subnet2, &subnet2, &subnet2);
+			st_printf("%P equals %P (subnet address : %N)\n", subnet1, subnet2, subnet1);
 			break;
 		case INCLUDED:
 			st_printf("%s is included in %s\n", argv[2], argv[3]);
@@ -209,9 +208,9 @@ static int run_echo(int arc, char **argv, void *options) {
 
 	res = get_subnet_or_ip(argv[3], &subnet);
 	if (res == IPV4_A || res == IPV6_A)
-		st_printf(argv[2], &subnet, &subnet);
+		st_printf(argv[2], subnet, subnet);
 	else if (res == IPV4_N || res == IPV6_N)
-		st_printf(argv[2], &subnet, &subnet, &subnet);
+		st_printf(argv[2], subnet, subnet, subnet);
 	else
 		printf("Invalid IP");
 	printf("\n");
@@ -502,7 +501,7 @@ static int run_remove(int arc, char **argv, void *options) {
 			return -1;
 		}
 		for (i = 0; i < n; i++)
-			st_printf("%P\n", &r[i]);
+			st_printf("%P\n", r[i]);
 		free(r);
 		return 0;
 	} else  if (!strcasecmp(argv[2], "file")) {
@@ -563,7 +562,7 @@ static int run_test(int arc, char **argv, void *options) {
 	get_subnet_or_ip(argv[3], &subnet2);
 	r = subnet_remove(&subnet1, &subnet2, &n);
 	for (i = 0; i <n; i++)
-		st_printf("%P\n", &r[i]);
+		st_printf("%P\n", r[i]);
 	return 0;
 }
 

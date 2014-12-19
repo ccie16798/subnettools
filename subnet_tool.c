@@ -227,17 +227,17 @@ void compare_files(struct subnet_file *sf1, struct subnet_file *sf2, struct opti
 		for (j = 0; j < sf2->nr; j++) {
 			res = subnet_compare(&sf1->routes[i].subnet, &sf2->routes[j].subnet);
 			if (res == INCLUDES) {
-				st_fprintf(nof->output_file, "%I;%m;INCLUDES;%I;%m\n", &sf1->routes[i].subnet, &sf1->routes[i].subnet,
-						&sf2->routes[j].subnet,  &sf2->routes[j].subnet);
+				st_fprintf(nof->output_file, "%I;%m;INCLUDES;%I;%m\n", sf1->routes[i].subnet, sf1->routes[i].subnet,
+						sf2->routes[j].subnet,  sf2->routes[j].subnet);
 				find = 1;
 			} else if (res == EQUALS) {
-				st_fprintf(nof->output_file, "%I;%m;EQUALS;%I;%m\n", &sf1->routes[i].subnet, &sf1->routes[i].subnet,
-						&sf2->routes[j].subnet,  &sf2->routes[j].subnet);
+				st_fprintf(nof->output_file, "%I;%m;EQUALS;%I;%m\n", sf1->routes[i].subnet, sf1->routes[i].subnet,
+						sf2->routes[j].subnet,  sf2->routes[j].subnet);
 				find = 1;
 			}
 		}
 		if (find == 0)
-			st_fprintf(nof->output_file, "%I;%m;;;\n", &sf1->routes[i].subnet, &sf1->routes[i].subnet);
+			st_fprintf(nof->output_file, "%I;%m;;;\n", sf1->routes[i].subnet, sf1->routes[i].subnet);
 	} // for sf1
 }
 
@@ -252,14 +252,14 @@ void missing_routes(const struct subnet_file *sf1, const struct subnet_file *sf2
 		for (j = 0; j < sf2->nr; j++) {
 			res = subnet_compare(&sf1->routes[i].subnet, &sf2->routes[j].subnet);
 			if (res == INCLUDED || res == EQUALS) {
-				st_debug(ADDRCOMP, 2, "skipping %P, included in %P\n", &sf1->routes[i].subnet,
-						&sf2->routes[j].subnet);
+				st_debug(ADDRCOMP, 2, "skipping %P, included in %P\n", sf1->routes[i].subnet,
+						sf2->routes[j].subnet);
 				find = 1;
 				break;
 			}
 		}
 		if (find == 0)
-			st_fprintf(nof->output_file, "%I;%m\n", &sf1->routes[i].subnet, &sf1->routes[i].subnet);
+			st_fprintf(nof->output_file, "%I;%m\n", sf1->routes[i].subnet, sf1->routes[i].subnet);
 	}
 }
 /**
@@ -592,7 +592,7 @@ static  int __heap_subnet_is_superior(void *v1, void *v2) {
 static void __heap_print_subnet(void *v) {
 	struct subnet *s = &((struct route*)v)->subnet;
 
-	st_printf("%I/%m", s, s);
+	st_printf("%P", *s);
 }
 /*
  * simplify subnet file (removes redundant entries)
@@ -627,7 +627,7 @@ int subnet_file_simplify(struct subnet_file *sf) {
                         break;
 		res = subnet_compare(&r->subnet, &new_r[i - 1].subnet);
 		if (res == INCLUDED || res == EQUALS ) {
-			st_debug(ADDRCOMP, 3, "%P is included in %P, skipping\n", &r->subnet, &new_r[i - 1].subnet);
+			st_debug(ADDRCOMP, 3, "%P is included in %P, skipping\n", r->subnet, new_r[i - 1].subnet);
 			continue;
 		}
 		memcpy(&new_r[i], r, sizeof(struct route));
@@ -680,10 +680,10 @@ int route_file_simplify(struct subnet_file *sf,  int mode) {
 					 * and the longest match is the one that matters
 					 */
 					if (is_equal_gw(r, &new_r[a])) {
-						st_debug(ADDRCOMP, 3, "%P is included in %P, discarding it\n", &r->subnet, &new_r[a].subnet);
+						st_debug(ADDRCOMP, 3, "%P is included in %P, discarding it\n", r->subnet, new_r[a].subnet);
 						skip = 1;
 					} else {
-						st_debug(ADDRCOMP, 3, "%P is included in %P but GW is different, keeping it\n", &r->subnet, &new_r[a].subnet);
+						st_debug(ADDRCOMP, 3, "%P is included in %P but GW is different, keeping it\n", r->subnet, new_r[a].subnet);
 					}
 					break;
 			}
@@ -739,22 +739,22 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 	j = 0; /* i is the index in the original file, j is the index in the file we are building */
 	for (i = 1; i < sf->nr; i++) {
 		if (mode == 1 && !is_equal_gw(&new_r[j],  &sf->routes[i])) {
-			st_debug(AGGREGATE, 4, "Entry %lu [%P] & %lu [%P] cant aggregate, different GW\n", j, &new_r[j].subnet,
-					i, &sf->routes[i].subnet);
+			st_debug(AGGREGATE, 4, "Entry %lu [%P] & %lu [%P] cant aggregate, different GW\n", j, new_r[j].subnet,
+					i, sf->routes[i].subnet);
 			j++;
 			memcpy(&new_r[j], &sf->routes[i], sizeof(struct route));
 			continue;
 		}
 		res = aggregate_subnet(&new_r[j].subnet, &sf->routes[i].subnet, &s);
 		if (res < 0) {
-			st_debug(AGGREGATE, 4, "Entry %lu [%P] & %lu [%P] cant aggregate\n", j, &new_r[j].subnet,
-					i, &sf->routes[i].subnet);
+			st_debug(AGGREGATE, 4, "Entry %lu [%P] & %lu [%P] cant aggregate\n", j, new_r[j].subnet,
+					i, sf->routes[i].subnet);
 			j++;
 			memcpy(&new_r[j], &sf->routes[i], sizeof(struct route));
 			continue;
 		}
-		st_debug(AGGREGATE, 4, "Entry %lu [%P] & %lu [%P] can aggregate\n", j, &new_r[j].subnet,
-			i, &sf->routes[i].subnet);
+		st_debug(AGGREGATE, 4, "Entry %lu [%P] & %lu [%P] can aggregate\n", j, new_r[j].subnet,
+			i, sf->routes[i].subnet);
 		memcpy(&new_r[j].subnet, &s, sizeof(struct subnet));
 		if (mode == 1)
 			copy_ipaddr(&new_r[j].gw, &sf->routes[i].gw);
@@ -767,7 +767,7 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 				break;
 			res = aggregate_subnet(&new_r[j].subnet, &new_r[j - 1].subnet, &s);
 			if (res >= 0) {
-				st_debug(AGGREGATE, 4, "Rewinding, entry %lu [%P] & %lu [%P] can aggregate\n", j - 1, &new_r[j - 1].subnet, j, &new_r[j].subnet);
+				st_debug(AGGREGATE, 4, "Rewinding, entry %lu [%P] & %lu [%P] can aggregate\n", j - 1, new_r[j - 1].subnet, j, new_r[j].subnet);
 				j--;
 				memcpy(&new_r[j].subnet, &s, sizeof(struct subnet));
 				if (mode == 1)
@@ -805,8 +805,8 @@ int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct
 		for (j = 0; j < sf2->nr; j++) {
 			res = subnet_compare(&sf1->routes[i].subnet, &sf2->routes[j].subnet);
 			if (res == INCLUDED || res == EQUALS) {
-				st_debug(ADDRCOMP, 3, "Loop #1 adding %P (included in : %P)\n", &sf1->routes[i].subnet,
-						&sf2->routes[j].subnet);
+				st_debug(ADDRCOMP, 3, "Loop #1 adding %P (included in : %P)\n", sf1->routes[i].subnet,
+						sf2->routes[j].subnet);
 				addTAS(&tas, &sf1->routes[i]);
 				break;
 			}
@@ -818,8 +818,8 @@ int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct
 		for (i = 0; i < sf1->nr; i++) {
 			res = subnet_compare(&sf2->routes[j].subnet, &sf1->routes[i].subnet);
 			if (res == INCLUDED) {
-				st_debug(ADDRCOMP, 3, "Loop #2 may add %P (included in : %P)\n", &sf2->routes[j].subnet,
-						&sf1->routes[i].subnet);
+				st_debug(ADDRCOMP, 3, "Loop #2 may add %P (included in : %P)\n", sf2->routes[j].subnet,
+						sf1->routes[i].subnet);
 				can_add = 1;
 			} else if (res == EQUALS) {/* already added, skipping */
 				can_add = 0; /* maybe the route we are matching is included in something; in that case we wont add it again */
@@ -827,7 +827,7 @@ int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct
 			}
 		} // for i
 		if (can_add) {
-			st_debug(ADDRCOMP, 3, "Loop #2 add %P\n", &sf2->routes[j].subnet);
+			st_debug(ADDRCOMP, 3, "Loop #2 add %P\n", sf2->routes[j].subnet);
 			addTAS(&tas, &sf2->routes[j]);
 		}
 	}
@@ -912,10 +912,10 @@ int subnet_file_remove(const struct subnet_file *sf1, struct subnet_file *sf2, c
 		if (res == NOMATCH || res == INCLUDED) {
 			memcpy(&sf2->routes[j],  &sf1->routes[i], sizeof(struct route));
 			j++;
-			st_debug(ADDRREMOVE, 2, "%P is not included in %P\n", subnet, &sf1->routes[i]);
+			st_debug(ADDRREMOVE, 2, "%P is not included in %P\n", *subnet, sf1->routes[i]);
 			continue;
 		} else if (res == EQUALS) {
-			st_debug(ADDRREMOVE, 2, "removing entire subnet %P\n", subnet);
+			st_debug(ADDRREMOVE, 2, "removing entire subnet %P\n", *subnet);
 			continue;
 
 		}
