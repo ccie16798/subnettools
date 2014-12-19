@@ -63,6 +63,11 @@ OUTPUT FMT
 - %P  : prefix/mask
 %I, %N, %B and %G MAY be followed by a IPv6 compression level (0, 1, 2, 3)
 
+- compression level 0 : No compression  
+- compression level 1 : remove leading 0
+- compression level 2 : remove consecutives 16bits blocks of zero
+- compression level 3 : level 3 + print IPv4 Mapped & IPv4 compatible address in mixed IPv4 / IPv6 format
+
 The character % MAY be followed by a field width (see printf man pages); this can help to align the results vertically, but please note in case width is smaller
 than ouptut string, it WILL NOT be truncated
 
