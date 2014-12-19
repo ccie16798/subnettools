@@ -472,7 +472,7 @@ static int get_single_ipv4(char *s, struct ip_addr *addr) {
 	}
 	for (i = 0; i < 4; i++) {
 		if (truc[i] > 255) {
-			debug(PARSEIP, 5, "invalid IP %s,  %d too big\n", s, truc[i]);
+			debug(PARSEIP, 5, "invalid IP %s, %d too big\n", s, truc[i]);
 			return BAD_IP;
 		}
 	}
@@ -482,12 +482,15 @@ static int get_single_ipv4(char *s, struct ip_addr *addr) {
 }
 
 static int get_single_ipv6(char *s, struct ip_addr *addr) {
-	int i,j;
+	int i, j, k;
 	int do_skip = 0;
 	int out_i = 0;
 	char *s2;
 	int stop = 0;
 	int count = 0, count2 = 0;
+	int count_dot = 0;
+	int try_embedded, skipped_blocks;
+	struct ip_addr embedded; /* in case of a  IPv4-Compatible IPv6 or IPv4-Mapped IPv6 */
 
 	if ((s[0] == s[1]) && (s[0] == ':')) { /** loopback addr **/
 		do_skip = 1;
@@ -496,20 +499,28 @@ static int get_single_ipv6(char *s, struct ip_addr *addr) {
 			addr->ip_ver = IPV6_A;
 			return IPV6_A;
 		}
-		s2 = s+2;
+		s2 = s + 2;
 		count2++;
-	} else {
+	} else
 		s2 = s;
+	if (s[0] == ':' && s[1] != ':') {
+		debug(PARSEIPV6, 1, "Bad ipv6 address %s, cannot begin with a single ':'\n", s);
+		return BAD_IP;
 	}
-	/** on essaie de compter le nombre de : (7max) et de :: (1max) */
+	/**  couting ':' (7max),  '::' (1max), and '.' (0 or 3) */
 	for (i = 1; i < strlen(s); i++) {
-		if (s[i] == ':') {
+		if (count_dot && count_dot != 3 && s[i] == ':') {
+			debug(PARSEIPV6, 1, "Bad ipv6 address %s, found a ':' after only %d '.', cannot build embedded IP\n", s, count_dot);
+			return BAD_IP;
+		} else if (s[i] == ':') {
 			count++;
 			if (s[i + 1] == ':') {
 				count2++;
 			}
-		}
+		} else if (s[i] == '.')
+			count_dot++;
 	}
+	/* getting the correct number of :, :: etc **/
 	if (count > 7) {
 		debug(PARSEIPV6, 1, "Bad ipv6 address %s, too many ':', [%d]\n", s, count );
 		return BAD_IP;
@@ -518,19 +529,31 @@ static int get_single_ipv6(char *s, struct ip_addr *addr) {
 		debug(PARSEIPV6, 1, "Bad ipv6 address %s, too many '::', [%d]\n", s, count2 );
 		return BAD_IP;
 	}
-	if (count2 == 0 && count != 7) {
+	if (count_dot == 0 && count2 == 0 && count != 7) {
 		debug(PARSEIPV6, 1, "Bad ipv6 address %s, not enough ':', [%d]\n", s, count );
 		return BAD_IP;
 	}
+	if (count_dot && count_dot != 3) {
+		debug(PARSEIPV6, 1, "Bad IPv4-Embedded/Mapped address %s, not enough '.', [%d]\n", s, count_dot);
+		return BAD_IP;
+	}
+	if (count_dot && count2 == 0 && count != 6) {
+		debug(PARSEIPV6, 1, "Bad IPv4-Embedded/Mapped address %s, bad ':' count, [%d]\n", s, count );
+		return BAD_IP;
+	}
+	if (count_dot)
+		skipped_blocks = 7 - count;
+	else
+		skipped_blocks = 8 - count;
 
-	debug(PARSEIPV6, 8, "counted %d ':' and %d '::'\n", count, count2);
+	debug(PARSEIPV6, 8, "counted %d ':', %d '::', %d '.'\n", count, count2, count_dot);
 	debug(PARSEIPV6, 8, "still to parse %s\n", s2);
 	i = (do_skip ? 2 : 0); /* in case we start with :: */
 	for (;i < 72; i++) {
 		if (do_skip) {
 			/* we refill the skipped 0000: blocks */
-			debug(PARSEIPV6, 9, "copying %d skipped '0000:' blocks\n", 8 - count);
-			for (j = 0; j < 8 - count; j++) {
+			debug(PARSEIPV6, 9, "copying %d skipped '0000:' blocks\n", skipped_blocks);
+			for (j = 0; j < skipped_blocks; j++) {
 				addr->ip6.n16[out_i] = 0;
 				out_i++;
 			}
@@ -554,14 +577,36 @@ static int get_single_ipv6(char *s, struct ip_addr *addr) {
 				do_skip = 1;
 				s2++;
 			}
-			debug(PARSEIPV6, 9, "still to parse %s\n", s2);
+			debug(PARSEIPV6, 9, "still to parse %s, %d blocks already parsed\n", s2, out_i);
 		} else if (is_valid_ip_char(s[i]))
 			continue;
 		else {
 			debug(PARSEIPV6, 2, "invalid char [%c] found in  block [%s] index %d\n", s[i], s2, i);
 			return BAD_IP;
 		}
-	}
+		if (out_i == 6) { /* try to see if it is a ::ffff:IPv4 or ::Ipv4 */
+			try_embedded = 1;
+			for (k = 0 ; k < 5; k++) {
+				if (addr->ip6.n16[k] != 0) {
+					try_embedded = 0;
+					break;
+				}
+			}
+			if (try_embedded == 0)
+				continue;
+			if (addr->ip6.n16[5] != 0 && addr->ip6.n16[5] != 0xffff)
+				continue;
+
+			debug(PARSEIPV6, 9, "%s MAY be an embedded/mapped IPv4\n", s2);
+			if (get_single_ipv4(s2, &embedded) == IPV4_A) {
+				debug(PARSEIPV6, 9, "%s is an embedded/mapped IPv4\n", s2);
+				addr->ip6.n16[6] = embedded.ip >> 16;
+				addr->ip6.n16[7] = (unsigned short)(embedded.ip & 0xFFFF);
+				break;
+			}
+		}
+
+	} /* for i < 72 */
 	addr->ip_ver = IPV6_A;
 	return IPV6_A;
 }
@@ -916,9 +961,9 @@ struct subnet *subnet_remove(const struct subnet *s1, const struct subnet *s2, i
 	test = S1/2;
 	do
 		do
-			increase test mask 
+			increase test mask
 		until test doesn't include S2 any more
-		
+
 		test = test + 1 (next subnet)
 	until test != S2
 	test = S2

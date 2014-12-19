@@ -123,7 +123,6 @@ work TODO
 - fixing ECMP in converters (maybe)
 - teach IPv6 about IPv4 compatible addresses ::FFFF:IPv4, ::IPv4
 - bitmap printing
-- implement subnet_substract (v0.5)
 - implement subnet_info (IPver, Network IP, Last IP, class (ipv4), IPv6 interpretation
 - implement st_scanf & friends (v0.7)
 - implement progress bar (what is your 1M line aggregation doing??) ()
