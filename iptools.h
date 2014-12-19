@@ -19,12 +19,14 @@ typedef unsigned int ipv4;
 
 struct ipv6_a {
 	union {
+		/* beware of endianness issues
+		 * current version of subnet tool manipulate ->n16 only, use n32 and n8 at your own risk 
+		 */
 		unsigned char	n8[16];
 		unsigned short	n16[8];
 		u32  		n32[4];
 	};
 };
-
 typedef struct ipv6_a ipv6;
 
 struct ip_addr {
