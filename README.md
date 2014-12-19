@@ -66,7 +66,7 @@ OUTPUT FMT
 - compression level 0 : No compression  
 - compression level 1 : remove leading 0
 - compression level 2 : remove consecutives 16bits blocks of zero
-- compression level 3 : level 3 + print IPv4 Mapped & IPv4 compatible address in mixed IPv4 / IPv6 format
+- compression level 3 : level 2 + print IPv4 Mapped & IPv4 compatible address in mixed IPv4 / IPv6 format
 
 The character % MAY be followed by a field width (see printf man pages); this can help to align the results vertically, but please note in case width is smaller
 than ouptut string, it WILL NOT be truncated
@@ -108,6 +108,20 @@ EXAMPLE3 (converting subnets to address ranges)
      10.0.1.0/24 [10.0.1.0-10.0.1.255]
      10.0.2.0/23 [10.0.2.0-10.0.3.255]
      10.0.4.0/22 [10.0.4.0-10.0.7.255]
+
+EXAMPLE 4 (playing with IPv6 address compression)
+-------------------------------------------------
+
+ etienne@debian:~/st$ ./subnet-tools echo "%I3" 2001::1
+ 2001::1
+ etienne@debian:~/st$ ./subnet-tools echo "%I1" 2001::1 
+ 2001:0:0:0:0:0:0:1
+ etienne@debian:~/st$ ./subnet-tools echo "%I0" 2001::1 
+ 2001:0000:0000:0000:0000:0000:0000:0001
+ etienne@debian:~/st$ ./subnet-tools echo "%I2" ::ffff:10.1.1.1
+ ::ffff:a01:101
+ etienne@debian:~/st$ ./subnet-tools echo "%I3" ::ffff:10.1.1.1 
+ ::ffff:10.1.1.1
 
 CODING
 ======
