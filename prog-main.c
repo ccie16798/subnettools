@@ -663,7 +663,7 @@ static int option_addr_compress(int argc, char **argv, void *options) {
 		return 0;
 	}
 	a = atoi(argv[1]);
-	if (a < 0 || a > 2) {
+	if (a < 0 || a > 3) {
 		fprintf(stderr, "out of bound value for option '-p', [0-2], got '%s'\n", argv[1]);
 		return 0;
 	}
@@ -700,7 +700,7 @@ int main(int argc, char **argv) {
 
 	memset(&nof, 0 , sizeof(nof));
 	nof.output_file = stdout;
-	nof.ip_compress_mode = 2; /* full IPv6 address compression */
+	nof.ip_compress_mode = 3; /* full IPv6 address compression  with IPv4 mapped/compatible support*/
 	allow_core_dumps();
 	res = generic_parse_options(argc, argv, PROG_NAME, &nof);
 	if (res < 0)
