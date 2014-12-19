@@ -112,16 +112,16 @@ EXAMPLE3 (converting subnets to address ranges)
 EXAMPLE 4 (playing with IPv6 address compression)
 -------------------------------------------------
 
- etienne@debian:~/st$ ./subnet-tools echo "%I3" 2001::1
- 2001::1
- etienne@debian:~/st$ ./subnet-tools echo "%I1" 2001::1 
- 2001:0:0:0:0:0:0:1
- etienne@debian:~/st$ ./subnet-tools echo "%I0" 2001::1 
- 2001:0000:0000:0000:0000:0000:0000:0001
- etienne@debian:~/st$ ./subnet-tools echo "%I2" ::ffff:10.1.1.1
- ::ffff:a01:101
- etienne@debian:~/st$ ./subnet-tools echo "%I3" ::ffff:10.1.1.1 
- ::ffff:10.1.1.1
+	etienne@debian:~/st$ ./subnet-tools echo "%I3" 2001::1
+ 	2001::1
+	etienne@debian:~/st$ ./subnet-tools echo "%I1" 2001::1 
+	2001:0:0:0:0:0:0:1
+	etienne@debian:~/st$ ./subnet-tools echo "%I0" 2001::1 
+	2001:0000:0000:0000:0000:0000:0000:0001
+	etienne@debian:~/st$ ./subnet-tools echo "%I2" ::ffff:10.1.1.1
+	::ffff:a01:101
+	etienne@debian:~/st$ ./subnet-tools echo "%I3" ::ffff:10.1.1.1 
+	::ffff:10.1.1.1
 
 CODING
 ======
