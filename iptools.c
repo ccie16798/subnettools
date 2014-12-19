@@ -657,11 +657,11 @@ int subnet_is_superior(const struct subnet *s1, const struct subnet *s2) {
 			else
 				res = 0;
 		} else {
-			for (i = 0; i < 4; i++) {
-				if (s1->ip6.n32[i] < s2->ip6.n32[i]) {
+			for (i = 0; i < 8; i++) {
+				if (s1->ip6.n16[i] < s2->ip6.n16[i]) {
 					res = 1;
 					break;
-				} else if (s1->ip6.n32[i] > s2->ip6.n32[i]) {
+				} else if (s1->ip6.n16[i] > s2->ip6.n16[i]) {
 					res = 0;
 					break;
 				}
