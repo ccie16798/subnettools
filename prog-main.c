@@ -261,16 +261,26 @@ static int run_compare(int arc, char **argv, void *options) {
 
 static int run_missing(int arc, char **argv, void *options) {
 	int res;
-	struct subnet_file sf1, sf2;
+	struct subnet_file sf1, sf2, sf3;
 	struct options *nof = options;
 
 	res = load_netcsv_file(argv[2], &sf1, nof);
-	if (res < 0)
+	if (res < 0) {
 		fprintf(stderr,"invalid file %s; not a CSV?\n", argv[2]);
+		return res;
+	}
 	res = load_netcsv_file(argv[3], &sf2, nof);
-	if (res < 0)
+	if (res < 0) {
 		fprintf(stderr,"invalid file %s; not a CSV?\n", argv[3]);
-	missing_routes(&sf1, &sf2, nof);
+		return res;
+	}
+	res = missing_routes(&sf1, &sf2, &sf3);
+	if (res < 0)
+		return res;
+	fprint_subnet_file_fmt(&sf3, nof->output_file, nof->output_fmt);
+	free(sf3.routes);
+	free(sf2.routes);
+	free(sf1.routes);
 	return 0;
 }
 

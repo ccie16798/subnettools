@@ -32,7 +32,7 @@ struct options {
 int load_netcsv_file(char *name, struct subnet_file *sf, struct options *nof);
 int load_PAIP(char  *name, struct subnet_file *sf, struct options *nof);
 void compare_files(struct subnet_file *sf1, struct subnet_file *sf2, struct options *nof);
-void missing_routes(const struct subnet_file *sf1, const struct subnet_file *sf2, struct options *nof);
+int missing_routes(const struct subnet_file *sf1, const struct subnet_file *sf2, struct subnet_file *sf3);
 void diff_files(const struct subnet_file *sf1, const struct subnet_file *sf2, struct options *nof);
 void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *paip, struct options *nof);
 int network_grep_file(char *name, struct options *nof, char *ip);

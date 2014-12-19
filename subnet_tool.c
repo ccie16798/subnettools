@@ -242,11 +242,15 @@ void compare_files(struct subnet_file *sf1, struct subnet_file *sf2, struct opti
 }
 
 /*
- * print routes from sf1 not  covered by sf2 */
-void missing_routes(const struct subnet_file *sf1, const struct subnet_file *sf2, struct options *nof) {
-	unsigned long i, j;
+ * get routes from sf1 not  covered by sf2 INTO sf3 */
+int missing_routes(const struct subnet_file *sf1, const struct subnet_file *sf2, struct subnet_file *sf3) {
+	unsigned long i, j, k;
 	int res, find;
-
+	
+	res = alloc_subnet_file(sf3, sf1->max_nr);
+	if (res < 0)
+		return -1;
+	k = 0;
 	for (i = 0; i < sf1->nr; i++) {
 		find = 0;
 		for (j = 0; j < sf2->nr; j++) {
@@ -258,9 +262,14 @@ void missing_routes(const struct subnet_file *sf1, const struct subnet_file *sf2
 				break;
 			}
 		}
-		if (find == 0)
-			st_fprintf(nof->output_file, "%I;%m\n", sf1->routes[i].subnet, sf1->routes[i].subnet);
+		if (find == 0) {
+			memcpy(&sf3->routes[k], &sf1->routes[i], sizeof(struct route));
+			k++;
+		}
+		//	st_fprintf(nof->output_file, "%I;%m\n", sf1->routes[i].subnet, sf1->routes[i].subnet);
 	}
+	sf3->nr = k;
+	return 0;
 }
 /**
  * files MUST be sorted
