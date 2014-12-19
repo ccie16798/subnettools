@@ -898,7 +898,9 @@ int subnet_sort_ascending(struct subnet_file *sf) {
 	debug_timing_end();
 	return 0;
 }
-
+/*
+ * result is stored in *sf2
+ */
 int subnet_file_remove(const struct subnet_file *sf1, struct subnet_file *sf2, const struct subnet *subnet) {
 	unsigned long i, j;
 	int res, n;
@@ -906,7 +908,9 @@ int subnet_file_remove(const struct subnet_file *sf1, struct subnet_file *sf2, c
 	struct route *new_r;
 	
 	j = 0;
-	
+	res = alloc_subnet_file(sf2, sf1->max_nr);
+	if (res < 0)
+		return res;
 	for (i = 0; i < sf1->nr; i++) {
 		res = subnet_compare(&sf1->routes[i].subnet, subnet);
 		if (res == NOMATCH || res == INCLUDED) {
