@@ -161,7 +161,6 @@ int subnet_compare_ipv4(ipv4 prefix1, u32 mask1, ipv4 prefix2, u32 mask2) {
 	}
 }
 
-
 int addrv42str(ipv4 z, char *out_buffer) {
 	int a, b, c, d;
 
@@ -172,7 +171,6 @@ int addrv42str(ipv4 z, char *out_buffer) {
 	sprintf(out_buffer, "%d.%d.%d.%d", a,b,c,d);
 	return 0;
 }
-
 
 /*
  * store human readable of IPv6 z in output
@@ -304,14 +302,17 @@ u32 string2mask(const char *string) {
 
 	strxcpy(s3, string, sizeof(s3)); /** we copy because we dont want to modify the input string */
 	s = s3;
-	while (*s == ' ' || *s == '\t') /* enlevons les espaces*/
+	while (*s == ' ' || *s == '\t') /* remove spaces*/
 		s++;
-	if (*s == '/') /* si il reste un / on le vire, mais on autorise */
+	if (*s == '/') /* leading / is permitted */
 		s++;
 	if (*s == '\0')
 		return BAD_MASK;
 	for (i = 0; i < strlen(s); i++) {
-		if (s[i] == '.' && s[i + 1] != '.') /* skipping consecutive . */
+		if (s[i] == '.' && s[i + 1] == '.') {
+			debug(PARSEIP, 5, "invalid mask %s, contains consecutive '.'\n", s);
+			return BAD_MASK;
+		} else if (s[i] == '.') 
 			count_dot++;
 		else if (s[i] == ' ' || s[i] == '\t') {
 			s[i] = '\0';
@@ -319,7 +320,7 @@ u32 string2mask(const char *string) {
 		} else if (isdigit(s[i]))
 			continue;
 		else {
-			debug(PARSEIP, 5, "invalid mask %s,  contains [%c]\n", s, s[i]);
+			debug(PARSEIP, 5, "invalid mask %s, contains [%c]\n", s, s[i]);
 			return BAD_MASK;
 		}
 	}
@@ -779,7 +780,6 @@ void last_ip(struct subnet *s) {
 			s->ip6.n16[7 - i] |= (1 << j);
 	}
 }
-
 
 void next_subnet(struct subnet *s) {
 	if (s->ip_ver == IPV4_A) {
