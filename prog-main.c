@@ -214,6 +214,10 @@ static int run_echo(int arc, char **argv, void *options) {
 	struct subnet subnet;
 
 	res = get_subnet_or_ip(argv[3], &subnet);
+	if (strstr(argv[2], "%s")) {
+		fprintf(stderr, "Bad FMT, %%s is not allowed in this context\n");
+		return 0;
+	}
 	if (res == IPV4_A || res == IPV6_A)
 		st_printf(argv[2], subnet, subnet);
 	else if (res == IPV4_N || res == IPV6_N)
