@@ -5,27 +5,39 @@
 #include "st_printf.h"
 
 
-struct subnet class_a = { .ip = 0, .mask = 1};
-struct subnet class_b = { .ip = (1 << 31), .mask = 2};
-struct subnet class_c = { .ip = (3 << 30), .mask = 3};
-struct subnet class_d = { .ip = (14 << 29), .mask = 4};
-struct subnet class_e = { .ip = (15 << 29), .mask = 4};
+const struct subnet class_a = { .ip = 0, .mask = 1};
+const struct subnet class_b = { .ip = (1 << 31), .mask = 2};
+const struct subnet class_c = { .ip = (3 << 30), .mask = 3};
+const struct subnet class_d = { .ip = (14 << 29), .mask = 4};
+const struct subnet class_e = { .ip = (15 << 29), .mask = 4};
 
-struct subnet rfc1918_1;
-struct subnet rfc1918_2;
-struct subnet rfc1918_3;
-struct subnet ipv4_loopback;
-struct subnet rfc3927_ipv4_ll;
-struct subnet rfc6598_ipva4_sasr;
 
+#define S_IPV4_CONST(DIGIT1, DIGIT2, __MASK)  { .ip_ver = 4, .ip = (DIGIT1 << 24) + (DIGIT2 << 16), .mask = __MASK }
+const struct subnet ipv4_rfc1918_1 = S_IPV4_CONST(10, 0, 8);
+const struct subnet ipv4_rfc1918_2 = S_IPV4_CONST(172, 16, 12);
+const struct subnet ipv4_rfc1918_3 = S_IPV4_CONST(192, 168, 16); 
+const struct subnet ipv4_loopback = S_IPV4_CONST(127, 0, 8); 
+const struct subnet ipv4_rfc3927_ll = S_IPV4_CONST(169, 254, 16); 
+const struct subnet ipv4_rfc6598_sasr =S_IPV4_CONST(100, 64, 10); 
+
+
+#define S_IPV6_CONST(DIGIT1, DIGIT2, __MASK)  { .ip_ver = 6, .ip6.n16[0] = DIGIT1, .ip6.n16[1] = DIGIT2, .mask = __MASK }
+const struct subnet ipv6_6to4   = S_IPV6_CONST(0x2002, 0, 16);
+const struct subnet ipv6_rfc4380_teredo = S_IPV6_CONST(0x2001, 0, 32);
+const struct subnet ipv6_rfc3849_doc = S_IPV6_CONST(0x2001, 0x0DB8, 32);
+const struct subnet ipv6_isatap = {.ip_ver = 6, .ip6.n16[0] = 0xFE80, .ip6.n16[5] = 0x5EFE, .mask = 96};
+const struct subnet ipv6_mapped_ipv4 = {.ip_ver = 6, .ip6.n16[5] = 0xFFFF, .mask = 96};
+const struct subnet ipv6_compatible_ipv4 = {.ip_ver = 6, .mask = 96};
+const struct subnet ipv6_loopback = {.ip_ver = 6, .ip6.n16[7] = 1, .mask = 128};
 void init_know_subnets() {
+	/*
 	get_subnet_or_ip("10.0.0.0/8", &rfc1918_1);
 	get_subnet_or_ip("172.16.0.0/12", &rfc1918_2);
 	get_subnet_or_ip("192.168.0.0/16", &rfc1918_3);
 	get_subnet_or_ip("127.0.0.0/8", &ipv4_loopback);
 	get_subnet_or_ip("169.254.0.0/16", &rfc3927_ipv4_ll);
 	get_subnet_or_ip("100.64.0.0/10", &rfc6598_ipva4_sasr);
-
+	*/
 
 }
 
