@@ -266,7 +266,6 @@ int missing_routes(const struct subnet_file *sf1, const struct subnet_file *sf2,
 			memcpy(&sf3->routes[k], &sf1->routes[i], sizeof(struct route));
 			k++;
 		}
-		//	st_fprintf(nof->output_file, "%I;%m\n", sf1->routes[i].subnet, sf1->routes[i].subnet);
 	}
 	sf3->nr = k;
 	return 0;
@@ -498,7 +497,7 @@ int network_grep_file(char *name, struct options *nof, char *ip) {
 	while ((s = fgets(buffer, sizeof(buffer), f))) {
 		line++;
 		debug(GREP, 9, "grepping line %lu : %s\n", line, s);
-		strcpy(save_buffer, buffer); /* on va charcuter le buffer a coup de strtok */
+		strcpy(save_buffer, buffer);
 		s = strtok(s, nof->delim);
 		if (s == NULL)
 			continue;
@@ -669,9 +668,9 @@ int route_file_simplify(struct subnet_file *sf,  int mode) {
 		fprintf(stderr, "%s : no memory\n", __FUNCTION__);
 		return -1;
 	}
-	for (i = 0; i < sf->nr; i++) {
+	for (i = 0; i < sf->nr; i++)
 		addTAS(&tas, &sf->routes[i]);
-	} // for i
+
 	r = popTAS(&tas);
 	memcpy(&new_r[0], r, sizeof(struct route));
 	i = 1; /* index in the 'new_r' struct */
