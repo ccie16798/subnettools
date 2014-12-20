@@ -572,11 +572,11 @@ int get_single_ip(const char *string, struct ip_addr *addr) {
 
 /*
  * returns :
- *    IPV4_A : une IPv4 sans masque
- *    IPV4_N : une IPv4 + masque
- *    IPV6_A : une IPv6 sans masque
- *    IPV6_N : une IPv6 + masque
- *    BAD_IP, BAD_MASK sinon
+ *    IPV4_A : IPv4 without mask
+ *    IPV4_N : IPv4 + mask
+ *    IPV6_A : IPv6 without mask
+ *    IPV6_N : IPv6 +  mask
+ *    BAD_IP, BAD_MASK on error 
  */
 int get_subnet_or_ip(const char *string, struct subnet *subnet) {
 	int i, a;
@@ -589,7 +589,7 @@ int get_subnet_or_ip(const char *string, struct subnet *subnet) {
 	strxcpy(s2, string, sizeof(s2));
 	s = s2;
 
-	while (*s == ' '||*s== '\t') /* enlevons les espaces*/
+	while (*s == ' '||*s == '\t') /* remove spaces*/
 		s++;
 	if (*s == '\0'||*s == '/') {
 		debug(PARSEIP, 5, "invalid prefix %s, null IP\n", s);
