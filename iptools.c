@@ -324,10 +324,10 @@ u32 string2mask(const char *string) {
 			return BAD_MASK;
 		}
 	}
-	if (count_dot == 0) { /* notation en prefix */
+	if (count_dot == 0) { /* prefix length*/
 		a = atoi(s);
 		if (a > 128) {
-			debug(PARSEIP, 5, "invalid mask %s,  too long\n", s);
+			debug(PARSEIP, 5, "invalid mask %s, too long\n", s);
 			return BAD_MASK;
 		}
 		return a;
@@ -338,7 +338,7 @@ u32 string2mask(const char *string) {
 	}
 	a = 0;
 	sscanf(s,"%d.%d.%d.%d", truc, truc + 1, truc + 2, truc + 3);
-	for (i=0; i < 4 ; i++) {
+	for (i = 0; i < 4 ; i++) {
 		if (i && ( (truc[i] > truc[i - 1])  || (truc[i] && truc[i] < 255 && truc[i - 1] < 255))   ) {
 			debug(PARSEIP, 5, "invalid X.X.X.X mask %s\n",s);
 			return BAD_MASK;
@@ -404,8 +404,7 @@ static int get_single_ipv6(char *s, struct ip_addr *addr) {
 	int out_i = 0;
 	char *s2;
 	int stop = 0;
-	int count = 0, count2 = 0;
-	int count_dot = 0;
+	int count = 0, count2 = 0, count_dot = 0;
 	int try_embedded, skipped_blocks;
 	struct ip_addr embedded; /* in case of a  IPv4-Compatible IPv6 or IPv4-Mapped IPv6 */
 
