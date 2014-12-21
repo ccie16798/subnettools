@@ -7,11 +7,10 @@
 
 
 const struct subnet class_a = { .ip_ver = IPV4_A, .ip = 0, .mask = 1};
-const struct subnet class_b = { .ip_ver = IPV4_A, .ip = (1 << 31), .mask = 2};
-const struct subnet class_c = { .ip_ver = IPV4_A, .ip = (3 << 30), .mask = 3};
-const struct subnet class_d = { .ip_ver = IPV4_A, .ip = (14 << 29), .mask = 4};
-const struct subnet class_e = { .ip_ver = IPV4_A,.ip = (15 << 29), .mask = 4};
-
+const struct subnet class_b = { .ip_ver = IPV4_A, .ip = (2 << 30), .mask = 2};
+const struct subnet class_c = { .ip_ver = IPV4_A, .ip = (6 << 29), .mask = 3};
+const struct subnet class_d = { .ip_ver = IPV4_A, .ip = (14 << 28), .mask = 4};
+const struct subnet class_e = { .ip_ver = IPV4_A, .ip = (15 << 28), .mask = 4};
 
 #define S_IPV4_CONST(DIGIT1, DIGIT2, __MASK)  { .ip_ver = IPV4_A, .ip = (DIGIT1 << 24) + (DIGIT2 << 16), .mask = __MASK }
 const struct subnet ipv4_broadcast	= { .ip_ver = IPV4_A, .ip = -1, .mask = 32};
@@ -163,8 +162,8 @@ struct known_subnet_desc ipv4_known_subnets[] = {
 	{&ipv4_rfc1918_1,	"Private IP address (rfc1918)"},
 	{&ipv4_rfc1918_2,	"Private IP address (rfc1918)"},
 	{&ipv4_rfc1918_3,	"Private IP address (rfc1918)"},
-	{&ipv4_loopback,	"IPv4 loopback addresses"},
-	{&ipv4_rfc3927_ll,	"IPv4 link-local addresses (rfc6890)"},
+	{&ipv4_loopback,	"IPv4 loopback address"},
+	{&ipv4_rfc3927_ll,	"IPv4 link-local address (rfc6890)"},
 	{&ipv4_rfc6598_sasr,	"IPv4 private Shared Address Space (rfc6598)"},
 	{&ipv4_test1,		"IPv4 Test & doc NET (rfc5737)"},
 	{&ipv4_test2,		"IPv4 Test & doc NET (rfc5737)"},
@@ -177,18 +176,18 @@ struct known_subnet_desc ipv6_known_subnets[] = {
 	{&ipv6_default,		"IPv6 default address", -1},
 	{&ipv6_unspecified,	"IPv6 unspecified address"},
 	{&ipv6_global,		"IPv6 global address"},
-	{&ipv6_ula,		"IPv6 Unique Local Addresses"},
-	{&ipv6_sitelocal,	"IPv6 Site Local addresses (deprecated)"},
-	{&ipv6_linklocal,	"IPv6 link-local addresses"},
-	{&ipv6_multicast,	"IPv6 multicast addresses", 1, decode_ipv6_multicast},
+	{&ipv6_ula,		"IPv6 Unique Local Address"},
+	{&ipv6_sitelocal,	"IPv6 Site Local address (deprecated)"},
+	{&ipv6_linklocal,	"IPv6 link-local address"},
+	{&ipv6_multicast,	"IPv6 multicast address", 1, decode_ipv6_multicast},
 	{&ipv6_6to4,		"IPv6 6to4", 1, &decode_6to4},
 	{&ipv6_rfc4380_teredo,	"IPv6 rfc4380 Teredo", 1, &decode_teredo},
 	{&ipv6_rfc3849_doc,	"IPv6 rfc3849 Documentation-reserved addresses"},
 	{&ipv6_rfc6052_pat,	"IPv6 rfc6052 protocol address translation", 1, &decode_rfc6052},
-	{&ipv6_isatap_priv_ll,	"IPv6 ISATAP link-local addresses", 1, &decode_isatap_ll},
-	{&ipv6_isatap_pub_ll,	"IPv6 ISATAP link-local addresses", 1, &decode_isatap_ll},
-	{&ipv6_mapped_ipv4,	"IPv6 Mapped-IPv4 addresses"},
-	{&ipv6_compat_ipv4,	"IPv6 Compat-IPv4 addresses (Deprecated)"},
+	{&ipv6_isatap_priv_ll,	"IPv6 ISATAP link-local address", 1, &decode_isatap_ll},
+	{&ipv6_isatap_pub_ll,	"IPv6 ISATAP link-local address", 1, &decode_isatap_ll},
+	{&ipv6_mapped_ipv4,	"IPv6 Mapped-IPv4 address"},
+	{&ipv6_compat_ipv4,	"IPv6 Compat-IPv4 address (Deprecated)"},
 	{&ipv6_loopback,	"IPv6 Loopback Address"},
 	{NULL, NULL}
 };
