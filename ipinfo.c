@@ -107,14 +107,27 @@ struct known_subnet_desc ipv6_known_subnets[] = {
 	{&ipv6_linklocal,	"IPv6 link-local addresses"},
 	{&ipv6_multicast,	"IPv6 multicast addresses"},
 	{&ipv6_6to4,		"IPv6 6to4", 1, &decode_6to4},
-	{&ipv6_rfc4380_teredo,	"IPv6 rfc4380 Teredo", 1, decode_teredo},
+	{&ipv6_rfc4380_teredo,	"IPv6 rfc4380 Teredo", 1, &decode_teredo},
 	{&ipv6_rfc3849_doc,	"IPv6 rfc3849 Documentation-reserved addresses"},
-	{&ipv6_rfc6052_pat,	"IPv6 rfc6052 protocol address translation", 1, decode_rfc6052},
-	{&ipv6_isatap_priv_ll,	"IPv6 ISATAP link-local addresses", 1, decode_isatap_ll},
-	{&ipv6_isatap_pub_ll,	"IPv6 ISATAP link-local addresses", 1, decode_isatap_ll},
+	{&ipv6_rfc6052_pat,	"IPv6 rfc6052 protocol address translation", 1, &decode_rfc6052},
+	{&ipv6_isatap_priv_ll,	"IPv6 ISATAP link-local addresses", 1, &decode_isatap_ll},
+	{&ipv6_isatap_pub_ll,	"IPv6 ISATAP link-local addresses", 1, &decode_isatap_ll},
 	{&ipv6_mapped_ipv4,	"IPv6 Mapped-IPv4 addresses"},
 	{&ipv6_compat_ipv4,	"IPv6 Compat-IPv4 addresses (Deprecated)"},
 	{&ipv6_loopback,	"IPv6 Loopback Address"},
+	{NULL, NULL}
+};
+
+const struct subnet ipv4_mcast_ll	= S_IPV4_CONST(224,0, 8);
+const struct subnet ipv4_mcast_ssm	= S_IPV4_CONST(232,0, 8);
+const struct subnet ipv4_mcast_glob	= S_IPV4_CONST(233,0, 8);
+const struct subnet ipv4_mcast_site	= S_IPV4_CONST(239,0, 8);
+
+struct known_subnet_desc ipv4_mcast_known_subnets[] = {
+	{&ipv4_mcast_ll,	"IPv4 Link-Local Multicast Addresses"},
+	{&ipv4_mcast_ssm,	"IPv4 Source Specific Multicast Addresses"},
+	{&ipv4_mcast_glob,	"IPv4 Glob Multicast Addresses"},
+	{&ipv4_mcast_site,	"IPv4 Site Local (private) Multicast Addresses"},
 	{NULL, NULL}
 };
 
