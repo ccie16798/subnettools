@@ -220,6 +220,8 @@ int addrv62str(ipv6 z, char *out_buffer, int compress) {
 		max_skip =  skip;
 		max_skip_index = skip_index;
 	}
+	if (max_skip == 1) /* do not bother to compress if there is only one block to compress */
+		max_skip = max_skip_index = 0;
 	debug(PARSEIPV6, 5, "can skip %d blocks at index %d\n", max_skip, max_skip_index);
 	if (compress == 3 && (skip_index == 0 && (max_skip >= 5 && max_skip < 8))) {
 		/* Mapped& Compatible IPv4 address */
