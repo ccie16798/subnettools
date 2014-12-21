@@ -71,6 +71,58 @@ void decode_isatap_ll(FILE *out, struct subnet *s) {
 }
 
 
+void decode_ipv4_multicast(FILE *out, struct subnet *s) {
+
+}
+
+void decode_ipv6_embedded_rp(FILE *out, struct subnet *s) {
+	
+
+}
+
+void decode_ipv6_multicast(FILE *out, struct subnet *s) {
+	int scope, flag;
+	scope = s->ip6.n16[0] & 0xf;
+	flag  = (s->ip6.n16[0] >> 4) & 0xf;
+
+	fprintf(out, "Scope : ");
+	switch (scope) {
+	case 1:
+		fprintf(out, "Host Local\n");
+		break;
+	case 2:
+		fprintf(out, "Link Local\n");
+		break;
+	case 5:
+		fprintf(out, "Site Local\n");
+		break;
+	case 8:
+		fprintf(out, "Organisation Local\n");
+		break;
+	case 14:
+		fprintf(out, "Global\n");
+		break;
+	default:
+		fprintf(out, "Invalid : %d\n", scope);
+		break;
+	}
+	fprintf(out, "Flags : %d\n", flag);
+	if (flag & 4)
+		fprintf(out, "R=1, Embedded RP\n");
+	else
+		fprintf(out, "R=0, No Embedded RP\n");
+	if (flag & 2)
+		fprintf(out, "P=1, based on network prefix\n");
+	else
+		fprintf(out, "P=0, not based on network prefix\n");
+	if (flag & 1)
+		fprintf(out, "T=1, dynamically assigned prefix\n");
+	else
+		fprintf(out, "T=0, well-known multicast address\n");
+	if (flag == 7)
+		decode_ipv6_embedded_rp(out, s);
+}
+
 struct known_subnet_desc {
 	const struct subnet *s;
 	char *desc;
@@ -83,7 +135,7 @@ struct known_subnet_desc {
 struct known_subnet_desc ipv4_known_subnets[] = {
 	{&ipv4_default,		"IPv4 default address", -1},
 	{&ipv4_broadcast,	"IPv4 broadcast address", -1},
-	{&class_d,		"IPv4 multicast address"},
+	{&class_d,		"IPv4 multicast address", 1, decode_ipv4_multicast},
 	{&ipv4_unspecified,	"IPv4 unspecified address"},
 	{&ipv4_rfc1918_1,	"Private IP address (rfc1918)"},
 	{&ipv4_rfc1918_2,	"Private IP address (rfc1918)"},
@@ -105,7 +157,7 @@ struct known_subnet_desc ipv6_known_subnets[] = {
 	{&ipv6_ula,		"IPv6 Unique Local Addresses"},
 	{&ipv6_sitelocal,	"IPv6 Site Local addresses (deprecated)"},
 	{&ipv6_linklocal,	"IPv6 link-local addresses"},
-	{&ipv6_multicast,	"IPv6 multicast addresses"},
+	{&ipv6_multicast,	"IPv6 multicast addresses", 1, decode_ipv6_multicast},
 	{&ipv6_6to4,		"IPv6 6to4", 1, &decode_6to4},
 	{&ipv6_rfc4380_teredo,	"IPv6 rfc4380 Teredo", 1, &decode_teredo},
 	{&ipv6_rfc3849_doc,	"IPv6 rfc3849 Documentation-reserved addresses"},
@@ -176,27 +228,11 @@ char ipv4_get_class(const struct subnet *s) {
 	return 0;
 }
 
-void fprint_multicast_ipv4_info(FILE *out, struct subnet *subnet) {
-
-}
-
-void fprintf_know_ipv4_ranges(FILE *out, struct subnet *subnet) {
-
-
-}
-
 void fprint_ipv4_info(FILE *out, struct subnet *subnet) {
 	char c;
 
 	c = ipv4_get_class(subnet);
 	fprintf(out, "Classfull info : class %c\n", c);
-	if (c == 'd') {
-		fprint_multicast_ipv4_info(out, subnet);
-		return;
-	}
-	if (c == 'e') {
-		fprintf(out, "Unassigned address range\n");
-	}
 	fprint_ip_membership(out, subnet);
 }
 
