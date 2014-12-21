@@ -40,7 +40,8 @@ const struct subnet ipv6_6to4		= S_IPV6_CONST(0x2002, 0, 16);
 const struct subnet ipv6_rfc4380_teredo = S_IPV6_CONST(0x2001, 0, 32);
 const struct subnet ipv6_rfc3849_doc	= S_IPV6_CONST(0x2001, 0x0DB8, 32);
 const struct subnet ipv6_rfc6052_pat 	= S_IPV6_CONST(0x0064, 0xff9b, 96);
-const struct subnet ipv6_isatap_ll 	= {.ip_ver = 6, .ip6.n16[0] = 0xFE80, .ip6.n16[5] = 0x5EFE, .mask = 96};
+const struct subnet ipv6_isatap_priv_ll	= {.ip_ver = 6, .ip6.n16[0] = 0xFE80, .ip6.n16[5] = 0x5EFE, .mask = 96};
+const struct subnet ipv6_isatap_pub_ll	= {.ip_ver = 6, .ip6.n16[0] = 0xFE80, .ip6.n16[4] = 0x0200, .ip6.n16[5] = 0x5EFE, .mask = 96};
 const struct subnet ipv6_mapped_ipv4	= {.ip_ver = 6, .ip6.n16[5] = 0xFFFF, .mask = 96}; /* ::FFFF:/96 */
 const struct subnet ipv6_compat_ipv4	= {.ip_ver = 6, .mask = 96}; /* ::/96 */
 const struct subnet ipv6_loopback 	= {.ip_ver = 6, .ip6.n16[7] = 1, .mask = 128}; /* ::1/128 */
@@ -48,7 +49,6 @@ const struct subnet ipv6_loopback 	= {.ip_ver = 6, .ip6.n16[7] = 1, .mask = 128}
 void decode_6to4(FILE *out, struct subnet *s) {
 	fprintf(out, "6to4 IPv4 destination address : %d.%d.%d.%d\n", s->ip6.n16[1] >> 8, s->ip6.n16[1] & 0xFF,
 			s->ip6.n16[2] >> 8, s->ip6.n16[2] & 0xFF);
-
 }
 
 void decode_teredo(FILE *out, struct subnet *s) {
@@ -64,6 +64,12 @@ void decode_rfc6052(FILE *out, struct subnet *s) {
 	fprintf(out, "IPv4-Embedded IPv6 address : 64:ff9b::%d.%d.%d.%d\n", s->ip6.n16[6] >> 8, s->ip6.n16[6] & 0xFF,
 			s->ip6.n16[7] >> 8, s->ip6.n16[7] & 0xFF);
 }
+
+void decode_isatap_ll(FILE *out, struct subnet *s) {
+	fprintf(out, "ISATAP IPv4 destination address : %d.%d.%d.%d\n", s->ip6.n16[6] >> 8, s->ip6.n16[6] & 0xFF,
+			s->ip6.n16[7] >> 8, s->ip6.n16[7] & 0xFF);
+}
+
 
 struct known_subnet_desc {
 	const struct subnet *s;
@@ -104,8 +110,8 @@ struct known_subnet_desc ipv6_known_subnets[] = {
 	{&ipv6_rfc4380_teredo,	"IPv6 rfc4380 Teredo", 1, decode_teredo},
 	{&ipv6_rfc3849_doc,	"IPv6 rfc3849 Documentation-reserved addresses"},
 	{&ipv6_rfc6052_pat,	"IPv6 rfc6052 protocol address translation", 1, decode_rfc6052},
-	{&ipv6_isatap_ll,	"IPv6 ISATAP link-local addresses"},
-	{&ipv6_isatap_ll,	"IPv6 ISATAP link-local addresses"},
+	{&ipv6_isatap_priv_ll,	"IPv6 ISATAP link-local addresses", 1, decode_isatap_ll},
+	{&ipv6_isatap_pub_ll,	"IPv6 ISATAP link-local addresses", 1, decode_isatap_ll},
 	{&ipv6_mapped_ipv4,	"IPv6 Mapped-IPv4 addresses"},
 	{&ipv6_compat_ipv4,	"IPv6 Compat-IPv4 addresses (Deprecated)"},
 	{&ipv6_loopback,	"IPv6 Loopback Address"},
