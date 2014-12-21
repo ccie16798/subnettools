@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "iptools.h"
 #include "debug.h"
 #include "st_printf.h"
@@ -76,8 +77,30 @@ void decode_ipv4_multicast(FILE *out, struct subnet *s) {
 }
 
 void decode_ipv6_embedded_rp(FILE *out, struct subnet *s) {
-	
+	struct subnet rp;
+	int rp_id;
+	int Plen;
+	u32 group_id;
+	int i, j;
 
+	memset(&rp, 0, sizeof(rp));
+	rp.ip_ver = IPV6_A;
+	rp.mask = 128;
+	rp_id = (s->ip6.n16[1] >> 8) & 0xF;
+	Plen = s->ip6.n16[1] & 0xFF;
+	if (Plen > 64) {
+		fprintf(out, "Invalid Plen %x, MUST not be greater than 64\n", Plen);
+		return;
+	}
+	group_id = s->ip6.n16[6] * (1<<16) + s->ip6.n16[7];
+	/* copying Plen bits of s into rp */
+	for (i = 0; i < Plen / 16; i++)
+		rp.ip6.n16[i] = s->ip6.n16[i + 2];
+	for (j = 0 ; j < Plen % 16; j++)
+		rp.ip6.n16[i] |= (s->ip6.n16[i + 2] & (1 << (15 - j)));
+	rp.ip6.n16[7] = rp_id;
+	st_fprintf(out, "Embedded RP Address : %I\n", rp);
+	fprintf(out, "32-bit group id 0x%x [%d]\n", group_id, group_id); 
 }
 
 void decode_ipv6_multicast(FILE *out, struct subnet *s) {
