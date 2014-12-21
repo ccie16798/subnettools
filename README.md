@@ -14,6 +14,8 @@ FEATURES
 - subnet aggregation
 - converting 'sh ip route' files to a CSV
 - native IPv6 & IPv4 support
+- IPv4 & IPv6 address information (subnet address, first subnet ip, last ip, decoding of IPv6 "special IP 
+ like : Embedded RP, Teredo, 6to4)
 
 - subnettools FILE format is a CSV where each line represent a route ; a route is
 -* a subnet
