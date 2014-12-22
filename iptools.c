@@ -31,6 +31,10 @@ inline void copy_subnet(struct subnet *a, const struct subnet *b) {
 	memcpy(a, b, sizeof(struct subnet));
 }
 
+inline void copy_route(struct route *a, const struct route *b) {
+	memcpy(a, b, sizeof(struct route));
+}
+
 #define SIZE_T_MAX ((size_t)0 - 1)
 int alloc_subnet_file(struct subnet_file *sf, unsigned long n) {
 	if (n > SIZE_T_MAX / sizeof(struct route)) { /* being paranoid */
