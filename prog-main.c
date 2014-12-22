@@ -123,7 +123,7 @@ void usage() {
 	printf("echo FMT ARG2       : try to get subnet from ARG2 and echo it according to FMT\n");
 	printf("print FILE1         : just read & print FILE1; use a -fmt FMT to print CSV fields you want\n");
 	printf("relation IP1 IP2    : prints a relationship between IP1 and IP2\n");
-	printf("ipinfo IP           : prints information about IP\n");
+	printf("ipinfo IP|all|IPvX  : prints information about IP, or all known subnets (all, IPv4 or IPv6)\n");
 	printf("compare FILE1 FILE2 : compare FILE1 & FILE2, printing subnets in FILE1 INCLUDED in FILE2\n");
 	printf("missing FILE1 FILE2 : prints subnets from FILE1 that are not covered by FILE2; GW is not checked\n");
 	printf("paip PAIP FILE1     : load IPAM, and print FILE1 subnet with comment extracted from IPAM\n");
@@ -238,6 +238,17 @@ static int run_ipinfo(int arc, char **argv, void *options) {
 	struct options *nof = options;
 	struct subnet subnet;
 
+	if (!strcasecmp(argv[2], "all")) {
+		fprint_ipv4_known_subnets(nof->output_file);
+		fprint_ipv6_known_subnets(nof->output_file);
+		return 0;
+	} else if (!strcasecmp(argv[2], "ipv4")) {
+		fprint_ipv4_known_subnets(nof->output_file);
+		return 0;
+	} else if (!strcasecmp(argv[2], "ipv6")) {
+		fprint_ipv6_known_subnets(nof->output_file);
+		return 0;
+	}
 	res = get_subnet_or_ip(argv[2], &subnet);
 	if (res > 1000) {
 		fprintf(stderr, "Invalid IP %s\n", argv[2]);
