@@ -130,6 +130,7 @@ Decoding of following addresses :
 - ISATAP link-local address
 - IPv4 glop
 - rfc 6052
+- EUI-64 Interface ID
 
 Example :
 ---------
