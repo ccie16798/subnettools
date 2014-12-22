@@ -445,9 +445,9 @@ static int run_addfiles(int arc, char **argv, void *options) {
 		return res;
 	debug_timing_start();
 	for (i = 0; i < sf1.nr; i++)
-		memcpy(&sf3.routes[i], &sf1.routes[i], sizeof(struct route));
+		copy_route(&sf3.routes[i], &sf1.routes[i]);
 	for (j = 0; j < sf2.nr; j++)
-		memcpy(&sf3.routes[i+j], &sf2.routes[j], sizeof(struct route));
+		copy_route(&sf3.routes[i+j], &sf2.routes[j]);
 	sf3.nr = i + j;
 	/* since the routes comes from different files, we wont compare the GW */
 	subnet_file_simplify(&sf3);
