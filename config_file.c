@@ -14,7 +14,6 @@
 #include "utils.h"
 #include "config_file.h"
 
-
 int open_config_file(char *name, void *nof) {
 	FILE *f;
 	char buffer[1024];
