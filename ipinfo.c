@@ -62,9 +62,9 @@ static void decode_6to4(FILE *out, const struct subnet *s) {
 
 static void decode_teredo(FILE *out, const struct subnet *s) {
 	fprintf(out, "Teredo server : %d.%d.%d.%d\n", s->ip6.n16[2] >> 8, s->ip6.n16[2] & 0xFF,
-                        s->ip6.n16[3] >> 8, s->ip6.n16[3] & 0xFF);
+			s->ip6.n16[3] >> 8, s->ip6.n16[3] & 0xFF);
 	fprintf(out, "Client IP     : %d.%d.%d.%d\n", (s->ip6.n16[6] >> 8) ^ 0xFF , (s->ip6.n16[6] & 0xFF) ^ 0xFF,
-                        (s->ip6.n16[7] >> 8) ^ 0xFF, (s->ip6.n16[7] & 0xFF) ^ 0xFF);
+			(s->ip6.n16[7] >> 8) ^ 0xFF, (s->ip6.n16[7] & 0xFF) ^ 0xFF);
 
 	fprintf(out, "UDP port      : %d\n", s->ip6.n16[5] ^ 0xFFFF);
 }
@@ -131,7 +131,7 @@ static void decode_ipv6_embedded_rp(FILE *out, const struct subnet *s) {
 		rp.ip6.n16[i] |= (s->ip6.n16[i + 2] & (1 << (15 - j)));
 	rp.ip6.n16[7] = rp_id;
 	st_fprintf(out, "Embedded RP Address : %I\n", rp);
-	fprintf(out, "32-bit group id 0x%x [%d]\n", group_id, group_id); 
+	fprintf(out, "32-bit group id 0x%x [%d]\n", group_id, group_id);
 }
 
 static void decode_ipv6_multicast(FILE *out, const struct subnet *s) {
@@ -141,24 +141,24 @@ static void decode_ipv6_multicast(FILE *out, const struct subnet *s) {
 
 	fprintf(out, "Scope : ");
 	switch (scope) {
-	case 1:
-		fprintf(out, "Host Local\n");
-		break;
-	case 2:
-		fprintf(out, "Link Local\n");
-		break;
-	case 5:
-		fprintf(out, "Site Local\n");
-		break;
-	case 8:
-		fprintf(out, "Organisation Local\n");
-		break;
-	case 14:
-		fprintf(out, "Global\n");
-		break;
-	default:
-		fprintf(out, "Invalid : %d\n", scope);
-		break;
+		case 1:
+			fprintf(out, "Host Local\n");
+			break;
+		case 2:
+			fprintf(out, "Link Local\n");
+			break;
+		case 5:
+			fprintf(out, "Site Local\n");
+			break;
+		case 8:
+			fprintf(out, "Organisation Local\n");
+			break;
+		case 14:
+			fprintf(out, "Global\n");
+			break;
+		default:
+			fprintf(out, "Invalid : %d\n", scope);
+			break;
 	}
 	fprintf(out, "Flags : %d\n", flag);
 	if (flag & 4)
@@ -241,7 +241,7 @@ static void fprint_ip_membership(FILE *out, struct subnet *s) {
 	else if (s->ip_ver == IPV6_A)
 		k = ipv6_known_subnets;
 	else
-		 return;
+		return;
 	found_mask = -1;
 	for (i = 0; ;i++) {
 		if (k[i].s == NULL)
