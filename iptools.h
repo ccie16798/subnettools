@@ -70,7 +70,9 @@ void copy_subnet(struct subnet *a, const struct subnet *b);
 int is_equal_ipv6(ipv6 ip1, ipv6 ip2);
 int is_equal_gw(struct route *r1, struct route *r2);
 
-int is_link_local(ipv6 a);
+int ipv6_is_link_local(ipv6 a);
+int ipv6_is_global(ipv6 a);
+int ipv6_is_ula(ipv6 a);
 
 int alloc_subnet_file(struct subnet_file *sf, unsigned long n) ;
 /*

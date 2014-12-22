@@ -87,7 +87,7 @@ int is_equal_gw(struct route *r1, struct route *r2) {
 	else if (r1->gw.ip_ver == IPV6_A) {
 		if (!is_equal_ipv6(r1->gw.ip6, r2->gw.ip6))
 			return 0;
-		if (!is_link_local(r1->gw.ip6))
+		if (!ipv6_is_link_local(r1->gw.ip6))
 			return 1;
 		/* if link local adress, we must check if the device is the same */
 		return !strcmp(r1->device, r2->device);
@@ -95,10 +95,22 @@ int is_equal_gw(struct route *r1, struct route *r2) {
 	return 0;
 }
 
-int is_link_local(ipv6 a) {
+int ipv6_is_link_local(ipv6 a) {
 	unsigned short x = a.n16[0];
 /* link_local address is FE80::/10 */
-	return (x >> 6 == 0xFE80 >> 6);
+	return ((x >> 6) == (0xFE80 >> 6));
+}
+
+int ipv6_is_global(ipv6 a) {
+	unsigned short x = a.n16[0];
+/* global address is 2000::/3 */
+	return ((x >> 13) == (0x2000 >> 13));
+}
+
+int ipv6_is_ula(ipv6 a) {
+	unsigned short x = a.n16[0];
+/* ula address is FC00::/7 */
+	return ((x >> 9)  == (0xFC00 >> 9));
 }
 
 #define shift_ipv6_left(__z, __len) shift_left(__z.n16, 8, __len)
