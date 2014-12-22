@@ -4,7 +4,7 @@
 #include "iptools.h"
 #include "debug.h"
 #include "st_printf.h"
-
+#include "ipinfo.h"
 
 const struct subnet class_a = { .ip_ver = IPV4_A, .ip = 0, .mask = 1};
 const struct subnet class_b = { .ip_ver = IPV4_A, .ip = (2 << 30), .mask = 2};
@@ -72,7 +72,30 @@ static void decode_isatap_ll(FILE *out, const struct subnet *s) {
 
 
 void decode_ipv4_multicast(FILE *out, const struct subnet *s) {
+	int i, res;
+	struct known_subnet_desc *k = ipv4_mcast_known_subnets;
+	int found_mask, found_i;
 
+	found_mask = -1;
+	for (i = 0; ;i++) {
+		if (k[i].s == NULL)
+			break;
+		res = subnet_compare(s, k[i].s);
+		st_debug(ADDRCOMP, 5, "%P against %P\n", *s, *k[i].s);
+		if (res == EQUALS || (res == INCLUDED && k[i].always_print != -1)) {
+			if ((int)k[i].s->mask >= found_mask) {
+				found_mask = k[i].s->mask;
+				found_i = i;
+			}
+		}
+
+
+	}
+	if (found_mask >= 0) {
+		fprintf(out, "%s\n", k[found_i].desc);
+		if (k[found_i].decode_more)
+			k[found_i].decode_more(out, s);
+	}
 }
 
 static void decode_ipv6_embedded_rp(FILE *out, const struct subnet *s) {
@@ -145,19 +168,10 @@ static void decode_ipv6_multicast(FILE *out, const struct subnet *s) {
 		decode_ipv6_embedded_rp(out, s);
 }
 
-struct known_subnet_desc {
-	const struct subnet *s;
-	char *desc;
-	int always_print; /*-1 : print on EQUALS only, 
-			    0 :print on any match,
-			    1 : print even if it is not the longest match */
-	void (*decode_more)(FILE *out, const struct subnet *s);
-};
-
 struct known_subnet_desc ipv4_known_subnets[] = {
 	{&ipv4_default,		"IPv4 default address", -1},
 	{&ipv4_broadcast,	"IPv4 broadcast address", -1},
-	{&class_d,		"IPv4 multicast address", 1, decode_ipv4_multicast},
+	{&class_d,		"IPv4 multicast address", 1, &decode_ipv4_multicast},
 	{&ipv4_unspecified,	"IPv4 unspecified address"},
 	{&ipv4_rfc1918_1,	"Private IP address (rfc1918)"},
 	{&ipv4_rfc1918_2,	"Private IP address (rfc1918)"},
@@ -179,7 +193,7 @@ struct known_subnet_desc ipv6_known_subnets[] = {
 	{&ipv6_ula,		"IPv6 Unique Local Address"},
 	{&ipv6_sitelocal,	"IPv6 Site Local address (deprecated)"},
 	{&ipv6_linklocal,	"IPv6 link-local address"},
-	{&ipv6_multicast,	"IPv6 multicast address", 1, decode_ipv6_multicast},
+	{&ipv6_multicast,	"IPv6 multicast address", 1, &decode_ipv6_multicast},
 	{&ipv6_6to4,		"IPv6 6to4", 1, &decode_6to4},
 	{&ipv6_rfc4380_teredo,	"IPv6 rfc4380 Teredo", 1, &decode_teredo},
 	{&ipv6_rfc3849_doc,	"IPv6 rfc3849 Documentation-reserved addresses"},
@@ -197,10 +211,13 @@ const struct subnet ipv4_mcast_ssm	= S_IPV4_CONST(232,0, 8);
 const struct subnet ipv4_mcast_glob	= S_IPV4_CONST(233,0, 8);
 const struct subnet ipv4_mcast_site	= S_IPV4_CONST(239,0, 8);
 
+static void decode_mcast_glob(FILE *out, const struct subnet *s) {
+	fprintf(out, "Glob AS : %d\n", (s->ip >> 8) & 0xFFFF);
+}
 struct known_subnet_desc ipv4_mcast_known_subnets[] = {
 	{&ipv4_mcast_ll,	"IPv4 Link-Local Multicast Addresses"},
 	{&ipv4_mcast_ssm,	"IPv4 Source Specific Multicast Addresses"},
-	{&ipv4_mcast_glob,	"IPv4 Glob Multicast Addresses"},
+	{&ipv4_mcast_glob,	"IPv4 Glob Multicast Addresses", 1, &decode_mcast_glob},
 	{&ipv4_mcast_site,	"IPv4 Site Local (private) Multicast Addresses"},
 	{NULL, NULL}
 };
