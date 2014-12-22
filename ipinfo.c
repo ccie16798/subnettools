@@ -37,6 +37,11 @@ const struct subnet ipv4_test1		= S_IPV4_CONST3(192, 0, 2, 24);
 const struct subnet ipv4_test2		= S_IPV4_CONST3(198, 51, 100, 24);
 const struct subnet ipv4_test3		= S_IPV4_CONST3(203, 0, 113, 24);
 
+const struct subnet ipv4_mcast_ll	= S_IPV4_CONST(224,0, 8);
+const struct subnet ipv4_mcast_ssm	= S_IPV4_CONST(232,0, 8);
+const struct subnet ipv4_mcast_glop	= S_IPV4_CONST(233,0, 8);
+const struct subnet ipv4_mcast_site	= S_IPV4_CONST(239,0, 8);
+
 #define S_IPV6_CONST(DIGIT1, DIGIT2, __MASK)  { .ip_ver = 6, .ip6.n16[0] = DIGIT1, .ip6.n16[1] = DIGIT2, .mask = __MASK }
 const struct subnet ipv6_default	= S_IPV6_CONST(0x0000, 0, 0);
 const struct subnet ipv6_unspecified	= S_IPV6_CONST(0x0000, 0, 128);
@@ -82,7 +87,7 @@ static void decode_isatap_ll(FILE *out, const struct subnet *s) {
 
 void decode_ipv4_multicast(FILE *out, const struct subnet *s) {
 	int i, res;
-	struct known_subnet_desc *k = ipv4_mcast_known_subnets;
+	const struct known_subnet_desc *k = ipv4_mcast_known_subnets;
 	int found_mask, found_i;
 
 	found_mask = -1;
@@ -134,11 +139,13 @@ static void decode_ipv6_embedded_rp(FILE *out, const struct subnet *s) {
 	fprintf(out, "32-bit group id 0x%x [%d]\n", group_id, group_id);
 }
 
+/* solicitted node address */
 static void decode_ipv6_multicast_sn(FILE *out, const struct subnet *s) {
 	fprintf(out, "Sollicited Address for any address like : XX:XX:XX:XX:XX:XX:X%02x:%x\n", 
 			s->ip6.n16[6] & 0xFF, s->ip6.n16[7]);
 }
 
+/* generic IPv6 multicast decoding */
 static void decode_ipv6_multicast(FILE *out, const struct subnet *s) {
 	int scope, flag;
 	scope = s->ip6.n16[0] & 0xf;
@@ -182,7 +189,7 @@ static void decode_ipv6_multicast(FILE *out, const struct subnet *s) {
 		decode_ipv6_embedded_rp(out, s);
 }
 
-struct known_subnet_desc ipv4_known_subnets[] = {
+const struct known_subnet_desc ipv4_known_subnets[] = {
 	{&ipv4_default,		"IPv4 default address", -1},
 	{&ipv4_broadcast,	"IPv4 broadcast address", -1},
 	{&class_d,		"IPv4 multicast address", 1, &decode_ipv4_multicast},
@@ -200,7 +207,7 @@ struct known_subnet_desc ipv4_known_subnets[] = {
 	{NULL, NULL}
 };
 
-struct known_subnet_desc ipv6_known_subnets[] = {
+const struct known_subnet_desc ipv6_known_subnets[] = {
 	{&ipv6_default,		"IPv6 default address", -1},
 	{&ipv6_unspecified,	"IPv6 unspecified address"},
 	{&ipv6_global,		"IPv6 global address"},
@@ -221,15 +228,11 @@ struct known_subnet_desc ipv6_known_subnets[] = {
 	{NULL, NULL}
 };
 
-const struct subnet ipv4_mcast_ll	= S_IPV4_CONST(224,0, 8);
-const struct subnet ipv4_mcast_ssm	= S_IPV4_CONST(232,0, 8);
-const struct subnet ipv4_mcast_glop	= S_IPV4_CONST(233,0, 8);
-const struct subnet ipv4_mcast_site	= S_IPV4_CONST(239,0, 8);
-
 static void decode_mcast_glop(FILE *out, const struct subnet *s) {
 	fprintf(out, "Glop AS : %d\n", (s->ip >> 8) & 0xFFFF);
 }
-struct known_subnet_desc ipv4_mcast_known_subnets[] = {
+
+const struct known_subnet_desc ipv4_mcast_known_subnets[] = {
 	{&ipv4_mcast_ll,	"IPv4 Link-Local Multicast Addresses"},
 	{&ipv4_mcast_ssm,	"IPv4 Source Specific Multicast Addresses"},
 	{&ipv4_mcast_glop,	"IPv4 Glop Multicast Addresses (rfc2770)", 1, &decode_mcast_glop},
@@ -237,10 +240,13 @@ struct known_subnet_desc ipv4_mcast_known_subnets[] = {
 	{NULL, NULL}
 };
 
+/*
+ * try to find a known subnet where s is included
+ */
 static void fprint_ip_membership(FILE *out, const struct subnet *s) {
 	int i, res;
 	int found_i, found_mask;
-	struct known_subnet_desc *k;
+	const struct known_subnet_desc *k;
 
 	if (s->ip_ver == IPV4_A)
 		k = ipv4_known_subnets;
@@ -282,7 +288,8 @@ char ipv4_get_class(const struct subnet *s) {
 	return 0;
 }
 
-void fprint_ipv4_info(FILE *out, const struct subnet *subnet) {
+/* IPv4 specific information : classfull info */
+static void fprint_ipv4_info(FILE *out, const struct subnet *subnet) {
 	char c;
 
 	c = ipv4_get_class(subnet);
@@ -290,10 +297,34 @@ void fprint_ipv4_info(FILE *out, const struct subnet *subnet) {
 	fprint_ip_membership(out, subnet);
 }
 
-void fprint_ipv6_info(FILE *out, const struct subnet *subnet) {
-	fprint_ip_membership(out, subnet);
-}
+/* IPv6 specific information EUI-64 etc */
+static void fprint_ipv6_info(FILE *out, const struct subnet *s) {
+	/*int ul_bit; */
+	unsigned short middle;
+	unsigned char mac[8];
 
+	fprint_ip_membership(out, s);
+	/* if is_global or is_link_local or ULA */
+	if (ipv6_is_global(s->ip6) || ipv6_is_ula(s->ip6) || ipv6_is_link_local(s->ip6)) {
+		/* ul_bit  = (s->ip6.n16[4] >> 8) & 0x02; */
+		middle  = (s->ip6.n16[6] >> 8) & 0xFF;
+		middle += (s->ip6.n16[5] & 0xFF) << 8;
+		if (middle == 0xFFFE) {
+			fprintf(out, "Probably in EUI-64 format\n");
+			mac[0] = (s->ip6.n16[4] >> 8) ^ 0x02;
+			mac[1] = (s->ip6.n16[4] & 0xFF);
+			mac[2] = (s->ip6.n16[5] >> 8);
+			mac[3] = (s->ip6.n16[6] & 0xFF);
+			mac[4] = (s->ip6.n16[7] >> 8);
+			mac[5] = (s->ip6.n16[7] & 0xFF);
+			fprintf(out, "MAC address : %02x:%02x:%02x:%02x:%02x:%02x\n", mac[0], mac[1], mac[2],
+					mac[3], mac[4], mac[5]);
+		} else {
+			fprintf(out, "Not in EUI-64 format\n");
+		}
+	}
+}
+/* general information about the subnet */
 void fprint_ip_info(FILE *out, const struct subnet *subnet) {
 	fprintf(out, "IP version : %d\n", subnet->ip_ver);
 	st_fprintf(out, "Network Address : %N/%m\n", *subnet, *subnet);
@@ -307,7 +338,7 @@ void fprint_ip_info(FILE *out, const struct subnet *subnet) {
 }
 
 void fprint_ipv4_known_mcast_subnets(FILE *out) {
-	struct known_subnet_desc *k;
+	const struct known_subnet_desc *k;
 	int i;
 
 	k = ipv4_mcast_known_subnets;
@@ -319,10 +350,9 @@ void fprint_ipv4_known_mcast_subnets(FILE *out) {
 }
 
 void fprint_ipv4_known_subnets(FILE *out) {
-	struct known_subnet_desc *k;
+	const struct known_subnet_desc *k = ipv4_known_subnets;
 	int i;
 
-	k = ipv4_known_subnets;
 	for (i = 0; ; i++) {
 		if (k[i].desc == NULL)
 			break;
@@ -332,10 +362,9 @@ void fprint_ipv4_known_subnets(FILE *out) {
 }
 
 void fprint_ipv6_known_subnets(FILE *out) {
-	struct known_subnet_desc *k;
+	const struct known_subnet_desc *k = ipv6_known_subnets;
 	int i;
 
-	k = ipv6_known_subnets;
 	for (i = 0; ; i++) {
 		if (k[i].desc == NULL)
 			break;

@@ -11,9 +11,9 @@ struct known_subnet_desc {
 };
 
 
-extern struct known_subnet_desc ipv4_known_subnets[];
-extern struct known_subnet_desc ipv6_known_subnets[];
-extern struct known_subnet_desc ipv4_mcast_known_subnets[];
+extern const struct known_subnet_desc ipv4_known_subnets[];
+extern const struct known_subnet_desc ipv6_known_subnets[];
+extern const struct known_subnet_desc ipv4_mcast_known_subnets[];
 
 void fprint_ip_info(FILE *, const struct subnet *);
 
