@@ -307,7 +307,7 @@ void fprint_ipv4_known_mcast_subnets(FILE *out) {
 	for (i = 0; ; i++) {
 		if (k[i].desc == NULL)
 			break;
-		st_fprintf(out, "%-16P : [%-16N - %-16U] -- %s\n", k[i].s, k[i].s, k[i].s, k[i].desc);
+		st_fprintf(out, "%-18P : [%-15N - %-16B] -- %s\n", *k[i].s, *k[i].s, *k[i].s, k[i].desc);
 	}
 }
 
@@ -319,7 +319,7 @@ void fprint_ipv4_known_subnets(FILE *out) {
 	for (i = 0; ; i++) {
 		if (k[i].desc == NULL)
 			break;
-		st_fprintf(out, "%-16P : [%-16N - %-16U] -- %s\n", k[i].s, k[i].s, k[i].s, k[i].desc);
+		st_fprintf(out, "%-18P : [%-15N - %-16B] -- %s\n", *k[i].s, *k[i].s, *k[i].s, k[i].desc);
 	}
 	fprint_ipv4_known_mcast_subnets(out);
 }
@@ -332,6 +332,6 @@ void fprint_ipv6_known_subnets(FILE *out) {
 	for (i = 0; ; i++) {
 		if (k[i].desc == NULL)
 			break;
-		st_fprintf(out, "%-16P : [%-16N - %-16U] -- %s\n", k[i].s, k[i].s, k[i].s, k[i].desc);
+		st_fprintf(out, "%-21P : [%-18N - %-40B] -- %s\n", *k[i].s, *k[i].s, *k[i].s, k[i].desc);
 	}
 }
