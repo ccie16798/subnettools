@@ -174,26 +174,11 @@ CODING
 
 work TODO
 =========
-- make sure everything work
+- make sure everything work (v1.0)
 - fixing file diff (semantics is difficult, what do we want)
 - adding more converters (and fixing IPv6 converters)
 - fixing ECMP in converters (maybe)
 - bitmap printing
-- subnet splitting
-- implement subnet_info (IPver, Network IP, Last IP, class (ipv4), IPv6 interpretation
+- subnet splitting (v0.6)
 - implement st_scanf & friends (v0.7)
 - implement progress bar (what is your 1M line aggregation doing??) ()
-
-Some IPv6 infos ideas
-address info decoding 
-: v6 translation
-https://tools.ietf.org/html/rfc6052#page-5
-Decoding of :
-6to4, ISATAP, teredo
-embedded RP
-https://tools.ietf.org/html/rfc3956
-Solicited-Node Address
-Multicast address
-site local address
-
-
