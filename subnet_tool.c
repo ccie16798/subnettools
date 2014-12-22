@@ -700,9 +700,9 @@ int route_file_simplify(struct subnet_file *sf,  int mode) {
 			a--;
 		}
 		if (skip == 0)
-                	copy_route(&new_r[i++], r);
+			copy_route(&new_r[i++], r);
 		else
-                	copy_route(&discard[j++], r);
+			copy_route(&discard[j++], r);
         }
 	free(tas.tab);
 	free(sf->routes);
