@@ -155,7 +155,7 @@ static int cisco_nexus_prefix_handle(char *s, void *data, struct csv_state *stat
 			return CSV_INVALID_FIELD_BREAK;
 		}
 
-		memcpy(&sf->routes[sf->nr].subnet,  &subnet, sizeof(subnet));
+		copy_subnet(&sf->routes[sf->nr].subnet,  &subnet);
 		state->state[0] = 1;
 		return CSV_VALID_FIELD_BREAK;
 	} else { /* line should start with '*via' */
@@ -295,7 +295,7 @@ static int ipso_prefix_handle(char *s, void *data, struct csv_state *state) {
 		debug(PARSEROUTE, 2, "line %lu bad IP %s \n", state->line, s);
 		return CSV_INVALID_FIELD_BREAK;
 	}
-	memcpy(&sf->routes[sf->nr], &subnet, sizeof(subnet));
+	copy_subnet(&sf->routes[sf->nr].subnet, &subnet);
 	return CSV_VALID_FIELD;
 }
 
