@@ -46,12 +46,12 @@ const struct subnet ipv6_mapped_ipv4	= {.ip_ver = 6, .ip6.n16[5] = 0xFFFF, .mask
 const struct subnet ipv6_compat_ipv4	= {.ip_ver = 6, .mask = 96}; /* ::/96 */
 const struct subnet ipv6_loopback 	= {.ip_ver = 6, .ip6.n16[7] = 1, .mask = 128}; /* ::1/128 */
 
-void decode_6to4(FILE *out, struct subnet *s) {
+static void decode_6to4(FILE *out, const struct subnet *s) {
 	fprintf(out, "6to4 IPv4 destination address : %d.%d.%d.%d\n", s->ip6.n16[1] >> 8, s->ip6.n16[1] & 0xFF,
 			s->ip6.n16[2] >> 8, s->ip6.n16[2] & 0xFF);
 }
 
-void decode_teredo(FILE *out, struct subnet *s) {
+static void decode_teredo(FILE *out, const struct subnet *s) {
 	fprintf(out, "Teredo server : %d.%d.%d.%d\n", s->ip6.n16[2] >> 8, s->ip6.n16[2] & 0xFF,
                         s->ip6.n16[3] >> 8, s->ip6.n16[3] & 0xFF);
 	fprintf(out, "Client IP     : %d.%d.%d.%d\n", (s->ip6.n16[6] >> 8) ^ 0xFF , (s->ip6.n16[6] & 0xFF) ^ 0xFF,
@@ -60,22 +60,22 @@ void decode_teredo(FILE *out, struct subnet *s) {
 	fprintf(out, "UDP port      : %d\n", s->ip6.n16[5] ^ 0xFFFF);
 }
 
-void decode_rfc6052(FILE *out, struct subnet *s) {
+static void decode_rfc6052(FILE *out, const struct subnet *s) {
 	fprintf(out, "IPv4-Embedded IPv6 address : 64:ff9b::%d.%d.%d.%d\n", s->ip6.n16[6] >> 8, s->ip6.n16[6] & 0xFF,
 			s->ip6.n16[7] >> 8, s->ip6.n16[7] & 0xFF);
 }
 
-void decode_isatap_ll(FILE *out, struct subnet *s) {
+static void decode_isatap_ll(FILE *out, const struct subnet *s) {
 	fprintf(out, "ISATAP IPv4 destination address : %d.%d.%d.%d\n", s->ip6.n16[6] >> 8, s->ip6.n16[6] & 0xFF,
 			s->ip6.n16[7] >> 8, s->ip6.n16[7] & 0xFF);
 }
 
 
-void decode_ipv4_multicast(FILE *out, struct subnet *s) {
+void decode_ipv4_multicast(FILE *out, const struct subnet *s) {
 
 }
 
-void decode_ipv6_embedded_rp(FILE *out, struct subnet *s) {
+static void decode_ipv6_embedded_rp(FILE *out, const struct subnet *s) {
 	struct subnet rp;
 	int rp_id;
 	int Plen;
@@ -84,14 +84,14 @@ void decode_ipv6_embedded_rp(FILE *out, struct subnet *s) {
 
 	memset(&rp, 0, sizeof(rp));
 	rp.ip_ver = IPV6_A;
-	rp.mask = 128;
-	rp_id = (s->ip6.n16[1] >> 8) & 0xF;
-	Plen = s->ip6.n16[1] & 0xFF;
+	rp.mask   = 128;
+	rp_id     = (s->ip6.n16[1] >> 8) & 0xF;
+	Plen      = s->ip6.n16[1] & 0xFF;
 	if (Plen > 64) {
 		fprintf(out, "Invalid Plen %x, MUST not be greater than 64\n", Plen);
 		return;
 	}
-	group_id = s->ip6.n16[6] * (1<<16) + s->ip6.n16[7];
+	group_id = s->ip6.n16[6] * (1 << 16) + s->ip6.n16[7];
 	/* copying Plen bits of s into rp */
 	for (i = 0; i < Plen / 16; i++)
 		rp.ip6.n16[i] = s->ip6.n16[i + 2];
@@ -102,7 +102,7 @@ void decode_ipv6_embedded_rp(FILE *out, struct subnet *s) {
 	fprintf(out, "32-bit group id 0x%x [%d]\n", group_id, group_id); 
 }
 
-void decode_ipv6_multicast(FILE *out, struct subnet *s) {
+static void decode_ipv6_multicast(FILE *out, const struct subnet *s) {
 	int scope, flag;
 	scope = s->ip6.n16[0] & 0xf;
 	flag  = (s->ip6.n16[0] >> 4) & 0xf;
@@ -151,7 +151,7 @@ struct known_subnet_desc {
 	int always_print; /*-1 : print on EQUALS only, 
 			    0 :print on any match,
 			    1 : print even if it is not the longest match */
-	void (*decode_more)(FILE *out, struct subnet *s);
+	void (*decode_more)(FILE *out, const struct subnet *s);
 };
 
 struct known_subnet_desc ipv4_known_subnets[] = {
@@ -205,7 +205,7 @@ struct known_subnet_desc ipv4_mcast_known_subnets[] = {
 	{NULL, NULL}
 };
 
-void fprint_ip_membership(FILE *out, struct subnet *s) {
+static void fprint_ip_membership(FILE *out, struct subnet *s) {
 	int i, res;
 	int found_i, found_mask;
 	struct known_subnet_desc *k;
