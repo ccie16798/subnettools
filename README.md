@@ -14,8 +14,7 @@ FEATURES
 - subnet aggregation
 - converting 'sh ip route' files to a CSV
 - native IPv6 & IPv4 support
-- IPv4 & IPv6 address information (subnet address, first subnet ip, last ip, decoding of IPv6 "special IP 
- like : Embedded RP, Teredo, 6to4)
+- IPv4 & IPv6 address information 
 
 - subnettools FILE format is a CSV where each line represent a route ; a route is
 -* a subnet
@@ -118,6 +117,19 @@ EXAMPLE 4 (playing with IPv6 address compression)
 	::ffff:a01:101
 	etienne@debian:~/st$ ./subnet-tools echo "%I3" ::ffff:10.1.1.1 
 	::ffff:10.1.1.1
+
+IP information
+==============
+subnettools ipinfo 'subnet' can give the following informations about 'subnet'
+- network address, last subnet address
+- known prefix membership (IPv6 global addresses, RFC 1918 private subnet, multicast, etc...)
+Decoding of following addresses :
+- Teredo
+- IPv6 multicast (including embedded RP)
+- 6to4
+- ISATAP link-local address
+- IPv4 glop
+- rfc 6052
 
 CODING
 ======
