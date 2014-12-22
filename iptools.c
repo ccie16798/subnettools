@@ -77,7 +77,6 @@ int is_equal_ipv6(ipv6 ip1, ipv6 ip2) {
 	return 1;
 }
 
-
 int is_equal_gw(struct route *r1, struct route *r2) {
 	if (r1->gw.ip_ver != r2->gw.ip_ver)
 		return 0;
@@ -229,10 +228,12 @@ int addrv62str(ipv6 z, char *out_buffer, int compress) {
 			if (z.n16[6] == 0 && z.n16[7] == 1) /** the loopback address */
 				return sprintf(out_buffer, "::1");
 			else
-				return sprintf(out_buffer, "::%d.%d.%d.%d", z.n16[6]>>8, z.n16[6]&0xff, z.n16[7]>>8, z.n16[7]&0xff);
+				return sprintf(out_buffer, "::%d.%d.%d.%d", z.n16[6] >> 8, z.n16[6] & 0xff, 
+						z.n16[7] >> 8, z.n16[7] & 0xff);
 		}
 		if (z.n16[5] == 0xffff)
-			return sprintf(out_buffer, "::ffff:%d.%d.%d.%d", z.n16[6]>>8, z.n16[6]&0xff, z.n16[7]>>8, z.n16[7]&0xff);
+			return sprintf(out_buffer, "::ffff:%d.%d.%d.%d", z.n16[6] >> 8, z.n16[6] & 0xff,
+					z.n16[7] >> 8, z.n16[7] & 0xff);
 	}
 	j = 0;
 	for (i = 0; i < max_skip_index; i++) {
@@ -297,7 +298,7 @@ int mask2ddn(u32 mask, char *out) {
 u32 string2mask(const char *string) {
 	int i;
 	u32 a;
-	int count_dot=0;
+	int count_dot = 0;
 	int truc[4];
 	char s3[32];
 	char *s;
@@ -480,6 +481,10 @@ static int get_single_ipv6(char *s, struct ip_addr *addr) {
 			if (s[i] == '\0')
 				stop = 1;
 			s[i] = '\0';
+			if (strlen(s2) > 4) {
+				debug(PARSEIPV6, 1, "block %d  '%s' is invalid, too many chars\n", out_i, s2);
+				return BAD_IP;
+			}
 			debug(PARSEIPV6, 8, "copying block '%s' to block %d\n", s2, out_i);
 			if (s2[0] == '\0') /* in case input ends with '::' */
 				addr->ip6.n16[out_i] = 0;
