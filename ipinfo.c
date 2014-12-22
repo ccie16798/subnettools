@@ -173,9 +173,9 @@ struct known_subnet_desc ipv4_known_subnets[] = {
 	{&ipv4_broadcast,	"IPv4 broadcast address", -1},
 	{&class_d,		"IPv4 multicast address", 1, &decode_ipv4_multicast},
 	{&ipv4_unspecified,	"IPv4 unspecified address"},
-	{&ipv4_rfc1918_1,	"Private IP address (rfc1918)"},
-	{&ipv4_rfc1918_2,	"Private IP address (rfc1918)"},
-	{&ipv4_rfc1918_3,	"Private IP address (rfc1918)"},
+	{&ipv4_rfc1918_1,	"IPv4 Private address (rfc1918)"},
+	{&ipv4_rfc1918_2,	"IPv4 Private address (rfc1918)"},
+	{&ipv4_rfc1918_3,	"IPv4 Private address (rfc1918)"},
 	{&ipv4_loopback,	"IPv4 loopback address"},
 	{&ipv4_rfc3927_ll,	"IPv4 link-local address (rfc6890)"},
 	{&ipv4_rfc6598_sasr,	"IPv4 private Shared Address Space (rfc6598)"},
@@ -208,16 +208,16 @@ struct known_subnet_desc ipv6_known_subnets[] = {
 
 const struct subnet ipv4_mcast_ll	= S_IPV4_CONST(224,0, 8);
 const struct subnet ipv4_mcast_ssm	= S_IPV4_CONST(232,0, 8);
-const struct subnet ipv4_mcast_glob	= S_IPV4_CONST(233,0, 8);
+const struct subnet ipv4_mcast_glop	= S_IPV4_CONST(233,0, 8);
 const struct subnet ipv4_mcast_site	= S_IPV4_CONST(239,0, 8);
 
-static void decode_mcast_glob(FILE *out, const struct subnet *s) {
-	fprintf(out, "Glob AS : %d\n", (s->ip >> 8) & 0xFFFF);
+static void decode_mcast_glop(FILE *out, const struct subnet *s) {
+	fprintf(out, "Glop AS : %d\n", (s->ip >> 8) & 0xFFFF);
 }
 struct known_subnet_desc ipv4_mcast_known_subnets[] = {
 	{&ipv4_mcast_ll,	"IPv4 Link-Local Multicast Addresses"},
 	{&ipv4_mcast_ssm,	"IPv4 Source Specific Multicast Addresses"},
-	{&ipv4_mcast_glob,	"IPv4 Glob Multicast Addresses", 1, &decode_mcast_glob},
+	{&ipv4_mcast_glop,	"IPv4 Glop Multicast Addresses (rfc2770)", 1, &decode_mcast_glop},
 	{&ipv4_mcast_site,	"IPv4 Site Local (private) Multicast Addresses"},
 	{NULL, NULL}
 };
