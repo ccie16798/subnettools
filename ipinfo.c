@@ -52,6 +52,7 @@ const struct subnet ipv6_rfc6052_pat 	= S_IPV6_CONST(0x0064, 0xff9b, 96);
 const struct subnet ipv6_isatap_priv_ll	= {.ip_ver = 6, .ip6.n16[0] = 0xFE80, .ip6.n16[5] = 0x5EFE, .mask = 96};
 const struct subnet ipv6_isatap_pub_ll	= {.ip_ver = 6, .ip6.n16[0] = 0xFE80, .ip6.n16[4] = 0x0200, .ip6.n16[5] = 0x5EFE, .mask = 96};
 const struct subnet ipv6_mapped_ipv4	= {.ip_ver = 6, .ip6.n16[5] = 0xFFFF, .mask = 96}; /* ::FFFF:/96 */
+const struct subnet ipv6_mcast_sn	= {.ip_ver = 6, .ip6.n16[0] = 0xFF02, .ip6.n16[5] = 0x1, .ip6.n16[6] = 0xFF00, .mask = 104};
 const struct subnet ipv6_compat_ipv4	= {.ip_ver = 6, .mask = 96}; /* ::/96 */
 const struct subnet ipv6_loopback 	= {.ip_ver = 6, .ip6.n16[7] = 1, .mask = 128}; /* ::1/128 */
 
@@ -133,6 +134,11 @@ static void decode_ipv6_embedded_rp(FILE *out, const struct subnet *s) {
 	fprintf(out, "32-bit group id 0x%x [%d]\n", group_id, group_id);
 }
 
+static void decode_ipv6_multicast_sn(FILE *out, const struct subnet *s) {
+	fprintf(out, "Sollicited Address for any address like : XX:XX:XX:XX:XX:XX:X%02x:%x\n", 
+			s->ip6.n16[6] & 0xFF, s->ip6.n16[7]);
+}
+
 static void decode_ipv6_multicast(FILE *out, const struct subnet *s) {
 	int scope, flag;
 	scope = s->ip6.n16[0] & 0xf;
@@ -202,6 +208,7 @@ struct known_subnet_desc ipv6_known_subnets[] = {
 	{&ipv6_sitelocal,	"IPv6 Site Local address (deprecated)"},
 	{&ipv6_linklocal,	"IPv6 link-local address"},
 	{&ipv6_multicast,	"IPv6 multicast address", 1, &decode_ipv6_multicast},
+	{&ipv6_mcast_sn,	"IPv6 multicast Solicited Node Address", 1, &decode_ipv6_multicast_sn},
 	{&ipv6_6to4,		"IPv6 6to4", 1, &decode_6to4},
 	{&ipv6_rfc4380_teredo,	"IPv6 rfc4380 Teredo", 1, &decode_teredo},
 	{&ipv6_rfc3849_doc,	"IPv6 rfc3849 Documentation-reserved addresses"},
