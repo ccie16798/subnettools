@@ -134,31 +134,31 @@ Decoding of following addresses :
 Example :
 ---------
 
-[etienne@ARODEF subnet_tools]$ ./subnet-tools ipinfo 2001:0000:4136:e378:8000:63bf:3fff:fdd2 
-IP version : 6
-Network Address : 2001:0:4136:e378:8000:63bf:3fff:fdd2/128
-Address   Range : 2001:0:4136:e378:8000:63bf:3fff:fdd2 - 2001:0:4136:e378:8000:63bf:3fff:fdd2
-Previous subnet : 2001:0:4136:e378:8000:63bf:3fff:fdd1/128
-Next     subnet : 2001:0:4136:e378:8000:63bf:3fff:fdd3/128
-IPv6 rfc4380 Teredo
-Teredo server : 65.54.227.120
-Client IP     : 192.0.2.45
-UDP port      : 40000
+	[etienne@ARODEF subnet_tools]$ ./subnet-tools ipinfo 2001:0000:4136:e378:8000:63bf:3fff:fdd2 
+	IP version : 6
+	Network Address : 2001:0:4136:e378:8000:63bf:3fff:fdd2/128
+	Address   Range : 2001:0:4136:e378:8000:63bf:3fff:fdd2 - 2001:0:4136:e378:8000:63bf:3fff:fdd2
+	Previous subnet : 2001:0:4136:e378:8000:63bf:3fff:fdd1/128
+	Next     subnet : 2001:0:4136:e378:8000:63bf:3fff:fdd3/128
+	IPv6 rfc4380 Teredo
+	Teredo server : 65.54.227.120
+	Client IP     : 192.0.2.45
+	UDP port      : 40000
 
-[etienne@ARODEF subnet_tools]$ ./subnet-tools ipinfo FF72:340:2001:DB8:BEEF:FEED::32
-IP version : 6
-Network Address : ff72:340:2001:db8:beef:feed:0:32/128
-Address   Range : ff72:340:2001:db8:beef:feed:0:32 - ff72:340:2001:db8:beef:feed:0:32
-Previous subnet : ff72:340:2001:db8:beef:feed:0:31/128
-Next     subnet : ff72:340:2001:db8:beef:feed:0:33/128
-IPv6 multicast address
-Scope : Link Local
-Flags : 7
-R=1, Embedded RP
-P=1, based on network prefix
-T=1, dynamically assigned prefix
-Embedded RP Address : 2001:db8:beef:feed::3
-32-bit group id 0x32 [50]
+	[etienne@ARODEF subnet_tools]$ ./subnet-tools ipinfo FF72:340:2001:DB8:BEEF:FEED::32
+	IP version : 6
+	Network Address : ff72:340:2001:db8:beef:feed:0:32/128
+	Address   Range : ff72:340:2001:db8:beef:feed:0:32 - ff72:340:2001:db8:beef:feed:0:32
+	Previous subnet : ff72:340:2001:db8:beef:feed:0:31/128
+	Next     subnet : ff72:340:2001:db8:beef:feed:0:33/128
+	IPv6 multicast address
+	Scope : Link Local
+	Flags : 7
+	R=1, Embedded RP
+	P=1, based on network prefix
+	T=1, dynamically assigned prefix
+	Embedded RP Address : 2001:db8:beef:feed::3
+	32-bit group id 0x32 [50]
 
 
 CODING
