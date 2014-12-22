@@ -13,7 +13,7 @@ OBJS =  subnet_tool.o debug.o iptools.o bitmap.o routetocsv.o utils.o heap.o gen
 all: $(EXEC)
 
 subnet-tools: $(OBJS)
-	 $(CC) -o $@ $^ $(CFLAGS)
+	$(CC) -o $@ $^ $(CFLAGS)
 
-test : generic_csv.o debug.o
-	 $(CC) -o $@ $^ $(CFLAGS) -D  GENERICCSV_TEST
+test : generic_csv.o debug.o utils.o
+	$(CC) -o $@ $^ $(CFLAGS) -DGENERICCSV_TEST
