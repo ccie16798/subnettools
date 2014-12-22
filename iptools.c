@@ -113,6 +113,11 @@ int ipv6_is_ula(ipv6 a) {
 	return ((x >> 9)  == (0xFC00 >> 9));
 }
 
+int ipv6_is_multicast(ipv6 a) {
+	/* IPv6 Multicast is FF00/8 */
+	return ((a.n16[0] >> 8) == 0xFF00);
+}
+
 #define shift_ipv6_left(__z, __len) shift_left(__z.n16, 8, __len)
 #define shift_ipv6_right(__z, __len) shift_right(__z.n16, 8, __len)
 

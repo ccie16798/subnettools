@@ -73,6 +73,7 @@ int is_equal_gw(struct route *r1, struct route *r2);
 int ipv6_is_link_local(ipv6 a);
 int ipv6_is_global(ipv6 a);
 int ipv6_is_ula(ipv6 a);
+int ipv6_is_multicast(ipv6 a);
 
 int alloc_subnet_file(struct subnet_file *sf, unsigned long n) ;
 /*
