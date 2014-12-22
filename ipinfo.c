@@ -231,7 +231,7 @@ struct known_subnet_desc ipv4_mcast_known_subnets[] = {
 	{NULL, NULL}
 };
 
-static void fprint_ip_membership(FILE *out, struct subnet *s) {
+static void fprint_ip_membership(FILE *out, const struct subnet *s) {
 	int i, res;
 	int found_i, found_mask;
 	struct known_subnet_desc *k;
@@ -276,7 +276,7 @@ char ipv4_get_class(const struct subnet *s) {
 	return 0;
 }
 
-void fprint_ipv4_info(FILE *out, struct subnet *subnet) {
+void fprint_ipv4_info(FILE *out, const struct subnet *subnet) {
 	char c;
 
 	c = ipv4_get_class(subnet);
@@ -284,11 +284,11 @@ void fprint_ipv4_info(FILE *out, struct subnet *subnet) {
 	fprint_ip_membership(out, subnet);
 }
 
-void fprint_ipv6_info(FILE *out, struct subnet *subnet) {
+void fprint_ipv6_info(FILE *out, const struct subnet *subnet) {
 	fprint_ip_membership(out, subnet);
 }
 
-void fprint_ip_info(FILE *out, struct subnet *subnet) {
+void fprint_ip_info(FILE *out, const struct subnet *subnet) {
 	fprintf(out, "IP version : %d\n", subnet->ip_ver);
 	st_fprintf(out, "Network Address : %N/%m\n", *subnet, *subnet);
 	st_fprintf(out, "Address   Range : %N - %B\n", *subnet, *subnet);

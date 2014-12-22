@@ -1,7 +1,7 @@
 #ifndef IPINFO_H
 #define IPINFO_H
 
-void fprint_ip_info(FILE *, struct subnet *);
+void fprint_ip_info(FILE *, const struct subnet *);
 
 struct known_subnet_desc {
 	const struct subnet *s;
