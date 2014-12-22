@@ -401,7 +401,7 @@ void diff_files(const struct subnet_file *sf1, const struct subnet_file *sf2, st
 }
 
 /*
- *  loop thorugh sf1 and match against PAIP/ IPAM
+ *  loop through sf1 and match against PAIP/ IPAM
  */
 void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *paip, struct options *nof) {
 	u32 mask1, mask2;
@@ -591,7 +591,7 @@ int network_grep_file(char *name, struct options *nof, char *ip) {
 	return 0;
 }
 
-static  int __heap_subnet_is_superior(void *v1, void *v2) {
+static int __heap_subnet_is_superior(void *v1, void *v2) {
 	struct subnet *s1 = &((struct route *)v1)->subnet;
 	struct subnet *s2 = &((struct route *)v2)->subnet;
 	return subnet_is_superior(s1, s2);
