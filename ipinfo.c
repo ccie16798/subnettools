@@ -79,7 +79,6 @@ static void decode_isatap_ll(FILE *out, const struct subnet *s) {
 			s->ip6.n16[7] >> 8, s->ip6.n16[7] & 0xFF);
 }
 
-
 void decode_ipv4_multicast(FILE *out, const struct subnet *s) {
 	int i, res;
 	struct known_subnet_desc *k = ipv4_mcast_known_subnets;
@@ -298,4 +297,41 @@ void fprint_ip_info(FILE *out, const struct subnet *subnet) {
 		fprint_ipv4_info(out, subnet);
 	if (subnet->ip_ver == IPV6_A)
 		fprint_ipv6_info(out, subnet);
+}
+
+void fprint_ipv4_known_mcast_subnets(FILE *out) {
+	struct known_subnet_desc *k;
+	int i;
+
+	k = ipv4_mcast_known_subnets;
+	for (i = 0; ; i++) {
+		if (k[i].desc == NULL)
+			break;
+		st_fprintf(out, "%-16P : [%-16N - %-16U] -- %s\n", k[i].s, k[i].s, k[i].s, k[i].desc);
+	}
+}
+
+void fprint_ipv4_known_subnets(FILE *out) {
+	struct known_subnet_desc *k;
+	int i;
+
+	k = ipv4_known_subnets;
+	for (i = 0; ; i++) {
+		if (k[i].desc == NULL)
+			break;
+		st_fprintf(out, "%-16P : [%-16N - %-16U] -- %s\n", k[i].s, k[i].s, k[i].s, k[i].desc);
+	}
+	fprint_ipv4_known_mcast_subnets(out);
+}
+
+void fprint_ipv6_known_subnets(FILE *out) {
+	struct known_subnet_desc *k;
+	int i;
+
+	k = ipv6_known_subnets;
+	for (i = 0; ; i++) {
+		if (k[i].desc == NULL)
+			break;
+		st_fprintf(out, "%-16P : [%-16N - %-16U] -- %s\n", k[i].s, k[i].s, k[i].s, k[i].desc);
+	}
 }
