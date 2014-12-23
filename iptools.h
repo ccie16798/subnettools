@@ -32,6 +32,7 @@ typedef struct ipv6_a ipv6;
  * works today, but will break the day we use something like a u128 to do the math...
  */
 #define block(__ip6, __n) __ip6.n16[__n]
+#define set_block(__ip6, __n, __value) __ip6.n16[__n] = __value
 
 #define shift_ipv6_left(__z, __len) shift_left(__z.n16, 8, __len)
 #define shift_ipv6_right(__z, __len) shift_right(__z.n16, 8, __len)

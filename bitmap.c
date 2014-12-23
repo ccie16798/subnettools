@@ -1,5 +1,6 @@
 /*
- * bitmap shift functions (to compare IPv6 addresses)
+ * generic bitmap functions 
+ * (use to manipulate IPv6 addresses)
  *
  * Copyright (C) 2014 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
