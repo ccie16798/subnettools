@@ -28,8 +28,10 @@ struct ipv6_a {
 };
 typedef struct ipv6_a ipv6;
 
-/* due to endianness issues, ipv6 address should  not be manipulated directly 
+/* due to endianness issues, ipv6 address should not be manipulated directly 
  * works today, but will break the day we use something like a u128 to do the math...
+ * if you change the representation of IPv6, you must redefine these macro, 
+ * (and only these) all code in .c file is safe
  */
 #define block(__ip6, __n) __ip6.n16[__n]
 #define set_block(__ip6, __n, __value) __ip6.n16[__n] = __value
