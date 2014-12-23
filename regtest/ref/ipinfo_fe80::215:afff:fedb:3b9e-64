@@ -1,0 +1,8 @@
+IP version : 6
+Network Address : fe80::/64
+Address   Range : fe80:: - fe80::ffff:ffff:ffff:ffff
+Previous subnet : fe7f:ffff:ffff:ffff::/64
+Next     subnet : fe80:0:0:1::/64
+IPv6 link-local address
+Probably in EUI-64 format
+MAC address : 00:15:af:db:3b:9e

@@ -1,0 +1,58 @@
+IP version : 6
+Network Address : 2001:0:4136:e378:8000:63bf:3fff:fdd2/128
+Address   Range : 2001:0:4136:e378:8000:63bf:3fff:fdd2 - 2001:0:4136:e378:8000:63bf:3fff:fdd2
+Previous subnet : 2001:0:4136:e378:8000:63bf:3fff:fdd1/128
+Next     subnet : 2001:0:4136:e378:8000:63bf:3fff:fdd3/128
+IPv6 rfc4380 Teredo
+Teredo server : 65.54.227.120
+Client IP     : 192.0.2.45
+UDP port      : 40000
+Not in EUI-64 format
+IP version : 6
+Network Address : ff72:340:2001:db8:beef:feed:0:32/128
+Address   Range : ff72:340:2001:db8:beef:feed:0:32 - ff72:340:2001:db8:beef:feed:0:32
+Previous subnet : ff72:340:2001:db8:beef:feed:0:31/128
+Next     subnet : ff72:340:2001:db8:beef:feed:0:33/128
+IPv6 multicast address
+Scope : Link Local
+Flags : 7
+R=1, Embedded RP
+P=1, based on network prefix
+T=1, dynamically assigned prefix
+Embedded RP Address : 2001:db8:beef:feed::3
+32-bit group id 0x32 [50]
+IP version : 6
+Network Address : 64:ff96::a00a:a01/128
+Address   Range : 64:ff96::a00a:a01 - 64:ff96::a00a:a01
+Previous subnet : 64:ff96::a00a:a00/128
+Next     subnet : 64:ff96::a00a:a02/128
+IP version : 6
+Network Address : 2002:c0a8:1b0b::2001:10/128
+Address   Range : 2002:c0a8:1b0b::2001:10 - 2002:c0a8:1b0b::2001:10
+Previous subnet : 2002:c0a8:1b0b::2001:f/128
+Next     subnet : 2002:c0a8:1b0b::2001:11/128
+IPv6 6to4
+6to4 IPv4 destination address : 192.168.27.11
+Not in EUI-64 format
+IP version : 4
+Network Address : 232.10.56.1/32
+Address   Range : 232.10.56.1 - 232.10.56.1
+Previous subnet : 232.10.56.0/32
+Next     subnet : 232.10.56.2/32
+Classfull info : class d
+IPv4 multicast address
+IPv4 Source Specific Multicast Addresses
+IP version : 4
+Network Address : 10.0.2.1/32
+Address   Range : 10.0.2.1 - 10.0.2.1
+Previous subnet : 10.0.2.0/32
+Next     subnet : 10.0.2.2/32
+Classfull info : class a
+IPv4 Private address (rfc1918)
+IP version : 4
+Network Address : 127.0.2.1/32
+Address   Range : 127.0.2.1 - 127.0.2.1
+Previous subnet : 127.0.2.0/32
+Next     subnet : 127.0.2.2/32
+Classfull info : class a
+IPv4 loopback address

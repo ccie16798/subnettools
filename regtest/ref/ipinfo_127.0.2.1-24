@@ -1,0 +1,7 @@
+IP version : 4
+Network Address : 127.0.2.0/24
+Address   Range : 127.0.2.0 - 127.0.2.255
+Previous subnet : 127.0.1.0/24
+Next     subnet : 127.0.3.0/24
+Classfull info : class a
+IPv4 loopback address
