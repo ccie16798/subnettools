@@ -122,9 +122,6 @@ int ipv6_is_multicast(ipv6 a) {
 	return ((block(a, 0) >> 8) == 0xFF00);
 }
 
-#define shift_ipv6_left(__z, __len) shift_left(__z.n16, 8, __len)
-#define shift_ipv6_right(__z, __len) shift_right(__z.n16, 8, __len)
-
 int subnet_compare_ipv6(ipv6 ip1, u32 mask1, ipv6 ip2, u32 mask2) {
 	if (mask1 > mask2) {
 		shift_ipv6_right(ip1, (128 - mask2));
@@ -815,7 +812,7 @@ void next_subnet(struct subnet *s) {
 		s->ip <<= (32 - s->mask);
 	} else if (s->ip_ver == IPV6_A) {
 		shift_ipv6_right(s->ip6, 128 - s->mask);
-		increase_bitmap(s->ip6.n16, 8);
+		increase_ipv6(s->ip6);
 		shift_ipv6_left(s->ip6, 128 - s->mask);
 	}
 }
@@ -827,7 +824,7 @@ void previous_subnet(struct subnet *s) {
 		s->ip <<= (32 - s->mask);
 	} else if (s->ip_ver == IPV6_A) {
 		shift_ipv6_right(s->ip6, 128 - s->mask);
-		decrease_bitmap(s->ip6.n16, 8);
+		decrease_ipv6(s->ip6);
 		shift_ipv6_left(s->ip6, 128 - s->mask);
 
 	}

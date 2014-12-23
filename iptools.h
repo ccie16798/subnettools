@@ -33,6 +33,11 @@ typedef struct ipv6_a ipv6;
  */
 #define block(__ip6, __n) __ip6.n16[__n]
 
+#define shift_ipv6_left(__z, __len) shift_left(__z.n16, 8, __len)
+#define shift_ipv6_right(__z, __len) shift_right(__z.n16, 8, __len)
+#define increase_ipv6(__z) increase_bitmap(__z.n16, 8)
+#define decrease_ipv6(__z) decrease_bitmap(__z.n16, 8)
+
 struct ip_addr {
 	int ip_ver;
 	union {
