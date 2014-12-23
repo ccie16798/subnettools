@@ -31,6 +31,10 @@ reg_test() {
 	fi
 }
 
+
+#basic print to test fmt
+reg_test -c st-fmt.conf print route_aggipv6-2
+reg_test -c st-fmt.conf print route_aggipv4
 # a CSV with strange fields names :)
 reg_test -c st-bizarr.conf sort bizar.csv 
 # a CSV with strange fields names, output more strange 
