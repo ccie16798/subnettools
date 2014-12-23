@@ -130,10 +130,10 @@ static void decode_ipv6_embedded_rp(FILE *out, const struct subnet *s) {
 	group_id = block(s->ip6, 6) * (1 << 16) + block(s->ip6, 7);
 	/* copying Plen bits of s into rp */
 	for (i = 0; i < Plen / 16; i++)
-		block(rp.ip6, i) = block(s->ip6, i + 2);
+		set_block(rp.ip6, i, block(s->ip6, i + 2));
 	for (j = 0 ; j < Plen % 16; j++)
-		block(rp.ip6, i) |= (block(s->ip6, i + 2) & (1 << (15 - j)));
-	block(rp.ip6, 7) = rp_id;
+		block_OR(rp.ip6, i, block(s->ip6, i + 2) & (1 << (15 - j)));
+	set_block(rp.ip6, 7, rp_id);
 	st_fprintf(out, "Embedded RP Address : %I\n", rp);
 	fprintf(out, "32-bit group id 0x%x [%d]\n", group_id, group_id);
 }

@@ -203,7 +203,7 @@ int addrv62str(ipv6 z, char *out_buffer, int compress) {
 	int skip_index = 0, max_skip_index = 0;
 
 	if (compress == 0) {
-		a = sprintf(out_buffer, "%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x", block(z,0), block(z, 1) , block(z, 2) , block(z, 3) , block(z, 4), block(z, 5), block(z, 6), block(z, 7));
+		a = sprintf(out_buffer, "%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x", block(z, 0), block(z, 1) , block(z, 2) , block(z, 3) , block(z, 4), block(z, 5), block(z, 6), block(z, 7));
 		return a;
 	} else if (compress == 1) {
 		a = sprintf(out_buffer, "%x:%x:%x:%x:%x:%x:%x:%x", block(z,0), block(z, 1) , block(z, 2) , block(z, 3) , block(z, 4), block(z, 5), block(z, 6), block(z, 7));
@@ -491,7 +491,7 @@ static int get_single_ipv6(char *s, struct ip_addr *addr) {
 			/* we refill the skipped 0000: blocks */
 			debug(PARSEIPV6, 9, "copying %d skipped '0000:' blocks\n", skipped_blocks);
 			for (j = 0; j < skipped_blocks; j++) {
-				block(addr->ip6, out_i) = 0;
+				set_block(addr->ip6, out_i, 0);
 				out_i++;
 			}
 			do_skip = 0;
@@ -505,7 +505,7 @@ static int get_single_ipv6(char *s, struct ip_addr *addr) {
 			}
 			debug(PARSEIPV6, 8, "copying block '%s' to block %d\n", s2, out_i);
 			if (s2[0] == '\0') /* in case input ends with '::' */
-				block(addr->ip6, out_i) = 0;
+				set_block(addr->ip6, out_i, 0);
 			else
 				sscanf(s2, "%hx", block(&addr->ip6, out_i));
 			if (stop) /* we are here because s[i] was 0 before we replaced it*/
@@ -541,8 +541,8 @@ static int get_single_ipv6(char *s, struct ip_addr *addr) {
 			debug(PARSEIPV6, 9, "%s MAY be an embedded/mapped IPv4\n", s2);
 			if (get_single_ipv4(s2, &embedded) == IPV4_A) {
 				debug(PARSEIPV6, 9, "%s is an embedded/mapped IPv4\n", s2);
-				block(addr->ip6, 6) = embedded.ip >> 16;
-				block(addr->ip6, 7) = (unsigned short)(embedded.ip & 0xFFFF);
+				set_block(addr->ip6, 6,  embedded.ip >> 16);
+				set_block(addr->ip6, 7, (unsigned short)(embedded.ip & 0xFFFF));
 				break;
 			}
 		}
@@ -799,9 +799,9 @@ void last_ip(struct subnet *s) {
 			s->ip |= (1 << i);
 	} else if (s->ip_ver == IPV6_A) { /* do you love binary math? yes you do! */
 		for (i = 0; i < (128 - s->mask) / 16; i++)
-			block(s->ip6, 7 - i) = 0xFFFF;
+			set_block(s->ip6, 7 - i, 0xFFFF);
 		for (j = 0; j < ((128 - s->mask) % 16); j++)
-			block(s->ip6, 7 - i) |= (1 << j);
+			block_OR(s->ip6, 7 - i,  (1 << j));
 	}
 }
 

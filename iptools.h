@@ -33,6 +33,7 @@ typedef struct ipv6_a ipv6;
  */
 #define block(__ip6, __n) __ip6.n16[__n]
 #define set_block(__ip6, __n, __value) __ip6.n16[__n] = __value
+#define block_OR(__ip6, __n, __value) __ip6.n16[__n] |= __value
 
 #define shift_ipv6_left(__z, __len) shift_left(__z.n16, 8, __len)
 #define shift_ipv6_right(__z, __len) shift_right(__z.n16, 8, __len)
