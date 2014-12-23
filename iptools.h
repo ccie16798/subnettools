@@ -22,12 +22,16 @@ struct ipv6_a {
 		/* beware of endianness issues
 		 * current version of subnet tool manipulate ->n16 only, use n32 and n8 at your own risk 
 		 */
-		unsigned char	n8[16];
 		unsigned short	n16[8];
 		u32  		n32[4];
 	};
 };
 typedef struct ipv6_a ipv6;
+
+/* due to endianness issues, ipv6 address should  not be manipulated directly 
+ * works today, but will break the day we use something like a u128 to do the math...
+ */
+#define block(__ip6, __n) __ip6.n16[__n]
 
 struct ip_addr {
 	int ip_ver;
