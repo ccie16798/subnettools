@@ -42,7 +42,7 @@ const struct subnet ipv4_mcast_ssm	= S_IPV4_CONST(232,0, 8);
 const struct subnet ipv4_mcast_glop	= S_IPV4_CONST(233,0, 8);
 const struct subnet ipv4_mcast_site	= S_IPV4_CONST(239,0, 8);
 
-#define S_IPV6_CONST(DIGIT1, DIGIT2, __MASK)  { .ip_ver = 6, .ip6.n16[0] = DIGIT1, .ip6.n16[1] = DIGIT2, .mask = __MASK }
+#define S_IPV6_CONST(DIGIT1, DIGIT2, __MASK)  { .ip_ver = 6, block(.ip6, 0) = DIGIT1, block(.ip6, 1) = DIGIT2, .mask = __MASK }
 const struct subnet ipv6_default	= S_IPV6_CONST(0x0000, 0, 0);
 const struct subnet ipv6_unspecified	= S_IPV6_CONST(0x0000, 0, 128);
 const struct subnet ipv6_global		= S_IPV6_CONST(0x2000, 0, 3);
@@ -54,35 +54,34 @@ const struct subnet ipv6_6to4		= S_IPV6_CONST(0x2002, 0, 16);
 const struct subnet ipv6_rfc4380_teredo = S_IPV6_CONST(0x2001, 0, 32);
 const struct subnet ipv6_rfc3849_doc	= S_IPV6_CONST(0x2001, 0x0DB8, 32);
 const struct subnet ipv6_rfc6052_pat 	= S_IPV6_CONST(0x0064, 0xff9b, 96);
-const struct subnet ipv6_isatap_priv_ll	= {.ip_ver = 6, .ip6.n16[0] = 0xFE80, .ip6.n16[5] = 0x5EFE, .mask = 96};
-const struct subnet ipv6_isatap_pub_ll	= {.ip_ver = 6, .ip6.n16[0] = 0xFE80, .ip6.n16[4] = 0x0200, .ip6.n16[5] = 0x5EFE, .mask = 96};
-const struct subnet ipv6_mapped_ipv4	= {.ip_ver = 6, .ip6.n16[5] = 0xFFFF, .mask = 96}; /* ::FFFF:/96 */
-const struct subnet ipv6_mcast_sn	= {.ip_ver = 6, .ip6.n16[0] = 0xFF02, .ip6.n16[5] = 0x1, .ip6.n16[6] = 0xFF00, .mask = 104};
+const struct subnet ipv6_isatap_priv_ll	= {.ip_ver = 6, block(.ip6, 0) = 0xFE80, block(.ip6, 5) = 0x5EFE, .mask = 96};
+const struct subnet ipv6_isatap_pub_ll	= {.ip_ver = 6, block(.ip6, 0) = 0xFE80, block(.ip6, 4) = 0x0200, block(.ip6, 5) = 0x5EFE, .mask = 96};
+const struct subnet ipv6_mapped_ipv4	= {.ip_ver = 6, block(.ip6, 5) = 0xFFFF, .mask = 96}; /* ::FFFF:/96 */
+const struct subnet ipv6_mcast_sn	= {.ip_ver = 6, block(.ip6, 0) = 0xFF02, block(.ip6, 5) = 0x1, block(.ip6, 6) = 0xFF00, .mask = 104};
 const struct subnet ipv6_compat_ipv4	= {.ip_ver = 6, .mask = 96}; /* ::/96 */
-const struct subnet ipv6_loopback 	= {.ip_ver = 6, .ip6.n16[7] = 1, .mask = 128}; /* ::1/128 */
+const struct subnet ipv6_loopback 	= {.ip_ver = 6, block(.ip6, 7) = 1, .mask = 128}; /* ::1/128 */
 
 static void decode_6to4(FILE *out, const struct subnet *s) {
-	fprintf(out, "6to4 IPv4 destination address : %d.%d.%d.%d\n", s->ip6.n16[1] >> 8, s->ip6.n16[1] & 0xFF,
-			s->ip6.n16[2] >> 8, s->ip6.n16[2] & 0xFF);
+	fprintf(out, "6to4 IPv4 destination address : %d.%d.%d.%d\n", block(s->ip6, 1) >> 8, block(s->ip6, 1) & 0xFF,
+			block(s->ip6, 2) >> 8, block(s->ip6, 2) & 0xFF);
 }
 
 static void decode_teredo(FILE *out, const struct subnet *s) {
-	fprintf(out, "Teredo server : %d.%d.%d.%d\n", s->ip6.n16[2] >> 8, s->ip6.n16[2] & 0xFF,
-			s->ip6.n16[3] >> 8, s->ip6.n16[3] & 0xFF);
-	fprintf(out, "Client IP     : %d.%d.%d.%d\n", (s->ip6.n16[6] >> 8) ^ 0xFF , (s->ip6.n16[6] & 0xFF) ^ 0xFF,
-			(s->ip6.n16[7] >> 8) ^ 0xFF, (s->ip6.n16[7] & 0xFF) ^ 0xFF);
-
-	fprintf(out, "UDP port      : %d\n", s->ip6.n16[5] ^ 0xFFFF);
+	fprintf(out, "Teredo server : %d.%d.%d.%d\n", block(s->ip6, 2) >> 8, block(s->ip6, 2) & 0xFF,
+			block(s->ip6, 3) >> 8, block(s->ip6, 3) & 0xFF);
+	fprintf(out, "Client IP     : %d.%d.%d.%d\n", (block(s->ip6, 6) >> 8) ^ 0xFF , (block(s->ip6, 6) & 0xFF) ^ 0xFF,
+			(block(s->ip6, 7) >> 8) ^ 0xFF, (block(s->ip6, 7) & 0xFF) ^ 0xFF);
+	fprintf(out, "UDP port      : %d\n", block(s->ip6, 5) ^ 0xFFFF);
 }
 
 static void decode_rfc6052(FILE *out, const struct subnet *s) {
-	fprintf(out, "IPv4-Embedded IPv6 address : 64:ff9b::%d.%d.%d.%d\n", s->ip6.n16[6] >> 8, s->ip6.n16[6] & 0xFF,
-			s->ip6.n16[7] >> 8, s->ip6.n16[7] & 0xFF);
+	fprintf(out, "IPv4-Embedded IPv6 address : 64:ff9b::%d.%d.%d.%d\n", block(s->ip6, 6) >> 8, block(s->ip6, 6) & 0xFF,
+			block(s->ip6, 7) >> 8, block(s->ip6, 7) & 0xFF);
 }
 
 static void decode_isatap_ll(FILE *out, const struct subnet *s) {
-	fprintf(out, "ISATAP IPv4 destination address : %d.%d.%d.%d\n", s->ip6.n16[6] >> 8, s->ip6.n16[6] & 0xFF,
-			s->ip6.n16[7] >> 8, s->ip6.n16[7] & 0xFF);
+	fprintf(out, "ISATAP IPv4 destination address : %d.%d.%d.%d\n", block(s->ip6, 6) >> 8, block(s->ip6, 6) & 0xFF,
+			block(s->ip6, 7) >> 8, block(s->ip6, 7) & 0xFF);
 }
 
 void decode_ipv4_multicast(FILE *out, const struct subnet *s) {
@@ -122,19 +121,19 @@ static void decode_ipv6_embedded_rp(FILE *out, const struct subnet *s) {
 	memset(&rp, 0, sizeof(rp));
 	rp.ip_ver = IPV6_A;
 	rp.mask   = 128;
-	rp_id     = (s->ip6.n16[1] >> 8) & 0xF;
-	Plen      = s->ip6.n16[1] & 0xFF;
+	rp_id     = (block(s->ip6, 1) >> 8) & 0xF;
+	Plen      = block(s->ip6, 1) & 0xFF;
 	if (Plen > 64) {
 		fprintf(out, "Invalid Plen %x, MUST not be greater than 64\n", Plen);
 		return;
 	}
-	group_id = s->ip6.n16[6] * (1 << 16) + s->ip6.n16[7];
+	group_id = block(s->ip6, 6) * (1 << 16) + block(s->ip6, 7);
 	/* copying Plen bits of s into rp */
 	for (i = 0; i < Plen / 16; i++)
-		rp.ip6.n16[i] = s->ip6.n16[i + 2];
+		block(rp.ip6, i) = block(s->ip6, i + 2);
 	for (j = 0 ; j < Plen % 16; j++)
-		rp.ip6.n16[i] |= (s->ip6.n16[i + 2] & (1 << (15 - j)));
-	rp.ip6.n16[7] = rp_id;
+		block(rp.ip6, i) |= (block(s->ip6, i + 2) & (1 << (15 - j)));
+	block(rp.ip6, 7) = rp_id;
 	st_fprintf(out, "Embedded RP Address : %I\n", rp);
 	fprintf(out, "32-bit group id 0x%x [%d]\n", group_id, group_id);
 }
@@ -142,14 +141,14 @@ static void decode_ipv6_embedded_rp(FILE *out, const struct subnet *s) {
 /* solicitted node address */
 static void decode_ipv6_multicast_sn(FILE *out, const struct subnet *s) {
 	fprintf(out, "Sollicited Address for any address like : XX:XX:XX:XX:XX:XX:X%02x:%x\n", 
-			s->ip6.n16[6] & 0xFF, s->ip6.n16[7]);
+			block(s->ip6, 6) & 0xFF, block(s->ip6, 7));
 }
 
 /* generic IPv6 multicast decoding */
 static void decode_ipv6_multicast(FILE *out, const struct subnet *s) {
 	int scope, flag;
-	scope = s->ip6.n16[0] & 0xf;
-	flag  = (s->ip6.n16[0] >> 4) & 0xf;
+	scope = block(s->ip6, 0) & 0xf;
+	flag  = (block(s->ip6, 0) >> 4) & 0xf;
 
 	fprintf(out, "Scope : ");
 	switch (scope) {
@@ -307,16 +306,16 @@ static void fprint_ipv6_info(FILE *out, const struct subnet *s) {
 	/* if is_global or is_link_local or ULA */
 	if (ipv6_is_global(s->ip6) || ipv6_is_ula(s->ip6) || ipv6_is_link_local(s->ip6)) {
 		/* ul_bit  = (s->ip6.n16[4] >> 8) & 0x02; */
-		middle  = (s->ip6.n16[6] >> 8) & 0xFF;
-		middle += (s->ip6.n16[5] & 0xFF) << 8;
+		middle  = (block(s->ip6, 6) >> 8) & 0xFF;
+		middle += (block(s->ip6, 5) & 0xFF) << 8;
 		if (middle == 0xFFFE) {
 			fprintf(out, "Probably in EUI-64 format\n");
-			mac[0] = (s->ip6.n16[4] >> 8) ^ 0x02;
-			mac[1] = (s->ip6.n16[4] & 0xFF);
-			mac[2] = (s->ip6.n16[5] >> 8);
-			mac[3] = (s->ip6.n16[6] & 0xFF);
-			mac[4] = (s->ip6.n16[7] >> 8);
-			mac[5] = (s->ip6.n16[7] & 0xFF);
+			mac[0] = (block(s->ip6, 4) >> 8) ^ 0x02;
+			mac[1] = (block(s->ip6, 4) & 0xFF);
+			mac[2] = (block(s->ip6, 5) >> 8);
+			mac[3] = (block(s->ip6, 6) & 0xFF);
+			mac[4] = (block(s->ip6, 7) >> 8);
+			mac[5] = (block(s->ip6, 7) & 0xFF);
 			fprintf(out, "MAC address : %02x:%02x:%02x:%02x:%02x:%02x\n", mac[0], mac[1], mac[2],
 					mac[3], mac[4], mac[5]);
 		} else {
