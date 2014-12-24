@@ -218,13 +218,14 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 					v_s = va_arg(ap, char *);
 						j2 = j;
 					while (isalpha(in[j2])) {
-						v_s[j2 - j] = '\0';
+						v_s[j2 - j] = in[j2];
 						j2++;
 					}
 					if (j2 == j) {
 						debug(SCANF, 2, "no WORD found at offset %d\n", j);
 						return n_found;
 					}
+					debug(SCANF, 5, "WORD '%s' found at offset %d\n", v_s,  j);
 					v_s[j2 - j] = '\0';
 					n_found++;
 					break;
