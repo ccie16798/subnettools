@@ -15,33 +15,60 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 	int v_long;
 	
 	i = 0; /* index in fmt */
-	j = 0; /* j index in in */
+	j = 0; /* index in in */
 	n_found = 0; /* number of argument found */
 	while (1) {
 		c = fmt[i];
 		if (c == '\0') {
 			return n_found;
 		} else if (c == '%') {
-
-
-
-		} else if (c == '\\') {
 			switch (fmt[i + 1]) {
-				case 't':
-					c = '\t';
+				case 'I':
+
 					break;
-				case ' ':
-					c = ' ';
+				case 'd':
+
 					break;
-				case '?':
-					c = '?';
+				case 's':
+
 					break;
-				case '.':
-					c = '.';
+				case 'W':
+
 					break;
 				default:
 					break;
 			}
+		} else if (c == '\\') {
+			switch (fmt[i + 1]) {
+				case '\0':
+					debug(SCANF, 2, "Nul char after \\ \n");
+					break;
+				case 't':
+					c = '\t';
+					i++;
+					break;
+				case ' ':
+					c = ' ';
+					i++;
+					break;
+				case '?':
+					c = '?';
+					i++;
+					break;
+				case '.':
+					c = '.';
+					i++;
+					break;
+				default:
+					c = '\\';
+					break;
+			}
+			if (in[j] != c) {
+				debug(SCANF, 2, "in[%d]=%c, != fmt[%d]=%c, exiting\n",
+					j, in[j], i, c);
+				return  n_found;
+			}
+			i++;
 		} else if (c == '?') {
 			debug(SCANF, 2, "fmt[%d]='?', match any char\n", i);
 			i++;
