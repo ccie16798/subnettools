@@ -19,6 +19,7 @@
 #define __D_CONFIGFILE  15
 #define __D_CSVHEADER   16
 #define __D_FMT		17
+#define __D_SCANF	18
 #define __D_ADDRREMOVE	19
 
 #define debug(__EVENT, __DEBUG_LEVEL, __FMT...) \
