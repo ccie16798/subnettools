@@ -10,22 +10,25 @@
 struct expr {
 	int num_expr;
 	char *expr[10];
-	int (*stop)(char *remain);
+	int (*stop)(char *remain, struct  expr *e);
 	char end_of_expr;
 };
 
-int find_int(char *remain) {
+int find_int(char *remain, struct expr *e) {
 	return isdigit(*remain) || (*remain == '-' && isdigit(remain[1]));
 }
 
-int find_word(char *remain) {
+int find_word(char *remain, struct expr *e) {
 	return isalpha(*remain);
 }
 
-int find_string(char *remain) {
+int find_string(char *remain, struct expr *e) {
 	return 0;
 }
 
+int find_char(char *remain, struct expr *e) {
+	return 0;
+}
 /*
  * return 0 if no match
  */
@@ -74,7 +77,7 @@ int match_expr(struct expr *e, char *in) {
 			break;
 	}	
 	if (e->stop) {
-		res2 = e->stop(in);
+		res2 = e->stop(in, e);
 		debug(SCANF, 4, "trying to stop on '%s', res=%d\n", in, res2);
 	} else {
 		res2 = (*in == e->end_of_expr);
@@ -88,8 +91,7 @@ int match_expr(struct expr *e, char *in) {
 		return res;
 }
 
-
-int find_ip(char *remain) {
+int find_ip(char *remain, struct expr *e) {
 	char buffer[64];
 	int i = 0;
 	struct subnet s;
@@ -144,6 +146,8 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 					e.stop = &find_word;
 				} else if (fmt[i + 2] == 's') {
 					e.stop = &find_string;
+				} else if (fmt[i + 2] == 'c') {
+					e.stop = &find_char;
 				}
 			} else
 				e.stop = NULL;
@@ -229,6 +233,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 					v_s[j2 - j] = '\0';
 					n_found++;
 					break;
+				case 'c':
 				default:
 					break;
 			}
