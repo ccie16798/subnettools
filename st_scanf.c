@@ -27,7 +27,14 @@ int find_string(char *remain, struct expr *e) {
 }
 
 int find_char(char *remain, struct expr *e) {
-	return 0;
+	int i, res;
+
+	for (i = 0; i < e->num_expr; i++) {
+		res = match_expr_simple(e->expr[i], remain);
+		if (res)
+			break;
+	}	
+	return !res;
 }
 /*
  * return 0 if no match
@@ -220,7 +227,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 					break;
 				case 'W':
 					v_s = va_arg(ap, char *);
-						j2 = j;
+					j2 = j;
 					while (isalpha(in[j2])) {
 						v_s[j2 - j] = in[j2];
 						j2++;
@@ -234,6 +241,10 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 					n_found++;
 					break;
 				case 'c':
+					v_s = va_arg(ap, char *);
+					v_s[0] = in[j];
+					debug(SCANF, 5, "CHAR '%c' found at offset %d\n", *v_s,  j);
+					j2 = j + 1;
 				default:
 					break;
 			}
