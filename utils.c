@@ -21,6 +21,7 @@ int isUnsignedInt(const char *s) {
 	}
 	return 1;
 }
+
 int isInt(const char *s) {
 	int i;
 	if (*s != '-' && !isdigit(*s))
@@ -31,6 +32,7 @@ int isInt(const char *s) {
 	}
 	return 1;
 }
+
 int isPower2 (unsigned int x) {
 	while (((x % 2) == 0) && x > 1) /* if each time we divide x%2 == 0, x is power of two */
 		x /= 2;
