@@ -42,6 +42,8 @@ int find_char(char *remain, struct expr *e) {
 int match_expr_simple(char *expr, char *in) {
 	int i, j;
 	int a = 0;
+	int res;
+	char low, high;
 
 	i = 0; /* index in expr */
 	j = 0; /* index in input buffer */
@@ -54,6 +56,30 @@ int match_expr_simple(char *expr, char *in) {
 				i++;
 				j++;
 				a++;
+				break;
+			case '[': /* try to handle char range like [a-Zbce-f] */
+				i++;
+				res = 0;
+				while (expr[i] != ']') {
+					low = expr[i];
+					if (expr[i + 1] == '-') {
+						high = expr[i + 2];
+						if (high == '\0' || high == ']') {
+							debug(SCANF, 1, "Invalid expr '%s', incomplete range\n", expr);
+							return a;
+						}
+						if (in[j] >= low && in[j] <= high)
+							res = 1;
+					} else {
+						if (low == in[j])
+							res  = 1;
+					}
+					i++;
+				}
+				i++;
+				j++;
+				if (res)
+					a++;
 				break;
 			default:
 				if (in[j] != expr[i])
@@ -245,6 +271,8 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 					v_s[0] = in[j];
 					debug(SCANF, 5, "CHAR '%c' found at offset %d\n", *v_s,  j);
 					j2 = j + 1;
+					n_found++;
+					break;
 				default:
 					break;
 			}
@@ -302,20 +330,23 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 			debug(SCANF, 2, "fmt[%d]='.', match any char\n", i);
 			i++;
 			j++;
-		} else if (c == '(') {
-			debug(SCANF, 2, "fmt[%d]='(', waiting expr\n", i);
-			i2 = i + 1;
-			while (fmt[i2] != ')') {
-				expr[i2 - i - 1] = fmt[i2];
+		} else if (c == '(' || c == '[') {
+			char c2 = (c == '(' ? ')' : ']');
+			debug(SCANF, 2, "fmt[%d]=%c, waiting expr\n", i, c);
+			i2 = i;
+			while (fmt[i2] != c2) {
+				expr[i2 - i] = fmt[i2];
 				if (fmt[i2] == '\0') {
-					debug(SCANF, 2, "unmatched (\n");
+					debug(SCANF, 1, "Invalid format '%s', unmatched '%c'\n", fmt, c);
 					return n_found;
 				}
 				i2++;
 			}
-			expr[i2 - i - 1] = '\0';
-			debug(SCANF, 2, "found expr %s\n", expr);
-			i = i2 + 1;
+			expr[i2 - i] = c2;
+			i2++;
+			expr[i2 - i] = '\0';
+			debug(SCANF, 2, "found expr '%s'\n", expr);
+			i = i2;
 		} else {
 			if (fmt[i + 1] == '*') {
 				expr[0] = c;
