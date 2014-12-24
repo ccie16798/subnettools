@@ -37,22 +37,20 @@ int match_expr_simple(char *expr, char *in) {
 	j = 0; /* index in input buffer */
 
 	while (1) {
-		if (in[j] == '\0')
+		if (in[j] == '\0' || expr[i] == '\0')
 			return a;
 		switch (expr[i]) {
-			case '\0':
-				return a;
-				break;
 			case '.':
 				i++;
 				j++;
 				a++;
 				break;
 			default:
-				if (in[j] != expr[j])
+				if (in[j] != expr[i])
 					return 0;
 				i++;
 				j++;
+				a++;
 				break;
 		}
 
@@ -70,19 +68,18 @@ int match_expr(struct expr *e, char *in) {
 	int res2;
 
 	for (i = 0; i < e->num_expr; i++) {
-		debug(SCANF, 4, "trying to match '%s' against '%s'\n", e->expr[i], in);
 		res = match_expr_simple(e->expr[i], in);
+		debug(SCANF, 4, "Matching expr '%s' against input '%s' res=%d\n", e->expr[i], in, res);
 		if (res)
 			break;
 	}	
 	if (e->stop) {
-		debug(SCANF, 4, "trying to stop on '%s'\n", in);
 		res2 = e->stop(in);
+		debug(SCANF, 4, "trying to stop on '%s', res=%d\n", in, res2);
 	} else {
-		debug(SCANF, 4, "trying to stop on '%c'\n", e->end_of_expr);
 		res2 = (*in == e->end_of_expr);
+		debug(SCANF, 4, "trying to stop on '%c', res=%d\n", e->end_of_expr, res2);
 	}
-	debug(SCANF, 4, "res=%d, res2=%d\n", res, res2);
 	if (res2)
 		return 0;
 	else if (res == 0)
@@ -120,6 +117,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 	struct expr  e;
 	struct subnet *v_sub;
 	long *v_int;
+	char *v_s;
 
 	i = 0; /* index in fmt */
 	j = 0; /* index in in */
@@ -136,7 +134,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 			e.end_of_expr = fmt[i + 1]; /* if necessary */
 			if (fmt[i + 1] == '%') {
 				if (fmt[i + 2] == '\0') {
-					debug(SCANF, 1, "FMT ends with %%\n");
+					debug(SCANF, 1, "Invalid format string '%s', ends with %%\n", fmt);
 					return n_found;
 				} else if (fmt[i + 2] == 'd') {
 					e.stop = &find_int;
@@ -152,11 +150,9 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 			n_match = 0;
 			while (1) {
 				res = match_expr(&e, in + j);
-				debug(SCANF, 4, "matching '%s' against '%s'\n", in +j, expr);
 				if (res == -1) {
-					debug(SCANF, 1, "No match for expr '%s'\n", expr);
+					debug(SCANF, 1, "No match found for expr '%s'\n", expr);
 					return n_found;
-
 				}
 				if (res == 0)
 					break;
@@ -173,7 +169,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 			j2 = j;
 			switch (fmt[i + 1]) {
 				case '\0':
-					debug(SCANF, 1, "FMT ends with %%\n");
+					debug(SCANF, 1, "Invalid format string '%s', ends with %%\n", fmt);
 					return n_found;
 				case 'I':
 					v_sub = va_arg(ap, struct subnet *);
@@ -182,17 +178,17 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 						j2++;
 					}
 					buffer[j2 - j] = '\0';
-					if (j2 == j) {
+					if (j2 - j <= 2) {
 						debug(SCANF, 2, "no IP found at offset %d\n", j);
 						return n_found;
 					}
 					debug(SCANF, 2, "possible IP %s starting at offset %d \n", buffer, j);
 					res = get_subnet_or_ip(buffer, v_sub);
 					if (res < 1000) {
-						debug(SCANF, 2, "%s was an IP\n", buffer);
+						debug(SCANF, 2, "'%s' is a valid IP\n", buffer);
 						n_found++;
 					} else { 
-						debug(SCANF, 2, "%s is invalid IP\n", buffer);
+						debug(SCANF, 2, "'%s' is an invalid IP\n", buffer);
 						return n_found;
 					}
 					break;
@@ -219,7 +215,18 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 
 					break;
 				case 'W':
-
+					v_s = va_arg(ap, char *);
+						j2 = j;
+					while (isalpha(in[j2])) {
+						v_s[j2 - j] = '\0';
+						j2++;
+					}
+					if (j2 == j) {
+						debug(SCANF, 2, "no WORD found at offset %d\n", j);
+						return n_found;
+					}
+					v_s[j2 - j] = '\0';
+					n_found++;
 					break;
 				default:
 					break;
