@@ -14,6 +14,7 @@ struct expr {
 	char end_of_expr;
 };
 
+int match_expr_simple(char *expr, char *in);
 /* return the escaped char */
 static inline char escape_char(char input_c) {
 	char c;
@@ -75,6 +76,112 @@ int find_char(char *remain, struct expr *e) {
 	}
 	return !res;
 }
+
+/* fmt = FORMAT buffer
+   in  = input buffer
+   i   = index in fmt
+   j   = index in in
+*/
+int parse_conversion_specifier(char *fmt, char *in, int *i, int *j, va_list ap) {
+	int n_found = 0;
+	int j2, res;
+	char buffer[64];
+	char c;
+	struct subnet *v_sub;
+	char *v_s;
+	long *v_int;
+
+	j2 = *j;
+	switch (fmt[*i + 1]) {
+		case '\0':
+			debug(SCANF, 1, "Invalid format string '%s', ends with %%\n", fmt);
+			return n_found;
+		case 'I':
+			v_sub = va_arg(ap, struct subnet *);
+			while (is_ip_char(in[j2]) && j2 - *j < sizeof(buffer)) {
+				buffer[j2 - *j] = in[j2];
+				j2++;
+			}
+			buffer[j2 - *j] = '\0';
+			if (j2 - *j <= 2) {
+				debug(SCANF, 2, "no IP found at offset %d\n", *j);
+				return n_found;
+			}
+			debug(SCANF, 2, "possible IP '%s' starting at offset %d \n", buffer, *j);
+			res = get_subnet_or_ip(buffer, v_sub);
+			if (res < 1000) {
+				debug(SCANF, 2, "'%s' is a valid IP\n", buffer);
+				n_found++;
+			} else { 
+				debug(SCANF, 2, "'%s' is an invalid IP\n", buffer);
+				return n_found;
+			}
+			break;
+		case 'd':
+			v_int = va_arg(ap, long *);
+			if (in[*j] == '-') {
+				buffer[0] = '-';
+				j2++;
+			}
+			while (isdigit(in[j2]) && j2 - *j < sizeof(buffer) - 1) {
+				buffer[j2 - *j] = in[j2];
+				j2++;
+			}
+			buffer[j2 - *j] = '\0';
+			if (*j == j2 || !strcmp(buffer, "-")) {
+				debug(SCANF, 2, "no INT found at offset %d \n", *j);
+				return 0;
+			} else {
+				debug(SCANF, 2, "found INT '%s' starting at offset %d \n", buffer, *j);
+				*v_int = atol(buffer);
+				n_found++;
+			}
+			break;
+		case 's':
+			v_s = va_arg(ap, char *);
+			c = fmt[*i + 2];
+			if (c == '.') {
+				debug(SCANF, 1, "Invalid format '%s', found '.' after %%s\n", fmt);
+				return n_found;
+			}
+			while (in[j2] != c) {
+				if (in[j2] == '\0')
+					break;
+				v_s[j2 - *j] = in[j2];
+				j2++;
+			}
+			v_s[j2 - *j] = '\0';
+			debug(SCANF, 2, "found STRING '%s' starting at offset %d \n", v_s, *j);
+			n_found++;
+			break;
+		case 'W':
+			v_s = va_arg(ap, char *);
+			while (isalpha(in[j2])) {
+				v_s[j2 - *j] = in[j2];
+				j2++;
+			}
+			if (j2 == *j) {
+				debug(SCANF, 2, "no WORD found at offset %d\n", *j);
+				return 0;
+			}
+			v_s[j2 - *j] = '\0';
+			debug(SCANF, 5, "WORD '%s' found at offset %d\n", v_s,  *j);
+			n_found++;
+			break;
+		case 'c':
+			v_s = va_arg(ap, char *);
+			v_s[0] = in[*j];
+			debug(SCANF, 5, "CHAR '%c' found at offset %d\n", *v_s,  *j);
+			j2 = *j + 1;
+			n_found++;
+		default:
+			break;
+	} /* switch */
+	*j = j2;
+	*i += 2;
+	return n_found;
+}
+
 /*
  * return 0 if no match
  */
@@ -124,6 +231,10 @@ int match_expr_simple(char *expr, char *in) {
 			case '\\':
 				i++;
 				c = escape_char(expr[i]);
+			case '%':
+				debug(SCANF, 1, "Need to find conversion specifier\n");
+
+				break;	
 			default:
 				if (in[j] != c)
 					return 0;
