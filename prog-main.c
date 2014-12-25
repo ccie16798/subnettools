@@ -21,6 +21,7 @@
 #include "generic_command.h"
 #include "config_file.h"
 #include "st_printf.h"
+#include "st_scanf.h"
 #include "ipinfo.h"
 
 const char *default_fmt = "%I;%m;%D;%G;%C";
@@ -618,19 +619,13 @@ static int run_test(int arc, char **argv, void *options) {
 }
 
 static int run_test2(int arc, char **argv, void *options) {
-	int res;
-	struct subnet_file sf;
-	struct options *nof = options;
-
-        res = load_netcsv_file(argv[2], &sf, nof);
-        if (res < 0)
-                return res;
-        res = subnet_sort_ascending(&sf);
-        if (res < 0) {
-                fprintf(stderr, "Couldnt sort file %s\n", argv[2]);
-                return res;
-        }
-        fprint_subnet_file_fmt(&sf, nof->output_file, argv[3]);
+	int res, i;
+	struct subnet subnet;
+	char  buff[40];
+	char c;
+        res = st_sscanf(argv[2], argv[3], &subnet, buff, &i, &c);
+	printf("%d \n", res);
+	st_printf("%I %d %s %c\n", subnet, i, buff, c);
 	return 0;
 }
 /*
