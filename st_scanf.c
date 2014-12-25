@@ -15,6 +15,7 @@ struct expr {
 };
 
 int match_expr_simple(char *expr, char *in);
+
 /* return the escaped char */
 static inline char escape_char(char input_c) {
 	char c;
@@ -82,7 +83,7 @@ int find_char(char *remain, struct expr *e) {
    i   = index in fmt
    j   = index in in
 */
-int parse_conversion_specifier(char *fmt, char *in, int *i, int *j, va_list ap) {
+int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_list *ap) {
 	int n_found = 0;
 	int j2, res;
 	char buffer[64];
@@ -97,8 +98,8 @@ int parse_conversion_specifier(char *fmt, char *in, int *i, int *j, va_list ap) 
 			debug(SCANF, 1, "Invalid format string '%s', ends with %%\n", fmt);
 			return n_found;
 		case 'I':
-			v_sub = va_arg(ap, struct subnet *);
-			while (is_ip_char(in[j2]) && j2 - *j < sizeof(buffer)) {
+			v_sub = va_arg(*ap, struct subnet *);
+			while (is_ip_char(in[j2]) && j2 - *j < sizeof(buffer) - 1) {
 				buffer[j2 - *j] = in[j2];
 				j2++;
 			}
@@ -107,7 +108,7 @@ int parse_conversion_specifier(char *fmt, char *in, int *i, int *j, va_list ap) 
 				debug(SCANF, 2, "no IP found at offset %d\n", *j);
 				return n_found;
 			}
-			debug(SCANF, 2, "possible IP '%s' starting at offset %d \n", buffer, *j);
+			debug(SCANF, 2, "possible IP '%s' starting at offset %d\n", buffer, *j);
 			res = get_subnet_or_ip(buffer, v_sub);
 			if (res < 1000) {
 				debug(SCANF, 2, "'%s' is a valid IP\n", buffer);
@@ -118,7 +119,7 @@ int parse_conversion_specifier(char *fmt, char *in, int *i, int *j, va_list ap) 
 			}
 			break;
 		case 'd':
-			v_int = va_arg(ap, long *);
+			v_int = va_arg(*ap, long *);
 			if (in[*j] == '-') {
 				buffer[0] = '-';
 				j2++;
@@ -130,15 +131,15 @@ int parse_conversion_specifier(char *fmt, char *in, int *i, int *j, va_list ap) 
 			buffer[j2 - *j] = '\0';
 			if (*j == j2 || !strcmp(buffer, "-")) {
 				debug(SCANF, 2, "no INT found at offset %d \n", *j);
-				return 0;
+				return n_found;
 			} else {
-				debug(SCANF, 2, "found INT '%s' starting at offset %d \n", buffer, *j);
+				debug(SCANF, 2, "found INT '%s' starting at offset %d\n", buffer, *j);
 				*v_int = atol(buffer);
 				n_found++;
 			}
 			break;
 		case 's':
-			v_s = va_arg(ap, char *);
+			v_s = va_arg(*ap, char *);
 			c = fmt[*i + 2];
 			if (c == '.') {
 				debug(SCANF, 1, "Invalid format '%s', found '.' after %%s\n", fmt);
@@ -155,7 +156,7 @@ int parse_conversion_specifier(char *fmt, char *in, int *i, int *j, va_list ap) 
 			n_found++;
 			break;
 		case 'W':
-			v_s = va_arg(ap, char *);
+			v_s = va_arg(*ap, char *);
 			while (isalpha(in[j2])) {
 				v_s[j2 - *j] = in[j2];
 				j2++;
@@ -169,7 +170,7 @@ int parse_conversion_specifier(char *fmt, char *in, int *i, int *j, va_list ap) 
 			n_found++;
 			break;
 		case 'c':
-			v_s = va_arg(ap, char *);
+			v_s = va_arg(*ap, char *);
 			v_s[0] = in[*j];
 			debug(SCANF, 5, "CHAR '%c' found at offset %d\n", *v_s,  *j);
 			j2 = *j + 1;
@@ -297,17 +298,13 @@ int find_ip(char *remain, struct expr *e) {
 }
 
 static int st_vscanf(char *in, const char *fmt, va_list ap) {
-	int i, j, j2, i2;
+	int i, j, i2;
 	int res;
 	int min_m, max_m;
 	int n_found, n_match;
 	char c;
-	char buffer[128];
 	char expr[64];
 	struct expr e;
-	struct subnet *v_sub;
-	long *v_int;
-	char *v_s;
 
 	i = 0; /* index in fmt */
 	j = 0; /* index in in */
@@ -364,96 +361,10 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 		if (c == '\0' || in[j] == '\0') {
 			return n_found;
 		} else if (c == '%') {
-			j2 = j;
-			switch (fmt[i + 1]) {
-				case '\0':
-					debug(SCANF, 1, "Invalid format string '%s', ends with %%\n", fmt);
-					return n_found;
-				case 'I':
-					v_sub = va_arg(ap, struct subnet *);
-					while (is_ip_char(in[j2]) && j2 - j < sizeof(buffer)) {
-						buffer[j2 - j] = in[j2];
-						j2++;
-					}
-					buffer[j2 - j] = '\0';
-					if (j2 - j <= 2) {
-						debug(SCANF, 2, "no IP found at offset %d\n", j);
-						return n_found;
-					}
-					debug(SCANF, 2, "possible IP '%s' starting at offset %d \n", buffer, j);
-					res = get_subnet_or_ip(buffer, v_sub);
-					if (res < 1000) {
-						debug(SCANF, 2, "'%s' is a valid IP\n", buffer);
-						n_found++;
-					} else { 
-						debug(SCANF, 2, "'%s' is an invalid IP\n", buffer);
-						return n_found;
-					}
-					break;
-				case 'd':
-					v_int = va_arg(ap, long *);
-					if (in[j] == '-') {
-						buffer[0] = '-';
-						j2++;
-					}
-					while (isdigit(in[j2]) && j2 - j < sizeof(buffer)) {
-						buffer[j2 - j] = in[j2];
-						j2++;
-					}
-					buffer[j2 - j] = '\0';
-					if (j == j2 || !strcmp(buffer, "-")) {
-						debug(SCANF, 2, "no INT found at offset %d \n", j);
-					} else {
-						debug(SCANF, 2, "found INT '%s' starting at offset %d \n", buffer, j);
-						*v_int = atol(buffer);
-						n_found++;
-					}
-					break;
-				case 's':
-					v_s = va_arg(ap, char *);
-					c = fmt[i + 2];
-					if (c == '.') {
-						debug(SCANF, 1, "Invalid format '%s', found . after %%s\n", fmt);
-						return n_found;
-					}
-					j2 = j;
-					while (in[j2] != c) {
-						if (in[j2] == '\0')
-							break;
-						v_s[j2 - j] = in[j2];
-						j2++;
-					}
-					v_s[j2 - j] = '\0';
-					debug(SCANF, 2, "found STRING '%s' starting at offset %d \n", v_s, j);
-					n_found++;
-					break;
-				case 'W':
-					v_s = va_arg(ap, char *);
-					j2 = j;
-					while (isalpha(in[j2])) {
-						v_s[j2 - j] = in[j2];
-						j2++;
-					}
-					if (j2 == j) {
-						debug(SCANF, 2, "no WORD found at offset %d\n", j);
-						return n_found;
-					}
-					v_s[j2 - j] = '\0';
-					debug(SCANF, 5, "WORD '%s' found at offset %d\n", v_s,  j);
-					n_found++;
-					break;
-				case 'c':
-					v_s = va_arg(ap, char *);
-					v_s[0] = in[j];
-					debug(SCANF, 5, "CHAR '%c' found at offset %d\n", *v_s,  j);
-					j2 = j + 1;
-					n_found++;
-					break;
-				default:
-					break;
-			}
-			i += 2;
-			j = j2;
+			res = parse_conversion_specifier(in, fmt, &i, &j, &ap);
+			if (res == 0)
+				return n_found;
+			n_found += res;
 		} else if (c == '.') {
 			if (is_multiple_char(fmt[i + 1])) {
 				expr[0] = c;	
@@ -513,7 +424,6 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 		}
 
 	} /* while 1 */
-
 }
 
 int st_sscanf(char *in, const char *fmt, ...) {
