@@ -15,7 +15,7 @@ struct expr {
 };
 
 /* return the escaped char */
-char escape_char(char input_c) {
+static inline char escape_char(char input_c) {
 	char c;
 
 	c = input_c;
@@ -26,10 +26,31 @@ char escape_char(char input_c) {
 		case 't':
 			c = '\t';
 			break;
+		case 'n':
+			c = '\n';
+			break;
 		default:
 			break;
 	}
 	return c;
+}
+
+static int is_multiple_char(char c) {
+	return (c == '*' || c == '+' || c == '?');
+}
+
+static int max_match(char c) {
+	if (c == '*') return 1000000000;
+	if (c == '+') return 1000000000;
+	if (c == '?') return 1;
+	return 0;
+}
+
+static int min_match(char c) {
+	if (c == '*') return 0;
+	if (c == '+') return 1;
+	if (c == '?') return 0;
+	return 0;
 }
 
 int find_int(char *remain, struct expr *e) {
@@ -61,7 +82,7 @@ int match_expr_simple(char *expr, char *in) {
 	int i, j;
 	int a = 0;
 	int res;
-	char low, high;
+	char c, low, high;
 
 	i = 0; /* index in expr */
 	j = 0; /* index in input buffer */
@@ -69,7 +90,8 @@ int match_expr_simple(char *expr, char *in) {
 	while (1) {
 		if (in[j] == '\0' || expr[i] == '\0')
 			return a;
-		switch (expr[i]) {
+		c = expr[i];
+		switch (c) {
 			case '.':
 				i++;
 				j++;
@@ -99,8 +121,11 @@ int match_expr_simple(char *expr, char *in) {
 				if (res)
 					a++;
 				break;
+			case '\\':
+				i++;
+				c = escape_char(expr[i]);
 			default:
-				if (in[j] != expr[i])
+				if (in[j] != c)
 					return 0;
 				i++;
 				j++;
@@ -163,11 +188,12 @@ int find_ip(char *remain, struct expr *e) {
 static int st_vscanf(char *in, const char *fmt, va_list ap) {
 	int i, j, j2, i2;
 	int res;
+	int min_m, max_m;
 	int n_found, n_match;
 	char c;
 	char buffer[128];
 	char expr[64];
-	struct expr  e;
+	struct expr e;
 	struct subnet *v_sub;
 	long *v_int;
 	char *v_s;
@@ -178,10 +204,12 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 	expr[0] = '\0';
 	while (1) {
 		c = fmt[i];
-		debug(SCANF, 4, "Still to parse in FMT  : %s\n", fmt + i); 
+		debug(SCANF, 4, "Still to parse in FMT  : %s\n", fmt + i);
 		debug(SCANF, 4, "Still to parse in 'in' : %s\n", in + j);
-		if (c == '*') {
-			debug(SCANF, 4, "need to find '%s' * time\n", expr);
+		if (is_multiple_char(c)) {
+			min_m = min_match(c);
+			max_m = max_match(c);
+			debug(SCANF, 4, "need to find expression '%s' %c time\n", expr, c);
 			e.expr[0] = expr;
 			e.num_expr = 1;
 			e.end_of_expr = fmt[i + 1]; /* if necessary */
@@ -203,7 +231,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 			} else
 				e.stop = NULL;
 			n_match = 0;
-			while (1) {
+			while (n_match < max_m) {
 				res = match_expr(&e, in + j);
 				if (res == -1) {
 					debug(SCANF, 1, "No match found for expr '%s'\n", expr);
@@ -214,7 +242,11 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 				j += res;
 				n_match++;
 			}
-			debug(SCANF, 3, "Exiting loop with expr '%s' matched %d times\n", expr, n_match++); 
+			debug(SCANF, 3, "Exiting loop with expr '%s' matched %d times\n", expr, n_match); 
+			if (n_match < min_m) {
+				debug(SCANF, 1, "Couldnt find expr '%s', exiting\n", expr);
+				return n_found;
+			}		
 			i++;
 			continue;
 		} 
@@ -237,7 +269,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 						debug(SCANF, 2, "no IP found at offset %d\n", j);
 						return n_found;
 					}
-					debug(SCANF, 2, "possible IP %s starting at offset %d \n", buffer, j);
+					debug(SCANF, 2, "possible IP '%s' starting at offset %d \n", buffer, j);
 					res = get_subnet_or_ip(buffer, v_sub);
 					if (res < 1000) {
 						debug(SCANF, 2, "'%s' is a valid IP\n", buffer);
@@ -261,7 +293,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 					if (j == j2 || !strcmp(buffer, "-")) {
 						debug(SCANF, 2, "no INT found at offset %d \n", j);
 					} else {
-						debug(SCANF, 2, "found INT %s starting at offset %d \n", buffer, j);
+						debug(SCANF, 2, "found INT '%s' starting at offset %d \n", buffer, j);
 						*v_int = atol(buffer);
 						n_found++;
 					}
@@ -280,8 +312,8 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 						v_s[j2 - j] = in[j2];
 						j2++;
 					}
+					v_s[j2 - j] = '\0';
 					debug(SCANF, 2, "found STRING '%s' starting at offset %d \n", v_s, j);
-					buffer[j2 - j] = '\0';
 					n_found++;
 					break;
 				case 'W':
@@ -295,8 +327,8 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 						debug(SCANF, 2, "no WORD found at offset %d\n", j);
 						return n_found;
 					}
-					debug(SCANF, 5, "WORD '%s' found at offset %d\n", v_s,  j);
 					v_s[j2 - j] = '\0';
+					debug(SCANF, 5, "WORD '%s' found at offset %d\n", v_s,  j);
 					n_found++;
 					break;
 				case 'c':
@@ -312,7 +344,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 			i += 2;
 			j = j2;
 		} else if (c == '.') {
-			if (fmt[i + 1] == '*') {
+			if (is_multiple_char(fmt[i + 1])) {
 				expr[0] = c;	
 				expr[1] = '\0';	
 				i++;
@@ -346,8 +378,15 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 					return n_found;
 				}
 				i++;
+				if (is_multiple_char(fmt[i + 1])) {
+					expr[0] = '\\';
+					expr[1] = c;
+					expr[2] = '\0';
+					i++;
+					continue;
+				}
 			}
-			if (fmt[i + 1] == '*') {
+			if (is_multiple_char(fmt[i + 1]))  {
 				expr[0] = c;
 				expr[1] = '\0';
 				i++;
