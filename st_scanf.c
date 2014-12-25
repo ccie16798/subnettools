@@ -10,9 +10,27 @@
 struct expr {
 	int num_expr;
 	char *expr[10];
-	int (*stop)(char *remain, struct  expr *e);
+	int (*stop)(char *remain, struct expr *e);
 	char end_of_expr;
 };
+
+/* return the escaped char */
+char escape_char(char input_c) {
+	char c;
+
+	c = input_c;
+	switch (c) {
+		case '\0':
+			debug(SCANF, 2, "Nul char after Escape Char '\\' \n");
+			break;
+		case 't':
+			c = '\t';
+			break;
+		default:
+			break;
+	}
+	return c;
+}
 
 int find_int(char *remain, struct expr *e) {
 	return isdigit(*remain) || (*remain == '-' && isdigit(remain[1]));
@@ -33,7 +51,7 @@ int find_char(char *remain, struct expr *e) {
 		res = match_expr_simple(e->expr[i], remain);
 		if (res)
 			break;
-	}	
+	}
 	return !res;
 }
 /*
@@ -129,12 +147,12 @@ int find_ip(char *remain, struct expr *e) {
 	int i = 0;
 	struct subnet s;
 
-	while (is_ip_char(remain[i])) {
+	while (is_ip_char(remain[i]) && i < sizeof(buffer)) {
 		buffer[i] = remain[i];
 		i++;
 	}
 	if (i <= 2)
-		return 0;	
+		return 0;
 	buffer[i] = '\0';
 	if (get_subnet_or_ip(buffer, &s)  < 1000)
 		return 1;
@@ -210,7 +228,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 					return n_found;
 				case 'I':
 					v_sub = va_arg(ap, struct subnet *);
-					while (is_ip_char(in[j2])) {
+					while (is_ip_char(in[j2]) && j2 - j < sizeof(buffer)) {
 						buffer[j2 - j] = in[j2];
 						j2++;
 					}
@@ -235,7 +253,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 						buffer[0] = '-';
 						j2++;
 					}
-					while (isdigit(in[j2])) {
+					while (isdigit(in[j2]) && j2 - j < sizeof(buffer)) {
 						buffer[j2 - j] = in[j2];
 						j2++;
 					}
@@ -249,7 +267,22 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 					}
 					break;
 				case 's':
-
+					v_s = va_arg(ap, char *);
+					c = fmt[i + 2];
+					if (c == '.') {
+						debug(SCANF, 1, "Invalid format '%s', found . after %%s\n", fmt);
+						return n_found;
+					}
+					j2 = j;
+					while (in[j2] != c) {
+						if (in[j2] == '\0')
+							break;
+						v_s[j2 - j] = in[j2];
+						j2++;
+					}
+					debug(SCANF, 2, "found STRING '%s' starting at offset %d \n", v_s, j);
+					buffer[j2 - j] = '\0';
+					n_found++;
 					break;
 				case 'W':
 					v_s = va_arg(ap, char *);
@@ -278,48 +311,6 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 			}
 			i += 2;
 			j = j2;
-		} else if (c == '\\') { /* handling special chars */
-			switch (fmt[i + 1]) {
-				case '\0':
-					debug(SCANF, 2, "Nul char after \\ \n");
-					break;
-				case 't':
-					c = '\t';
-					i++;
-					break;
-				case ' ':
-					c = ' ';
-					i++;
-					break;
-				case '.':
-					c = '.';
-					i++;
-					break;
-				case '*':
-					c = '*';
-					i++;
-					break;
-				case '+':
-					c = '+';
-					i++;
-					break;
-				default:
-					c = '\\';
-					break;
-			}
-			if (fmt[i + 2] == '*') {
-				expr[0] = c;	
-				expr[1] = '\0';	
-				i++;
-				continue;
-			}
-			if (in[j] != c) {
-				debug(SCANF, 2, "in[%d]=%c, != fmt[%d]=%c, exiting\n",
-						j, in[j], i, c);
-				return  n_found;
-			}
-			i++;
-			j++;
 		} else if (c == '.') {
 			if (fmt[i + 1] == '*') {
 				expr[0] = c;	
@@ -348,6 +339,14 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 			debug(SCANF, 2, "found expr '%s'\n", expr);
 			i = i2;
 		} else {
+			if (fmt[i] == '\\') {
+				c = escape_char(fmt[i + 1]);
+				if (c == '\0') {
+					debug(SCANF, 1, "Invalid format string '%s', nul char after escape char\n", fmt);
+					return n_found;
+				}
+				i++;
+			}
 			if (fmt[i + 1] == '*') {
 				expr[0] = c;
 				expr[1] = '\0';
