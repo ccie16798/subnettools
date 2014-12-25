@@ -14,7 +14,7 @@ struct expr {
 	char end_of_expr;
 };
 
-int match_expr_simple(char *expr, char *in);
+int match_expr_simple(char *expr, char *in, va_list *ap);
 
 /* return the escaped char */
 static inline char escape_char(char input_c) {
@@ -55,6 +55,10 @@ static int min_match(char c) {
 	return 0;
 }
 
+/* given an expression e, the following function 
+ * try to determine if the remaining chars match their type
+ * for exemple, find_int will match on the first digit found
+*/
 int find_int(char *remain, struct expr *e) {
 	return isdigit(*remain) || (*remain == '-' && isdigit(remain[1]));
 }
@@ -63,19 +67,24 @@ int find_word(char *remain, struct expr *e) {
 	return isalpha(*remain);
 }
 
-int find_string(char *remain, struct expr *e) {
-	return 0;
-}
-
+/*
+ * find_char will stop when the first non-matching character is found
+ * for exemple, if e = [abcde-h] and input is 'abcfhtvp'
+ * find char will stop when remain is 'tvp'
+ */
 int find_char(char *remain, struct expr *e) {
 	int i, res;
 
 	for (i = 0; i < e->num_expr; i++) {
-		res = match_expr_simple(e->expr[i], remain);
+		res = match_expr_simple(e->expr[i], remain, NULL);
 		if (res)
 			break;
 	}
 	return !res;
+}
+
+int find_string(char *remain, struct expr *e) {
+	return find_char(remain, e);
 }
 
 /* fmt = FORMAT buffer
@@ -93,6 +102,8 @@ int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_lis
 	long *v_int;
 
 	j2 = *j;
+	if (ap == NULL) /* FIXME */
+		return 0;
 	switch (fmt[*i + 1]) {
 		case '\0':
 			debug(SCANF, 1, "Invalid format string '%s', ends with %%\n", fmt);
@@ -184,9 +195,10 @@ int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_lis
 }
 
 /*
- * return 0 if no match
+ * match a single pattern 'expr' against 'in'
+ * returns 0 if doesnt match, number of matched char  in input buffer 
  */
-int match_expr_simple(char *expr, char *in) {
+int match_expr_simple(char *expr, char *in, va_list *ap) {
 	int i, j;
 	int a = 0;
 	int res;
@@ -196,6 +208,8 @@ int match_expr_simple(char *expr, char *in) {
 	j = 0; /* index in input buffer */
 
 	while (1) {
+		debug(SCANF, 5, "remaining   in='%s'\n", in);
+		debug(SCANF, 5, "remaining expr='%s'\n", expr);
 		if (in[j] == '\0' || expr[i] == '\0')
 			return a;
 		c = expr[i];
@@ -234,7 +248,7 @@ int match_expr_simple(char *expr, char *in) {
 				c = escape_char(expr[i]);
 			case '%':
 				debug(SCANF, 1, "Need to find conversion specifier\n");
-
+				res = parse_conversion_specifier(in, expr, &i, &j, ap);
 				break;	
 			default:
 				if (in[j] != c)
@@ -253,13 +267,13 @@ int match_expr_simple(char *expr, char *in) {
  * 0 if it doesnt match but we found the character after the expr
  * n otherwise
  */
-int match_expr(struct expr *e, char *in) {
+int match_expr(struct expr *e, char *in, va_list *ap) {
 	int i = 0;
 	int res = 0;
 	int res2;
 
 	for (i = 0; i < e->num_expr; i++) {
-		res = match_expr_simple(e->expr[i], in);
+		res = match_expr_simple(e->expr[i], in, ap);
 		debug(SCANF, 4, "Matching expr '%s' against input '%s' res=%d\n", e->expr[i], in, res);
 		if (res)
 			break;
@@ -340,7 +354,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 				e.stop = NULL;
 			n_match = 0;
 			while (n_match < max_m) {
-				res = match_expr(&e, in + j);
+				res = match_expr(&e, in + j, &ap);
 				if (res == -1) {
 					debug(SCANF, 1, "No match found for expr '%s'\n", expr);
 					return n_found;
