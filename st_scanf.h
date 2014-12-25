@@ -1,4 +1,4 @@
-#ifdef ST_SCANF_H
+#ifndef ST_SCANF_H
 #define ST_SCANF_H
 
 
