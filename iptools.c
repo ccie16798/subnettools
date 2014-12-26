@@ -619,36 +619,30 @@ int get_single_ip(const char *s, struct ip_addr *addr, int len) {
  *    IPV6_N : IPv6 +  mask
  *    BAD_IP, BAD_MASK on error 
  */
-int get_subnet_or_ip(const char *string, struct subnet *subnet) {
+int get_subnet_or_ip(const char *s, struct subnet *subnet) {
 	int i, a;
 	u32 mask;
 	int count_slash = 0;
-	char *s, *save_s;
-	char s2[128];
+	int slash_i = 0;
 
-	strxcpy(s2, string, sizeof(s2));
-	s = s2;
-
-	while (*s == ' '||*s == '\t') /* remove spaces*/
-		s++;
 	if (*s == '\0'||*s == '/') {
 		debug(PARSEIP, 5, "invalid prefix %s, null IP\n", s);
 		return BAD_IP;
 	}
 	debug(PARSEIP, 9, "prefix %s length %d\n", s, (int)strlen(s));
 	for (i = 0; i < strlen(s); i++) {
-		if (s[i] == '/')
+		if (s[i] == '/') {
 			count_slash++;
-		else if (is_valid_ip_char(s[i])||s[i] == '.'||s[i] == ':'||s[i] == ' ')
+			slash_i = i;
+		} else if (is_valid_ip_char(s[i])||s[i] == '.'||s[i] == ':'||s[i] == ' ')
 			continue;
 		else {
-			debug(PARSEIP, 2, "invalid prefix %s,  contains [%c]\n", s, s[i]);
+			debug(PARSEIP, 2, "invalid prefix '%s',  contains '%c'\n", s, s[i]);
 			return BAD_IP;
 		}
 	}
 
 	if (count_slash == 0) {
-		debug(PARSEIP, 5, "trying to parse ip %s\n", s);
 		a =  get_single_ip(s, &subnet->ip_addr, 41);
 		if (a == BAD_IP)
 			return a;
@@ -656,16 +650,10 @@ int get_subnet_or_ip(const char *string, struct subnet *subnet) {
 		return a;
 	} else if (count_slash == 1) {
 		debug(PARSEIP, 5, "trying to parse ip/mask %s\n", s);
-		s = strtok_r(s, "/", &save_s);
-		a = get_single_ip(s, &subnet->ip_addr, 41);
+		a = get_single_ip(s, &subnet->ip_addr, slash_i);
 		if (a == BAD_IP)
 			return a;
-		s = strtok_r(NULL, "/", &save_s);
-		if (s == NULL) {
-			debug(PARSEIP, 2, "bad prefix '%s', no mask found after '/'\n", string);
-			return BAD_MASK;
-		}
-		mask = string2mask(s, 41);
+		mask = string2mask(s + slash_i + 1, 41);
 		if (mask == BAD_MASK)
 			return BAD_MASK;
 		subnet->mask = mask;
