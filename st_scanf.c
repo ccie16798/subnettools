@@ -84,6 +84,7 @@ int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_lis
 	char *v_s;
 	long *v_long;
 	int *v_int;
+	int sign;
 
 	j2 = *j;
 	/* computing field length */
@@ -116,7 +117,6 @@ int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_lis
 				debug(SCANF, 2, "no IP found at offset %d\n", *j);
 				return n_found;
 			}
-			debug(SCANF, 2, "possible IP '%s' starting at offset %d\n", buffer, *j);
 			res = get_subnet_or_ip(buffer, v_sub);
 			if (res < 1000) {
 				debug(SCANF, 2, "'%s' is a valid IP\n", buffer);
@@ -137,8 +137,7 @@ int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_lis
 				debug(SCANF, 2, "no IP found at offset %d\n", *j);
 				return n_found;
 			}
-			debug(SCANF, 2, "possible IP '%s' starting at offset %d\n", buffer, *j);
-			res = get_single_ip(buffer, v_addr, 41); /* FIXME */
+			res = get_single_ip(in + *j, v_addr, j2 -*j);
 			if (res < 1000) {
 				debug(SCANF, 2, "'%s' is a valid IP\n", buffer);
 				n_found++;
@@ -169,25 +168,52 @@ int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_lis
 			}
 			*v_int = res;
 			break;
-		case 'd':
-			v_int = va_arg(*ap, int *);
+		case 'l':
+			*i += 1;
+			if (fmt[*i + 1] != 'd') {
+				debug(SCANF, 1, "Invalid format '%s', only specifier allowed after %%l is 'd'\n", fmt);
+
+			}
+			v_long = va_arg(*ap, long *);
+			*v_long = 0;
 			if (in[*j] == '-') {
-				buffer[0] = '-';
+				sign = -1;
 				j2++;
+			} else 
+				sign = 1;
+			if (!isdigit(in[j2])) {
+				debug(SCANF, 2, "no LONG found at offset %d \n", *j);
+				return n_found;
 			}
 			while (isdigit(in[j2]) && j2 - *j < max_field_length) {
-				buffer[j2 - *j] = in[j2];
+				*v_long *= 10;
+				*v_long += (in[j2] - '0') ;
 				j2++;
 			}
-			buffer[j2 - *j] = '\0';
-			if (*j == j2 || !strcmp(buffer, "-")) {
+			*v_long *= sign;
+			debug(SCANF, 2, "found LONG '%ld' at offset %d\n", *v_long, *j);
+			n_found++;
+			break;
+		case 'd':
+			v_int = va_arg(*ap, int *);
+			*v_int = 0;
+			if (in[*j] == '-') {
+				sign = -1;
+				j2++;
+			} else 
+				sign = 1;
+			if (!isdigit(in[j2])) {
 				debug(SCANF, 2, "no INT found at offset %d \n", *j);
 				return n_found;
-			} else {
-				debug(SCANF, 2, "found INT '%s' starting at offset %d\n", buffer, *j);
-				*v_int = atol(buffer);
-				n_found++;
 			}
+			while (isdigit(in[j2]) && j2 - *j < max_field_length) {
+				*v_int *= 10;
+				*v_int += (in[j2] - '0') ;
+				j2++;
+			}
+			*v_int *= sign;
+			debug(SCANF, 2, "found INT '%d' at offset %d\n", *v_int, *j);
+			n_found++;
 			break;
 		case 's':
 			v_s = va_arg(*ap, char *);
