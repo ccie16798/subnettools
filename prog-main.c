@@ -625,7 +625,7 @@ static int run_test2(int arc, char **argv, void *options) {
 	char c;
         res = st_sscanf(argv[2], argv[3], &subnet, buff, &i, &c);
 	printf("%d \n", res);
-	st_printf("%I %d %s %c\n", subnet, i, buff, c);
+	st_printf("%I %s %d %c\n", subnet, buff, i,  c);
 	return 0;
 }
 /*
