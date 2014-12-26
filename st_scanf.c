@@ -80,6 +80,7 @@ int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_lis
 	char buffer[128];
 	char c;
 	struct subnet *v_sub;
+	struct ip_addr *v_addr;
 	char *v_s;
 	long *v_long;
 	int *v_int;
@@ -104,9 +105,9 @@ int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_lis
 		case '\0':
 			debug(SCANF, 1, "Invalid format string '%s', ends with %%\n", fmt);
 			return n_found;
-		case 'I':
+		case 'P':
 			v_sub = va_arg(*ap, struct subnet *);
-			while (is_ip_char(in[j2]) && j2 - *j < max_field_length) {
+			while ((is_ip_char(in[j2])||in[j2] == '/') && j2 - *j < max_field_length) {
 				buffer[j2 - *j] = in[j2];
 				j2++;
 			}
@@ -117,6 +118,27 @@ int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_lis
 			}
 			debug(SCANF, 2, "possible IP '%s' starting at offset %d\n", buffer, *j);
 			res = get_subnet_or_ip(buffer, v_sub);
+			if (res < 1000) {
+				debug(SCANF, 2, "'%s' is a valid IP\n", buffer);
+				n_found++;
+			} else { 
+				debug(SCANF, 2, "'%s' is an invalid IP\n", buffer);
+				return n_found;
+			}
+			break;
+		case 'I':
+			v_addr = va_arg(*ap, struct ip_addr *);
+			while (is_ip_char(in[j2]) && j2 - *j < max_field_length) {
+				buffer[j2 - *j] = in[j2];
+				j2++;
+			}
+			buffer[j2 - *j] = '\0';
+			if (j2 - *j <= 2) {
+				debug(SCANF, 2, "no IP found at offset %d\n", *j);
+				return n_found;
+			}
+			debug(SCANF, 2, "possible IP '%s' starting at offset %d\n", buffer, *j);
+			res = get_single_ip(buffer, v_addr);
 			if (res < 1000) {
 				debug(SCANF, 2, "'%s' is a valid IP\n", buffer);
 				n_found++;
