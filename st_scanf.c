@@ -68,26 +68,6 @@ int find_word(char *remain, struct expr *e) {
 	return isalpha(*remain);
 }
 
-/*
- * find_char will stop when the first non-matching character is found
- * for exemple, if e = [abcde-h] and input is 'abcfhtvp'
- * find char will stop when remain is 'tvp'
- */
-int find_char(char *remain, struct expr *e) {
-	int i, res;
-
-	for (i = 0; i < e->num_expr; i++) {
-		res = match_expr_simple(e->expr[i], remain, NULL);
-		if (res)
-			break;
-	}
-	return !res;
-}
-
-int find_string(char *remain, struct expr *e) {
-	return find_char(remain, e);
-}
-
 /* fmt = FORMAT buffer
    in  = input buffer
    i   = index in fmt
