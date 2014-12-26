@@ -514,22 +514,29 @@ static int get_single_ipv6(const char *s, struct ip_addr *addr) {
 		} else if (s[i] ==':'||s[i] == '\0') {
 			if (s[i] == '\0')
 				stop = 1;
-			debug(PARSEIPV6, 8, "copying block '%x' to block %d\n", current_block, out_i);
+			debug(PARSEIPV6, 8, "copying '%x' to block#%d\n", current_block, out_i);
 			set_block(addr->ip6, out_i, current_block);
 			if (stop) /* we are here because s[i] was 0 before we replaced it*/
 				break;
 
 			out_i++;
 			current_block = 0;
+			num_digit = 0;
 			if (s[i + 1] == ':') /* we found a ':: (compressed address) */
 				do_skip = 1;
 			debug(PARSEIPV6, 9, "still to parse '%s', %d blocks already parsed\n", s + i + 1, out_i);
 		} else if (is_valid_ip_char(s[i])) {
+			if (num_digit == 4) {
+				debug(PARSEIPV6, 1, "bad block#%d, too many chars\n", out_i);
+				return BAD_IP;
+
+			}
 			current_block *= 16;
 			current_block += char2int(s[i]);
+			num_digit++;
 			continue;
 		} else {
-			debug(PARSEIPV6, 2, "invalid char '%c' found in  block [%s] index %d\n", s[i], s + i + 1, i);
+			debug(PARSEIPV6, 2, "invalid char '%c' found in  block#%d\n", s[i], out_i);
 			return BAD_IP;
 		}
 		if (out_i == 6 && count_dot) { /* try to see if it is a ::ffff:IPv4 or ::Ipv4 */
