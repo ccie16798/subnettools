@@ -430,6 +430,7 @@ static int get_single_ipv6(char *s, struct ip_addr *addr) {
 	int stop = 0;
 	int count = 0, count2 = 0, count_dot = 0;
 	int try_embedded, skipped_blocks;
+	unsigned short current_block;
 	struct ip_addr embedded; /* in case of a  IPv4-Compatible IPv6 or IPv4-Mapped IPv6 */
 
 	if ((s[0] == s[1]) && (s[0] == ':')) { /** loopback addr **/
@@ -488,7 +489,8 @@ static int get_single_ipv6(char *s, struct ip_addr *addr) {
 
 	debug(PARSEIPV6, 8, "counted %d ':', %d '::', %d '.'\n", count, count2, count_dot);
 	debug(PARSEIPV6, 8, "still to parse %s\n", s2);
-	i = (do_skip ? 2 : 0); /* in case we start with :: */
+	i = (do_skip ? 1 : 0); /* in case we start with :: */
+	current_block = 0;
 	for (;i < 72; i++) {
 		if (do_skip) {
 			/* we refill the skipped 0000: blocks */
@@ -498,6 +500,7 @@ static int get_single_ipv6(char *s, struct ip_addr *addr) {
 				out_i++;
 			}
 			do_skip = 0;
+			current_block = 0;
 		} else if (s[i] ==':'||s[i] == '\0') {
 			if (s[i] == '\0')
 				stop = 1;
@@ -506,25 +509,26 @@ static int get_single_ipv6(char *s, struct ip_addr *addr) {
 				debug(PARSEIPV6, 1, "block %d  '%s' is invalid, too many chars\n", out_i, s2);
 				return BAD_IP;
 			}
-			debug(PARSEIPV6, 8, "copying block '%s' to block %d\n", s2, out_i);
-			if (s2[0] == '\0') /* in case input ends with '::' */
-				set_block(addr->ip6, out_i, 0);
-			else
-				sscanf(s2, "%hx", block(&addr->ip6, out_i));
+			debug(PARSEIPV6, 8, "copying block '%s' to block %d, cur=%x\n", s2, out_i, current_block);
+			set_block(addr->ip6, out_i, current_block);
 			if (stop) /* we are here because s[i] was 0 before we replaced it*/
 				break;
 
 			out_i++;
-			i++;
-			s2 = s + i;
+			//i++;
+			s2 = s + i + 1;
+			current_block = 0;
 			if (s2[0] == ':') { /* we found a ':: (compressed address) */
 				do_skip = 1;
 				s2++;
 			}
 			debug(PARSEIPV6, 9, "still to parse %s, %d blocks already parsed\n", s2, out_i);
-		} else if (is_valid_ip_char(s[i]))
+		} else if (is_valid_ip_char(s[i])) {
+			current_block *= 16;
+			current_block += char2int(s[i]);
+			debug(PARSEIPV6, 9, "curr_block=%x\n", current_block);
 			continue;
-		else {
+		} else {
 			debug(PARSEIPV6, 2, "invalid char '%c' found in  block [%s] index %d\n", s[i], s2, i);
 			return BAD_IP;
 		}
