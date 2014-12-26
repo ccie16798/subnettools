@@ -11,7 +11,8 @@ struct expr {
 	int num_expr;
 	char *expr[10];
 	int (*stop)(char *remain, struct expr *e);
-	char end_of_expr;
+	char end_of_expr; /* if remain[i] = end_of_expr , we can stop*/
+	int stop_on_nomatch; /* we stop the match in case match_expr_simple doesnt match */
 };
 
 int match_expr_simple(char *expr, char *in, va_list *ap);
@@ -95,6 +96,7 @@ int find_string(char *remain, struct expr *e) {
 int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_list *ap) {
 	int n_found = 0;
 	int j2, res;
+	int max_field_length = 0;
 	char buffer[64];
 	char c;
 	struct subnet *v_sub;
@@ -104,6 +106,18 @@ int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_lis
 	j2 = *j;
 	if (ap == NULL) /* FIXME */
 		return 0;
+	
+	if (isdigit(fmt[*i + 1])) {
+		max_field_length = fmt[*i + 1] - '0';
+		*i += 2;
+		while (isdigit(fmt[*i])) {
+			max_field_length *= 10;
+			max_field_length += fmt[*i] - '0'; 
+			*i += 1;
+		}
+		debug(SCANF, 3, "Found field length %d\n", max_field_length);
+		*i -= 1;
+	}
 	switch (fmt[*i + 1]) {
 		case '\0':
 			debug(SCANF, 1, "Invalid format string '%s', ends with %%\n", fmt);
@@ -282,7 +296,10 @@ int match_expr(struct expr *e, char *in, va_list *ap) {
 		res2 = e->stop(in, e);
 		debug(SCANF, 4, "trying to stop on '%s', res=%d\n", in, res2);
 	} else {
-		res2 = (*in == e->end_of_expr);
+		if (e->stop_on_nomatch)
+			res2 = !res;
+		else
+			res2 = (*in == e->end_of_expr);
 		debug(SCANF, 4, "trying to stop on '%c', res=%d\n", e->end_of_expr, res2);
 	}
 	if (res2)
@@ -334,7 +351,9 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 			debug(SCANF, 4, "need to find expression '%s' %c time\n", expr, c);
 			e.expr[0] = expr;
 			e.num_expr = 1;
+			e.stop_on_nomatch = 0;
 			e.end_of_expr = fmt[i + 1]; /* if necessary */
+			e.stop = NULL;
 			if (fmt[i + 1] == '%') {
 				if (fmt[i + 2] == '\0') {
 					debug(SCANF, 1, "Invalid format string '%s', ends with %%\n", fmt);
@@ -346,12 +365,11 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 				} else if (fmt[i + 2] == 'W') {
 					e.stop = &find_word;
 				} else if (fmt[i + 2] == 's') {
-					e.stop = &find_string;
+					e.stop_on_nomatch = 1;
 				} else if (fmt[i + 2] == 'c') {
-					e.stop = &find_char;
+					e.stop_on_nomatch = 1;
 				}
-			} else
-				e.stop = NULL;
+			}
 			n_match = 0;
 			while (n_match < max_m) {
 				res = match_expr(&e, in + j, &ap);
