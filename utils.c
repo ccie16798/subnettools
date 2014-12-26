@@ -33,6 +33,13 @@ int isInt(const char *s) {
 	return 1;
 }
 
+int char2int(char c) {
+	if (c >= 'A' && c <= 'F') return (c - 'A');
+	if (c >= 'a' && c <= 'f') return (c - 'a');
+	if (c >= '0' && c <= '9') return (c - '9');
+	return 0;
+}
+
 int isPower2 (unsigned int x) {
 	while (((x % 2) == 0) && x > 1) /* if each time we divide x%2 == 0, x is power of two */
 		x /= 2;

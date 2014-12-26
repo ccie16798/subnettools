@@ -5,6 +5,7 @@ int isInt(const char *s);
 int isUnsignedInt(const char *s);
 int isPower2 (unsigned int x); 
 int mylog2(unsigned int x);
+int char2int(char c);
 
 /* strtok variants ; dont treat consecutive delim chars as one */
 char *simple_strtok(char *s, const char *delim);
