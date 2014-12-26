@@ -15,6 +15,7 @@ struct expr {
 	int stop_on_nomatch; /* we stop the match in case match_expr_simple doesnt match */
 };
 
+
 int match_expr_simple(char *expr, char *in, va_list *ap);
 
 /* return the escaped char */
@@ -46,6 +47,7 @@ static int max_match(char c) {
 	if (c == '*') return 1000000000;
 	if (c == '+') return 1000000000;
 	if (c == '?') return 1;
+	debug(SCANF, 1, "BUG, Invalid multiplier char '%c'\n", c);
 	return 0;
 }
 
@@ -53,6 +55,7 @@ static int min_match(char c) {
 	if (c == '*') return 0;
 	if (c == '+') return 1;
 	if (c == '?') return 0;
+	debug(SCANF, 1, "BUG, Invalid multiplier char '%c'\n", c);
 	return 0;
 }
 
@@ -67,7 +70,50 @@ int find_int(char *remain, struct expr *e) {
 int find_word(char *remain, struct expr *e) {
 	return isalpha(*remain);
 }
+/*
+ * match character c against STRING expr like [acde-g]
+ * *i is a pointer in expr
+ * returns :
+ *    1 if a match is found
+ *    0 if no match
+ *    -1 if range is invalid
+ */
+int mach_char_against_range(char c, const char *expr, int *i) {
+	int res = 0;
+	char low, high;
+	int invert = 0;
 
+	*i += 1;
+	if (expr[*i] == '^') {
+		invert = 1;
+		*i += 1;
+	}
+	while (expr[*i] != ']') {
+		low = expr[*i];
+		if (low == '\0') {
+				debug(SCANF, 1, "Invalid expr '%s', no closing ']' found\n", expr);
+				return -1;
+		}
+		if (expr[*i + 1] == '-') {
+			high = expr[*i + 2];
+			if (high == '\0' || high == ']') {
+				debug(SCANF, 1, "Invalid expr '%s', incomplete range\n", expr);
+				return -1;
+			}
+			if (c >= low && c <= high)
+				res = 1;
+		} else {
+			if (low == c)
+				res = 1;
+		}
+		*i += 1;
+	}
+	*i += 1;
+	if (invert)
+		return !res;
+	else
+		return res;
+}
 /* fmt = FORMAT buffer
    in  = input buffer
    i   = index in fmt
@@ -277,10 +323,10 @@ int match_expr_simple(char *expr, char *in, va_list *ap) {
 	j = 0; /* index in input buffer */
 
 	while (1) {
-		debug(SCANF, 5, "remaining   in='%s'\n", in);
-		debug(SCANF, 5, "remaining expr='%s'\n", expr);
 		if (in[j] == '\0' || expr[i] == '\0')
 			return a;
+		debug(SCANF, 5, "remaining   in='%s'\n", in);
+		debug(SCANF, 5, "remaining expr='%s'\n", expr);
 		c = expr[i];
 		switch (c) {
 			case '.':
@@ -398,12 +444,12 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 	expr[0] = '\0';
 	while (1) {
 		c = fmt[i];
-		debug(SCANF, 4, "Still to parse in FMT  : %s\n", fmt + i);
-		debug(SCANF, 4, "Still to parse in 'in' : %s\n", in + j);
+		debug(SCANF, 8, "Still to parse in FMT  : %s\n", fmt + i);
+		debug(SCANF, 8, "Still to parse in 'in' : %s\n", in + j);
 		if (is_multiple_char(c)) {
 			min_m = min_match(c);
 			max_m = max_match(c);
-			debug(SCANF, 4, "need to find expression '%s' %c time\n", expr, c);
+			debug(SCANF, 5, "need to find expression '%s' %c time\n", expr, c);
 			e.expr[0] = expr;
 			e.num_expr = 1;
 			e.stop_on_nomatch = 0;
