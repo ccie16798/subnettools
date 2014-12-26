@@ -183,3 +183,5 @@ work TODO
 - subnet splitting (v0.6)
 - implement st_scanf & friends (v0.7)
 - implement progress bar (what is your 1M line aggregation doing??) ()
+- make get_subnet_* strict with respect to space; move space removal to callers
+- remove some calls to sprintf (in st_printf etcc..) but recode themn
