@@ -77,16 +77,14 @@ int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_lis
 	int n_found = 0;
 	int j2, res;
 	int max_field_length = 0;
-	char buffer[64];
+	char buffer[128];
 	char c;
 	struct subnet *v_sub;
 	char *v_s;
 	long *v_int;
 
 	j2 = *j;
-	if (ap == NULL) /* FIXME */
-		return 0;
-	
+	/* computing field length */
 	if (isdigit(fmt[*i + 1])) {
 		max_field_length = fmt[*i + 1] - '0';
 		*i += 2;
@@ -95,8 +93,10 @@ int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_lis
 			max_field_length += fmt[*i] - '0'; 
 			*i += 1;
 		}
-		debug(SCANF, 3, "Found field length %d\n", max_field_length);
 		*i -= 1;
+		if (max_field_length > sizeof(buffer) - 2)
+			max_field_length = sizeof(buffer) - 2;
+		debug(SCANF, 3, "Found max field length %d\n", max_field_length);
 	}
 	switch (fmt[*i + 1]) {
 		case '\0':
