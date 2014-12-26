@@ -384,37 +384,36 @@ static int get_single_ipv4(char *s, struct ip_addr *addr) {
 	int count_dot = 0;
 	int truc[4];
 
-	while (*s == ' '||*s == '\t') /* remove  spaces*/
-		s++;
 	if (*s == '\0'||*s == '.') {
-		debug(PARSEIP, 5, "invalid IP %s,  bad format\n", s);
+		debug(PARSEIP, 2, "invalid IP '%s', bad format\n", s);
 		return BAD_IP;
 	}
 	for (i = 0; i < strlen(s); i++) {
+		if (s[i] == '.' && s[i + 1] == '.') {
+			debug(PARSEIP, 2, "invalid IP '%s', contains 2 consecutives '.'\n", s);
+			return BAD_IP;
+		}
 		if (s[i] == '.')
 			count_dot++;
-		else if (s[i] == ' '||s[i] == '\t') {
-			s[i] = '\0';
-			break; /** fin de la chaine */
-		} else if (isdigit(s[i]))
+		else if (isdigit(s[i]))
 			continue;
 		else {
-			debug(PARSEIP, 5, "invalid IP %s,  contains [%c]\n", s, s[i]);
+			debug(PARSEIP, 2, "invalid IP '%s',  contains '%c'\n", s, s[i]);
 			return BAD_IP;
 		}
 	}
 	if (count_dot != 3) {
-		debug(PARSEIP, 5, "invalid IP %s,  bad format\n", s);
+		debug(PARSEIP, 5, "invalid IP '%s', bad format\n", s);
 		return BAD_IP;
 	}
 	a = sscanf(s,"%d.%d.%d.%d", truc, truc + 1, truc + 2, truc + 3);
 	if (a != 4) {
-		debug(PARSEIP, 5, "invalid IP %s,  bad format\n", s);
+		debug(PARSEIP, 5, "invalid IP '%s',  bad format\n", s);
 		return BAD_IP;
 	}
 	for (i = 0; i < 4; i++) {
 		if (truc[i] > 255) {
-			debug(PARSEIP, 5, "invalid IP %s, %d too big\n", s, truc[i]);
+			debug(PARSEIP, 5, "invalid IP '%s', %d too big\n", s, truc[i]);
 			return BAD_IP;
 		}
 	}
@@ -445,13 +444,13 @@ static int get_single_ipv6(char *s, struct ip_addr *addr) {
 	} else
 		s2 = s;
 	if (s[0] == ':' && s[1] != ':') {
-		debug(PARSEIPV6, 1, "Bad ipv6 address %s, cannot begin with a single ':'\n", s);
+		debug(PARSEIPV6, 1, "Bad ipv6 address '%s', cannot begin with a single ':'\n", s);
 		return BAD_IP;
 	}
 	/**  couting ':' (7max),  '::' (1max), and '.' (0 or 3) */
 	for (i = 1; i < strlen(s); i++) {
 		if (count_dot && count_dot != 3 && s[i] == ':') {
-			debug(PARSEIPV6, 1, "Bad ipv6 address %s, found a ':' after only %d '.', cannot build embedded IP\n", s, count_dot);
+			debug(PARSEIPV6, 1, "Bad ipv6 address '%s', found a ':' after only %d '.', cannot build embedded IP\n", s, count_dot);
 			return BAD_IP;
 		} else if (s[i] == ':') {
 			count++;
@@ -463,23 +462,23 @@ static int get_single_ipv6(char *s, struct ip_addr *addr) {
 	}
 	/* getting the correct number of :, :: etc **/
 	if (count > 7) {
-		debug(PARSEIPV6, 1, "Bad ipv6 address %s, too many ':', [%d]\n", s, count );
+		debug(PARSEIPV6, 1, "Bad ipv6 address '%s', too many ':', [%d]\n", s, count );
 		return BAD_IP;
 	}
 	if (count2 > 1) {
-		debug(PARSEIPV6, 1, "Bad ipv6 address %s, too many '::', [%d]\n", s, count2 );
+		debug(PARSEIPV6, 1, "Bad ipv6 address '%s', too many '::', [%d]\n", s, count2 );
 		return BAD_IP;
 	}
 	if (count_dot == 0 && count2 == 0 && count != 7) {
-		debug(PARSEIPV6, 1, "Bad ipv6 address %s, not enough ':', [%d]\n", s, count );
+		debug(PARSEIPV6, 1, "Bad ipv6 address '%s', not enough ':', [%d]\n", s, count );
 		return BAD_IP;
 	}
 	if (count_dot && count_dot != 3) {
-		debug(PARSEIPV6, 1, "Bad IPv4-Embedded/Mapped address %s, not enough '.', [%d]\n", s, count_dot);
+		debug(PARSEIPV6, 1, "Bad IPv4-Embedded/Mapped address '%s', not enough '.', [%d]\n", s, count_dot);
 		return BAD_IP;
 	}
 	if (count_dot && count2 == 0 && count != 6) {
-		debug(PARSEIPV6, 1, "Bad IPv4-Embedded/Mapped address %s, bad ':' count, [%d]\n", s, count );
+		debug(PARSEIPV6, 1, "Bad IPv4-Embedded/Mapped address '%s', bad ':' count, [%d]\n", s, count );
 		return BAD_IP;
 	}
 	if (count_dot)
@@ -526,7 +525,7 @@ static int get_single_ipv6(char *s, struct ip_addr *addr) {
 		} else if (is_valid_ip_char(s[i]))
 			continue;
 		else {
-			debug(PARSEIPV6, 2, "invalid char [%c] found in  block [%s] index %d\n", s[i], s2, i);
+			debug(PARSEIPV6, 2, "invalid char '%c' found in  block [%s] index %d\n", s[i], s2, i);
 			return BAD_IP;
 		}
 		if (out_i == 6) { /* try to see if it is a ::ffff:IPv4 or ::Ipv4 */
@@ -542,9 +541,9 @@ static int get_single_ipv6(char *s, struct ip_addr *addr) {
 			if (block(addr->ip6, 5) != 0 && block(addr->ip6, 5) != 0xffff)
 				continue;
 
-			debug(PARSEIPV6, 9, "%s MAY be an embedded/mapped IPv4\n", s2);
+			debug(PARSEIPV6, 9, "'%s' MAY be an embedded/mapped IPv4\n", s2);
 			if (get_single_ipv4(s2, &embedded) == IPV4_A) {
-				debug(PARSEIPV6, 9, "%s is an embedded/mapped IPv4\n", s2);
+				debug(PARSEIPV6, 9, "'%s' is an embedded/mapped IPv4\n", s2);
 				set_block(addr->ip6, 6,  embedded.ip >> 16);
 				set_block(addr->ip6, 7, (unsigned short)(embedded.ip & 0xFFFF));
 				break;
@@ -564,10 +563,7 @@ int get_single_ip(const char *string, struct ip_addr *addr) {
 
 	strxcpy(s3, string, sizeof(s3)); /** we copy because we dont want to modify s2 */
 	s = s3;
-	while (*s == ' '||*s == '\t') /* remove spaces*/
-		s++;
-	if (*s == '\0')
-		return BAD_IP;
+
 	for (i = 0; i < strlen(s); i++) {
 		if (s[i] == '.' && !may_ipv6) {
 			may_ipv4 = 1;
@@ -575,9 +571,6 @@ int get_single_ip(const char *string, struct ip_addr *addr) {
 		} else if (s[i] == ':') {
 			may_ipv6 = 1;
 			break;
-		} else if (s[i] == ' ' || s[i] == '\t') {
-			s[i] = '\0';
-			break; /** fin de la chaine */
 		} else if (isdigit(s[i]))
 			continue;
 		else if ((s[i] >= 'a' && s[i] <= 'f') || (s[i] >= 'A' && s[i] <= 'F')) {
