@@ -147,6 +147,28 @@ int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_lis
 				return n_found;
 			}
 			break;
+		case 'M':
+			v_int = va_arg(*ap, int);
+			while ((isdigit(in[j2]) || in[j2] == '.') && j2 - *j < max_field_length) {
+				buffer[j2 - *j] = in[j2];
+				j2++;
+			}
+			buffer[j2 - *j] = '\0';
+			if (j2 - *j == 0) {
+				debug(SCANF, 2, "no MASK found at offset %d\n", *j);
+				return n_found;
+			}
+			debug(SCANF, 2, "possible MASK '%s' starting at offset %d\n", buffer, *j);
+			res = string2mask(buffer);
+			if (res == BAD_MASK) {
+				debug(SCANF, 2, "'%s' is a valid MASK\n", buffer);
+				n_found++;
+			} else {
+				debug(SCANF, 2, "'%s' is an invalid MASK\n", buffer);
+				return n_found;
+			}
+			*v_int = res;
+			break;
 		case 'd':
 			v_int = va_arg(*ap, int *);
 			if (in[*j] == '-') {
