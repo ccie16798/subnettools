@@ -44,7 +44,7 @@ static int netcsv_prefix_handle(char *s, void *data, struct csv_state *state) {
 
 static int netcsv_mask_handle(char *s, void *data, struct csv_state *state) {
 	struct subnet_file *sf = data;
-	u32 mask = string2mask(s);
+	u32 mask = string2mask(s, 21);
 
 	if (mask == BAD_MASK) {
 		debug(LOAD_CSV, 3, "invalid mask %s line %lu\n", s, state->line);
@@ -525,7 +525,7 @@ int network_grep_file(char *name, struct options *nof, char *ip) {
 			if (s == NULL)
 				break;
 			if (find_ip) { /* previous token was an IP without a mask, try to get a mask on this field*/
-				int lmask = string2mask(s);
+				int lmask = string2mask(s, 21);
 				if (subnet.ip_ver == IPV4_A)
 					subnet.mask = (lmask == BAD_MASK ? 32 : lmask);
 				if (subnet.ip_ver == IPV6_A)

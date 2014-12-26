@@ -556,7 +556,7 @@ static int cisco_fw_mask_handle(char *s, void *data, struct csv_state *state) {
 	struct  subnet_file *sf = data;
 	int num_mask;
 
-	num_mask = string2mask(s);
+	num_mask = string2mask(s, 21);
 	if ( num_mask == BAD_MASK) {
 		debug(PARSEROUTE, 2, "line %lu bad mask %s \n", state->line, s);
 		return CSV_INVALID_FIELD_BREAK;
@@ -680,7 +680,7 @@ int cisco_route_conf_to_csv(char *name, FILE *f, FILE *output) {
 		}
 		if (ip_ver == IPV4_A) { /* ipv6 got a mask in previous token */
 			MOVE_TO_NEXT_TOKEN(NULL);
-			num_mask = string2mask(s);
+			num_mask = string2mask(s, 21);
 			if ( res == BAD_MASK) {
 				debug(PARSEROUTE, 2, "line %lu bad mask %s \n", line, s);
 				continue;

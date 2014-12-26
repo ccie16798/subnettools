@@ -122,7 +122,7 @@ int mask2ddn(u32 mask, char *out_buffer);
  */
 int get_subnet_or_ip(const char *s, struct subnet *subnet);
 int get_single_ip(const char *s, struct ip_addr *addr, int len);
-u32 string2mask(const char *s) ;
+u32 string2mask(const char *s, int len) ;
 
 /* try to aggregate s1 & s2, putting the result 'in aggregated_subnet' if possible
  * returns negative if impossible to aggregate, positive if possible */

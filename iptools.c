@@ -317,7 +317,7 @@ int mask2ddn(u32 mask, char *out) {
 	return 0;
 }
 
-u32 string2mask(const char *s) {
+u32 string2mask(const char *s, int len) {
 	int i = 0;
 	u32 a;
 	int count_dot = 0;
@@ -334,7 +334,9 @@ u32 string2mask(const char *s) {
 		return BAD_MASK;
 	}
 	for ( ; ; i++) {
-		if (s[i] == '.') {
+		if (s[i] == '\0' || i == len) {
+			break;
+		} else if (s[i] == '.') {
 		 	if (s[i + 1] == '.') {
 				debug(PARSEIP, 2, "invalid mask '%s', contains consecutive '.'\n", s);
 				return BAD_MASK;
@@ -344,8 +346,6 @@ u32 string2mask(const char *s) {
 				return BAD_MASK;
 			}
 			count_dot++;
-		} else if (s[i] == '\0') { 
-			break;
 		} else if (isdigit(s[i]))
 			continue;
 		else {
@@ -665,7 +665,7 @@ int get_subnet_or_ip(const char *string, struct subnet *subnet) {
 			debug(PARSEIP, 2, "bad prefix '%s', no mask found after '/'\n", string);
 			return BAD_MASK;
 		}
-		mask = string2mask(s);
+		mask = string2mask(s, 41);
 		if (mask == BAD_MASK)
 			return BAD_MASK;
 		subnet->mask = mask;
