@@ -625,7 +625,6 @@ int get_subnet_or_ip(const char *string, struct subnet *subnet) {
 	int count_slash = 0;
 	char *s, *save_s;
 	char s2[128];
-	struct ip_addr addr;
 
 	strxcpy(s2, string, sizeof(s2));
 	s = s2;
@@ -650,19 +649,17 @@ int get_subnet_or_ip(const char *string, struct subnet *subnet) {
 
 	if (count_slash == 0) {
 		debug(PARSEIP, 5, "trying to parse ip %s\n", s);
-		a =  get_single_ip(s, &addr);
+		a =  get_single_ip(s, &subnet->ip_addr);
 		if (a == BAD_IP)
 			return a;
-		copy_ipaddr(&subnet->ip_addr, &addr);
 		subnet->mask = (a == IPV6_A ? 128 : 32);
 		return a;
 	} else if (count_slash == 1) {
 		debug(PARSEIP, 5, "trying to parse ip/mask %s\n", s);
 		s = strtok_r(s, "/", &save_s);
-		a = get_single_ip(s, &addr);
+		a = get_single_ip(s, &subnet->ip_addr);
 		if (a == BAD_IP)
 			return a;
-		copy_ipaddr(&subnet->ip_addr, &addr);
 		s = strtok_r(NULL, "/", &save_s);
 		if (s == NULL) {
 			debug(PARSEIP, 2, "bad prefix '%s', no mask found after '/'\n", string);
