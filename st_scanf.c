@@ -195,6 +195,9 @@ int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_lis
 			if (c == '.') {
 				debug(SCANF, 1, "Invalid format '%s', found '.' after %%s\n", fmt);
 				return n_found;
+			} else if (c == '%') {
+				debug(SCANF, 1, "Invalid format '%s', found '%%' after %%s\n", fmt);
+				return n_found;
 			}
 			while (in[j2] != c && j2 - *j < max_field_length - 1) {
 				if (in[j2] == '\0')
@@ -388,6 +391,10 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 					e.stop = &find_int;
 				} else if (fmt[i + 2] == 'I') {
 					e.stop = &find_ip;
+				} else if (fmt[i + 2] == 'P') {
+					e.stop = &find_ip;
+				} else if (fmt[i + 2] == 'M') {
+					e.stop = &find_int;
 				} else if (fmt[i + 2] == 'W') {
 					e.stop = &find_word;
 				} else if (fmt[i + 2] == 's') {
