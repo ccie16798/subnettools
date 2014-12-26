@@ -180,8 +180,8 @@ work TODO
 - adding more converters (and fixing IPv6 converters)
 - fixing ECMP in converters (maybe)
 - bitmap printing
-- subnet splitting (v0.6)
+- subnet splitting (before v1.0)
 - implement st_scanf & friends (v0.7)
-- implement progress bar (what is your 1M line aggregation doing??) ()
-- make get_subnet_* strict with respect to space; move space removal to callers
-- remove some calls to sprintf (in st_printf etcc..) but recode themn
+- implement progress bar (what is your 1M line aggregation doing??) (before v1.0)
+- recode max-field-length in st_printf.c (remove 1 sprintf)
+- make get_subnet_or_ip & get_single_ip strict, no space allowed; up to the caller to remove unwanted spaces
