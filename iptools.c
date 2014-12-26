@@ -501,30 +501,19 @@ static int get_single_ipv6(char *s, struct ip_addr *addr) {
 		} else if (s[i] ==':'||s[i] == '\0') {
 			if (s[i] == '\0')
 				stop = 1;
-	/*
-			s[i] = '\0';
-			if (strlen(s2) > 4) {
-				debug(PARSEIPV6, 1, "block %d  '%s' is invalid, too many chars\n", out_i, s2);
-				return BAD_IP;
-			} */
 			debug(PARSEIPV6, 8, "copying block '%x' to block %d\n", current_block, out_i);
 			set_block(addr->ip6, out_i, current_block);
 			if (stop) /* we are here because s[i] was 0 before we replaced it*/
 				break;
 
 			out_i++;
-			//i++;
-			//s2 = s + i + 1;
 			current_block = 0;
-			if (s[i + 1] == ':') { /* we found a ':: (compressed address) */
+			if (s[i + 1] == ':') /* we found a ':: (compressed address) */
 				do_skip = 1;
-				//s2++;
-			}
 			debug(PARSEIPV6, 9, "still to parse '%s', %d blocks already parsed\n", s + i + 1, out_i);
 		} else if (is_valid_ip_char(s[i])) {
 			current_block *= 16;
 			current_block += char2int(s[i]);
-			debug(PARSEIPV6, 9, "curr_block=%x\n", current_block);
 			continue;
 		} else {
 			debug(PARSEIPV6, 2, "invalid char '%c' found in  block [%s] index %d\n", s[i], s + i + 1, i);
