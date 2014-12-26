@@ -76,7 +76,7 @@ int find_word(char *remain, struct expr *e) {
 int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_list *ap) {
 	int n_found = 0;
 	int j2, res;
-	int max_field_length = 0;
+	int max_field_length;
 	char buffer[128];
 	char c;
 	struct subnet *v_sub;
@@ -97,14 +97,15 @@ int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_lis
 		if (max_field_length > sizeof(buffer) - 2)
 			max_field_length = sizeof(buffer) - 2;
 		debug(SCANF, 3, "Found max field length %d\n", max_field_length);
-	}
+	} else
+		max_field_length = sizeof(buffer) - 2;
 	switch (fmt[*i + 1]) {
 		case '\0':
 			debug(SCANF, 1, "Invalid format string '%s', ends with %%\n", fmt);
 			return n_found;
 		case 'I':
 			v_sub = va_arg(*ap, struct subnet *);
-			while (is_ip_char(in[j2]) && j2 - *j < sizeof(buffer) - 1) {
+			while (is_ip_char(in[j2]) && j2 - *j < max_field_length) {
 				buffer[j2 - *j] = in[j2];
 				j2++;
 			}
@@ -129,7 +130,7 @@ int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_lis
 				buffer[0] = '-';
 				j2++;
 			}
-			while (isdigit(in[j2]) && j2 - *j < sizeof(buffer) - 1) {
+			while (isdigit(in[j2]) && j2 - *j < max_field_length) {
 				buffer[j2 - *j] = in[j2];
 				j2++;
 			}
@@ -150,7 +151,7 @@ int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_lis
 				debug(SCANF, 1, "Invalid format '%s', found '.' after %%s\n", fmt);
 				return n_found;
 			}
-			while (in[j2] != c) {
+			while (in[j2] != c && j2 - *j < max_field_length) {
 				if (in[j2] == '\0')
 					break;
 				v_s[j2 - *j] = in[j2];
@@ -162,7 +163,7 @@ int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_lis
 			break;
 		case 'W':
 			v_s = va_arg(*ap, char *);
-			while (isalpha(in[j2])) {
+			while (isalpha(in[j2]) && j2 - *j < max_field_length) {
 				v_s[j2 - *j] = in[j2];
 				j2++;
 			}
