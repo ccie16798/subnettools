@@ -112,16 +112,29 @@ int subnet2str(const struct subnet *s, char *out_buffer, int comp_level);
 int addr2str(const struct ip_addr *a, char *out_buffer, int comp_level);
 int mask2ddn(u32 mask, char *out_buffer);
 
-/* fill struct subnet from a string 
+/* fill struct subnet from a string
  * returns :
  *    IPV4_A : IPv4 without mask
  *    IPV4_N : IPv4 + mask
  *    IPV6_A : IPv6 without mask
  *    IPV6_N : IPv6 +  mask
- *    BAD_IP, BAD_MASK on error 
+ *    BAD_IP, BAD_MASK on error
  */
 int get_subnet_or_ip(const char *s, struct subnet *subnet);
+/* read len chars from 's' and try to convert to a struct ip_addr
+ * s doesnt need to be '\0' ended
+ * returns :
+ *    IPV4_A if addr is valid IPv4
+ *    IPV6_A if addr is valid IPv6
+ *    BAD_IP otherwise
+ * */
 int get_single_ip(const char *s, struct ip_addr *addr, int len);
+/* read len chars from 's' and try to convert to a subnet mask length
+ * s doesnt need to be '\0' ended
+ * returns :
+ *    'mask length' is 's' is a valid mask
+ *     BAD_MASK otherwise
+*/
 u32 string2mask(const char *s, int len) ;
 
 /* try to aggregate s1 & s2, putting the result 'in aggregated_subnet' if possible
