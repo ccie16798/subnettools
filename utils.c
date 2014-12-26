@@ -33,7 +33,7 @@ int isInt(const char *s) {
 	return 1;
 }
 
-int char2int(char c) {
+inline int char2int(char c) {
 	if (c >= 'A' && c <= 'F') return (10 + c - 'A');
 	if (c >= 'a' && c <= 'f') return (10 + c - 'a');
 	if (c >= '0' && c <= '9') return (c - '0');
