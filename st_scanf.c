@@ -138,7 +138,7 @@ int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_lis
 				return n_found;
 			}
 			debug(SCANF, 2, "possible IP '%s' starting at offset %d\n", buffer, *j);
-			res = get_single_ip(buffer, v_addr);
+			res = get_single_ip(buffer, v_addr, 41); /* FIXME */
 			if (res < 1000) {
 				debug(SCANF, 2, "'%s' is a valid IP\n", buffer);
 				n_found++;
@@ -148,7 +148,7 @@ int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_lis
 			}
 			break;
 		case 'M':
-			v_int = va_arg(*ap, int);
+			v_int = va_arg(*ap, int *);
 			while ((isdigit(in[j2]) || in[j2] == '.') && j2 - *j < max_field_length) {
 				buffer[j2 - *j] = in[j2];
 				j2++;

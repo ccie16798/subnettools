@@ -383,7 +383,7 @@ u32 string2mask(const char *s) {
 
 }
 
-static int get_single_ipv4(const char *s, struct ip_addr *addr) {
+static int get_single_ipv4(const char *s, struct ip_addr *addr, int len) {
 	int i;
 	int count_dot = 0;
 	int truc[4];
@@ -397,7 +397,7 @@ static int get_single_ipv4(const char *s, struct ip_addr *addr) {
 		debug(PARSEIP, 2, "invalid IP '%s', starts with '.'\n", s);
 		return BAD_IP;
 	}
-	for (i = 0; ; i++) {
+	for (i = 0; i < len ; i++) {
 		if (s[i] == '\0') {
 			truc[count_dot] = current_block;
 			if (current_block > 255) {
@@ -443,7 +443,7 @@ static int get_single_ipv4(const char *s, struct ip_addr *addr) {
 	return IPV4_A;
 }
 
-static int get_single_ipv6(const char *s, struct ip_addr *addr) {
+static int get_single_ipv6(const char *s, struct ip_addr *addr, int len) {
 	int i, j, k;
 	int do_skip = 0;
 	int out_i = 0;
@@ -566,7 +566,7 @@ static int get_single_ipv6(const char *s, struct ip_addr *addr) {
 				continue;
 
 			debug(PARSEIPV6, 9, "'%s' MAY be an embedded/mapped IPv4\n", s + i + 1);
-			if (get_single_ipv4(s + i + 1, &embedded) == IPV4_A) {
+			if (get_single_ipv4(s + i + 1, &embedded, 20) == IPV4_A) {
 				debug(PARSEIPV6, 9, "'%s' is an embedded/mapped IPv4\n", s + i + 1);
 				set_block(addr->ip6, 6,  embedded.ip >> 16);
 				set_block(addr->ip6, 7, (unsigned short)(embedded.ip & 0xFFFF));
@@ -579,7 +579,7 @@ static int get_single_ipv6(const char *s, struct ip_addr *addr) {
 	return IPV6_A;
 }
 
-int get_single_ip(const char *s, struct ip_addr *addr) {
+int get_single_ip(const char *s, struct ip_addr *addr, int len) {
 	int i;
 	int may_ipv4 = 0, may_ipv6 = 0;
 
@@ -601,10 +601,10 @@ int get_single_ip(const char *s, struct ip_addr *addr) {
 		}
 	}
 	if (may_ipv4) {
-		return  get_single_ipv4(s, addr);
+		return get_single_ipv4(s, addr, len);
 	}
 	if (may_ipv6 == 1) {
-		return get_single_ipv6(s, addr);
+		return get_single_ipv6(s, addr, len);
 	}
 
 	debug(PARSEIP, 5, "invalid IPv4 or IPv6 : %s\n", s);
@@ -649,7 +649,7 @@ int get_subnet_or_ip(const char *string, struct subnet *subnet) {
 
 	if (count_slash == 0) {
 		debug(PARSEIP, 5, "trying to parse ip %s\n", s);
-		a =  get_single_ip(s, &subnet->ip_addr);
+		a =  get_single_ip(s, &subnet->ip_addr, 41);
 		if (a == BAD_IP)
 			return a;
 		subnet->mask = (a == IPV6_A ? 128 : 32);
@@ -657,7 +657,7 @@ int get_subnet_or_ip(const char *string, struct subnet *subnet) {
 	} else if (count_slash == 1) {
 		debug(PARSEIP, 5, "trying to parse ip/mask %s\n", s);
 		s = strtok_r(s, "/", &save_s);
-		a = get_single_ip(s, &subnet->ip_addr);
+		a = get_single_ip(s, &subnet->ip_addr, 41);
 		if (a == BAD_IP)
 			return a;
 		s = strtok_r(NULL, "/", &save_s);
