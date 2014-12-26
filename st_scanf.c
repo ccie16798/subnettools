@@ -16,8 +16,6 @@ struct expr {
 };
 
 
-//int match_expr_simple(char *expr, char *in, va_list *ap);
-
 /* return the escaped char */
 static inline char escape_char(char input_c) {
 	char c;
