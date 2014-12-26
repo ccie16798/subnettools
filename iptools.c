@@ -643,7 +643,7 @@ int get_subnet_or_ip(const char *string, struct subnet *subnet) {
 		else if (is_valid_ip_char(s[i])||s[i] == '.'||s[i] == ':'||s[i] == ' ')
 			continue;
 		else {
-			debug(PARSEIP, 5, "invalid prefix %s,  contains [%c]\n", s, s[i]);
+			debug(PARSEIP, 2, "invalid prefix %s,  contains [%c]\n", s, s[i]);
 			return BAD_IP;
 		}
 	}
@@ -660,28 +660,24 @@ int get_subnet_or_ip(const char *string, struct subnet *subnet) {
 		debug(PARSEIP, 5, "trying to parse ip/mask %s\n", s);
 		s = strtok_r(s, "/", &save_s);
 		a = get_single_ip(s, &addr);
-		copy_ipaddr(&subnet->ip_addr, &addr);
-		if (a == BAD_IP) {
-			debug(PARSEIP, 5, "bad IP %s\n", s);
+		if (a == BAD_IP)
 			return a;
-		}
+		copy_ipaddr(&subnet->ip_addr, &addr);
 		s = strtok_r(NULL, "/", &save_s);
 		if (s == NULL) {
-			debug(PARSEIP, 1, "bad prefix '%s', no mask found after '/'\n", string);
+			debug(PARSEIP, 2, "bad prefix '%s', no mask found after '/'\n", string);
 			return BAD_MASK;
 		}
 		mask = string2mask(s);
-		if (mask == BAD_MASK) {
-			debug(PARSEIP, 5, "bad mask %s\n", s);
+		if (mask == BAD_MASK)
 			return BAD_MASK;
-		}
 		subnet->mask = mask;
 		if (a == IPV4_A)
 			return IPV4_N;
 		else if (a == IPV6_A)
 			return IPV6_N;
 	}
-	debug(PARSEIP, 5, "bad prefix format : %s\n", s);
+	debug(PARSEIP, 2, "bad prefix '%s'\n", s);
 	return BAD_IP;
 }
 
