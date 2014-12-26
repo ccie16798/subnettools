@@ -426,7 +426,6 @@ static int get_single_ipv6(char *s, struct ip_addr *addr) {
 	int i, j, k;
 	int do_skip = 0;
 	int out_i = 0;
-	char *s2;
 	int stop = 0;
 	int count = 0, count2 = 0, count_dot = 0;
 	int try_embedded, skipped_blocks;
@@ -440,10 +439,8 @@ static int get_single_ipv6(char *s, struct ip_addr *addr) {
 			addr->ip_ver = IPV6_A;
 			return IPV6_A;
 		}
-		s2 = s + 2;
 		count2++;
-	} else
-		s2 = s;
+	}
 	if (s[0] == ':' && s[1] != ':') {
 		debug(PARSEIPV6, 1, "Bad ipv6 address '%s', cannot begin with a single ':'\n", s);
 		return BAD_IP;
@@ -488,9 +485,9 @@ static int get_single_ipv6(char *s, struct ip_addr *addr) {
 		skipped_blocks = 8 - count;
 
 	debug(PARSEIPV6, 8, "counted %d ':', %d '::', %d '.'\n", count, count2, count_dot);
-	debug(PARSEIPV6, 8, "still to parse %s\n", s2);
 	i = (do_skip ? 1 : 0); /* in case we start with :: */
 	current_block = 0;
+	debug(PARSEIPV6, 8, "still to parse %s\n", s + i);
 	for (;i < 72; i++) {
 		if (do_skip) {
 			/* we refill the skipped 0000: blocks */
@@ -504,32 +501,33 @@ static int get_single_ipv6(char *s, struct ip_addr *addr) {
 		} else if (s[i] ==':'||s[i] == '\0') {
 			if (s[i] == '\0')
 				stop = 1;
+	/*
 			s[i] = '\0';
 			if (strlen(s2) > 4) {
 				debug(PARSEIPV6, 1, "block %d  '%s' is invalid, too many chars\n", out_i, s2);
 				return BAD_IP;
-			}
-			debug(PARSEIPV6, 8, "copying block '%s' to block %d, cur=%x\n", s2, out_i, current_block);
+			} */
+			debug(PARSEIPV6, 8, "copying block '%x' to block %d\n", current_block, out_i);
 			set_block(addr->ip6, out_i, current_block);
 			if (stop) /* we are here because s[i] was 0 before we replaced it*/
 				break;
 
 			out_i++;
 			//i++;
-			s2 = s + i + 1;
+			//s2 = s + i + 1;
 			current_block = 0;
-			if (s2[0] == ':') { /* we found a ':: (compressed address) */
+			if (s[i + 1] == ':') { /* we found a ':: (compressed address) */
 				do_skip = 1;
-				s2++;
+				//s2++;
 			}
-			debug(PARSEIPV6, 9, "still to parse %s, %d blocks already parsed\n", s2, out_i);
+			debug(PARSEIPV6, 9, "still to parse '%s', %d blocks already parsed\n", s + i + 1, out_i);
 		} else if (is_valid_ip_char(s[i])) {
 			current_block *= 16;
 			current_block += char2int(s[i]);
 			debug(PARSEIPV6, 9, "curr_block=%x\n", current_block);
 			continue;
 		} else {
-			debug(PARSEIPV6, 2, "invalid char '%c' found in  block [%s] index %d\n", s[i], s2, i);
+			debug(PARSEIPV6, 2, "invalid char '%c' found in  block [%s] index %d\n", s[i], s + i + 1, i);
 			return BAD_IP;
 		}
 		if (out_i == 6) { /* try to see if it is a ::ffff:IPv4 or ::Ipv4 */
@@ -545,9 +543,9 @@ static int get_single_ipv6(char *s, struct ip_addr *addr) {
 			if (block(addr->ip6, 5) != 0 && block(addr->ip6, 5) != 0xffff)
 				continue;
 
-			debug(PARSEIPV6, 9, "'%s' MAY be an embedded/mapped IPv4\n", s2);
-			if (get_single_ipv4(s2, &embedded) == IPV4_A) {
-				debug(PARSEIPV6, 9, "'%s' is an embedded/mapped IPv4\n", s2);
+			debug(PARSEIPV6, 9, "'%s' MAY be an embedded/mapped IPv4\n", s + i + 1);
+			if (get_single_ipv4(s + i + 1, &embedded) == IPV4_A) {
+				debug(PARSEIPV6, 9, "'%s' is an embedded/mapped IPv4\n", s + i + 1);
 				set_block(addr->ip6, 6,  embedded.ip >> 16);
 				set_block(addr->ip6, 7, (unsigned short)(embedded.ip & 0xFFFF));
 				break;
