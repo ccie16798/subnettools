@@ -397,8 +397,8 @@ static int get_single_ipv4(const char *s, struct ip_addr *addr, int len) {
 		debug(PARSEIP, 2, "invalid IP '%s', starts with '.'\n", s);
 		return BAD_IP;
 	}
-	for (i = 0; i < len ; i++) {
-		if (s[i] == '\0') {
+	for (i = 0; ; i++) {
+		if (s[i] == '\0' || i == len) {
 			truc[count_dot] = current_block;
 			if (current_block > 255) {
 				debug(PARSEIP, 2, "invalid IP '%s', %d too big\n", s, current_block);
@@ -468,7 +468,7 @@ static int get_single_ipv6(const char *s, struct ip_addr *addr, int len) {
 		count2++;
 	}
 	/**  couting ':' (7max),  '::' (1max), and '.' (0 or 3) */
-	for (i = 1; ; i++) {
+	for (i = 1;  i < len; i++) {
 		if (count_dot && count_dot != 3 && s[i] == ':') {
 			debug(PARSEIPV6, 2, "Bad ipv6 address '%s', found a ':' after only %d '.', cannot build embedded IP\n", s, count_dot);
 			return BAD_IP;
@@ -513,7 +513,7 @@ static int get_single_ipv6(const char *s, struct ip_addr *addr, int len) {
 	current_block = 0;
 	num_digit = 0;
 	debug(PARSEIPV6, 8, "still to parse %s\n", s + i);
-	for (;i < 72; i++) {
+	for (;; i++) {
 		if (do_skip) {
 			/* we refill the skipped 0000: blocks */
 			debug(PARSEIPV6, 9, "copying %d skipped '0000:' blocks\n", skipped_blocks);
@@ -524,8 +524,8 @@ static int get_single_ipv6(const char *s, struct ip_addr *addr, int len) {
 			do_skip = 0;
 			current_block = 0;
 			num_digit = 0;
-		} else if (s[i] ==':'||s[i] == '\0') {
-			if (s[i] == '\0')
+		} else if (s[i] ==':'||s[i] == '\0'||i == len) {
+			if (s[i] == '\0'||i == len)
 				stop = 1;
 			debug(PARSEIPV6, 8, "copying '%x' to block#%d\n", current_block, out_i);
 			set_block(addr->ip6, out_i, current_block);
