@@ -160,7 +160,7 @@ int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_lis
 			}
 			debug(SCANF, 2, "possible MASK '%s' starting at offset %d\n", buffer, *j);
 			res = string2mask(buffer);
-			if (res == BAD_MASK) {
+			if (res != BAD_MASK) {
 				debug(SCANF, 2, "'%s' is a valid MASK\n", buffer);
 				n_found++;
 			} else {
