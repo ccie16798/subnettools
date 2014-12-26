@@ -142,7 +142,7 @@ int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_lis
 			if (res < 1000) {
 				debug(SCANF, 2, "'%s' is a valid IP\n", buffer);
 				n_found++;
-			} else { 
+			} else {
 				debug(SCANF, 2, "'%s' is an invalid IP\n", buffer);
 				return n_found;
 			}
