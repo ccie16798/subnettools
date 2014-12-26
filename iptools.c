@@ -379,7 +379,7 @@ u32 string2mask(const char *string) {
 
 }
 
-static int get_single_ipv4(char *s, struct ip_addr *addr) {
+static int get_single_ipv4(const char *s, struct ip_addr *addr) {
 	int i, a;
 	int count_dot = 0;
 	int truc[4];
@@ -422,7 +422,7 @@ static int get_single_ipv4(char *s, struct ip_addr *addr) {
 	return IPV4_A;
 }
 
-static int get_single_ipv6(char *s, struct ip_addr *addr) {
+static int get_single_ipv6(const char *s, struct ip_addr *addr) {
 	int i, j, k;
 	int do_skip = 0;
 	int out_i = 0;
@@ -546,14 +546,9 @@ static int get_single_ipv6(char *s, struct ip_addr *addr) {
 	return IPV6_A;
 }
 
-int get_single_ip(const char *string, struct ip_addr *addr) {
+int get_single_ip(const char *s, struct ip_addr *addr) {
 	int i;
 	int may_ipv4 = 0, may_ipv6 = 0;
-	char s3[52];
-	char *s;
-
-	strxcpy(s3, string, sizeof(s3)); /** we copy because we dont want to modify s2 */
-	s = s3;
 
 	for (i = 0; i < strlen(s); i++) {
 		if (s[i] == '.' && !may_ipv6) {
