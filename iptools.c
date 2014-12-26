@@ -472,7 +472,7 @@ static int get_single_ipv6(char *s, struct ip_addr *addr) {
 		return BAD_IP;
 	}
 	if (count_dot && count_dot != 3) {
-		debug(PARSEIPV6, 1, "Bad IPv4-Embedded/Mapped address '%s', not enough '.', [%d]\n", s, count_dot);
+		debug(PARSEIPV6, 1, "Bad IPv4-Embedded/Mapped address '%s', wrong '.' count, [%d]\n", s, count_dot);
 		return BAD_IP;
 	}
 	if (count_dot && count2 == 0 && count != 6) {
@@ -519,7 +519,7 @@ static int get_single_ipv6(char *s, struct ip_addr *addr) {
 			debug(PARSEIPV6, 2, "invalid char '%c' found in  block [%s] index %d\n", s[i], s + i + 1, i);
 			return BAD_IP;
 		}
-		if (out_i == 6) { /* try to see if it is a ::ffff:IPv4 or ::Ipv4 */
+		if (out_i == 6 && count_dot) { /* try to see if it is a ::ffff:IPv4 or ::Ipv4 */
 			try_embedded = 1;
 			for (k = 0 ; k < 5; k++) {
 				if (block(addr->ip6, k) != 0) {
