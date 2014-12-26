@@ -16,7 +16,7 @@ struct expr {
 };
 
 
-int match_expr_simple(char *expr, char *in, va_list *ap);
+//int match_expr_simple(char *expr, char *in, va_list *ap);
 
 /* return the escaped char */
 static inline char escape_char(char input_c) {
@@ -63,11 +63,11 @@ static int min_match(char c) {
  * try to determine if the remaining chars match their type
  * for exemple, find_int will match on the first digit found
 */
-int find_int(char *remain, struct expr *e) {
+static int find_int(char *remain, struct expr *e) {
 	return isdigit(*remain) || (*remain == '-' && isdigit(remain[1]));
 }
 
-int find_word(char *remain, struct expr *e) {
+static int find_word(char *remain, struct expr *e) {
 	return isalpha(*remain);
 }
 /*
@@ -78,7 +78,7 @@ int find_word(char *remain, struct expr *e) {
  *    0 if no match
  *    -1 if range is invalid
  */
-int mach_char_against_range(char c, const char *expr, int *i) {
+static int mach_char_against_range(char c, const char *expr, int *i) {
 	int res = 0;
 	char low, high;
 	int invert = 0;
@@ -119,7 +119,7 @@ int mach_char_against_range(char c, const char *expr, int *i) {
    i   = index in fmt
    j   = index in in
 */
-int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_list *ap) {
+static int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_list *ap) {
 	int n_found = 0;
 	int j2, res;
 	int max_field_length;
@@ -313,11 +313,11 @@ int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_lis
  * match a single pattern 'expr' against 'in'
  * returns 0 if doesnt match, number of matched char  in input buffer 
  */
-int match_expr_simple(char *expr, char *in, va_list *ap) {
+static int match_expr_simple(char *expr, char *in, va_list *ap) {
 	int i, j;
 	int a = 0;
 	int res;
-	char c, low, high;
+	char c;
 
 	i = 0; /* index in expr */
 	j = 0; /* index in input buffer */
@@ -366,7 +366,7 @@ int match_expr_simple(char *expr, char *in, va_list *ap) {
  * 0 if it doesnt match but we found the character after the expr
  * n otherwise
  */
-int match_expr(struct expr *e, char *in, va_list *ap) {
+static int match_expr(struct expr *e, char *in, va_list *ap) {
 	int i = 0;
 	int res = 0;
 	int res2;
@@ -395,7 +395,7 @@ int match_expr(struct expr *e, char *in, va_list *ap) {
 		return res;
 }
 
-int find_ip(char *remain, struct expr *e) {
+static int find_ip(char *remain, struct expr *e) {
 	char buffer[64];
 	int i = 0;
 	struct subnet s;
