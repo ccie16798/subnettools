@@ -81,7 +81,8 @@ int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_lis
 	char c;
 	struct subnet *v_sub;
 	char *v_s;
-	long *v_int;
+	long *v_long;
+	int *v_int;
 
 	j2 = *j;
 	/* computing field length */
@@ -125,7 +126,7 @@ int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_lis
 			}
 			break;
 		case 'd':
-			v_int = va_arg(*ap, long *);
+			v_int = va_arg(*ap, int *);
 			if (in[*j] == '-') {
 				buffer[0] = '-';
 				j2++;
@@ -151,7 +152,7 @@ int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_lis
 				debug(SCANF, 1, "Invalid format '%s', found '.' after %%s\n", fmt);
 				return n_found;
 			}
-			while (in[j2] != c && j2 - *j < max_field_length) {
+			while (in[j2] != c && j2 - *j < max_field_length - 1) {
 				if (in[j2] == '\0')
 					break;
 				v_s[j2 - *j] = in[j2];
@@ -163,7 +164,7 @@ int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_lis
 			break;
 		case 'W':
 			v_s = va_arg(*ap, char *);
-			while (isalpha(in[j2]) && j2 - *j < max_field_length) {
+			while (isalpha(in[j2]) && j2 - *j < max_field_length - 1) {
 				v_s[j2 - *j] = in[j2];
 				j2++;
 			}
