@@ -335,28 +335,12 @@ int match_expr_simple(char *expr, char *in, va_list *ap) {
 				a++;
 				break;
 			case '[': /* try to handle char range like [a-Zbce-f] */
-				i++;
-				res = 0;
-				while (expr[i] != ']') {
-					low = expr[i];
-					if (expr[i + 1] == '-') {
-						high = expr[i + 2];
-						if (high == '\0' || high == ']') {
-							debug(SCANF, 1, "Invalid expr '%s', incomplete range\n", expr);
-							return a;
-						}
-						if (in[j] >= low && in[j] <= high)
-							res = 1;
-					} else {
-						if (low == in[j])
-							res  = 1;
-					}
-					i++;
-				}
-				i++;
-				j++;
+				res = mach_char_against_range(in[j], expr, &i);
+				if (res == -1)
+					return -1; 
 				if (res)
 					a++;
+				j++;
 				break;
 			case '\\':
 				i++;
