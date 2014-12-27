@@ -41,6 +41,19 @@ static int is_multiple_char(char c) {
 	return (c == '*' || c == '+' || c == '?');
 }
 
+static char conversion_specifier(const char *fmt) {
+	int i = 0;
+
+	while (1) {
+		if (fmt[i] == '\0')
+			return '\0';
+		if (!isdigit(fmt[i]))
+			return fmt[i];
+		i++;
+	}
+	return '\0';
+}
+
 static int max_match(char c) {
 	if (c == '*') return 1000000000;
 	if (c == '+') return 1000000000;
@@ -438,22 +451,23 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 			e.end_of_expr = fmt[i + 1]; /* if necessary */
 			e.stop = NULL;
 			if (fmt[i + 1] == '%') {
-				if (fmt[i + 2] == '\0') {
+				c = conversion_specifier(fmt + i + 2);
+				if (c == '\0') {
 					debug(SCANF, 1, "Invalid format string '%s', ends with %%\n", fmt);
 					return n_found;
-				} else if (fmt[i + 2] == 'd') {
+				} else if (c == 'd') {
 					e.stop = &find_int;
-				} else if (fmt[i + 2] == 'I') {
+				} else if (c == 'I') {
 					e.stop = &find_ip;
-				} else if (fmt[i + 2] == 'P') {
+				} else if (c == 'P') {
 					e.stop = &find_ip;
-				} else if (fmt[i + 2] == 'M') {
+				} else if (c == 'M') {
 					e.stop = &find_int;
-				} else if (fmt[i + 2] == 'W') {
+				} else if (c == 'W') {
 					e.stop = &find_word;
-				} else if (fmt[i + 2] == 's') {
+				} else if (c == 's') {
 					e.stop_on_nomatch = 1;
-				} else if (fmt[i + 2] == 'c') {
+				} else if (c == 'c') {
 					e.stop_on_nomatch = 1;
 				}
 			}
