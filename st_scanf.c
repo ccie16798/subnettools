@@ -71,7 +71,7 @@ static int min_match(char c) {
 	return 0;
 }
 
-/* given an expression e, the following function 
+/* given an expression e, the following function
  * try to determine if the remaining chars match their type
  * for exemple, find_int will match on the first digit found
 */
@@ -84,7 +84,7 @@ static int find_word(char *remain, struct expr *e) {
 }
 
 /*
- * from fmt string starting with '[', fill expr with the range 
+ * from fmt string starting with '[', fill expr with the range
  */
 int fill_char_range(const char *fmt, char *expr) {
 	int i = 0;
@@ -172,7 +172,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 	o->type = fmt[*i + 1]; \
 	} \
 } while (0);
-	
+
 	j2 = *j;
 	/* computing field length */
 	if (isdigit(fmt[*i + 1])) {
@@ -180,7 +180,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 		*i += 2;
 		while (isdigit(fmt[*i])) {
 			max_field_length *= 10;
-			max_field_length += fmt[*i] - '0'; 
+			max_field_length += fmt[*i] - '0';
 			*i += 1;
 		}
 		*i -= 1;
@@ -209,7 +209,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 			if (res < 1000) {
 				debug(SCANF, 2, "'%s' is a valid IP\n", buffer);
 				n_found++;
-			} else { 
+			} else {
 				debug(SCANF, 2, "'%s' is an invalid IP\n", buffer);
 				return n_found;
 			}
@@ -267,7 +267,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 			if (in[*j] == '-') {
 				sign = -1;
 				j2++;
-			} else 
+			} else
 				sign = 1;
 			if (!isdigit(in[j2])) {
 				debug(SCANF, 2, "no LONG found at offset %d \n", *j);
@@ -288,7 +288,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 			if (in[*j] == '-') {
 				sign = -1;
 				j2++;
-			} else 
+			} else
 				sign = 1;
 			if (!isdigit(in[j2])) {
 				debug(SCANF, 2, "no INT found at offset %d \n", *j);
@@ -376,7 +376,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 
 /*
  * match a single pattern 'expr' against 'in'
- * returns 0 if doesnt match, number of matched char in input buffer 
+ * returns 0 if doesnt match, number of matched char in input buffer
  * if expr has a conversion specifier, put the result in 'o' (if o isnt NULL)
  * or consume a va_list *ap if o is NULL
  */
@@ -410,7 +410,7 @@ static int match_expr_simple(char *expr, char *in, va_list *ap, struct sto **o, 
 			case '[': /* try to handle char range like [a-Zbce-f] */
 				res = match_char_against_range(in[j], expr, &i);
 				if (res == -1)
-					return -1; 
+					return -1;
 				if (res)
 					a++;
 				j++;
@@ -437,9 +437,9 @@ static int match_expr_simple(char *expr, char *in, va_list *ap, struct sto **o, 
 
 	}
 }
-/* match expression e against input buffer 
- * will return 
- * -1 if it doesnt match  
+/* match expression e against input buffer
+ * will return
+ * -1 if it doesnt match
  * 0 if it doesnt match but we found the character after the expr
  * n otherwise
  */
@@ -453,7 +453,7 @@ static int match_expr(struct expr *e, char *in, va_list *ap, struct sto **o, int
 		debug(SCANF, 4, "Matching expr '%s' against input '%s' res=%d\n", e->expr[i], in, res);
 		if (res)
 			break;
-	}	
+	}
 	if (e->stop) {
 		res2 = e->stop(in, e);
 		debug(SCANF, 4, "trying to stop on '%s', res=%d\n", in, res2);
@@ -487,7 +487,7 @@ static int find_ip(char *remain, struct expr *e) {
 	if (get_subnet_or_ip(buffer, &s)  < 1000)
 		return 1;
 	else
-		return 0; 
+		return 0;
 }
 
 static int st_vscanf(char *in, const char *fmt, va_list ap) {
@@ -558,14 +558,14 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 				j += res;
 				n_match++;
 			}
-			debug(SCANF, 3, "Exiting loop with expr '%s' matched %d times, found %d objects\n", expr, n_match, num_o); 
+			debug(SCANF, 3, "Exiting loop with expr '%s' matched %d times, found %d objects\n", expr, n_match, num_o);
 			if (n_match < min_m) {
 				debug(SCANF, 1, "Couldnt find expr '%s', exiting\n", expr);
 				return n_found;
-			}		
+			}
 			i++;
 			continue;
-		} 
+		}
 		if (c == '\0' || in[j] == '\0') {
 			return n_found;
 		} else if (c == '%') {
@@ -575,8 +575,8 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 			n_found += res;
 		} else if (c == '.') {
 			if (is_multiple_char(fmt[i + 1])) {
-				expr[0] = c;	
-				expr[1] = '\0';	
+				expr[0] = c;
+				expr[1] = '\0';
 				i++;
 				continue;
 			}
