@@ -100,7 +100,7 @@ int fill_char_range(const char *fmt, char *expr) {
 }
 /*
  * match character c against STRING expr like [acde-g]
- * *i is a pointer in expr
+ * *i is a pointer to curr index in expr
  * returns :
  *    1 if a match is found
  *    0 if no match
@@ -326,7 +326,6 @@ static int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j,
 			break;
 		case '[':
 			v_s = va_arg(*ap, char *);
-			i2 = 0;
 			i2 = fill_char_range(fmt + *i + 1, expr);
 			if (i2 == -1) {
 					debug(SCANF, 1, "Invalid format '%s', no closing ]\n", fmt);
@@ -382,6 +381,12 @@ static int match_expr_simple(char *expr, char *in, va_list *ap) {
 		debug(SCANF, 5, "remaining expr='%s'\n", expr);
 		c = expr[i];
 		switch (c) {
+			case '(':
+				i++;
+				break;
+			case ')':
+				i++;
+				break;
 			case '.':
 				i++;
 				j++;
@@ -399,9 +404,10 @@ static int match_expr_simple(char *expr, char *in, va_list *ap) {
 				i++;
 				c = escape_char(expr[i]);
 			case '%':
-				debug(SCANF, 1, "Need to find conversion specifier\n");
+				debug(SCANF, 3, "Need to find conversion specifier\n");
 				res = parse_conversion_specifier(in, expr, &i, &j, ap);
-				break;	
+				a += j;
+				break;
 			default:
 				if (in[j] != c)
 					return 0;
