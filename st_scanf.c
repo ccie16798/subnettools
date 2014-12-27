@@ -378,7 +378,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
  * if expr has a conversion specifier, put the result in 'o' (if o isnt NULL)
  * or consume a va_list *ap if o is NULL
  */
-static int match_expr_simple(char *expr, char *in, va_list *ap, struct sto *o) {
+static int match_expr_simple(char *expr, char *in, va_list *ap, struct sto **o, int *num_o) {
 	int i, j;
 	int a = 0;
 	int res;
@@ -418,7 +418,8 @@ static int match_expr_simple(char *expr, char *in, va_list *ap, struct sto *o) {
 				c = escape_char(expr[i]);
 			case '%':
 				debug(SCANF, 3, "Need to find conversion specifier\n");
-				res = parse_conversion_specifier(in, expr, &i, &j, ap, o);
+				res = parse_conversion_specifier(in, expr, &i, &j, ap, o[*num_o]);
+				*num_o += 1;
 				a += j;
 				break;
 			default:
@@ -438,13 +439,13 @@ static int match_expr_simple(char *expr, char *in, va_list *ap, struct sto *o) {
  * 0 if it doesnt match but we found the character after the expr
  * n otherwise
  */
-static int match_expr(struct expr *e, char *in, va_list *ap, struct sto *o) {
+static int match_expr(struct expr *e, char *in, va_list *ap, struct sto **o, int *num_o) {
 	int i = 0;
 	int res = 0;
 	int res2;
 
 	for (i = 0; i < e->num_expr; i++) {
-		res = match_expr_simple(e->expr[i], in, ap, o);
+		res = match_expr_simple(e->expr[i], in, ap, o, num_o);
 		debug(SCANF, 4, "Matching expr '%s' against input '%s' res=%d\n", e->expr[i], in, res);
 		if (res)
 			break;
@@ -493,8 +494,11 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 	char c;
 	char expr[64];
 	struct expr e;
-	struct sto o;
+	struct sto sto[20];
+	struct sto *o;
+	int num_o;
 
+	o = sto;
 	i = 0; /* index in fmt */
 	j = 0; /* index in in */
 	n_found = 0; /* number of arguments found */
@@ -536,18 +540,21 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 				}
 			}
 			n_match = 0;
+			num_o = 0;
 			while (n_match < max_m) {
-				res = match_expr(&e, in + j, &ap, &o);
+				res = match_expr(&e, in + j, &ap, &o, &num_o);
 				if (res == -1) {
 					debug(SCANF, 1, "No match found for expr '%s'\n", expr);
 					return n_found;
 				}
 				if (res == 0)
 					break;
+				if (num_o)
+					debug(SCANF, 1, "found %d objects\n", num_o);
 				j += res;
 				n_match++;
 			}
-			debug(SCANF, 3, "Exiting loop with expr '%s' matched %d times\n", expr, n_match); 
+			debug(SCANF, 3, "Exiting loop with expr '%s' matched %d times, found %d objects\n", expr, n_match, num_o); 
 			if (n_match < min_m) {
 				debug(SCANF, 1, "Couldnt find expr '%s', exiting\n", expr);
 				return n_found;
