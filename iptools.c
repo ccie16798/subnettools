@@ -198,8 +198,8 @@ int addrv42str(ipv4 z, char *out_buffer) {
  * output MUST be large enough
  * compress = 0 ==> no adress compression
  * compress = 1 ==> remove leading zeros
- * compress = 2 ==> FULL compression but doesnt convert Embedded IPv4 
- * compress = 3 ==> FULL compression but and convert Embedded IPv4 
+ * compress = 2 ==> FULL compression but doesnt convert Embedded IPv4
+ * compress = 3 ==> FULL compression but and convert Embedded IPv4
  */
 int addrv62str(ipv6 z, char *out_buffer, int compress) {
 	int a, i, j;
@@ -250,11 +250,11 @@ int addrv62str(ipv6 z, char *out_buffer, int compress) {
 			if (block(z, 6) == 0 && block(z, 7) == 1) /** the loopback address */
 				return sprintf(out_buffer, "::1");
 			else
-				return sprintf(out_buffer, "::%d.%d.%d.%d", block(z, 6) >> 8, block(z, 6) & 0xff, 
+				return sprintf(out_buffer, "::%d.%d.%d.%d", block(z, 6) >> 8, block(z, 6) & 0xff,
 						block(z, 7) >> 8, block(z, 7) & 0xff);
 		}
 		if (block(z, 5) == 0xffff)
-			return sprintf(out_buffer, "::ffff:%d.%d.%d.%d", block(z, 6) >> 8, block(z, 6) & 0xff, 
+			return sprintf(out_buffer, "::ffff:%d.%d.%d.%d", block(z, 6) >> 8, block(z, 6) & 0xff,
 					block(z, 7) >> 8, block(z, 7) & 0xff);
 	}
 	j = 0;
@@ -405,7 +405,7 @@ static int get_single_ipv4(const char *s, struct ip_addr *addr, int len) {
 				return BAD_IP;
 			}
 			break;
-		} else if (s[i] == '.') { 
+		} else if (s[i] == '.') {
 			if  (s[i + 1] == '.') {
 				debug(PARSEIP, 2, "invalid IP '%s', contains 2 consecutives '.'\n", s);
 				return BAD_IP;
@@ -617,7 +617,7 @@ int get_single_ip(const char *s, struct ip_addr *addr, int len) {
  *    IPV4_N : IPv4 + mask
  *    IPV6_A : IPv6 without mask
  *    IPV6_N : IPv6 +  mask
- *    BAD_IP, BAD_MASK on error 
+ *    BAD_IP, BAD_MASK on error
  */
 int get_subnet_or_ip(const char *s, struct subnet *subnet) {
 	int i, a;
