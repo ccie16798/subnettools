@@ -425,9 +425,11 @@ static int match_expr_simple(char *expr, char *in, va_list *ap, struct sto **o, 
 	j = 0; /* index in input buffer */
 
 	while (1) {
+		c = expr[i];
+		if (c == '\0')
+			return a;
 		debug(SCANF, 5, "remaining in  ='%s'\n", in + j);
 		debug(SCANF, 5, "remaining expr='%s'\n", expr + i);
-		c = expr[i];
 		switch (c) {
 			case '(':
 				i++;
@@ -490,24 +492,19 @@ static int match_expr(struct expr *e, char *in, va_list *ap, struct sto **o, int
 		if (res)
 			break;
 	}
+	if (res == 0)
+		return 0;
 	if (e->stop) {
 		res2 = e->stop(in, e);
 		debug(SCANF, 4, "trying to stop on '%s', res=%d\n", in, res2);
 	} else {
-		if (e->stop_on_nomatch)
+		if (e->stop_on_nomatch) //FIXME
 			res2 = !res;
 		else
 			res2 = (*in == e->end_of_expr);
 		debug(SCANF, 4, "trying to stop on '%c', res=%d\n", e->end_of_expr, res2);
 	}
-	if (res2)
-		return 0;
-	return res;
-	/*
-	else if (res == 0)
-		return -1;
-	else
-		return res;*/
+	return !res2;
 }
 
 static int find_ip(char *remain, struct expr *e) {
@@ -585,16 +582,16 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 			num_o = 0;
 			while (n_match < max_m) {
 				res = match_expr(&e, in + j, &ap, &sto, &num_o);
-				if (res == -1) {
-					debug(SCANF, 1, "No match found for expr '%s'\n", expr);
-					return n_found;
-				}
 				if (res == 0)
 					break;
 				if (num_o)
 					debug(SCANF, 1, "found %d objects\n", num_o);
 				j += res;
 				n_match++;
+				if (in[j] == '\0') {
+					debug(SCANF, 1, "reached end of input scanning 'in'\n");
+					return n_found;
+				}
 			}
 			debug(SCANF, 3, "Exiting loop with expr '%s' matched %d times, found %d objects\n", expr, n_match, num_o);
 			if (n_match < min_m) {
