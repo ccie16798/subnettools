@@ -81,6 +81,23 @@ static int find_int(char *remain, struct expr *e) {
 static int find_word(char *remain, struct expr *e) {
 	return isalpha(*remain);
 }
+
+/*
+ * from fmt string starting with '[', fill expr with the range 
+ */
+int fill_char_range(const char *fmt, char *expr) {
+	int i = 0;
+
+	while (fmt[i] != ']') {
+		if (fmt[i] == '\0')
+			return -1;
+		expr[i] = fmt[i];
+		i++;
+	}
+	expr[i] = ']';
+	expr[i + 1] = '\0';
+	return i;
+}
 /*
  * match character c against STRING expr like [acde-g]
  * *i is a pointer in expr
@@ -310,23 +327,22 @@ static int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j,
 		case '[':
 			v_s = va_arg(*ap, char *);
 			i2 = 0;
-			while (fmt[*i + 1] != ']') {
-				if (fmt[*i + 1] == '\0') {
+			i2 = fill_char_range(fmt + *i + 1, expr);
+			if (i2 == -1) {
 					debug(SCANF, 1, "Invalid format '%s', no closing ]\n", fmt);
 					return n_found;
-				}
-				expr[i2] = fmt[*i + 1];
-				*i += 1;
-				i2++;
 			}
-			expr[i2++] = ']';
-			expr[i2] = '\0';
-			debug(SCANF, 5, "CHAR range '%s' to find at offset %d\n", expr, *j);
+			*i += i2;
+			debug(SCANF, 5, "CHAR RANGE '%s' to find at offset %d\n", expr, *j);
 			i2 = 0;
 			while (mach_char_against_range(in[j2], expr, &i2)) {
 				v_s[j2 - *j] = in[j2];
 				i2 = 0;
 				j2++;
+			}
+			if (j2 == *j) {
+				debug(SCANF, 2, "no CHAR RANGE found at offset %d\n", *j);
+				return 0;
 			}
 			v_s[j2 - *j] = '\0';
 			debug(SCANF, 5, "CHAR RANGE '%s' found at offset %d\n", v_s,  *j);
@@ -491,9 +507,11 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 					e.stop = &find_int;
 				} else if (c == 'W') {
 					e.stop = &find_word;
-				} else if (c == 's') {
+				} else if (c == 's') { // FIXME
 					e.stop_on_nomatch = 1;
 				} else if (c == 'c') {
+					e.stop_on_nomatch = 1;
+				} else if (c == '[') { // FIXME
 					e.stop_on_nomatch = 1;
 				}
 			}
