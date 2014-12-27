@@ -20,7 +20,7 @@ typedef unsigned int ipv4;
 struct ipv6_a {
 	union {
 		/* beware of endianness issues
-		 * current version of subnet tool manipulate ->n16 only, use n32 and n8 at your own risk 
+		 * current version of subnet tool manipulate ->n16 only, use n32 and n8 at your own risk
 		 */
 		unsigned short	n16[8];
 		u32  		n32[4];
@@ -28,9 +28,9 @@ struct ipv6_a {
 };
 typedef struct ipv6_a ipv6;
 
-/* due to endianness issues, ipv6 address should not be manipulated directly 
+/* due to endianness issues, ipv6 address should not be manipulated directly
  * works today, but will break the day we use something like a u128 to do the math...
- * if you change the representation of IPv6, you must redefine these macro, 
+ * if you change the representation of IPv6, you must redefine these macro,
  * (and only these) all code in .c file is safe
  */
 #define block(__ip6, __n) __ip6.n16[__n]
@@ -158,7 +158,7 @@ void next_subnet(struct subnet *s);
 int can_decrease_mask(const struct subnet *s);
 /*
  * remove s2 from s1 if possible
- * alloc a new struct subnet * 
+ * alloc a new struct subnet *
  * number of element is stored in *n
  */
 struct subnet *subnet_remove(const struct subnet *s1, const struct subnet *s2, int *n);
