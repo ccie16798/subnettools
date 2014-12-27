@@ -132,17 +132,18 @@ static int mach_char_against_range(char c, const char *expr, int *i) {
 */
 static int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_list *ap) {
 	int n_found = 0;
-	int j2, res;
+	int i2, j2, res;
 	int max_field_length;
 	char buffer[128];
 	char c;
 	struct subnet *v_sub;
+	char expr[64];
 	struct ip_addr *v_addr;
 	char *v_s;
 	long *v_long;
 	int *v_int;
 	int sign;
-
+	
 	j2 = *j;
 	/* computing field length */
 	if (isdigit(fmt[*i + 1])) {
@@ -282,7 +283,7 @@ static int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j,
 				debug(SCANF, 1, "Invalid format '%s', found '%%' after %%s\n", fmt);
 				return n_found;
 			}
-			while (in[j2] != c && j2 - *j < max_field_length - 1) {
+			while (in[j2] != ' ' && j2 - *j < max_field_length - 1) {
 				if (in[j2] == '\0')
 					break;
 				v_s[j2 - *j] = in[j2];
@@ -304,6 +305,31 @@ static int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j,
 			}
 			v_s[j2 - *j] = '\0';
 			debug(SCANF, 5, "WORD '%s' found at offset %d\n", v_s,  *j);
+			n_found++;
+			break;
+		case '[':
+			v_s = va_arg(*ap, char *);
+			i2 = 0;
+			while (fmt[*i + 1] != ']') {
+				if (fmt[*i + 1] == '\0') {
+					debug(SCANF, 1, "Invalid format '%s', no closing ]\n", fmt);
+					return n_found;
+				}
+				expr[i2] = fmt[*i + 1];
+				*i += 1;
+				i2++;
+			}
+			expr[i2++] = ']';
+			expr[i2] = '\0';
+			debug(SCANF, 5, "CHAR range '%s' to find at offset %d\n", expr, *j);
+			i2 = 0;
+			while (mach_char_against_range(in[j2], expr, &i2)) {
+				v_s[j2 - *j] = in[j2];
+				i2 = 0;
+				j2++;
+			}
+			v_s[j2 - *j] = '\0';
+			debug(SCANF, 5, "CHAR RANGE '%s' found at offset %d\n", v_s,  *j);
 			n_found++;
 			break;
 		case 'c':
