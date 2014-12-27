@@ -167,8 +167,10 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 #define ARG_SET(__NAME, __TYPE) do { \
 	if (o == NULL) \
 	__NAME = va_arg(*ap, __TYPE); \
-	else \
+	else { \
 	__NAME = (__TYPE)o->s_char; \
+	o->type = fmt[*i + 1]; \
+	} \
 } while (0);
 	
 	j2 = *j;
