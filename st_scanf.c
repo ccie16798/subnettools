@@ -419,12 +419,14 @@ static int match_expr_simple(char *expr, char *in, va_list *ap, struct sto **o, 
 			case '%':
 				debug(SCANF, 3, "Need to find conversion specifier\n");
 				res = parse_conversion_specifier(in, expr, &i, &j, ap, o[*num_o]);
+				if (res == 0)
+					return a;
 				*num_o += 1;
 				a += j;
 				break;
 			default:
 				if (in[j] != c)
-					return 0;
+					return a;
 				i++;
 				j++;
 				a++;
