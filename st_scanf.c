@@ -105,9 +105,9 @@ static int mach_char_against_range(char c, const char *expr, int *i) {
 				debug(SCANF, 1, "Invalid expr '%s', no closing ']' found\n", expr);
 				return -1;
 		}
-		if (expr[*i + 1] == '-') {
+		if (expr[*i + 1] == '-' && expr[*i + 2] != ']' ) {
 			high = expr[*i + 2];
-			if (high == '\0' || high == ']') {
+			if (high == '\0') {
 				debug(SCANF, 1, "Invalid expr '%s', incomplete range\n", expr);
 				return -1;
 			}
