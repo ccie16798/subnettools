@@ -106,7 +106,7 @@ int fill_char_range(const char *fmt, char *expr) {
  *    0 if no match
  *    -1 if range is invalid
  */
-static int mach_char_against_range(char c, const char *expr, int *i) {
+static int match_char_against_range(char c, const char *expr, int *i) {
 	int res = 0;
 	char low, high;
 	int invert = 0;
@@ -335,7 +335,7 @@ static int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j,
 			*i += i2;
 			debug(SCANF, 5, "CHAR RANGE '%s' to find at offset %d\n", expr, *j);
 			i2 = 0;
-			while (mach_char_against_range(in[j2], expr, &i2)) {
+			while (match_char_against_range(in[j2], expr, &i2)) {
 				v_s[j2 - *j] = in[j2];
 				i2 = 0;
 				j2++;
@@ -388,7 +388,7 @@ static int match_expr_simple(char *expr, char *in, va_list *ap) {
 				a++;
 				break;
 			case '[': /* try to handle char range like [a-Zbce-f] */
-				res = mach_char_against_range(in[j], expr, &i);
+				res = match_char_against_range(in[j], expr, &i);
 				if (res == -1)
 					return -1; 
 				if (res)
