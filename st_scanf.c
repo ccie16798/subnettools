@@ -13,7 +13,7 @@ struct expr {
 	char *expr[10];
 	int (*stop)(char *remain, struct expr *e);
 	char end_of_expr; /* if remain[i] = end_of_expr , we can stop*/
-	int stop_on_nomatch; /* we stop the match in case match_expr_simple doesnt match */
+	int stop_on_nomatch; /* we stop the match in case match_expr_uimple doesnt match */
 };
 
 
@@ -425,10 +425,8 @@ static int match_expr_simple(char *expr, char *in, va_list *ap, struct sto **o, 
 	j = 0; /* index in input buffer */
 
 	while (1) {
-		if (in[j] == '\0' || expr[i] == '\0')
-			return a;
-		debug(SCANF, 5, "remaining   in='%s'\n", in);
-		debug(SCANF, 5, "remaining expr='%s'\n", expr);
+		debug(SCANF, 5, "remaining in  ='%s'\n", in + j);
+		debug(SCANF, 5, "remaining expr='%s'\n", expr + i);
 		c = expr[i];
 		switch (c) {
 			case '(':
@@ -450,19 +448,22 @@ static int match_expr_simple(char *expr, char *in, va_list *ap, struct sto **o, 
 					a++;
 				j++;
 				break;
-			case '\\':
-				i++;
-				c = escape_char(expr[i]);
 			case '%':
-				debug(SCANF, 3, "Need to find conversion specifier\n");
+				debug(SCANF, 3, "conversion specifier to handle %d\n", (int)o[*num_o]);
 				res = parse_conversion_specifier(in, expr, &i, &j, ap, o[*num_o]);
 				if (res == 0)
 					return a;
+				debug(SCANF, 3, "conv specifier successfull\n");
 				*num_o += 1;
 				a += j;
 				break;
+			case '\\':
+				i++;
+				c = escape_char(expr[i]);
 			default:
 				if (in[j] != c)
+					return 0;
+				if (c == '\0')
 					return a;
 				i++;
 				j++;
@@ -501,10 +502,12 @@ static int match_expr(struct expr *e, char *in, va_list *ap, struct sto **o, int
 	}
 	if (res2)
 		return 0;
+	return res;
+	/*
 	else if (res == 0)
 		return -1;
 	else
-		return res;
+		return res;*/
 }
 
 static int find_ip(char *remain, struct expr *e) {
@@ -581,7 +584,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 			n_match = 0;
 			num_o = 0;
 			while (n_match < max_m) {
-				res = match_expr(&e, in + j, &ap, &o, &num_o);
+				res = match_expr(&e, in + j, &ap, &sto, &num_o);
 				if (res == -1) {
 					debug(SCANF, 1, "No match found for expr '%s'\n", expr);
 					return n_found;
