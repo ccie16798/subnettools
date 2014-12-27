@@ -6,6 +6,7 @@
 #include "utils.h"
 #include "iptools.h"
 #include "debug.h"
+#include "st_scanf.h"
 
 struct expr {
 	int num_expr;
@@ -142,12 +143,15 @@ static int match_char_against_range(char c, const char *expr, int *i) {
 	else
 		return res;
 }
-/* fmt = FORMAT buffer
+/* parse STRING in at index *j according to fmt at index *i
+   store output in o if not NULL, else consumes ap
+   fmt = FORMAT buffer
    in  = input buffer
    i   = index in fmt
    j   = index in in
 */
-static int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j, va_list *ap) {
+static int parse_conversion_specifier(char *in, const char *fmt,
+		int *i, int *j, va_list *ap, struct sto *o) {
 	int n_found = 0;
 	int i2, j2, res;
 	int max_field_length;
@@ -160,6 +164,12 @@ static int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j,
 	long *v_long;
 	int *v_int;
 	int sign;
+#define ARG_SET(__NAME, __TYPE) do { \
+	if (o == NULL) \
+	__NAME = va_arg(*ap, __TYPE); \
+	else \
+	__NAME = (__TYPE)o->s_char; \
+} while (0);
 	
 	j2 = *j;
 	/* computing field length */
@@ -182,7 +192,8 @@ static int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j,
 			debug(SCANF, 1, "Invalid format string '%s', ends with %%\n", fmt);
 			return n_found;
 		case 'P':
-			v_sub = va_arg(*ap, struct subnet *);
+			ARG_SET(v_sub, struct subnet *);
+			//Ev_sub = va_arg(*ap, struct subnet *);
 			while ((is_ip_char(in[j2])||in[j2] == '/') && j2 - *j < max_field_length) {
 				buffer[j2 - *j] = in[j2];
 				j2++;
@@ -202,7 +213,7 @@ static int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j,
 			}
 			break;
 		case 'I':
-			v_addr = va_arg(*ap, struct ip_addr *);
+			ARG_SET(v_addr, struct ip_addr *);
 			while (is_ip_char(in[j2]) && j2 - *j < max_field_length) {
 				buffer[j2 - *j] = in[j2];
 				j2++;
@@ -222,7 +233,7 @@ static int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j,
 			}
 			break;
 		case 'M':
-			v_int = va_arg(*ap, int *);
+			ARG_SET(v_int, int *);
 			while ((isdigit(in[j2]) || in[j2] == '.') && j2 - *j < max_field_length) {
 				buffer[j2 - *j] = in[j2];
 				j2++;
@@ -249,7 +260,7 @@ static int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j,
 				debug(SCANF, 1, "Invalid format '%s', only specifier allowed after %%l is 'd'\n", fmt);
 
 			}
-			v_long = va_arg(*ap, long *);
+			ARG_SET(v_long, long *);
 			*v_long = 0;
 			if (in[*j] == '-') {
 				sign = -1;
@@ -270,7 +281,7 @@ static int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j,
 			n_found++;
 			break;
 		case 'd':
-			v_int = va_arg(*ap, int *);
+			ARG_SET(v_int, int *);
 			*v_int = 0;
 			if (in[*j] == '-') {
 				sign = -1;
@@ -291,7 +302,7 @@ static int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j,
 			n_found++;
 			break;
 		case 's':
-			v_s = va_arg(*ap, char *);
+			ARG_SET(v_s, char *);
 			c = fmt[*i + 2];
 			if (c == '.') {
 				debug(SCANF, 1, "Invalid format '%s', found '.' after %%s\n", fmt);
@@ -311,7 +322,7 @@ static int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j,
 			n_found++;
 			break;
 		case 'W':
-			v_s = va_arg(*ap, char *);
+			ARG_SET(v_s, char *);
 			while (isalpha(in[j2]) && j2 - *j < max_field_length - 1) {
 				v_s[j2 - *j] = in[j2];
 				j2++;
@@ -325,7 +336,7 @@ static int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j,
 			n_found++;
 			break;
 		case '[':
-			v_s = va_arg(*ap, char *);
+			ARG_SET(v_s, char *);
 			i2 = fill_char_range(fmt + *i + 1, expr);
 			if (i2 == -1) {
 					debug(SCANF, 1, "Invalid format '%s', no closing ]\n", fmt);
@@ -348,7 +359,7 @@ static int parse_conversion_specifier(char *in, const char *fmt, int *i, int *j,
 			n_found++;
 			break;
 		case 'c':
-			v_s = va_arg(*ap, char *);
+			ARG_SET(v_s, char *);
 			v_s[0] = in[*j];
 			debug(SCANF, 5, "CHAR '%c' found at offset %d\n", *v_s,  *j);
 			j2 = *j + 1;
@@ -405,7 +416,7 @@ static int match_expr_simple(char *expr, char *in, va_list *ap) {
 				c = escape_char(expr[i]);
 			case '%':
 				debug(SCANF, 3, "Need to find conversion specifier\n");
-				res = parse_conversion_specifier(in, expr, &i, &j, ap);
+				res = parse_conversion_specifier(in, expr, &i, &j, ap, NULL);
 				a += j;
 				break;
 			default:
@@ -487,8 +498,8 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 	expr[0] = '\0';
 	while (1) {
 		c = fmt[i];
-		debug(SCANF, 8, "Still to parse in FMT  : %s\n", fmt + i);
-		debug(SCANF, 8, "Still to parse in 'in' : %s\n", in + j);
+		debug(SCANF, 8, "Still to parse in FMT  : '%s'\n", fmt + i);
+		debug(SCANF, 8, "Still to parse in 'in' : '%s'\n", in + j);
 		if (is_multiple_char(c)) {
 			min_m = min_match(c);
 			max_m = max_match(c);
@@ -544,7 +555,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 		if (c == '\0' || in[j] == '\0') {
 			return n_found;
 		} else if (c == '%') {
-			res = parse_conversion_specifier(in, fmt, &i, &j, &ap);
+			res = parse_conversion_specifier(in, fmt, &i, &j, &ap, NULL);
 			if (res == 0)
 				return n_found;
 			n_found += res;
