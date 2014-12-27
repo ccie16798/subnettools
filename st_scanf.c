@@ -374,9 +374,11 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 
 /*
  * match a single pattern 'expr' against 'in'
- * returns 0 if doesnt match, number of matched char  in input buffer 
+ * returns 0 if doesnt match, number of matched char in input buffer 
+ * if expr has a conversion specifier, put the result in 'o' (if o isnt NULL)
+ * or consume a va_list *ap if o is NULL
  */
-static int match_expr_simple(char *expr, char *in, va_list *ap) {
+static int match_expr_simple(char *expr, char *in, va_list *ap, struct sto *o) {
 	int i, j;
 	int a = 0;
 	int res;
@@ -416,7 +418,7 @@ static int match_expr_simple(char *expr, char *in, va_list *ap) {
 				c = escape_char(expr[i]);
 			case '%':
 				debug(SCANF, 3, "Need to find conversion specifier\n");
-				res = parse_conversion_specifier(in, expr, &i, &j, ap, NULL);
+				res = parse_conversion_specifier(in, expr, &i, &j, ap, o);
 				a += j;
 				break;
 			default:
@@ -436,13 +438,13 @@ static int match_expr_simple(char *expr, char *in, va_list *ap) {
  * 0 if it doesnt match but we found the character after the expr
  * n otherwise
  */
-static int match_expr(struct expr *e, char *in, va_list *ap) {
+static int match_expr(struct expr *e, char *in, va_list *ap, struct sto *o) {
 	int i = 0;
 	int res = 0;
 	int res2;
 
 	for (i = 0; i < e->num_expr; i++) {
-		res = match_expr_simple(e->expr[i], in, ap);
+		res = match_expr_simple(e->expr[i], in, ap, o);
 		debug(SCANF, 4, "Matching expr '%s' against input '%s' res=%d\n", e->expr[i], in, res);
 		if (res)
 			break;
@@ -491,6 +493,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 	char c;
 	char expr[64];
 	struct expr e;
+	struct sto o;
 
 	i = 0; /* index in fmt */
 	j = 0; /* index in in */
@@ -534,7 +537,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 			}
 			n_match = 0;
 			while (n_match < max_m) {
-				res = match_expr(&e, in + j, &ap);
+				res = match_expr(&e, in + j, &ap, &o);
 				if (res == -1) {
 					debug(SCANF, 1, "No match found for expr '%s'\n", expr);
 					return n_found;
