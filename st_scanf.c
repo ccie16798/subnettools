@@ -374,6 +374,41 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 	return n_found;
 }
 
+void consume_valist_from_object(struct sto **o, int n, va_list *ap) {
+	int i;
+	void *ptr;
+
+	for (i = 0; i < n; i++) {
+		ptr = va_arg(*ap, void *);
+		switch (o[n]->type) {
+			case '[':
+			case 's':
+			case 'W':
+				strcpy((char *)ptr, o[n]->s_char);
+				break;
+			case 'I':
+				copy_ipaddr((struct ip_addr *)ptr, &o[n]->s_addr);
+				break;
+			case 'P':
+				copy_subnet((struct subnet *)ptr, &o[n]->s_subnet);
+				break;
+			case 'd':
+			case 'M':
+				*((int *)ptr) = o[n]->s_int;
+				break;
+			case 'l':
+				*((long *)ptr) = o[n]->s_long;
+				break;
+			case 'c':
+				*((char *)ptr) = o[n]->s_char[0];
+				break;
+			default:
+				debug(SCANF, 1, "Unknown object type %c\n", o[n]->type);
+		}
+	}
+
+}
+
 /*
  * match a single pattern 'expr' against 'in'
  * returns 0 if doesnt match, number of matched char in input buffer
