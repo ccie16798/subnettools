@@ -444,7 +444,7 @@ static int run_addfiles(int arc, char **argv, void *options) {
 	res = alloc_subnet_file(&sf3, sf1.nr + sf2.nr);
 	if (res < 0)
 		return res;
-	debug_timing_start();
+	debug_timing_start(2);
 	for (i = 0; i < sf1.nr; i++)
 		memcpy(&sf3.routes[i], &sf1.routes[i], sizeof(struct route));
 	for (j = 0; j < sf2.nr; j++)
@@ -456,7 +456,7 @@ static int run_addfiles(int arc, char **argv, void *options) {
 	free(sf1.routes);
 	free(sf2.routes);
 	free(sf3.routes);
-	debug_timing_end();
+	debug_timing_end(2);
 	return 0;
 }
 

@@ -42,7 +42,7 @@ void list_debugs();
 void parse_debug (char *string);
 void debug_timing_start();
 void __debug_timing_end();
-#define debug_timing_end() __debug_timing_end(__FUNCTION__)
+#define debug_timing_end(__level) __debug_timing_end(__FUNCTION__, __level)
 
 
 

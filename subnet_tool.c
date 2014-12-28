@@ -413,7 +413,7 @@ void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *
 	struct subnet find_subnet;
 	char find_comment[128], buffer1[51], buffer2[51];
 
-	debug_timing_start();
+	debug_timing_start(2);
 	for (i = 0; i < sf1->nr; i++) {
 		mask1 = sf1->routes[i].subnet.mask;
 		subnet2str(&sf1->routes[i].subnet, buffer1, 2);
@@ -469,7 +469,7 @@ void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *
 			fprintf(nof->output_file, "###%s;%d is included in  %s;%d;%s\n", buffer1, mask1, buffer2, find_mask, find_comment);
 		}
 	}
-	debug_timing_end();
+	debug_timing_end(2);
 }
 
 int network_grep_file(char *name, struct options *nof, char *ip) {
@@ -493,7 +493,7 @@ int network_grep_file(char *name, struct options *nof, char *ip) {
 		fprintf(stderr, "WTF? \"%s\"  IS  a prefix/mask ?? really?\n", ip);
 		return -3;
 	}
-	debug_timing_start();
+	debug_timing_start(2);
 	while ((s = fgets(buffer, sizeof(buffer), f))) {
 		line++;
 		debug(GREP, 9, "grepping line %lu : %s\n", line, s);
@@ -587,7 +587,7 @@ int network_grep_file(char *name, struct options *nof, char *ip) {
 		} while (1);
 	} // for fgets
 	fclose(f);
-	debug_timing_end();
+	debug_timing_end(2);
 	return 0;
 }
 
@@ -614,7 +614,7 @@ int subnet_file_simplify(struct subnet_file *sf) {
 
 	if (sf->nr == 0)
 		return 0;
-	debug_timing_start();
+	debug_timing_start(2);
 	alloc_tas(&tas, sf->nr, __heap_subnet_is_superior);
 
 	new_r = malloc(sf->nr * sizeof(struct route));
@@ -646,7 +646,7 @@ int subnet_file_simplify(struct subnet_file *sf) {
 	free(tas.tab);
 	free(sf->routes);
 	sf->routes = new_r;
-	debug_timing_end();
+	debug_timing_end(2);
 	return 0;
 }
 
@@ -730,16 +730,16 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 	struct route *new_r;
 
 	/* first, remove duplicates and sort the crap*/
-	debug_timing_start();
+	debug_timing_start(2);
 	res = subnet_file_simplify(sf);
 	if (res < 0) {
-		debug_timing_end();
+		debug_timing_end(2);
 		return res;
 	}
 	new_r = malloc(sf->nr * sizeof(struct route));
 	if (new_r == NULL) {
 		fprintf(stderr, "%s : no memory\n", __FUNCTION__);
-		debug_timing_end();
+		debug_timing_end(2);
 		return -1;
 	}
 	debug(MEMORY, 2, "Allocated %lu bytes for new struct route\n", sf->nr * sizeof(struct route));
@@ -791,7 +791,7 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 	sf->routes = new_r;
 	sf->max_nr = sf->nr;
 	sf->nr = j + 1;
-	debug_timing_end();
+	debug_timing_end(2);
 	return 1;
 }
 
@@ -801,11 +801,11 @@ int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct
 	struct route *r;
 	TAS tas;
 
-	debug_timing_start();
+	debug_timing_start(2);
 	alloc_tas(&tas, sf1->nr + sf2->nr, &__heap_subnet_is_superior);
 	if (tas.tab == NULL||sf3->routes == NULL) {
 		fprintf(stderr, "%s : no memory\n", __FUNCTION__);
-		debug_timing_end();
+		debug_timing_end(2);
 		return -1;
 	}
 	/* going through subnet_file1 ; adding to stack only if equals or included */
@@ -847,7 +847,7 @@ int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct
 	}
 	sf3->nr = i;
 	free(tas.tab);
-	debug_timing_end();
+	debug_timing_end(2);
 	return 1;
 }
 
@@ -881,7 +881,7 @@ int subnet_sort_ascending(struct subnet_file *sf) {
 
 	if (sf->nr == 0)
 		return 0;
-	debug_timing_start();
+	debug_timing_start(2);
 	alloc_tas(&tas, sf->nr, __heap_subnet_is_superior);
 	tas.print = &__heap_print_subnet;
 
@@ -889,7 +889,7 @@ int subnet_sort_ascending(struct subnet_file *sf) {
 
 	if (tas.tab == NULL||new_r == NULL) {
 		fprintf(stderr, "%s : no memory\n", __FUNCTION__);
-		debug_timing_end();
+		debug_timing_end(2);
 		return -1;
 	}
 	debug(MEMORY, 2, "Allocated %lu bytes for new struct route\n", sf->max_nr * sizeof(struct route));
@@ -903,7 +903,7 @@ int subnet_sort_ascending(struct subnet_file *sf) {
 	free(tas.tab);
 	free(sf->routes);
 	sf->routes = new_r;
-	debug_timing_end();
+	debug_timing_end(2);
 	return 0;
 }
 /*
