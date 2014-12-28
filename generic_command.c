@@ -64,7 +64,9 @@ int generic_command_run(int argc, char **argv, char *progname, void *opt) {
 	} else if (found == 1) {
 		enough_args(argc - 2,  commands[found_i].required_args, commands[found_i].name, progname);
 		debug(PARSEOPTS, 3, "found handler for %s\n", argv[1]);
+		debug_timing_start(1);
 		res = commands[found_i].run_cmd(argc, argv, opt);
+		debug_timing_end(1);
 	} else {
 		debug(PARSEOPTS, 3, "BUG here %s\n", argv[1]);
 		res = -1000;
