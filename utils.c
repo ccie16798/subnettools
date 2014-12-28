@@ -55,6 +55,26 @@ int mylog2(unsigned int x) {
 	return a;
 }
 
+char *remove_space(char *s) {
+	int i = 0, j = 0;
+
+	while (1) {
+		if (isspace(s[i])) {
+			i++;
+			continue;
+		}
+		if (i == j) {
+			i++;
+			j++;
+			continue;
+		}
+		s[j] = s[i];
+		if (s[i] == '\0')
+			return s;
+		i++;
+		j++;
+	}
+}
 /* strtok variant ; treat consecutive delims one by one
  * standard strtok treats n successives delims as one, which is not always what we want in CSV files*/
 char *simple_strtok(char *s, const char *delim) {
