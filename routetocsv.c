@@ -18,9 +18,9 @@
 #include "utils.h"
 #include "st_printf.h"
 
-struct csvparser {
+struct csvconverter {
 	const char *name;
-	int (*parser)(char *name, FILE *, FILE *);
+	int (*converter)(char *name, FILE *, FILE *);
 	const char *desc;
 };
 
@@ -29,9 +29,9 @@ int cisco_route_conf_to_csv(char *name, FILE *input_name, FILE *output);
 int cisco_fw_to_csv(char *name, FILE *input_name, FILE *output);
 int cisco_nexus_to_csv(char *name, FILE *input_name, FILE *output);
 int ipso_route_to_csv(char *name, FILE *input_name, FILE *output);
-void csvparser_help(FILE *output);
+void csvconverter_help(FILE *output);
 
-struct csvparser csvparsers[] = {
+struct csvconverter csvconverters[] = {
 	{ "CiscoRouter", 	&cisco_route_to_csv, 	"ouput of 'show ip route' or 'sh ipv6 route' on Cisco IOS, IOS-XE" },
 	{ "CiscoRouterConf", &cisco_route_conf_to_csv, "full configuration or ipv6/ipv4 static routes"},
 	{ "CiscoFW", 	&cisco_fw_to_csv, 	"ouput of 'show route', IPv4 only"},
@@ -42,24 +42,24 @@ struct csvparser csvparsers[] = {
 };
 
 
-void csvparser_help(FILE *output) {
+void csvconverter_help(FILE *output) {
 	int i = 0;
 
-	fprintf(output, "available parsers : \n");
+	fprintf(output, "available converters : \n");
 	while (1) {
-		if (csvparsers[i].name == NULL)
+		if (csvconverters[i].name == NULL)
 			break;
-		fprintf(stderr, " %s : %s\n", csvparsers[i].name, csvparsers[i].desc);
+		fprintf(stderr, " %s : %s\n", csvconverters[i].name, csvconverters[i].desc);
 		i++;
 	}
 }
 
-int runcsv(char *name, char *filename, FILE *output) {
+int run_csvconverter(char *name, char *filename, FILE *output) {
 	int i = 0;
 	FILE *f;
 
 	if (!strcasecmp(name, "help")) {
-		csvparser_help(stdout);
+		csvconverter_help(stdout);
 		return 0;
 	}
 	if (filename == NULL) {
@@ -72,17 +72,17 @@ int runcsv(char *name, char *filename, FILE *output) {
 		return -2;
 	}
 	while (1) {
-		if (csvparsers[i].name == NULL)
+		if (csvconverters[i].name == NULL)
 			break;
-		if (!strcasecmp(name, csvparsers[i].name)) {
-			csvparsers[i].parser(filename, f, output);
+		if (!strcasecmp(name, csvconverters[i].name)) {
+			csvconverters[i].converter(filename, f, output);
 			return 0;
 		}
 		i++;
 
 	}
-	fprintf(stderr, "Unknow route parser : %s\n", name);
-	csvparser_help(stderr);
+	fprintf(stderr, "Unknow route converter : %s\n", name);
+	csvconverter_help(stderr);
 	return -2;
 }
 /* those fucking classfull IPSO nokia will print 10/8, 172.18/16 */
