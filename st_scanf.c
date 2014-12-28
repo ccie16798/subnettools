@@ -424,6 +424,7 @@ static int match_expr_simple(char *expr, char *in, va_list *ap, struct sto *o, i
 	int a = 0;
 	int res;
 	char c;
+	int saved_num_o = *num_o;
 
 	i = 0; /* index in expr */
 	j = 0; /* index in input buffer */
@@ -471,8 +472,10 @@ static int match_expr_simple(char *expr, char *in, va_list *ap, struct sto *o, i
 				i++;
 				c = escape_char(expr[i]);
 			default:
-				if (in[j] != c)
+				if (in[j] != c) {
+					*num_o = saved_num_o;
 					return 0;
+				}
 				if (c == '\0')
 					return a;
 				i++;
