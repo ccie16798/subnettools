@@ -458,7 +458,11 @@ static int match_expr_simple(char *expr, char *in, va_list *ap, struct sto *o, i
 				res = parse_conversion_specifier(in, expr, &i, &j, ap, o + *num_o);
 				if (res == 0)
 					return a;
-				debug(SCANF, 3, "conv specifier successfull\n");
+				if (o) {
+					debug(SCANF, 3, "conv specifier successfull '%c'\n", o[*num_o].type);
+				} else {
+					debug(SCANF, 3, "conv specifier successfull\n");
+				}
 				*num_o += 1;
 				a += j;
 				break;
