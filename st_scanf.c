@@ -174,7 +174,7 @@ static int match_char_against_range(char c, const char *expr, int *i) {
    j   = index in in
 */
 static int parse_conversion_specifier(char *in, const char *fmt,
-		int *i, int *j, va_list *ap, struct sto *o) {
+		int *i, int *j, va_list ap, struct sto *o) {
 	int n_found = 0;
 	int i2, j2, res;
 	int max_field_length;
@@ -189,7 +189,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 	int sign;
 #define ARG_SET(__NAME, __TYPE) do { \
 	if (o == NULL) \
-	__NAME = va_arg(*ap, __TYPE); \
+	__NAME = va_arg(ap, __TYPE); \
 	else { \
 	__NAME = (__TYPE)&o->s_char; \
 	o->type = fmt[*i + 1]; \
@@ -396,13 +396,13 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 	return n_found;
 }
 
-void consume_valist_from_object(struct sto *o, int n, va_list *ap) {
+void consume_valist_from_object(struct sto *o, int n, va_list ap) {
 	int i;
 	void *ptr;
 
 	for (i = 0; i < n; i++) {
 		debug(SCANF, 8, "restoring '%c' to va_list\n", o[i].type);
-		ptr = va_arg(*ap, void *);
+		ptr = va_arg(ap, void *);
 		switch (o[i].type) {
 			case '[':
 			case 's':
@@ -438,7 +438,7 @@ void consume_valist_from_object(struct sto *o, int n, va_list *ap) {
  * if expr has a conversion specifier, put the result in 'o' (if o isnt NULL)
  * or consume a va_list *ap if o is NULL
  */
-static int match_expr_single(char *expr, char *in, va_list *ap, struct sto *o, int *num_o) {
+static int match_expr_single(char *expr, char *in, va_list ap, struct sto *o, int *num_o) {
 	int i, j, res;
 	int a = 0;
 	char c;
@@ -509,7 +509,7 @@ static int match_expr_single(char *expr, char *in, va_list *ap, struct sto *o, i
  * 0 if it doesnt match
  * n otherwise
  */
-static int match_expr(struct expr *e, char *in, va_list *ap, struct sto *o, int *num_o) {
+static int match_expr(struct expr *e, char *in, va_list ap, struct sto *o, int *num_o) {
 	int i = 0;
 	int res = 0;
 	int res2;
@@ -614,7 +614,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 			num_o = 0;   /* number of expression specifiers found inside expr */
 			/* try to find at most max_m expr */
 			while (n_match < max_m) {
-				res = match_expr(&e, in + j, &ap, o, &num_o);
+				res = match_expr(&e, in + j, ap, o, &num_o);
 				if (res == 0)
 					break;
 				if (num_o) {
@@ -640,7 +640,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 
 				}
 				if (n_match) {
-					consume_valist_from_object(o, num_o, &ap);
+					consume_valist_from_object(o, num_o, ap);
 					n_found += num_o;
 				} else {
 					/* 0 match but we had num_cs conversion specifier 
@@ -656,7 +656,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 		if (c == '\0' || in[j] == '\0') {
 			return n_found;
 		} else if (c == '%') {
-			res = parse_conversion_specifier(in, fmt, &i, &j, &ap, NULL);
+			res = parse_conversion_specifier(in, fmt, &i, &j, ap, NULL);
 			if (res == 0)
 				return n_found;
 			n_found += res;
