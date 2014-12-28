@@ -54,6 +54,21 @@ static char conversion_specifier(const char *fmt) {
 	return '\0';
 }
 
+/* count number of consersion specifier in an expr
+ * doesnt validate CS are valid
+ */
+int count_cs(const char *expr) {
+	int i, n;
+	n = 0;
+	for (i = 0; ;i++) {
+		if (expr[i] == '\0')
+			return n;
+		if (expr[i] == '%')
+			n++;
+	}
+	return 0;
+}
+
 static int max_match(char c) {
 	if (c == '*') return 1000000000;
 	if (c == '+') return 1000000000;
@@ -598,7 +613,6 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 				if (num_o) {
 					debug(SCANF, 1, "found %d objects\n", num_o);
 				}
-				//printf("%s %c \n", o->s_char, o->type);
 				j += res;
 				n_match++;
 				if (in[j] == '\0') {
