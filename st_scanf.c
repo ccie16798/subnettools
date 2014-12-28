@@ -496,6 +496,7 @@ static int match_expr(struct expr *e, char *in, va_list *ap, struct sto *o, int 
 	int i = 0;
 	int res = 0;
 	int res2;
+	int saved_num_o = *num_o;
 
 	for (i = 0; i < e->num_expr; i++) {
 		res = match_expr_simple(e->expr[i], in, ap, o + *num_o, num_o);
@@ -512,8 +513,12 @@ static int match_expr(struct expr *e, char *in, va_list *ap, struct sto *o, int 
 		res2 = (*in == e->end_of_expr);
 		debug(SCANF, 4, "trying to stop on '%c', res=%d\n", e->end_of_expr, res2);
 	}
-	if (res2)
+	if (res2) {
+		/* if we matched a CS but decide we need to stop, we must restore
+		  *num_o to its  original value */
+		*num_o = saved_num_o;
 		return 0;
+	}
 	return res;
 }
 
