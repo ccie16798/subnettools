@@ -1,0 +1,7 @@
+IP version : 6
+Network Address : 64:ff9b::a00a:a01/128
+Address   Range : 64:ff9b::a00a:a01 - 64:ff9b::a00a:a01
+Previous subnet : 64:ff9b::a00a:a00/128
+Next     subnet : 64:ff9b::a00a:a02/128
+IPv6 rfc6052 protocol address translation
+IPv4-Embedded IPv6 address : 64:ff9b::160.10.10.1

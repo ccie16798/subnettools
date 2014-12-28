@@ -1,0 +1,8 @@
+IP version : 6
+Network Address : 2002:c0a8:1b0b::2001:10/128
+Address   Range : 2002:c0a8:1b0b::2001:10 - 2002:c0a8:1b0b::2001:10
+Previous subnet : 2002:c0a8:1b0b::2001:f/128
+Next     subnet : 2002:c0a8:1b0b::2001:11/128
+IPv6 6to4
+6to4 IPv4 destination address : 192.168.27.11
+Not in EUI-64 format
