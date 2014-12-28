@@ -61,7 +61,7 @@ static char conversion_specifier(const char *fmt) {
 /* count number of consersion specifier in an expr
  * doesnt validate CS are valid
  */
-int count_cs(const char *expr) {
+static int count_cs(const char *expr) {
 	int i, n;
 	n = 0;
 	for (i = 0; ;i++) {
@@ -396,7 +396,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 	return n_found;
 }
 
-void consume_valist_from_object(struct sto *o, int n, va_list ap) {
+static void consume_valist_from_object(struct sto *o, int n, va_list ap) {
 	int i;
 	void *ptr;
 
@@ -474,7 +474,7 @@ static int match_expr_single(char *expr, char *in, va_list ap, struct sto *o, in
 				j++;
 				break;
 			case '%':
-				debug(SCANF, 3, "conversion specifier to handle %d\n", (int)(o + *num_o));
+				debug(SCANF, 3, "conversion specifier to handle %lu\n", (unsigned long)(o + *num_o));
 				res = parse_conversion_specifier(in, expr, &i, &j, ap, o + *num_o);
 				if (res == 0)
 					return a;
