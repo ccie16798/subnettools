@@ -199,7 +199,6 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 			return n_found;
 		case 'P':
 			ARG_SET(v_sub, struct subnet *);
-			//Ev_sub = va_arg(*ap, struct subnet *);
 			while ((is_ip_char(in[j2])||in[j2] == '/') && j2 - *j < max_field_length) {
 				buffer[j2 - *j] = in[j2];
 				j2++;
@@ -407,7 +406,7 @@ void consume_valist_from_object(struct sto *o, int n, va_list *ap) {
 				*((char *)ptr) = o[n].s_char[0];
 				break;
 			default:
-				debug(SCANF, 1, "Unknown object type %c\n", o[n].type);
+				debug(SCANF, 1, "Unknown object type '%c'\n", o[n].type);
 		}
 	}
 
@@ -598,6 +597,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 				debug(SCANF, 1, "Couldnt find expr '%s', exiting\n", expr);
 				return n_found;
 			}
+			consume_valist_from_object(o, num_o, &ap); //FIXME
 			i++;
 			continue;
 		}
