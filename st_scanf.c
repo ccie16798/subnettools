@@ -8,6 +8,10 @@
 #include "debug.h"
 #include "st_scanf.h"
 
+// TO FIX : bound checking
+// specifier at EOS
+// %[ handling
+
 struct expr {
 	int num_expr;
 	char *expr[10];
@@ -554,7 +558,7 @@ static int find_ip(char *remain, struct expr *e) {
 }
 
 static int st_vscanf(char *in, const char *fmt, va_list ap) {
-	int i, j, i2;
+	int i, j, i2, k;
 	int res;
 	int min_m, max_m;
 	int n_found, n_match;
@@ -584,7 +588,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 			e.end_of_expr = fmt[i + 1]; /* if necessary */
 			e.stop = NULL;
 			num_cs = count_cs(expr);
-			debug(SCANF, 5, "need to find expression '%s' %c time, with %d conversion specifier\n", expr, c, num_cs);
+			debug(SCANF, 5, "need to find expression '%s' %c time, with %d conversion specifiers\n", expr, c, num_cs);
 			if (fmt[i + 1] == '%') {
 				c = conversion_specifier(fmt + i + 2);
 				if (c == '\0') {
@@ -606,8 +610,8 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 				} else if (c == '[') { // FIXME
 				}
 			}
-			n_match = 0;
-			num_o = 0;
+			n_match = 0; /* number of type expression matches */
+			num_o = 0;   /* number of expression specifiers found inside expr */
 			/* try to find at most max_m expr */
 			while (n_match < max_m) {
 				res = match_expr(&e, in + j, &ap, o, &num_o);
@@ -625,18 +629,26 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 			}
 			debug(SCANF, 3, "Exiting loop with expr '%s' matched %d times, found %d objects\n", expr, n_match, num_o);
 			if (n_match < min_m) {
-				debug(SCANF, 1, "Couldnt find expr '%s', exiting\n", expr);
+				debug(SCANF, 1, "found expr '%s' %d times, but required %d\n", expr, n_match, min_m);
 				return n_found;
 			}
-			/* restoring found object in va_list; we do that only one time */
-			if (n_match && num_o) {
+			/* if there was a conversion specifier, we must consume va_list */
+			if (num_cs) {
 				if (n_match > 1) {
 					num_o /= n_match;
 					debug(SCANF, 1, "conversion specifier matching in a pattern is supported only with '?'; restoring only %d found objects\n", num_o);
 
 				}
-				consume_valist_from_object(o, num_o, &ap);
-				n_found += num_o;
+				if (n_match) {
+					consume_valist_from_object(o, num_o, &ap);
+					n_found += num_o;
+				} else {
+					/* 0 match but we had num_cs conversion specifier 
+					   we must consume them */
+					debug(SCANF, 4, "0 match but there was %d CS so consume them\n", num_cs);
+					for (k = 0; k < num_cs; k++)
+						o = va_arg(ap, struct sto *);
+				}
 			}
 			i++;
 			continue;
