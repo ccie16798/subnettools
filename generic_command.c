@@ -15,11 +15,11 @@
 #include "utils.h"
 
 static void enough_args(int argc, int value, char *com, char *progname) {
-        if (argc < value ) {
-                fprintf(stderr, "Not enough args for command %s \n", com);
-                fprintf(stderr, "use '%s help' for more help\n", progname);
-                exit(1);
-        }
+	if (argc < value ) {
+		fprintf(stderr, "Not enough args for command %s \n", com);
+		fprintf(stderr, "use '%s help' for more help\n", progname);
+		exit(1);
+	}
 }
 
 /* those struct MUST be filled in the main program */
@@ -27,13 +27,13 @@ extern struct st_command commands[];
 extern struct st_command options[];
 
 int generic_command_run(int argc, char **argv, char *progname, void *opt) {
-        int i, res;
+	int i, res;
 	int found = 0, found_i = 0;
 	int founds[30];
-	
+
 	debug(PARSEOPTS, 2, "parsing command : %s\n", argv[1]);
-        for (i = 0; ;i++) {
-                if (commands[i].name == NULL)
+	for (i = 0; ;i++) {
+		if (commands[i].name == NULL)
 			break;
 		if (!strncmp(commands[i].name, argv[1], strlen(argv[1]))) {
 			if (strlen(argv[1]) == strlen(commands[i].name)) {
@@ -64,7 +64,9 @@ int generic_command_run(int argc, char **argv, char *progname, void *opt) {
 	} else if (found == 1) {
 		enough_args(argc - 2,  commands[found_i].required_args, commands[found_i].name, progname);
 		debug(PARSEOPTS, 3, "found handler for %s\n", argv[1]);
+		debug_timing_start(1);
 		res = commands[found_i].run_cmd(argc, argv, opt);
+		debug_timing_end(1);
 	} else {
 		debug(PARSEOPTS, 3, "BUG here %s\n", argv[1]);
 		res = -1000;

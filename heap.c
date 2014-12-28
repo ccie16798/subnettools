@@ -1,5 +1,5 @@
 /*
- *  generic HEAP implementation
+ * generic HEAP implementation
  *
  * Copyright (C) 1999-2014 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
@@ -130,7 +130,6 @@ void *popTAS(TAS *tas) {
 
 void print_tas(TAS tas) {
 	unsigned long i;
-	//int  j = 2;
 
 	if (tas.print == NULL)
 		return;
@@ -144,11 +143,6 @@ void print_tas(TAS tas) {
 
 		tas.print(tas.tab[i]);
 		printf(" %d \n", tas.compare(tas.tab[i], tas.tab[(i - 1) / 2]));
-		/*
-		if (j == 2 || i%(j-2) == 0 ) {
-			printf("\n");
-			j *= 2;
-		} */
 	}
 	printf("\n");
 }

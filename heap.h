@@ -2,11 +2,11 @@
 #define HEAP_H
 
 struct tas {
-        void **tab;
-        unsigned long nr;
-	unsigned long max_nr;
-        int (*compare)(void *, void *);
-        void (*print)(void *);
+	void **tab;
+	unsigned long nr; /* nr of element in the HEAP */
+	unsigned long max_nr; /* number of malloc'd elements */
+	int (*compare)(void *, void *);
+	void (*print)(void *);
 };
 typedef struct tas TAS;
 

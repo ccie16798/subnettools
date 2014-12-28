@@ -172,7 +172,7 @@ static int cisco_nexus_gw_handle(char *s, void *data, struct csv_state *state)  
 	int res;
 	struct ip_addr addr;
 
-	res = get_single_ip(s, &addr);
+	res = get_single_ip(s, &addr, 41);
 	if (state->state[1] == IPV4_A && res == IPV4_A) {
 		debug(PARSEROUTE, 5, "line %lu gw %s \n", state->line, s);
 		copy_ipaddr(&sf->routes[sf->nr].gw,  &addr);
@@ -306,7 +306,7 @@ static int ipso_gw_handle(char *s, void *data, struct csv_state *state) {
 
 	if (state->state[0] == 1) /* connected route, s = "directly" */
 		return CSV_VALID_FIELD;
-	res = get_single_ip(s, &addr);
+	res = get_single_ip(s, &addr, 41);
 	if ( res == BAD_IP) {
 		debug(PARSEROUTE, 2, "line %lu bad GW %s \n", state->line, s);
 		return CSV_INVALID_FIELD_BREAK;
@@ -500,7 +500,7 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 			continue;
 		}
 
-		res = get_single_ip(s, &addr);
+		res = get_single_ip(s, &addr, 41);
 		if (ip_ver == IPV4_A && res == IPV4_A) {
 			debug(PARSEROUTE, 5, "line %lu gw %s \n", line, s);
 			gw = s;
@@ -542,7 +542,7 @@ static int cisco_fw_prefix_handle(char *s, void *data, struct csv_state *state) 
 	int res;
 	struct ip_addr addr;
 
-	res = get_single_ip(s, &addr);
+	res = get_single_ip(s, &addr, 41);
 	if (res == BAD_IP) {
 		debug(PARSEROUTE, 2, "line %lu bad IP %s \n", state->line, s);
 		return CSV_INVALID_FIELD_BREAK;
@@ -556,7 +556,7 @@ static int cisco_fw_mask_handle(char *s, void *data, struct csv_state *state) {
 	struct  subnet_file *sf = data;
 	int num_mask;
 
-	num_mask = string2mask(s);
+	num_mask = string2mask(s, 21);
 	if ( num_mask == BAD_MASK) {
 		debug(PARSEROUTE, 2, "line %lu bad mask %s \n", state->line, s);
 		return CSV_INVALID_FIELD_BREAK;
@@ -585,7 +585,7 @@ static int cisco_fw_gw_handle(char *s, void *data, struct csv_state *state) {
 	struct ip_addr addr;
 	int res;
 
-	res = get_single_ip(s, &addr);
+	res = get_single_ip(s, &addr, 41);
 	if (res == BAD_IP) {
 		debug(PARSEROUTE, 2, "line %lu bad GW %s \n", state->line, s);
 		return CSV_INVALID_FIELD_BREAK;
@@ -680,7 +680,7 @@ int cisco_route_conf_to_csv(char *name, FILE *f, FILE *output) {
 		}
 		if (ip_ver == IPV4_A) { /* ipv6 got a mask in previous token */
 			MOVE_TO_NEXT_TOKEN(NULL);
-			num_mask = string2mask(s);
+			num_mask = string2mask(s, 21);
 			if ( res == BAD_MASK) {
 				debug(PARSEROUTE, 2, "line %lu bad mask %s \n", line, s);
 				continue;
@@ -691,7 +691,7 @@ int cisco_route_conf_to_csv(char *name, FILE *f, FILE *output) {
 			dev =  s;
 			MOVE_TO_NEXT_TOKEN(NULL);
 		}
-		res = get_single_ip(s, &addr);
+		res = get_single_ip(s, &addr, 41);
 		if (res == BAD_IP) {
 			debug(PARSEROUTE, 2, "line %lu bad GW %s \n", line, s);
 			continue;

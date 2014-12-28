@@ -25,6 +25,7 @@ struct debug debugs[] = {
 	{ "tryguess",	__D_TRYGUESS,	"debug TRYGUESS" },
 	{ "configfile",	__D_CONFIGFILE,	"debug config file parsing" },
 	{ "fmt",	__D_FMT,	"debug FMT dynamic output" },
+	{ "scanf",	__D_SCANF,	"debug st_scanf" },
 	{ "addrremove",	__D_ADDRREMOVE,	"debug address removal" },
 	{0, 0}
 };
@@ -45,17 +46,17 @@ void list_debugs() {
 	}
 }
 
-void debug_timing_start() {
-	if (debugs_level[__D_TIMING] == 0 || num_times == 10)
+void debug_timing_start(int level) {
+	if (debugs_level[__D_TIMING] < level || num_times == 10)
 		return;
 	gettimeofday(&tv_start[num_times], NULL);
 	num_times++;
 }
-void __debug_timing_end(char *s) {
+void __debug_timing_end(char *s, int level) {
 	struct timeval tv_end;
 	time_t sec, msec;
 
-	if (debugs_level[__D_TIMING] == 0 || num_times == 10)
+	if (debugs_level[__D_TIMING] < level || num_times == 10)
 		return;
 	num_times--;
 	
@@ -102,7 +103,6 @@ void parse_debug(char *string) {
 		s = strtok_r(NULL, ",", &save_s1);
 	} while (s);
 } 
-
 
 char  try_to_guess_delim(FILE *f) {
 	char try[] = ",;/| &#-";

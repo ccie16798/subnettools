@@ -292,6 +292,7 @@ static void fprint_ipv4_info(FILE *out, const struct subnet *subnet) {
 	char c;
 
 	c = ipv4_get_class(subnet);
+	st_fprintf(out, "Mask length : %m DDN: %M\n", *subnet, *subnet);
 	fprintf(out, "Classfull info : class %c\n", c);
 	fprint_ip_membership(out, subnet);
 }

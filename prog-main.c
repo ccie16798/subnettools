@@ -21,6 +21,7 @@
 #include "generic_command.h"
 #include "config_file.h"
 #include "st_printf.h"
+#include "st_scanf.h"
 #include "ipinfo.h"
 
 const char *default_fmt = "%I;%m;%D;%G;%C";
@@ -443,7 +444,7 @@ static int run_addfiles(int arc, char **argv, void *options) {
 	res = alloc_subnet_file(&sf3, sf1.nr + sf2.nr);
 	if (res < 0)
 		return res;
-	debug_timing_start();
+	debug_timing_start(2);
 	for (i = 0; i < sf1.nr; i++)
 		copy_route(&sf3.routes[i], &sf1.routes[i]);
 	for (j = 0; j < sf2.nr; j++)
@@ -455,7 +456,7 @@ static int run_addfiles(int arc, char **argv, void *options) {
 	free(sf1.routes);
 	free(sf2.routes);
 	free(sf3.routes);
-	debug_timing_end();
+	debug_timing_end(2);
 	return 0;
 }
 
@@ -618,19 +619,15 @@ static int run_test(int arc, char **argv, void *options) {
 }
 
 static int run_test2(int arc, char **argv, void *options) {
-	int res;
-	struct subnet_file sf;
-	struct options *nof = options;
+	int res, i = 0;
+	struct subnet subnet;
+	char  buff[40];
+	char c = '1';
 
-        res = load_netcsv_file(argv[2], &sf, nof);
-        if (res < 0)
-                return res;
-        res = subnet_sort_ascending(&sf);
-        if (res < 0) {
-                fprintf(stderr, "Couldnt sort file %s\n", argv[2]);
-                return res;
-        }
-        fprint_subnet_file_fmt(&sf, nof->output_file, argv[3]);
+	*buff = 0;
+        res = st_sscanf(argv[2], argv[3], &subnet, buff, &i, &c);
+	printf("%d \n", res);
+	st_printf("%I %s %d %c\n", subnet, buff, i,  c);
 	return 0;
 }
 /*
