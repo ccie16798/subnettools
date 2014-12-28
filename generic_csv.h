@@ -36,8 +36,6 @@
 #define  CSV_BAD_HEADER     -19
 #define  CSV_HEADER_TOOLONG -18
 
-
-
 /* csv_state is used to store data across calls to csv_field->handle
  * obvious exemple is the line number, but each caller of generic_load_csv
  * SHOULD set any value it requires
@@ -84,4 +82,3 @@ int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state *stat
 
 #else
 #endif
-
