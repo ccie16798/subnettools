@@ -82,6 +82,11 @@ static int find_word(char *remain, struct expr *e) {
 	return isalpha(*remain);
 }
 
+static int find_string(char *remain, struct expr *e) {
+	return !isspace(*remain);
+}
+
+
 /*
  * from fmt string starting with '[', fill expr with the range
  */
@@ -568,6 +573,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 				} else if (c == 'W') {
 					e.stop = &find_word;
 				} else if (c == 's') { // FIXME
+					e.stop = &find_string;
 				} else if (c == 'c') {
 				} else if (c == '[') { // FIXME
 				}
@@ -584,7 +590,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 				n_match++;
 				if (in[j] == '\0') {
 					debug(SCANF, 1, "reached end of input scanning 'in'\n");
-					return n_found;
+					break;
 				}
 			}
 			debug(SCANF, 3, "Exiting loop with expr '%s' matched %d times, found %d objects\n", expr, n_match, num_o);
