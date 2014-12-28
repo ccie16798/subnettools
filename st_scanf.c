@@ -13,7 +13,6 @@ struct expr {
 	char *expr[10];
 	int (*stop)(char *remain, struct expr *e);
 	char end_of_expr; /* if remain[i] = end_of_expr , we can stop*/
-	int stop_on_nomatch; /* we stop the match in case match_expr_uimple doesnt match */
 };
 
 
@@ -551,7 +550,6 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 			debug(SCANF, 5, "need to find expression '%s' %c time\n", expr, c);
 			e.expr[0] = expr;
 			e.num_expr = 1;
-			e.stop_on_nomatch = 0;
 			e.end_of_expr = fmt[i + 1]; /* if necessary */
 			e.stop = NULL;
 			if (fmt[i + 1] == '%') {
@@ -570,11 +568,8 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 				} else if (c == 'W') {
 					e.stop = &find_word;
 				} else if (c == 's') { // FIXME
-					e.stop_on_nomatch = 1;
 				} else if (c == 'c') {
-					e.stop_on_nomatch = 1;
 				} else if (c == '[') { // FIXME
-					e.stop_on_nomatch = 1;
 				}
 			}
 			n_match = 0;
