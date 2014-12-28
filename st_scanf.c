@@ -384,7 +384,7 @@ void consume_valist_from_object(struct sto *o, int n, va_list *ap) {
 	for (i = 0; i < n; i++) {
 		debug(SCANF, 8, "restoring '%c' to va_list\n", o[i].type);
 		ptr = va_arg(*ap, void *);
-		switch (o[n].type) {
+		switch (o[i].type) {
 			case '[':
 			case 's':
 			case 'W':
