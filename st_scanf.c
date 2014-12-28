@@ -420,9 +420,8 @@ void consume_valist_from_object(struct sto *o, int n, va_list *ap) {
  * or consume a va_list *ap if o is NULL
  */
 static int match_expr_simple(char *expr, char *in, va_list *ap, struct sto *o, int *num_o) {
-	int i, j;
+	int i, j, res;
 	int a = 0;
-	int res;
 	char c;
 	int saved_num_o = *num_o;
 
@@ -488,8 +487,7 @@ static int match_expr_simple(char *expr, char *in, va_list *ap, struct sto *o, i
 }
 /* match expression e against input buffer
  * will return
- * -1 if it doesnt match
- * 0 if it doesnt match but we found the character after the expr
+ * 0 if it doesnt match
  * n otherwise
  */
 static int match_expr(struct expr *e, char *in, va_list *ap, struct sto *o, int *num_o) {
@@ -584,7 +582,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 					e.stop = &find_int;
 				} else if (c == 'W') {
 					e.stop = &find_word;
-				} else if (c == 's') { // FIXME
+				} else if (c == 's') {
 					e.stop = &find_string;
 				} else if (c == 'c') {
 				} else if (c == '[') { // FIXME
@@ -592,6 +590,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 			}
 			n_match = 0;
 			num_o = 0;
+			/* try to find at most max_m expr */
 			while (n_match < max_m) {
 				res = match_expr(&e, in + j, &ap, o, &num_o);
 				if (res == 0)
@@ -620,6 +619,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 
 				}
 				consume_valist_from_object(o, num_o, &ap);
+				n_found += num_o;
 			}
 			i++;
 			continue;
