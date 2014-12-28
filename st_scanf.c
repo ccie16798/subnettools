@@ -604,8 +604,15 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 				debug(SCANF, 1, "Couldnt find expr '%s', exiting\n", expr);
 				return n_found;
 			}
-			if (n_match)
-				consume_valist_from_object(o, num_o, &ap); //FIXME
+			/* restoring found object in va_list; we do that only one time */
+			if (n_match && num_o) {
+				if (n_match > 1) {
+					num_o /= n_match;
+					debug(SCANF, 1, "conversion specifier matching in a pattern is supported only with '?'; restoring only %d found objects\n", num_o);
+
+				}
+				consume_valist_from_object(o, num_o, &ap);
+			}
 			i++;
 			continue;
 		}
