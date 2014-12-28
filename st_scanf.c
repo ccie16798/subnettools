@@ -172,7 +172,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 	if (o == NULL) \
 	__NAME = va_arg(*ap, __TYPE); \
 	else { \
-	__NAME = (__TYPE)o->s_char; \
+	__NAME = (__TYPE)&o->s_char; \
 	o->type = fmt[*i + 1]; \
 	} \
 } while (0);
@@ -382,31 +382,32 @@ void consume_valist_from_object(struct sto *o, int n, va_list *ap) {
 	void *ptr;
 
 	for (i = 0; i < n; i++) {
+		debug(SCANF, 8, "restoring '%c' to va_list\n", o[i].type);
 		ptr = va_arg(*ap, void *);
 		switch (o[n].type) {
 			case '[':
 			case 's':
 			case 'W':
-				strcpy((char *)ptr, o[n].s_char);
+				strcpy((char *)ptr, o[i].s_char);
 				break;
 			case 'I':
-				copy_ipaddr((struct ip_addr *)ptr, &o[n].s_addr);
+				copy_ipaddr((struct ip_addr *)ptr, &o[i].s_addr);
 				break;
 			case 'P':
-				copy_subnet((struct subnet *)ptr, &o[n].s_subnet);
+				copy_subnet((struct subnet *)ptr, &o[i].s_subnet);
 				break;
 			case 'd':
 			case 'M':
-				*((int *)ptr) = o[n].s_int;
+				*((int *)ptr) = o[i].s_int;
 				break;
 			case 'l':
-				*((long *)ptr) = o[n].s_long;
+				*((long *)ptr) = o[i].s_long;
 				break;
 			case 'c':
-				*((char *)ptr) = o[n].s_char[0];
+				*((char *)ptr) = o[i].s_char[0];
 				break;
 			default:
-				debug(SCANF, 1, "Unknown object type '%c'\n", o[n].type);
+				debug(SCANF, 1, "Unknown object type '%c'\n", o[i].type);
 		}
 	}
 
@@ -587,8 +588,10 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 				res = match_expr(&e, in + j, &ap, o, &num_o);
 				if (res == 0)
 					break;
-				if (num_o)
+				if (num_o) {
 					debug(SCANF, 1, "found %d objects\n", num_o);
+				}
+				//printf("%s %c \n", o->s_char, o->type);
 				j += res;
 				n_match++;
 				if (in[j] == '\0') {
@@ -601,7 +604,8 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 				debug(SCANF, 1, "Couldnt find expr '%s', exiting\n", expr);
 				return n_found;
 			}
-			consume_valist_from_object(o, num_o, &ap); //FIXME
+			if (n_match)
+				consume_valist_from_object(o, num_o, &ap); //FIXME
 			i++;
 			continue;
 		}
