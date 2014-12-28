@@ -434,7 +434,7 @@ void consume_valist_from_object(struct sto *o, int n, va_list *ap) {
  * if expr has a conversion specifier, put the result in 'o' (if o isnt NULL)
  * or consume a va_list *ap if o is NULL
  */
-static int match_expr_simple(char *expr, char *in, va_list *ap, struct sto *o, int *num_o) {
+static int match_expr_single(char *expr, char *in, va_list *ap, struct sto *o, int *num_o) {
 	int i, j, res;
 	int a = 0;
 	char c;
@@ -512,7 +512,7 @@ static int match_expr(struct expr *e, char *in, va_list *ap, struct sto *o, int 
 	int saved_num_o = *num_o;
 
 	for (i = 0; i < e->num_expr; i++) {
-		res = match_expr_simple(e->expr[i], in, ap, o + *num_o, num_o);
+		res = match_expr_single(e->expr[i], in, ap, o + *num_o, num_o);
 		debug(SCANF, 4, "Matching expr '%s' against input '%s' res=%d\n", e->expr[i], in, res);
 		if (res)
 			break;
@@ -563,7 +563,8 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 	struct expr e;
 	struct sto sto[20];
 	struct sto *o;
-	int num_o;
+	int num_o; /* number of object found inside expr */
+	int num_cs;
 
 	o = sto;
 	i = 0; /* index in fmt */
@@ -582,6 +583,8 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 			e.num_expr = 1;
 			e.end_of_expr = fmt[i + 1]; /* if necessary */
 			e.stop = NULL;
+			num_cs = count_cs(expr);
+			debug(SCANF, 5, "need to find expression '%s' %c time, with %d conversion specifier\n", expr, c, num_cs);
 			if (fmt[i + 1] == '%') {
 				c = conversion_specifier(fmt + i + 2);
 				if (c == '\0') {
