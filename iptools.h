@@ -46,9 +46,9 @@ typedef struct ipv6_a ipv6;
 
 #else
 /* this so you get the idea ....*/
-#define block(__ip6, __n) __ip6 >> ((7 - __n) * 16)
+#define block(__ip6, __n) (u16)((__ip6 >> ((7 - __n) * 16)) & 0xFF)
 #define set_block(__ip6, __n, __value) do { \
-	cur =  __ip6 >> ((7 - __n) * 16); \
+	u16 cur = (__ip6 >> ((7 - __n) * 16)) & 0xFF; \
 	cur ^= __value; \
 	__ip6 ^= (cur << ((7 - __n) * 16)); \
 } while (0); /* not sure about this one :) */
