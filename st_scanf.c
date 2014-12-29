@@ -17,6 +17,7 @@ struct expr {
 	char *expr[10];
 	int (*stop)(char *remain, struct expr *e);
 	char end_of_expr; /* if remain[i] = end_of_expr , we can stop*/
+	char end_expr[64];
 };
 
 
@@ -191,7 +192,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 
 #define ARG_SET(__NAME, __TYPE) do { \
 	if (o == NULL) \
-	__NAME = (__TYPE)poubelle;  \
+	__NAME = (__TYPE)&poubelle;  \
 	else { \
 	__NAME = (__TYPE)&o->s_char; \
 	o->type = fmt[*i + 1]; \
@@ -342,6 +343,10 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 					break;
 				v_s[j2 - *j] = in[j2];
 				j2++;
+			}
+			if (j2 == *j) {
+				debug(SCANF, 2, "no STRING found at offset %d \n", *j);
+				return n_found;
 			}
 			v_s[j2 - *j] = '\0';
 			debug(SCANF, 2, "found STRING '%s' starting at offset %d \n", v_s, *j);
@@ -558,6 +563,14 @@ static int find_ip(char *remain, struct expr *e) {
 		return 0;
 }
 
+static int find_charrange(char *remain, struct expr *e) {
+	int i = 0;
+	int res;
+
+	res = match_expr_single(e->end_expr, remain, NULL, &i);
+	return res;
+}
+
 static int st_vscanf(char *in, const char *fmt, va_list ap) {
 	int i, j, i2, k;
 	int res;
@@ -608,8 +621,23 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 				} else if (c == 's') {
 					e.stop = &find_string;
 				} else if (c == 'c') {
-				} else if (c == '[') { // FIXME
+				} else if (c == '[') {
+					res = strxcpy_until(e.end_expr, fmt + i + 2, sizeof(e.end_expr), ']');
+					if (res < 0) {
+						debug(SCANF, 1, "Unmatched '[', closing\n");
+						return n_found;
+					}
+					debug(SCANF, 3, "pattern matching will end on '%s'\n", e.end_expr);
+					e.stop = &find_charrange;
 				}
+			} else if (fmt[i + 1] == '(') { //FIXME
+				res = strxcpy_until(e.end_expr, fmt + i + 1, sizeof(e.end_expr), ')');
+				if (res < 0) {
+					debug(SCANF, 1, "Unmatched '(', closing\n");
+					return n_found;
+				}
+				debug(SCANF, 3, "pattern matching will end on '%s'\n", e.end_expr);
+				e.stop = &find_charrange;
 			}
 			n_match = 0; /* number of type expression matches */
 			num_o = 0;   /* number of expression specifiers found inside expr */
