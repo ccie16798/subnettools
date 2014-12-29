@@ -1,0 +1,69 @@
+st_scanf NOTE
+=============
+
+unlike regular scanf, SPACE has no special meaning; sequence of white space must be explicitely specified by ' *'
+
+conversion specifier
+--------------------
+st_scanf will use "conversion specifier" to fill pointer with interpreted data from input string
+the special char '%' is followed by an optional field_length (like '%40s'); 
+if the conversion specifier is STRING or WORD, will copy (field_length - 1) char from input, and add an EOS string
+
+WRONG CODE :
+	buffer[10]
+	st_scanf(input, "%s", buffer);  ==> can crash if input has more than 9chars
+RIGHT CODE :
+	buffer[10]
+	st_scanf(input, "%10s", buffer);  ==> cannot crash ; will copy NINE char from input 
+support conversion specifiers
+-----------------------------
+%s : a char range ending with SPACE
+
+%W : a WORD, a sequence of alphabetic chars; can be followed by another conversion specifier like (%d or %IP) 
+for %W and %s, it is  a good idea for the caller to specify a field_length, otherwise it will easily crash :
+correct way
+
+%I : an IP; scan for the longest sequence of IP chars "[0-9][a-f][A-F].:" so in the input string the IP MUST not be surrounded by IP chars
+
+%c : a single CHAR
+
+%d : an int (signed or unsigned is up to caller)
+
+%M : a mask
+
+%ld : a long int
+
+%[  : a sequence of chars (like %[a-z1-9])
+
+%S : a string (that doesnt represent an IP)
+
+Pattern matching chars
+======================
+
+[abcde-h] : any one of the chars in the brackets (- specifies a range)
+. : matches ANY character
+* : the preceding sequence matches 0 or more times
++ : the preceding sequence matches 1 or more times
+? : the preceding sequence matches 0 or 1 times
+(expr) : a sequence to match; can containes one conversion specifier with '?' like
+scanf("1.1.1.0 vlan55 2.2.2.2", "%I (%s )?%I", &ip, &device, &nhop)
+scanf("1.1.1.0 2.2.2.2", "%I (%s )?%I", &ip, &device, &nhop)
+
+Notes :
+------- 
+when does (expr)* expansion ends?? not an easy question 
+(expr)* expansion endds if expr doesnt match input buffer of course, but even if it matches :
+"(expr)*%I"?
+==> for each char, it tries to determine if "remain" is an IP
+"(expr)*%s" 
+==> when expr doesnt match any more or on first no-space char
+"(expr)*%[
+==> on the first match of the char range
+"(expr)*%c"
+==> on the first non matching char
+
+WARNING : pattern matching is done 'char by char'  so ".*STRING" is not what you think it is
+In FMT=.*toto " in="abcdtafbftoto" '.*' expansion will stop on the first 't'
+if you want .* to stop o, toto, write FMT=.*(toto)
+
+
