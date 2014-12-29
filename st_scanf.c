@@ -17,6 +17,8 @@ struct expr {
 	char *expr[10];
 	int (*stop)(char *remain, struct expr *e);
 	char end_of_expr; /* if remain[i] = end_of_expr , we can stop*/
+	char end_expr[64];
+	int match_last;
 };
 
 
@@ -174,11 +176,12 @@ static int match_char_against_range(char c, const char *expr, int *i) {
    j   = index in in
 */
 static int parse_conversion_specifier(char *in, const char *fmt,
-		int *i, int *j, va_list ap, struct sto *o) {
+		int *i, int *j, struct sto *o) {
 	int n_found = 0;
 	int i2, j2, res;
 	int max_field_length;
 	char buffer[128];
+	char poubelle[256];
 	char c;
 	struct subnet *v_sub;
 	char expr[64];
@@ -187,9 +190,10 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 	long *v_long;
 	int *v_int;
 	int sign;
+
 #define ARG_SET(__NAME, __TYPE) do { \
 	if (o == NULL) \
-	__NAME = va_arg(ap, __TYPE); \
+	__NAME = (__TYPE)&poubelle;  \
 	else { \
 	__NAME = (__TYPE)&o->s_char; \
 	o->type = fmt[*i + 1]; \
@@ -209,7 +213,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 		*i -= 1;
 		if (max_field_length > sizeof(buffer) - 2)
 			max_field_length = sizeof(buffer) - 2;
-		debug(SCANF, 3, "Found max field length %d\n", max_field_length);
+		debug(SCANF, 4, "Found max field length %d\n", max_field_length);
 	} else
 		max_field_length = sizeof(buffer) - 2;
 	switch (fmt[*i + 1]) {
@@ -229,7 +233,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 			}
 			res = get_subnet_or_ip(buffer, v_sub);
 			if (res < 1000) {
-				debug(SCANF, 2, "'%s' is a valid IP\n", buffer);
+				debug(SCANF, 5, "'%s' is a valid IP\n", buffer);
 				n_found++;
 			} else {
 				debug(SCANF, 2, "'%s' is an invalid IP\n", buffer);
@@ -249,7 +253,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 			}
 			res = get_single_ip(in + *j, v_addr, j2 -*j);
 			if (res < 1000) {
-				debug(SCANF, 2, "'%s' is a valid IP\n", buffer);
+				debug(SCANF, 5, "'%s' is a valid IP\n", buffer);
 				n_found++;
 			} else {
 				debug(SCANF, 2, "'%s' is an invalid IP\n", buffer);
@@ -267,10 +271,9 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 				debug(SCANF, 2, "no MASK found at offset %d\n", *j);
 				return n_found;
 			}
-			debug(SCANF, 2, "possible MASK '%s' starting at offset %d\n", buffer, *j);
 			res = string2mask(buffer, 21);
 			if (res != BAD_MASK) {
-				debug(SCANF, 2, "'%s' is a valid MASK\n", buffer);
+				debug(SCANF, 5, "'%s' is a valid MASK\n", buffer);
 				n_found++;
 			} else {
 				debug(SCANF, 2, "'%s' is an invalid MASK\n", buffer);
@@ -282,7 +285,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 			*i += 1;
 			if (fmt[*i + 1] != 'd') {
 				debug(SCANF, 1, "Invalid format '%s', only specifier allowed after %%l is 'd'\n", fmt);
-
+				/* but we treat it as long int */
 			}
 			ARG_SET(v_long, long *);
 			*v_long = 0;
@@ -301,7 +304,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 				j2++;
 			}
 			*v_long *= sign;
-			debug(SCANF, 2, "found LONG '%ld' at offset %d\n", *v_long, *j);
+			debug(SCANF, 5, "found LONG '%ld' at offset %d\n", *v_long, *j);
 			n_found++;
 			break;
 		case 'd':
@@ -322,9 +325,10 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 				j2++;
 			}
 			*v_int *= sign;
-			debug(SCANF, 2, "found INT '%d' at offset %d\n", *v_int, *j);
+			debug(SCANF, 5, "found INT '%d' at offset %d\n", *v_int, *j);
 			n_found++;
 			break;
+		case 'S': /* a special STRING that doesnt represent an IP */
 		case 's':
 			ARG_SET(v_s, char *);
 			c = fmt[*i + 2];
@@ -341,8 +345,20 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 				v_s[j2 - *j] = in[j2];
 				j2++;
 			}
+			if (j2 == *j) {
+				debug(SCANF, 2, "no STRING found at offset %d \n", *j);
+				return n_found;
+			}
 			v_s[j2 - *j] = '\0';
-			debug(SCANF, 2, "found STRING '%s' starting at offset %d \n", v_s, *j);
+			if (fmt[*i + 1] == 'S') {
+				res = get_subnet_or_ip(v_s, (struct subnet *)&poubelle);
+				if (res < 1000) {
+					debug(SCANF, 2, "STRING '%s' at offset %d is an IP, refusing it\n", v_s, *j);
+					return n_found;
+				}
+
+			}
+			debug(SCANF, 5, "found STRING '%s' starting at offset %d \n", v_s, *j);
 			n_found++;
 			break;
 		case 'W':
@@ -367,7 +383,6 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 					return n_found;
 			}
 			*i += i2;
-			debug(SCANF, 5, "CHAR RANGE '%s' to find at offset %d\n", expr, *j);
 			i2 = 0;
 			while (match_char_against_range(in[j2], expr, &i2)) {
 				v_s[j2 - *j] = in[j2];
@@ -389,6 +404,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 			j2 = *j + 1;
 			n_found++;
 		default:
+			debug(SCANF, 1, "Unknow conversion specifier '%c'\n", fmt[*i + 1]);
 			break;
 	} /* switch */
 	*j = j2;
@@ -396,49 +412,49 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 	return n_found;
 }
 
-static void consume_valist_from_object(struct sto *o, int n, va_list ap) {
-	int i;
-	void *ptr;
-
-	for (i = 0; i < n; i++) {
-		debug(SCANF, 8, "restoring '%c' to va_list\n", o[i].type);
-		ptr = va_arg(ap, void *);
-		switch (o[i].type) {
-			case '[':
-			case 's':
-			case 'W':
-				strcpy((char *)ptr, o[i].s_char);
-				break;
-			case 'I':
-				copy_ipaddr((struct ip_addr *)ptr, &o[i].s_addr);
-				break;
-			case 'P':
-				copy_subnet((struct subnet *)ptr, &o[i].s_subnet);
-				break;
-			case 'd':
-			case 'M':
-				*((int *)ptr) = o[i].s_int;
-				break;
-			case 'l':
-				*((long *)ptr) = o[i].s_long;
-				break;
-			case 'c':
-				*((char *)ptr) = o[i].s_char[0];
-				break;
-			default:
-				debug(SCANF, 1, "Unknown object type '%c'\n", o[i].type);
-		}
-	}
-
-}
+#define consume_valist_from_object(__o, __n, __ap) do { \
+	int __i; \
+	void *ptr; \
+	\
+	for (__i = 0; __i < __n; __i++) { \
+		debug(SCANF, 8, "restoring '%c' to va_list\n", __o[__i].type); \
+		ptr = va_arg(__ap, void *); \
+		switch (__o[__i].type) { \
+			case '[': \
+			case 's': \
+			case 'W': \
+			case 'S': \
+				  strcpy((char *)ptr, __o[__i].s_char); \
+			break; \
+			case 'I': \
+				  copy_ipaddr((struct ip_addr *)ptr, &__o[__i].s_addr); \
+			break; \
+			case 'P': \
+				  copy_subnet((struct subnet *)ptr, &__o[__i].s_subnet); \
+			break; \
+			case 'd': \
+			case 'M': \
+				  *((int *)ptr) = __o[__i].s_int; \
+			break; \
+			case 'l': \
+				  *((long *)ptr) = __o[__i].s_long; \
+			break; \
+			case 'c': \
+				  *((char *)ptr) = __o[__i].s_char[0]; \
+			break; \
+			default: \
+				 debug(SCANF, 1, "Unknown object type '%c'\n", __o[__i].type); \
+		} \
+	} \
+	\
+} while (0);
 
 /*
  * match a single pattern 'expr' against 'in'
  * returns 0 if doesnt match, number of matched char in input buffer
- * if expr has a conversion specifier, put the result in 'o' (if o isnt NULL)
- * or consume a va_list *ap if o is NULL
+ * if expr has a conversion specifier, put the result in 'o' 
  */
-static int match_expr_single(char *expr, char *in, va_list ap, struct sto *o, int *num_o) {
+static int match_expr_single(const char *expr, char *in, struct sto *o, int *num_o) {
 	int i, j, res;
 	int a = 0;
 	char c;
@@ -451,8 +467,8 @@ static int match_expr_single(char *expr, char *in, va_list ap, struct sto *o, in
 		c = expr[i];
 		if (c == '\0')
 			return a;
-		debug(SCANF, 5, "remaining in  ='%s'\n", in + j);
-		debug(SCANF, 5, "remaining expr='%s'\n", expr + i);
+		debug(SCANF, 8, "remaining in  ='%s'\n", in + j);
+		debug(SCANF, 8, "remaining expr='%s'\n", expr + i);
 		switch (c) {
 			case '(':
 				i++;
@@ -475,13 +491,13 @@ static int match_expr_single(char *expr, char *in, va_list ap, struct sto *o, in
 				break;
 			case '%':
 				debug(SCANF, 3, "conversion specifier to handle %lu\n", (unsigned long)(o + *num_o));
-				res = parse_conversion_specifier(in, expr, &i, &j, ap, o + *num_o);
+				res = parse_conversion_specifier(in, expr, &i, &j, o + *num_o);
 				if (res == 0)
 					return a;
 				if (o) {
-					debug(SCANF, 3, "conv specifier successfull '%c'\n", o[*num_o].type);
+					debug(SCANF, 4, "conv specifier successfull '%c'\n", o[*num_o].type);
 				} else {
-					debug(SCANF, 3, "conv specifier successfull\n");
+					debug(SCANF, 4, "conv specifier successfull\n");
 				}
 				*num_o += 1;
 				a += j;
@@ -505,24 +521,25 @@ static int match_expr_single(char *expr, char *in, va_list ap, struct sto *o, in
 	}
 }
 /* match expression e against input buffer
- * will return
+ * will return :
  * 0 if it doesnt match
  * n otherwise
  */
-static int match_expr(struct expr *e, char *in, va_list ap, struct sto *o, int *num_o) {
+static int match_expr(struct expr *e, char *in, struct sto *o, int *num_o) {
 	int i = 0;
 	int res = 0;
 	int res2;
 	int saved_num_o = *num_o;
 
 	for (i = 0; i < e->num_expr; i++) {
-		res = match_expr_single(e->expr[i], in, ap, o + *num_o, num_o);
+		res = match_expr_single(e->expr[i], in, o + *num_o, num_o);
 		debug(SCANF, 4, "Matching expr '%s' against input '%s' res=%d\n", e->expr[i], in, res);
 		if (res)
 			break;
 	}
 	if (res == 0)
 		return 0;
+	/* even if 'in' matches 'e', we may have to stop */
 	if (e->stop) {
 		res2 = e->stop(in, e);
 		debug(SCANF, 4, "trying to stop on '%s', res=%d\n", in, res2);
@@ -557,6 +574,14 @@ static int find_ip(char *remain, struct expr *e) {
 		return 0;
 }
 
+static int find_charrange(char *remain, struct expr *e) {
+	int i = 0;
+	int res;
+
+	res = match_expr_single(e->end_expr, remain, NULL, &i);
+	return res;
+}
+
 static int st_vscanf(char *in, const char *fmt, va_list ap) {
 	int i, j, i2, k;
 	int res;
@@ -567,8 +592,8 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 	struct expr e;
 	struct sto sto[20];
 	struct sto *o;
-	int num_o; /* number of object found inside expr */
-	int num_cs;
+	int num_o; /* number of objects found inside an expression */
+	int num_cs; /* number of conversion specifier found in an expression */
 
 	o = sto;
 	i = 0; /* index in fmt */
@@ -582,11 +607,11 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 		if (is_multiple_char(c)) {
 			min_m = min_match(c);
 			max_m = max_match(c);
-			debug(SCANF, 5, "need to find expression '%s' %c time\n", expr, c);
 			e.expr[0] = expr;
 			e.num_expr = 1;
 			e.end_of_expr = fmt[i + 1]; /* if necessary */
 			e.stop = NULL;
+			e.match_last = 0;
 			num_cs = count_cs(expr);
 			debug(SCANF, 5, "need to find expression '%s' %c time, with %d conversion specifiers\n", expr, c, num_cs);
 			if (fmt[i + 1] == '%') {
@@ -607,19 +632,31 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 				} else if (c == 's') {
 					e.stop = &find_string;
 				} else if (c == 'c') {
-				} else if (c == '[') { // FIXME
+				} else if (c == '[') {
+					res = strxcpy_until(e.end_expr, fmt + i + 2, sizeof(e.end_expr), ']');
+					if (res < 0) {
+						debug(SCANF, 1, "Unmatched '[', closing\n");
+						return n_found;
+					}
+					debug(SCANF, 4, "pattern matching will end on '%s'\n", e.end_expr);
+					e.stop = &find_charrange;
 				}
+			} else if (fmt[i + 1] == '(') {
+				res = strxcpy_until(e.end_expr, fmt + i + 1, sizeof(e.end_expr), ')');
+				if (res < 0) {
+					debug(SCANF, 1, "Unmatched '(', closing\n");
+					return n_found;
+				}
+				debug(SCANF, 4, "pattern matching will end on '%s'\n", e.end_expr);
+				e.stop = &find_charrange;
 			}
 			n_match = 0; /* number of type expression matches */
 			num_o = 0;   /* number of expression specifiers found inside expr */
 			/* try to find at most max_m expr */
 			while (n_match < max_m) {
-				res = match_expr(&e, in + j, ap, o, &num_o);
+				res = match_expr(&e, in + j, o, &num_o);
 				if (res == 0)
 					break;
-				if (num_o) {
-					debug(SCANF, 1, "found %d objects\n", num_o);
-				}
 				j += res;
 				n_match++;
 				if (in[j] == '\0') {
@@ -637,7 +674,6 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 				if (n_match > 1) {
 					num_o /= n_match;
 					debug(SCANF, 1, "conversion specifier matching in a pattern is supported only with '?'; restoring only %d found objects\n", num_o);
-
 				}
 				if (n_match) {
 					consume_valist_from_object(o, num_o, ap);
@@ -646,8 +682,10 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 					/* 0 match but we had num_cs conversion specifier 
 					   we must consume them */
 					debug(SCANF, 4, "0 match but there was %d CS so consume them\n", num_cs);
-					for (k = 0; k < num_cs; k++)
+					for (k = 0; k < num_cs; k++) {
+						/* FIXME they should maybe be returned as struct sto so caller can know if it matched or not */
 						o = va_arg(ap, struct sto *);
+					}
 				}
 			}
 			i++;
@@ -656,9 +694,11 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 		if (c == '\0' || in[j] == '\0') {
 			return n_found;
 		} else if (c == '%') {
-			res = parse_conversion_specifier(in, fmt, &i, &j, ap, NULL);
+			res = parse_conversion_specifier(in, fmt, &i, &j, o);
+
 			if (res == 0)
 				return n_found;
+			consume_valist_from_object(o, 1, ap);
 			n_found += res;
 		} else if (c == '.') {
 			if (is_multiple_char(fmt[i + 1])) {
@@ -667,26 +707,31 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 				i++;
 				continue;
 			}
-			debug(SCANF, 2, "fmt[%d]='.', match any char\n", i);
+			debug(SCANF, 8, "fmt[%d]='.', match any char\n", i);
 			i++;
 			j++;
 		} else if (c == '(' || c == '[') {
 			char c2 = (c == '(' ? ')' : ']');
-			debug(SCANF, 2, "fmt[%d]=%c, waiting expr\n", i, c);
-			i2 = i;
-			while (fmt[i2] != c2) {
-				expr[i2 - i] = fmt[i2];
-				if (fmt[i2] == '\0') {
-					debug(SCANF, 1, "Invalid format '%s', unmatched '%c'\n", fmt, c);
-					return n_found;
-				}
-				i2++;
+			i2 = strxcpy_until(expr, fmt + i, sizeof(expr), c2);
+			if (i2 == -1) {
+				debug(SCANF, 1, "Invalid format '%s', unmatched '%c'\n", fmt, c);
+				return n_found;
 			}
-			expr[i2 - i] = c2;
-			i2++;
-			expr[i2 - i] = '\0';
-			debug(SCANF, 2, "found expr '%s'\n", expr);
-			i = i2;
+			debug(SCANF, 8, "found expr '%s'\n", expr);
+			i += i2;
+			if (is_multiple_char(fmt[i]))
+				continue;
+			i2 = 0;
+			res = match_expr_single(expr, in + j, o, &i2);
+			if (res == 0) {
+				debug(SCANF, 1, "Expr'%s' didnt match in 'in' at offset %d\n", expr, j);
+				return n_found;
+
+			}
+			j += res;
+			consume_valist_from_object(o, i2, ap);
+			debug(SCANF, 4, "Expr'%s' matched 'in' at offset %d, found %d objects\n", expr, j, i2);
+			n_found += i2;
 		} else {
 			if (fmt[i] == '\\') {
 				c = escape_char(fmt[i + 1]);

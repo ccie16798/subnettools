@@ -620,14 +620,13 @@ static int run_test(int arc, char **argv, void *options) {
 
 static int run_test2(int arc, char **argv, void *options) {
 	int res, i = 0;
-	struct subnet subnet;
+	struct subnet subnet, subnet2;
 	char  buff[40];
-	char c = '1';
 
 	*buff = 0;
-        res = st_sscanf(argv[2], argv[3], &subnet, buff, &i, &c);
+        res = st_sscanf(argv[2], argv[3], &subnet, buff, &subnet2, &i);
 	printf("%d \n", res);
-	st_printf("%I %s %d %c\n", subnet, buff, i,  c);
+	st_printf("%I %s %I %d\n", subnet, buff, subnet2, i);
 	return 0;
 }
 /*

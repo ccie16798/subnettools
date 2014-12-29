@@ -18,7 +18,14 @@ char *simple_strtok(char *s, const char *delim);
 char *simple_strtok_r(char *s, const char *delim, char **save_ptr) ;
 
 /* equivalent to strlcpy on some platforms */
-char *strxcpy(char *dest, const char *src, int size) ;
+char *strxcpy(char *dest, const char *src, int size);
+
+/* copy src into dst as long as src!= end
+ * copy end + EOS into dst
+ * return strlen(dest) if successfull
+ * return -1 if end is not found before either EOS or n - 2
+ */
+int strxcpy_until(char *dst, const char *src, int n, char end)  __attribute__ ((warn_unused_result));
 
 /* fgets variant; if line is longer than size, discard the exceeding char ; number of
  * discarded chars is returned in *res
