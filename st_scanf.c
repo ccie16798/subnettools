@@ -174,11 +174,12 @@ static int match_char_against_range(char c, const char *expr, int *i) {
    j   = index in in
 */
 static int parse_conversion_specifier(char *in, const char *fmt,
-		int *i, int *j, va_list ap, struct sto *o) {
+		int *i, int *j, struct sto *o) {
 	int n_found = 0;
 	int i2, j2, res;
 	int max_field_length;
 	char buffer[128];
+	char poubelle[256];
 	char c;
 	struct subnet *v_sub;
 	char expr[64];
@@ -187,9 +188,10 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 	long *v_long;
 	int *v_int;
 	int sign;
+
 #define ARG_SET(__NAME, __TYPE) do { \
 	if (o == NULL) \
-	__NAME = va_arg(ap, __TYPE); \
+	__NAME = (__TYPE)poubelle;  \
 	else { \
 	__NAME = (__TYPE)&o->s_char; \
 	o->type = fmt[*i + 1]; \
@@ -435,10 +437,9 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 /*
  * match a single pattern 'expr' against 'in'
  * returns 0 if doesnt match, number of matched char in input buffer
- * if expr has a conversion specifier, put the result in 'o' (if o isnt NULL)
- * or consume a va_list *ap if o is NULL
+ * if expr has a conversion specifier, put the result in 'o' 
  */
-static int match_expr_single(char *expr, char *in, va_list ap, struct sto *o, int *num_o) {
+static int match_expr_single(char *expr, char *in, struct sto *o, int *num_o) {
 	int i, j, res;
 	int a = 0;
 	char c;
@@ -475,7 +476,7 @@ static int match_expr_single(char *expr, char *in, va_list ap, struct sto *o, in
 				break;
 			case '%':
 				debug(SCANF, 3, "conversion specifier to handle %lu\n", (unsigned long)(o + *num_o));
-				res = parse_conversion_specifier(in, expr, &i, &j, ap, o + *num_o);
+				res = parse_conversion_specifier(in, expr, &i, &j, o + *num_o);
 				if (res == 0)
 					return a;
 				if (o) {
@@ -509,14 +510,14 @@ static int match_expr_single(char *expr, char *in, va_list ap, struct sto *o, in
  * 0 if it doesnt match
  * n otherwise
  */
-static int match_expr(struct expr *e, char *in, va_list ap, struct sto *o, int *num_o) {
+static int match_expr(struct expr *e, char *in, struct sto *o, int *num_o) {
 	int i = 0;
 	int res = 0;
 	int res2;
 	int saved_num_o = *num_o;
 
 	for (i = 0; i < e->num_expr; i++) {
-		res = match_expr_single(e->expr[i], in, ap, o + *num_o, num_o);
+		res = match_expr_single(e->expr[i], in, o + *num_o, num_o);
 		debug(SCANF, 4, "Matching expr '%s' against input '%s' res=%d\n", e->expr[i], in, res);
 		if (res)
 			break;
@@ -614,7 +615,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 			num_o = 0;   /* number of expression specifiers found inside expr */
 			/* try to find at most max_m expr */
 			while (n_match < max_m) {
-				res = match_expr(&e, in + j, ap, o, &num_o);
+				res = match_expr(&e, in + j, o, &num_o);
 				if (res == 0)
 					break;
 				if (num_o) {
@@ -656,9 +657,11 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 		if (c == '\0' || in[j] == '\0') {
 			return n_found;
 		} else if (c == '%') {
-			res = parse_conversion_specifier(in, fmt, &i, &j, ap, NULL);
+			res = parse_conversion_specifier(in, fmt, &i, &j, o);
+			
 			if (res == 0)
 				return n_found;
+			consume_valist_from_object(o, 1, ap);
 			n_found += res;
 		} else if (c == '.') {
 			if (is_multiple_char(fmt[i + 1])) {
