@@ -19,12 +19,8 @@
 #include "heap.h"
 #include "st_printf.h"
 
-static inline int is_valid_ip_char(char c) {
-	return isdigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
-}
-
 inline int is_ip_char(char c) {
-	return isdigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F') || c == ':' || c == '.';
+	return isxdigit(c) || c == ':' || c == '.';
 }
 
 inline void copy_ipaddr(struct ip_addr *a, const struct ip_addr *b) {
@@ -540,7 +536,7 @@ static int get_single_ipv6(const char *s, struct ip_addr *addr, int len) {
 			if (s[i + 1] == ':') /* we found a ':: (compressed address) */
 				do_skip = 1;
 			debug(PARSEIPV6, 9, "still to parse '%s', %d blocks already parsed\n", s + i + 1, out_i);
-		} else if (is_valid_ip_char(s[i])) {
+		} else if (isxdigit(s[i])) {
 			if (num_digit == 4) {
 				debug(PARSEIPV6, 2, "Bad IPv6 '%s', block#%d has too many chars\n", s, out_i);
 				return BAD_IP;
@@ -636,7 +632,7 @@ int get_subnet_or_ip(const char *s, struct subnet *subnet) {
 		if (s[i] == '/') {
 			count_slash++;
 			slash_i = i;
-		} else if (is_valid_ip_char(s[i])||s[i] == '.'||s[i] == ':'||s[i] == ' ')
+		} else if (isxdigit(s[i])||s[i] == '.'||s[i] == ':'||s[i] == ' ')
 			continue;
 		else {
 			debug(PARSEIP, 2, "invalid prefix '%s',  contains '%c'\n", s, s[i]);
