@@ -75,6 +75,26 @@ char *remove_space(char *s) {
 		j++;
 	}
 }
+
+int strxcpy_until(char *dst, const char *src, int n, char end) {
+	int i = 0;
+
+	while (1) {
+		if (src[i] == '\0' || i == n - 1) {
+			dst[i] = '\0';
+			return -1;
+		}
+		if (src[i] == end) {
+			dst[i]     = end;
+			dst[i + 1] = '\0';
+			return i + 1;
+		}
+		dst[i] = src[i];
+		i++;
+	}
+}
+
+
 /* strtok variant ; treat consecutive delims one by one
  * standard strtok treats n successives delims as one, which is not always what we want in CSV files*/
 char *simple_strtok(char *s, const char *delim) {
