@@ -119,7 +119,7 @@ int ipv6_is_ula(ipv6 a) {
 
 int ipv6_is_multicast(ipv6 a) {
 	/* IPv6 Multicast is FF00/8 */
-	return ((block(a, 0) >> 8) == 0xFF00);
+	return ((block(a, 0) >> 8) == (0xFF00 >> 8));
 }
 
 int subnet_compare_ipv6(ipv6 ip1, u32 mask1, ipv6 ip2, u32 mask2) {
