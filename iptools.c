@@ -308,11 +308,13 @@ int mask2ddn(u32 mask, char *out) {
 	int i;
 	int s[4];
 
-        for (i = 0; i < mask / 8; i++)
-                s[i] = 255;
-        s[i++] = 256 - (1 << (8 - (mask % 8)));
-        for ( ; i < 4; i++)
-                s[i] = 0;
+	for (i = 0; i < mask / 8; i++)
+		s[i] = 255;
+	if (i < 4) {
+		s[i++] = 256 - (1 << (8 - (mask % 8)));
+		for ( ; i < 4; i++)
+			s[i] = 0;
+	}
         sprintf(out, "%d.%d.%d.%d", s[0], s[1], s[2], s[3]);
 	return 0;
 }
