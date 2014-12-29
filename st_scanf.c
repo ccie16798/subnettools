@@ -682,8 +682,10 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 					/* 0 match but we had num_cs conversion specifier 
 					   we must consume them */
 					debug(SCANF, 4, "0 match but there was %d CS so consume them\n", num_cs);
-					for (k = 0; k < num_cs; k++)
+					for (k = 0; k < num_cs; k++) {
+						/* FIXME they should maybe be returned as struct sto so caller can know if it matched or not */
 						o = va_arg(ap, struct sto *);
+					}
 				}
 			}
 			i++;
