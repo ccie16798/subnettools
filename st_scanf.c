@@ -658,7 +658,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 			return n_found;
 		} else if (c == '%') {
 			res = parse_conversion_specifier(in, fmt, &i, &j, o);
-			
+
 			if (res == 0)
 				return n_found;
 			consume_valist_from_object(o, 1, ap);
@@ -676,20 +676,13 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 		} else if (c == '(' || c == '[') {
 			char c2 = (c == '(' ? ')' : ']');
 			debug(SCANF, 2, "fmt[%d]=%c, waiting expr\n", i, c);
-			i2 = i;
-			while (fmt[i2] != c2) {
-				expr[i2 - i] = fmt[i2];
-				if (fmt[i2] == '\0') {
-					debug(SCANF, 1, "Invalid format '%s', unmatched '%c'\n", fmt, c);
-					return n_found;
-				}
-				i2++;
+			i2 = strxcpy_until(expr, fmt + i, sizeof(expr), c2);
+			if (i2 == -1) {
+				debug(SCANF, 1, "Invalid format '%s', unmatched '%c'\n", fmt, c);
+				return n_found;
 			}
-			expr[i2 - i] = c2;
-			i2++;
-			expr[i2 - i] = '\0';
 			debug(SCANF, 2, "found expr '%s'\n", expr);
-			i = i2;
+			i += i2;
 		} else {
 			if (fmt[i] == '\\') {
 				c = escape_char(fmt[i + 1]);
