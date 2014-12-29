@@ -2,8 +2,8 @@ subnettools
 ===========
 
 subnet file tool !
+IPv4/IPv6 subnet calculator, CSV route file manipulation and modification tool 
 
-a tool designed to help network engineer manipulate large route/subnet CSV files
 FEATURES
 ========
 - CSV files comparison (common routes, missing routes)
@@ -27,7 +27,6 @@ FEATURES
 - subnettools has a default config file (st.conf)
 - subnettools has a debug system (subnettools -D help), mostly helped me to create it
 - subnettools has a small regression testing suite
-
 
 LIMITS
 =======
@@ -64,7 +63,7 @@ OUTPUT FMT
 - %P  : prefix/mask
 %I, %N, %B and %G MAY be followed by a IPv6 address compression level (0, 1, 2, 3)
 
-- compression level 0 : No compression  
+- compression level 0 : No compression at all
 - compression level 1 : remove leading 0
 - compression level 2 : remove consecutives 16bits blocks of zero
 - compression level 3 : level 2 + print IPv4 Mapped & IPv4 compatible address in mixed IPv4 / IPv6 format
