@@ -445,7 +445,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
  * returns 0 if doesnt match, number of matched char in input buffer
  * if expr has a conversion specifier, put the result in 'o' 
  */
-static int match_expr_single(char *expr, char *in, struct sto *o, int *num_o) {
+static int match_expr_single(const char *expr, char *in, struct sto *o, int *num_o) {
 	int i, j, res;
 	int a = 0;
 	char c;
@@ -712,6 +712,18 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 			}
 			debug(SCANF, 2, "found expr '%s'\n", expr);
 			i += i2;
+			if (is_multiple_char(fmt[i]))
+				continue;
+			i2 = 0;
+			res = match_expr_single(expr, in + j, o, &i2);
+			if (res == 0) {
+				debug(SCANF, 1, "Expr'%s' didnt match in 'in' at offset %d\n", expr, j);
+				return n_found;
+
+			}
+			j += res;
+			consume_valist_from_object(o, i2, ap);
+			n_found += i2;
 		} else {
 			if (fmt[i] == '\\') {
 				c = escape_char(fmt[i + 1]);
