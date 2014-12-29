@@ -20,7 +20,7 @@ typedef unsigned int ipv4;
 struct ipv6_a {
 	union {
 		/* beware of endianness issues
-		 * current version of subnet tool manipulate ->n16 only, use n32 and n8 at your own risk
+		 * current version of subnet tool manipulate ->n16 only, use n32 your own risk
 		 */
 		unsigned short	n16[8];
 		u32  		n32[4];
@@ -33,6 +33,8 @@ typedef struct ipv6_a ipv6;
  * if you change the representation of IPv6, you must redefine these macro,
  * (and only these) all code in .c file is safe
  */
+#ifndef BOGUS_U128
+
 #define block(__ip6, __n) __ip6.n16[__n]
 #define set_block(__ip6, __n, __value) __ip6.n16[__n] = __value
 #define block_OR(__ip6, __n, __value) __ip6.n16[__n] |= __value
@@ -41,6 +43,21 @@ typedef struct ipv6_a ipv6;
 #define shift_ipv6_right(__z, __len) shift_right(__z.n16, 8, __len)
 #define increase_ipv6(__z) increase_bitmap(__z.n16, 8)
 #define decrease_ipv6(__z) decrease_bitmap(__z.n16, 8)
+
+#else
+/* this so you get the idea ....*/
+#define block(__ip6, __n) __ip6 >> ((7 - __n) * 16)
+#define set_block(__ip6, __n, __value) do { \
+	cur =  __ip6 >> ((7 - __n) * 16); \
+	cur ^= __value; \
+	__ip6 ^= (cur << ((7 - __n) * 16)); \
+} while (0); /* not sure about this one :) */
+#define shift_ipv6_left(__z, __len) __z <<= __n
+#define shift_ipv6_right(__z, __len) __z >>= __n
+#define increase_ipv6(__z) __z++
+#define decrease_ipv6(__z) __z--
+
+#endif
 
 struct ip_addr {
 	int ip_ver;
