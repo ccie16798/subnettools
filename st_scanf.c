@@ -18,6 +18,7 @@ struct expr {
 	int (*stop)(char *remain, struct expr *e);
 	char end_of_expr; /* if remain[i] = end_of_expr , we can stop*/
 	char end_expr[64];
+	int match_last;
 };
 
 
@@ -284,7 +285,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 			*i += 1;
 			if (fmt[*i + 1] != 'd') {
 				debug(SCANF, 1, "Invalid format '%s', only specifier allowed after %%l is 'd'\n", fmt);
-
+				/* but we treat it as long int */
 			}
 			ARG_SET(v_long, long *);
 			*v_long = 0;
@@ -327,6 +328,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 			debug(SCANF, 5, "found INT '%d' at offset %d\n", *v_int, *j);
 			n_found++;
 			break;
+		case 'S': /* a special STRING that doesnt represent an IP */
 		case 's':
 			ARG_SET(v_s, char *);
 			c = fmt[*i + 2];
@@ -348,6 +350,14 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 				return n_found;
 			}
 			v_s[j2 - *j] = '\0';
+			if (fmt[*i + 1] == 'S') {
+				res = get_subnet_or_ip(v_s, (struct subnet *)&poubelle);
+				if (res < 1000) {
+					debug(SCANF, 2, "STRING '%s' at offset %d is an IP, refusing it\n", v_s, *j);
+					return n_found;
+				}
+
+			}
 			debug(SCANF, 5, "found STRING '%s' starting at offset %d \n", v_s, *j);
 			n_found++;
 			break;
@@ -413,6 +423,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 			case '[': \
 			case 's': \
 			case 'W': \
+			case 'S': \
 				  strcpy((char *)ptr, __o[__i].s_char); \
 			break; \
 			case 'I': \
@@ -510,7 +521,7 @@ static int match_expr_single(const char *expr, char *in, struct sto *o, int *num
 	}
 }
 /* match expression e against input buffer
- * will return
+ * will return :
  * 0 if it doesnt match
  * n otherwise
  */
@@ -528,6 +539,7 @@ static int match_expr(struct expr *e, char *in, struct sto *o, int *num_o) {
 	}
 	if (res == 0)
 		return 0;
+	/* even if 'in' matches 'e', we may have to stop */
 	if (e->stop) {
 		res2 = e->stop(in, e);
 		debug(SCANF, 4, "trying to stop on '%s', res=%d\n", in, res2);
@@ -580,8 +592,8 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 	struct expr e;
 	struct sto sto[20];
 	struct sto *o;
-	int num_o; /* number of object found inside expr */
-	int num_cs;
+	int num_o; /* number of objects found inside an expression */
+	int num_cs; /* number of conversion specifier found in an expression */
 
 	o = sto;
 	i = 0; /* index in fmt */
@@ -599,6 +611,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 			e.num_expr = 1;
 			e.end_of_expr = fmt[i + 1]; /* if necessary */
 			e.stop = NULL;
+			e.match_last = 0;
 			num_cs = count_cs(expr);
 			debug(SCANF, 5, "need to find expression '%s' %c time, with %d conversion specifiers\n", expr, c, num_cs);
 			if (fmt[i + 1] == '%') {
@@ -628,7 +641,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 					debug(SCANF, 4, "pattern matching will end on '%s'\n", e.end_expr);
 					e.stop = &find_charrange;
 				}
-			} else if (fmt[i + 1] == '(') { //FIXME
+			} else if (fmt[i + 1] == '(') {
 				res = strxcpy_until(e.end_expr, fmt + i + 1, sizeof(e.end_expr), ')');
 				if (res < 0) {
 					debug(SCANF, 1, "Unmatched '(', closing\n");
@@ -644,9 +657,6 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 				res = match_expr(&e, in + j, o, &num_o);
 				if (res == 0)
 					break;
-				if (num_o) {
-					debug(SCANF, 1, "found %d objects\n", num_o);
-				}
 				j += res;
 				n_match++;
 				if (in[j] == '\0') {
