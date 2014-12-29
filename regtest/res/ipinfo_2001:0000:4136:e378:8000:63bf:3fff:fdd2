@@ -1,0 +1,10 @@
+IP version : 6
+Network Address : 2001:0:4136:e378:8000:63bf:3fff:fdd2/128
+Address   Range : 2001:0:4136:e378:8000:63bf:3fff:fdd2 - 2001:0:4136:e378:8000:63bf:3fff:fdd2
+Previous subnet : 2001:0:4136:e378:8000:63bf:3fff:fdd1/128
+Next     subnet : 2001:0:4136:e378:8000:63bf:3fff:fdd3/128
+IPv6 rfc4380 Teredo
+Teredo server : 65.54.227.120
+Client IP     : 192.0.2.45
+UDP port      : 40000
+Not in EUI-64 format

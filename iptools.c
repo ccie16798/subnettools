@@ -31,6 +31,10 @@ inline void copy_subnet(struct subnet *a, const struct subnet *b) {
 	memcpy(a, b, sizeof(struct subnet));
 }
 
+inline void copy_route(struct route *a, const struct route *b) {
+	memcpy(a, b, sizeof(struct route));
+}
+
 #define SIZE_T_MAX ((size_t)0 - 1)
 int alloc_subnet_file(struct subnet_file *sf, unsigned long n) {
 	if (n > SIZE_T_MAX / sizeof(struct route)) { /* being paranoid */
@@ -77,7 +81,6 @@ int is_equal_ipv6(ipv6 ip1, ipv6 ip2) {
 	return 1;
 }
 
-
 int is_equal_gw(struct route *r1, struct route *r2) {
 	if (r1->gw.ip_ver != r2->gw.ip_ver)
 		return 0;
@@ -88,7 +91,7 @@ int is_equal_gw(struct route *r1, struct route *r2) {
 	else if (r1->gw.ip_ver == IPV6_A) {
 		if (!is_equal_ipv6(r1->gw.ip6, r2->gw.ip6))
 			return 0;
-		if (!is_link_local(r1->gw.ip6))
+		if (!ipv6_is_link_local(r1->gw.ip6))
 			return 1;
 		/* if link local adress, we must check if the device is the same */
 		return !strcmp(r1->device, r2->device);
@@ -96,14 +99,28 @@ int is_equal_gw(struct route *r1, struct route *r2) {
 	return 0;
 }
 
-int is_link_local(ipv6 a) {
-	unsigned short x = a.n16[0];
+int ipv6_is_link_local(ipv6 a) {
+	unsigned short x = block(a, 0);
 /* link_local address is FE80::/10 */
-	return (x >> 6 == 0xFE80 >> 6);
+	return ((x >> 6) == (0xFE80 >> 6));
 }
 
-#define shift_ipv6_left(__z, __len) shift_left(__z.n16, 8, __len)
-#define shift_ipv6_right(__z, __len) shift_right(__z.n16, 8, __len)
+int ipv6_is_global(ipv6 a) {
+	unsigned short x = block(a, 0);
+/* global address is 2000::/3 */
+	return ((x >> 13) == (0x2000 >> 13));
+}
+
+int ipv6_is_ula(ipv6 a) {
+	unsigned short x = block(a, 0);
+/* ula address is FC00::/7 */
+	return ((x >> 9)  == (0xFC00 >> 9));
+}
+
+int ipv6_is_multicast(ipv6 a) {
+	/* IPv6 Multicast is FF00/8 */
+	return ((block(a, 0) >> 8) == 0xFF00);
+}
 
 int subnet_compare_ipv6(ipv6 ip1, u32 mask1, ipv6 ip2, u32 mask2) {
 	if (mask1 > mask2) {
@@ -161,7 +178,6 @@ int subnet_compare_ipv4(ipv4 prefix1, u32 mask1, ipv4 prefix2, u32 mask2) {
 	}
 }
 
-
 int addrv42str(ipv4 z, char *out_buffer) {
 	int a, b, c, d;
 
@@ -172,7 +188,6 @@ int addrv42str(ipv4 z, char *out_buffer) {
 	sprintf(out_buffer, "%d.%d.%d.%d", a,b,c,d);
 	return 0;
 }
-
 
 /*
  * store human readable of IPv6 z in output
@@ -188,17 +203,17 @@ int addrv62str(ipv6 z, char *out_buffer, int compress) {
 	int skip_index = 0, max_skip_index = 0;
 
 	if (compress == 0) {
-		a = sprintf(out_buffer, "%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x", z.n16[0], z.n16[1], z.n16[2], z.n16[3], z.n16[4], z.n16[5], z.n16[6], z.n16[7]);
+		a = sprintf(out_buffer, "%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x", block(z, 0), block(z, 1) , block(z, 2) , block(z, 3) , block(z, 4), block(z, 5), block(z, 6), block(z, 7));
 		return a;
 	} else if (compress == 1) {
-		a = sprintf(out_buffer, "%x:%x:%x:%x:%x:%x:%x:%x", z.n16[0], z.n16[1], z.n16[2], z.n16[3], z.n16[4], z.n16[5], z.n16[6], z.n16[7]);
+		a = sprintf(out_buffer, "%x:%x:%x:%x:%x:%x:%x:%x", block(z,0), block(z, 1) , block(z, 2) , block(z, 3) , block(z, 4), block(z, 5), block(z, 6), block(z, 7));
 		return a;
 	}
 	/**
 	 ** longest 0000 block sequence will be replaced
 	 */
 	for (i = 0; i < 8; i++) {
-		if (z.n16[i] == 0) {
+		if (block(z, i) == 0) {
 			if (skip == 0)  {
 				debug(PARSEIPV6, 8, "possible skip index %d\n", i);
 				skip_index = i;
@@ -222,21 +237,25 @@ int addrv62str(ipv6 z, char *out_buffer, int compress) {
 		max_skip =  skip;
 		max_skip_index = skip_index;
 	}
+	if (max_skip == 1) /* do not bother to compress if there is only one block to compress */
+		max_skip = max_skip_index = 0;
 	debug(PARSEIPV6, 5, "can skip %d blocks at index %d\n", max_skip, max_skip_index);
 	if (compress == 3 && (skip_index == 0 && (max_skip >= 5 && max_skip < 8))) {
 		/* Mapped& Compatible IPv4 address */
-		if (z.n16[5] == 0x0) {
-			if (z.n16[6] == 0 && z.n16[7] == 1) /** the loopback address */
+		if (block(z, 5) == 0x0) {
+			if (block(z, 6) == 0 && block(z, 7) == 1) /** the loopback address */
 				return sprintf(out_buffer, "::1");
 			else
-				return sprintf(out_buffer, "::%d.%d.%d.%d", z.n16[6]>>8, z.n16[6]&0xff, z.n16[7]>>8, z.n16[7]&0xff);
+				return sprintf(out_buffer, "::%d.%d.%d.%d", block(z, 6) >> 8, block(z, 6) & 0xff, 
+						block(z, 7) >> 8, block(z, 7) & 0xff);
 		}
-		if (z.n16[5] == 0xffff)
-			return sprintf(out_buffer, "::ffff:%d.%d.%d.%d", z.n16[6]>>8, z.n16[6]&0xff, z.n16[7]>>8, z.n16[7]&0xff);
+		if (block(z, 5) == 0xffff)
+			return sprintf(out_buffer, "::ffff:%d.%d.%d.%d", block(z, 6) >> 8, block(z, 6) & 0xff, 
+					block(z, 7) >> 8, block(z, 7) & 0xff);
 	}
 	j = 0;
 	for (i = 0; i < max_skip_index; i++) {
-		a = sprintf(out_buffer + j, "%x:", z.n16[i]);
+		a = sprintf(out_buffer + j, "%x:", block(z, i));
 		j += a;
 		debug(PARSEIPV6, 9, "building output  %d : %s\n", i, out_buffer);
 	}
@@ -249,12 +268,12 @@ int addrv62str(ipv6 z, char *out_buffer, int compress) {
 		j += a;
 	}
 	for (i = max_skip_index + max_skip; i < 7; i++) {
-		a = sprintf(out_buffer + j, "%x:", z.n16[i]);
+		a = sprintf(out_buffer + j, "%x:", block(z, i));
 		debug(PARSEIPV6, 9, "building output  %d : %s\n", i, out_buffer);
 		j += a;
 	}
 	if (i < 8) {
-		a = sprintf(out_buffer + j, "%x", z.n16[i]);
+		a = sprintf(out_buffer + j, "%x", block(z, i));
 		j += a;
 	}
 	out_buffer[j] = '\0';
@@ -297,21 +316,24 @@ int mask2ddn(u32 mask, char *out) {
 u32 string2mask(const char *string) {
 	int i;
 	u32 a;
-	int count_dot=0;
+	int count_dot = 0;
 	int truc[4];
 	char s3[32];
 	char *s;
 
 	strxcpy(s3, string, sizeof(s3)); /** we copy because we dont want to modify the input string */
 	s = s3;
-	while (*s == ' ' || *s == '\t') /* enlevons les espaces*/
+	while (*s == ' ' || *s == '\t') /* remove spaces*/
 		s++;
-	if (*s == '/') /* si il reste un / on le vire, mais on autorise */
+	if (*s == '/') /* leading / is permitted */
 		s++;
 	if (*s == '\0')
 		return BAD_MASK;
 	for (i = 0; i < strlen(s); i++) {
-		if (s[i] == '.' && s[i + 1] != '.') /* skipping consecutive . */
+		if (s[i] == '.' && s[i + 1] == '.') {
+			debug(PARSEIP, 5, "invalid mask %s, contains consecutive '.'\n", s);
+			return BAD_MASK;
+		} else if (s[i] == '.') 
 			count_dot++;
 		else if (s[i] == ' ' || s[i] == '\t') {
 			s[i] = '\0';
@@ -319,14 +341,14 @@ u32 string2mask(const char *string) {
 		} else if (isdigit(s[i]))
 			continue;
 		else {
-			debug(PARSEIP, 5, "invalid mask %s,  contains [%c]\n", s, s[i]);
+			debug(PARSEIP, 5, "invalid mask %s, contains [%c]\n", s, s[i]);
 			return BAD_MASK;
 		}
 	}
-	if (count_dot == 0) { /* notation en prefix */
+	if (count_dot == 0) { /* prefix length*/
 		a = atoi(s);
 		if (a > 128) {
-			debug(PARSEIP, 5, "invalid mask %s,  too long\n", s);
+			debug(PARSEIP, 5, "invalid mask %s, too long\n", s);
 			return BAD_MASK;
 		}
 		return a;
@@ -337,7 +359,7 @@ u32 string2mask(const char *string) {
 	}
 	a = 0;
 	sscanf(s,"%d.%d.%d.%d", truc, truc + 1, truc + 2, truc + 3);
-	for (i=0; i < 4 ; i++) {
+	for (i = 0; i < 4 ; i++) {
 		if (i && ( (truc[i] > truc[i - 1])  || (truc[i] && truc[i] < 255 && truc[i - 1] < 255))   ) {
 			debug(PARSEIP, 5, "invalid X.X.X.X mask %s\n",s);
 			return BAD_MASK;
@@ -403,8 +425,7 @@ static int get_single_ipv6(char *s, struct ip_addr *addr) {
 	int out_i = 0;
 	char *s2;
 	int stop = 0;
-	int count = 0, count2 = 0;
-	int count_dot = 0;
+	int count = 0, count2 = 0, count_dot = 0;
 	int try_embedded, skipped_blocks;
 	struct ip_addr embedded; /* in case of a  IPv4-Compatible IPv6 or IPv4-Mapped IPv6 */
 
@@ -470,7 +491,7 @@ static int get_single_ipv6(char *s, struct ip_addr *addr) {
 			/* we refill the skipped 0000: blocks */
 			debug(PARSEIPV6, 9, "copying %d skipped '0000:' blocks\n", skipped_blocks);
 			for (j = 0; j < skipped_blocks; j++) {
-				addr->ip6.n16[out_i] = 0;
+				set_block(addr->ip6, out_i, 0);
 				out_i++;
 			}
 			do_skip = 0;
@@ -478,11 +499,15 @@ static int get_single_ipv6(char *s, struct ip_addr *addr) {
 			if (s[i] == '\0')
 				stop = 1;
 			s[i] = '\0';
+			if (strlen(s2) > 4) {
+				debug(PARSEIPV6, 1, "block %d  '%s' is invalid, too many chars\n", out_i, s2);
+				return BAD_IP;
+			}
 			debug(PARSEIPV6, 8, "copying block '%s' to block %d\n", s2, out_i);
 			if (s2[0] == '\0') /* in case input ends with '::' */
-				addr->ip6.n16[out_i] = 0;
+				set_block(addr->ip6, out_i, 0);
 			else
-				sscanf(s2, "%hx", &addr->ip6.n16[out_i]);
+				sscanf(s2, "%hx", block(&addr->ip6, out_i));
 			if (stop) /* we are here because s[i] was 0 before we replaced it*/
 				break;
 
@@ -503,21 +528,21 @@ static int get_single_ipv6(char *s, struct ip_addr *addr) {
 		if (out_i == 6) { /* try to see if it is a ::ffff:IPv4 or ::Ipv4 */
 			try_embedded = 1;
 			for (k = 0 ; k < 5; k++) {
-				if (addr->ip6.n16[k] != 0) {
+				if (block(addr->ip6, k) != 0) {
 					try_embedded = 0;
 					break;
 				}
 			}
 			if (try_embedded == 0)
 				continue;
-			if (addr->ip6.n16[5] != 0 && addr->ip6.n16[5] != 0xffff)
+			if (block(addr->ip6, 5) != 0 && block(addr->ip6, 5) != 0xffff)
 				continue;
 
 			debug(PARSEIPV6, 9, "%s MAY be an embedded/mapped IPv4\n", s2);
 			if (get_single_ipv4(s2, &embedded) == IPV4_A) {
 				debug(PARSEIPV6, 9, "%s is an embedded/mapped IPv4\n", s2);
-				addr->ip6.n16[6] = embedded.ip >> 16;
-				addr->ip6.n16[7] = (unsigned short)(embedded.ip & 0xFFFF);
+				set_block(addr->ip6, 6,  embedded.ip >> 16);
+				set_block(addr->ip6, 7, (unsigned short)(embedded.ip & 0xFFFF));
 				break;
 			}
 		}
@@ -572,11 +597,11 @@ int get_single_ip(const char *string, struct ip_addr *addr) {
 
 /*
  * returns :
- *    IPV4_A : une IPv4 sans masque
- *    IPV4_N : une IPv4 + masque
- *    IPV6_A : une IPv6 sans masque
- *    IPV6_N : une IPv6 + masque
- *    BAD_IP, BAD_MASK sinon
+ *    IPV4_A : IPv4 without mask
+ *    IPV4_N : IPv4 + mask
+ *    IPV6_A : IPv6 without mask
+ *    IPV6_N : IPv6 +  mask
+ *    BAD_IP, BAD_MASK on error 
  */
 int get_subnet_or_ip(const char *string, struct subnet *subnet) {
 	int i, a;
@@ -589,7 +614,7 @@ int get_subnet_or_ip(const char *string, struct subnet *subnet) {
 	strxcpy(s2, string, sizeof(s2));
 	s = s2;
 
-	while (*s == ' '||*s== '\t') /* enlevons les espaces*/
+	while (*s == ' '||*s == '\t') /* remove spaces*/
 		s++;
 	if (*s == '\0'||*s == '/') {
 		debug(PARSEIP, 5, "invalid prefix %s, null IP\n", s);
@@ -670,10 +695,10 @@ int subnet_is_superior(const struct subnet *s1, const struct subnet *s2) {
 				res = 0;
 		} else {
 			for (i = 0; i < 8; i++) {
-				if (s1->ip6.n16[i] < s2->ip6.n16[i]) {
+				if (block(s1->ip6, i) < block(s2->ip6, i)) {
 					res = 1;
 					break;
-				} else if (s1->ip6.n16[i] > s2->ip6.n16[i]) {
+				} else if (block(s1->ip6, i) > block(s2->ip6, i)) {
 					res = 0;
 					break;
 				}
@@ -761,8 +786,8 @@ void first_ip(struct subnet *s) {
 		s->ip >>= (32 - s->mask);
 		s->ip <<= (32 - s->mask);
 	} else if (s->ip_ver == IPV6_A) {
-		shift_right(s->ip6.n16, 8, 128 - s->mask);
-		shift_left(s->ip6.n16, 8, 128 -s->mask);
+		shift_ipv6_right(s->ip6, 128 - s->mask);
+		shift_ipv6_left(s->ip6, 128 -s->mask);
 	}
 }
 
@@ -774,12 +799,11 @@ void last_ip(struct subnet *s) {
 			s->ip |= (1 << i);
 	} else if (s->ip_ver == IPV6_A) { /* do you love binary math? yes you do! */
 		for (i = 0; i < (128 - s->mask) / 16; i++)
-			s->ip6.n16[7 - i] = 0xFFFF;
+			set_block(s->ip6, 7 - i, 0xFFFF);
 		for (j = 0; j < ((128 - s->mask) % 16); j++)
-			s->ip6.n16[7 - i] |= (1 << j);
+			block_OR(s->ip6, 7 - i,  (1 << j));
 	}
 }
-
 
 void next_subnet(struct subnet *s) {
 	if (s->ip_ver == IPV4_A) {
@@ -788,7 +812,7 @@ void next_subnet(struct subnet *s) {
 		s->ip <<= (32 - s->mask);
 	} else if (s->ip_ver == IPV6_A) {
 		shift_ipv6_right(s->ip6, 128 - s->mask);
-		increase_bitmap(s->ip6.n16, 8);
+		increase_ipv6(s->ip6);
 		shift_ipv6_left(s->ip6, 128 - s->mask);
 	}
 }
@@ -800,7 +824,7 @@ void previous_subnet(struct subnet *s) {
 		s->ip <<= (32 - s->mask);
 	} else if (s->ip_ver == IPV6_A) {
 		shift_ipv6_right(s->ip6, 128 - s->mask);
-		decrease_bitmap(s->ip6.n16, 8);
+		decrease_ipv6(s->ip6);
 		shift_ipv6_left(s->ip6, 128 - s->mask);
 
 	}
@@ -825,7 +849,7 @@ int can_decrease_mask(const struct subnet *s) {
 		memcpy(&b, &s->ip6, sizeof(ipv6));
 		shift_ipv6_right(b, 128 - s->mask);
 		while (i < s->mask) {
-			if (b.n16[7] & 1)
+			if (block(b, 7) & 1)
 				break;
 			i++;
 			shift_ipv6_right(b, 1);

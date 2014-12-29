@@ -22,12 +22,25 @@ struct ipv6_a {
 		/* beware of endianness issues
 		 * current version of subnet tool manipulate ->n16 only, use n32 and n8 at your own risk 
 		 */
-		unsigned char	n8[16];
 		unsigned short	n16[8];
 		u32  		n32[4];
 	};
 };
 typedef struct ipv6_a ipv6;
+
+/* due to endianness issues, ipv6 address should not be manipulated directly 
+ * works today, but will break the day we use something like a u128 to do the math...
+ * if you change the representation of IPv6, you must redefine these macro, 
+ * (and only these) all code in .c file is safe
+ */
+#define block(__ip6, __n) __ip6.n16[__n]
+#define set_block(__ip6, __n, __value) __ip6.n16[__n] = __value
+#define block_OR(__ip6, __n, __value) __ip6.n16[__n] |= __value
+
+#define shift_ipv6_left(__z, __len) shift_left(__z.n16, 8, __len)
+#define shift_ipv6_right(__z, __len) shift_right(__z.n16, 8, __len)
+#define increase_ipv6(__z) increase_bitmap(__z.n16, 8)
+#define decrease_ipv6(__z) decrease_bitmap(__z.n16, 8)
 
 struct ip_addr {
 	int ip_ver;
@@ -67,10 +80,14 @@ struct subnet_file {
 
 void copy_ipaddr(struct ip_addr *a, const struct ip_addr *b);
 void copy_subnet(struct subnet *a, const struct subnet *b);
+void copy_route(struct route *a, const struct route *b);
 int is_equal_ipv6(ipv6 ip1, ipv6 ip2);
 int is_equal_gw(struct route *r1, struct route *r2);
 
-int is_link_local(ipv6 a);
+int ipv6_is_link_local(ipv6 a);
+int ipv6_is_global(ipv6 a);
+int ipv6_is_ula(ipv6 a);
+int ipv6_is_multicast(ipv6 a);
 
 int alloc_subnet_file(struct subnet_file *sf, unsigned long n) ;
 /*
@@ -95,7 +112,14 @@ int subnet2str(const struct subnet *s, char *out_buffer, int comp_level);
 int addr2str(const struct ip_addr *a, char *out_buffer, int comp_level);
 int mask2ddn(u32 mask, char *out_buffer);
 
-/* fill struct subnet from a string */
+/* fill struct subnet from a string 
+ * returns :
+ *    IPV4_A : IPv4 without mask
+ *    IPV4_N : IPv4 + mask
+ *    IPV6_A : IPv6 without mask
+ *    IPV6_N : IPv6 +  mask
+ *    BAD_IP, BAD_MASK on error 
+ */
 int get_subnet_or_ip(const char *s, struct subnet *subnet);
 int get_single_ip(const char *s, struct ip_addr *addr);
 u32 string2mask(const char *s) ;

@@ -1,0 +1,13 @@
+IP version : 6
+Network Address : ff72:340:2001:db8:beef:feed:0:32/128
+Address   Range : ff72:340:2001:db8:beef:feed:0:32 - ff72:340:2001:db8:beef:feed:0:32
+Previous subnet : ff72:340:2001:db8:beef:feed:0:31/128
+Next     subnet : ff72:340:2001:db8:beef:feed:0:33/128
+IPv6 multicast address
+Scope : Link Local
+Flags : 7
+R=1, Embedded RP
+P=1, based on network prefix
+T=1, dynamically assigned prefix
+Embedded RP Address : 2001:db8:beef:feed::3
+32-bit group id 0x32 [50]

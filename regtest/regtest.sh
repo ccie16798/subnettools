@@ -32,6 +32,9 @@ reg_test() {
 }
 
 
+#basic print to test fmt
+reg_test -c st-fmt.conf print route_aggipv6-2
+reg_test -c st-fmt.conf print route_aggipv4
 # a CSV with strange fields names :)
 reg_test -c st-bizarr.conf sort bizar.csv 
 # a CSV with strange fields names, output more strange 
@@ -72,3 +75,13 @@ reg_test convert CiscoNexus iproute_nexus
 reg_test convert CiscoNexus iproutecisconexus_ECMP
 reg_test convert CiscoRouter ipv6route2
 reg_test grep mergeipv6 2001:db8::
+#ipinfo
+
+reg_test ipinfo 2001:0000:4136:e378:8000:63bf:3fff:fdd2
+reg_test ipinfo FF72:340:2001:DB8:BEEF:FEED::32
+reg_test ipinfo 64:ff9b::A00A:0A01
+reg_test ipinfo 2002:C0A8:1B0B::2001:10
+reg_test ipinfo 233.10.56.1
+reg_test ipinfo 10.0.2.1/16
+reg_test ipinfo 127.0.2.1/24
+reg_test ipinfo fe80::215:afff:fedb:3b9e/64

@@ -14,6 +14,7 @@ FEATURES
 - subnet aggregation
 - converting 'sh ip route' files to a CSV
 - native IPv6 & IPv4 support
+- IPv4 & IPv6 address information 
 
 - subnettools FILE format is a CSV where each line represent a route ; a route is
 -* a subnet
@@ -117,6 +118,50 @@ EXAMPLE 4 (playing with IPv6 address compression)
 	etienne@debian:~/st$ ./subnet-tools echo "%I3" ::ffff:10.1.1.1 
 	::ffff:10.1.1.1
 
+IP information
+==============
+subnettools ipinfo 'subnet' can give the following informations about 'subnet'
+- network address, last subnet address
+- known prefix membership (IPv6 global addresses, RFC 1918 private subnet, multicast, etc...)
+Decoding of following addresses :
+- Teredo
+- IPv6 multicast (including embedded RP)
+- 6to4
+- ISATAP link-local address
+- IPv4 glop
+- rfc 6052
+- EUI-64 Interface ID
+
+Example :
+---------
+
+	[etienne@ARODEF subnet_tools]$ ./subnet-tools ipinfo 2001:0000:4136:e378:8000:63bf:3fff:fdd2 
+	IP version : 6
+	Network Address : 2001:0:4136:e378:8000:63bf:3fff:fdd2/128
+	Address   Range : 2001:0:4136:e378:8000:63bf:3fff:fdd2 - 2001:0:4136:e378:8000:63bf:3fff:fdd2
+	Previous subnet : 2001:0:4136:e378:8000:63bf:3fff:fdd1/128
+	Next     subnet : 2001:0:4136:e378:8000:63bf:3fff:fdd3/128
+	IPv6 rfc4380 Teredo
+	Teredo server : 65.54.227.120
+	Client IP     : 192.0.2.45
+	UDP port      : 40000
+
+	[etienne@ARODEF subnet_tools]$ ./subnet-tools ipinfo FF72:340:2001:DB8:BEEF:FEED::32
+	IP version : 6
+	Network Address : ff72:340:2001:db8:beef:feed:0:32/128
+	Address   Range : ff72:340:2001:db8:beef:feed:0:32 - ff72:340:2001:db8:beef:feed:0:32
+	Previous subnet : ff72:340:2001:db8:beef:feed:0:31/128
+	Next     subnet : ff72:340:2001:db8:beef:feed:0:33/128
+	IPv6 multicast address
+	Scope : Link Local
+	Flags : 7
+	R=1, Embedded RP
+	P=1, based on network prefix
+	T=1, dynamically assigned prefix
+	Embedded RP Address : 2001:db8:beef:feed::3
+	32-bit group id 0x32 [50]
+
+
 CODING
 ======
 - in C because i like that, and i know only that
@@ -130,26 +175,11 @@ CODING
 
 work TODO
 =========
-- make sure everything work
+- make sure everything work (v1.0)
 - fixing file diff (semantics is difficult, what do we want)
 - adding more converters (and fixing IPv6 converters)
 - fixing ECMP in converters (maybe)
 - bitmap printing
-- subnet splitting
-- implement subnet_info (IPver, Network IP, Last IP, class (ipv4), IPv6 interpretation
+- subnet splitting (v0.6)
 - implement st_scanf & friends (v0.7)
 - implement progress bar (what is your 1M line aggregation doing??) ()
-
-Some IPv6 infos ideas
-address info decoding 
-: v6 translation
-https://tools.ietf.org/html/rfc6052#page-5
-Decoding of :
-6to4, ISATAP, teredo
-embedded RP
-https://tools.ietf.org/html/rfc3956
-Solicited-Node Address
-Multicast address
-site local address
-
-

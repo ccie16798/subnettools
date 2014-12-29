@@ -1,0 +1,11 @@
+       2000:1::/32 : [2000:1::        - 2000:1:ffff:ffff:ffff:ffff:ffff:ffff] device: eth0/1 GW : fe80::254
+     2001:db8::/32 : [2001:db8::      - 2001:db8:ffff:ffff:ffff:ffff:ffff:ffff] device: eth0/2 GW : fe80::251
+     2001:db9::/32 : [2001:db9::      - 2001:db9:ffff:ffff:ffff:ffff:ffff:ffff] device: eth0/1 GW : fe80::251
+     2001:dba::/32 : [2001:dba::      - 2001:dba:ffff:ffff:ffff:ffff:ffff:ffff] device: eth0/1 GW : fe80::251
+     2001:dbb::/32 : [2001:dbb::      - 2001:dbb:ffff:ffff:ffff:ffff:ffff:ffff] device: eth0/1 GW : fe80::251
+     2001:dbc::/31 : [2001:dbc::      - 2001:dbd:ffff:ffff:ffff:ffff:ffff:ffff] device: eth0/1 GW : fe80::251
+     2001:dbe::/32 : [2001:dbe::      - 2001:dbe:ffff:ffff:ffff:ffff:ffff:ffff] device: eth0/1 GW : fe80::251
+     2001:db6::/31 : [2001:db6::      - 2001:db7:ffff:ffff:ffff:ffff:ffff:ffff] device: eth0/1 GW : fe80::251
+     2001:db4::/31 : [2001:db4::      - 2001:db5:ffff:ffff:ffff:ffff:ffff:ffff] device: eth0/1 GW : fe80::251
+     2001:dbf::/33 : [2001:dbf::      - 2001:dbf:7fff:ffff:ffff:ffff:ffff:ffff] device: eth0/1 GW : fe80::252
+2001:dbf:8000::/33 : [2001:dbf:8000:: - 2001:dbf:ffff:ffff:ffff:ffff:ffff:ffff] device: eth0/1 GW : fe80::252

@@ -1,0 +1,7 @@
+IP version : 4
+Network Address : 10.0.0.0/16
+Address   Range : 10.0.0.0 - 10.0.255.255
+Previous subnet : 9.255.0.0/16
+Next     subnet : 10.1.0.0/16
+Classfull info : class a
+IPv4 Private address (rfc1918)

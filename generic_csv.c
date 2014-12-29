@@ -146,7 +146,7 @@ static int read_csv_body(FILE *f, char *name, struct csv_file *cf, struct csv_st
 					debug(LOAD_CSV, 5, "Parsing field %s data %s handler returned CSV_VALID_FIELD_BREAK\n", csv_field->name, s);
 					break;
 				} else if (res == CSV_VALID_FIELD_SKIP) {
-					debug(LOAD_CSV, 5, "caller %s  told us to skip %d fields\n", csv_field->name, state->skip);
+					debug(LOAD_CSV, 5, "caller %s told us to skip %d fields\n", csv_field->name, state->skip);
 					for (i = 0; i < state->skip && s != NULL; i++) {
 						s = cf->csv_strtok_r(NULL, cf->delim, &save_s);
 						debug(LOAD_CSV, 6, "Skipping %s\n", s);
@@ -159,7 +159,7 @@ static int read_csv_body(FILE *f, char *name, struct csv_file *cf, struct csv_st
 		} /* while s */
 		if (pos < cf->max_mandatory_pos) {
 			state->badline++;
-			debug(LOAD_CSV, 2, "Parsing line %lu,  not enough fields : %d, requires : %d\n", state->line, pos, cf->max_mandatory_pos);
+			debug(LOAD_CSV, 2, "Parsing line %lu, not enough fields : %d, requires : %d\n", state->line, pos, cf->max_mandatory_pos);
 		}
 
 		if (cf->endofline_callback) {
@@ -298,4 +298,3 @@ int main(int argc, char **argv) {
 }
 
 #endif
-

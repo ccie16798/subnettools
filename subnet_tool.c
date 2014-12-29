@@ -34,11 +34,11 @@ static int netcsv_prefix_handle(char *s, void *data, struct csv_state *state) {
 	struct subnet subnet;
 
 	res = get_subnet_or_ip(s, &subnet);
-	if (res == BAD_IP) {
+	if (res > 1000) {
 		debug(LOAD_CSV, 3, "invalid IP %s line %lu\n", s, state->line);
 		return CSV_INVALID_FIELD_BREAK;
 	}
-	memcpy(&sf->routes[sf->nr].subnet,  &subnet, sizeof(subnet));
+	copy_subnet(&sf->routes[sf->nr].subnet,  &subnet);
 	return CSV_VALID_FIELD;
 }
 
@@ -263,10 +263,9 @@ int missing_routes(const struct subnet_file *sf1, const struct subnet_file *sf2,
 			}
 		}
 		if (find == 0) {
-			memcpy(&sf3->routes[k], &sf1->routes[i], sizeof(struct route));
+			copy_route(&sf3->routes[k], &sf1->routes[i]);
 			k++;
 		}
-		//	st_fprintf(nof->output_file, "%I;%m\n", sf1->routes[i].subnet, sf1->routes[i].subnet);
 	}
 	sf3->nr = k;
 	return 0;
@@ -402,7 +401,7 @@ void diff_files(const struct subnet_file *sf1, const struct subnet_file *sf2, st
 }
 
 /*
- *  loop thorugh sf1 and match against PAIP/ IPAM
+ *  loop through sf1 and match against PAIP/ IPAM
  */
 void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *paip, struct options *nof) {
 	u32 mask1, mask2;
@@ -498,7 +497,7 @@ int network_grep_file(char *name, struct options *nof, char *ip) {
 	while ((s = fgets(buffer, sizeof(buffer), f))) {
 		line++;
 		debug(GREP, 9, "grepping line %lu : %s\n", line, s);
-		strcpy(save_buffer, buffer); /* on va charcuter le buffer a coup de strtok */
+		strcpy(save_buffer, buffer);
 		s = strtok(s, nof->delim);
 		if (s == NULL)
 			continue;
@@ -592,7 +591,7 @@ int network_grep_file(char *name, struct options *nof, char *ip) {
 	return 0;
 }
 
-static  int __heap_subnet_is_superior(void *v1, void *v2) {
+static int __heap_subnet_is_superior(void *v1, void *v2) {
 	struct subnet *s1 = &((struct route *)v1)->subnet;
 	struct subnet *s2 = &((struct route *)v2)->subnet;
 	return subnet_is_superior(s1, s2);
@@ -628,7 +627,7 @@ int subnet_file_simplify(struct subnet_file *sf) {
 		addTAS(&tas, &sf->routes[i]);
 
 	r = popTAS(&tas);
-	memcpy(&new_r[0], r, sizeof(struct route));
+	copy_route(&new_r[0], r);
 	i = 1;
 	while (1) {
                 r = popTAS(&tas);
@@ -639,7 +638,7 @@ int subnet_file_simplify(struct subnet_file *sf) {
 			st_debug(ADDRCOMP, 3, "%P is included in %P, skipping\n", r->subnet, new_r[i - 1].subnet);
 			continue;
 		}
-		memcpy(&new_r[i], r, sizeof(struct route));
+		copy_route(&new_r[i], r);
 		i++;
         }
 	sf->max_nr = sf->nr;
@@ -669,11 +668,11 @@ int route_file_simplify(struct subnet_file *sf,  int mode) {
 		fprintf(stderr, "%s : no memory\n", __FUNCTION__);
 		return -1;
 	}
-	for (i = 0; i < sf->nr; i++) {
+	for (i = 0; i < sf->nr; i++)
 		addTAS(&tas, &sf->routes[i]);
-	} // for i
+
 	r = popTAS(&tas);
-	memcpy(&new_r[0], r, sizeof(struct route));
+	copy_route(&new_r[0], r);
 	i = 1; /* index in the 'new_r' struct */
 	j = 0; /* index in the 'discard' struct */
 	while (1) {
@@ -701,9 +700,9 @@ int route_file_simplify(struct subnet_file *sf,  int mode) {
 			a--;
 		}
 		if (skip == 0)
-                	memcpy(&new_r[i++], r, sizeof(struct route));
+			copy_route(&new_r[i++], r);
 		else
-                	memcpy(&discard[j++], r, sizeof(struct route));
+			copy_route(&discard[j++], r);
         }
 	free(tas.tab);
 	free(sf->routes);
@@ -744,14 +743,14 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 		return -1;
 	}
 	debug(MEMORY, 2, "Allocated %lu bytes for new struct route\n", sf->nr * sizeof(struct route));
-	memcpy(&new_r[0], &sf->routes[0], sizeof(struct route));
+	copy_route(&new_r[0], &sf->routes[0]);
 	j = 0; /* i is the index in the original file, j is the index in the file we are building */
 	for (i = 1; i < sf->nr; i++) {
 		if (mode == 1 && !is_equal_gw(&new_r[j],  &sf->routes[i])) {
 			st_debug(AGGREGATE, 4, "Entry %lu [%P] & %lu [%P] cant aggregate, different GW\n", j, new_r[j].subnet,
 					i, sf->routes[i].subnet);
 			j++;
-			memcpy(&new_r[j], &sf->routes[i], sizeof(struct route));
+			copy_route(&new_r[j], &sf->routes[i]);
 			continue;
 		}
 		res = aggregate_subnet(&new_r[j].subnet, &sf->routes[i].subnet, &s);
@@ -759,12 +758,12 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 			st_debug(AGGREGATE, 4, "Entry %lu [%P] & %lu [%P] cant aggregate\n", j, new_r[j].subnet,
 					i, sf->routes[i].subnet);
 			j++;
-			memcpy(&new_r[j], &sf->routes[i], sizeof(struct route));
+			copy_route(&new_r[j], &sf->routes[i]);
 			continue;
 		}
 		st_debug(AGGREGATE, 4, "Entry %lu [%P] & %lu [%P] can aggregate\n", j, new_r[j].subnet,
 			i, sf->routes[i].subnet);
-		memcpy(&new_r[j].subnet, &s, sizeof(struct subnet));
+		copy_subnet(&new_r[j].subnet, &s);
 		if (mode == 1)
 			copy_ipaddr(&new_r[j].gw, &sf->routes[i].gw);
 		else
@@ -778,7 +777,7 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 			if (res >= 0) {
 				st_debug(AGGREGATE, 4, "Rewinding, entry %lu [%P] & %lu [%P] can aggregate\n", j - 1, new_r[j - 1].subnet, j, new_r[j].subnet);
 				j--;
-				memcpy(&new_r[j].subnet, &s, sizeof(struct subnet));
+				copy_subnet(&new_r[j].subnet, &s);
 				if (mode == 1)
 					copy_ipaddr(&new_r[j].gw, &sf->routes[i].gw);
 				else
@@ -844,7 +843,7 @@ int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct
 		r = popTAS(&tas);
 		if (r == NULL)
 			break;
-		memcpy(&sf3->routes[i], r, sizeof(struct route));
+		copy_route(&sf3->routes[i], r);
 	}
 	sf3->nr = i;
 	free(tas.tab);
@@ -899,7 +898,7 @@ int subnet_sort_ascending(struct subnet_file *sf) {
 		addTAS(&tas, &(sf->routes[i]));
 	for (i = 0 ; i < sf->nr; i++) {
 		r = popTAS(&tas);
-		memcpy(&new_r[i], r, sizeof(struct route));
+		copy_route(&new_r[i], r);
 	}
 	free(tas.tab);
 	free(sf->routes);
@@ -923,7 +922,7 @@ int subnet_file_remove(const struct subnet_file *sf1, struct subnet_file *sf2, c
 	for (i = 0; i < sf1->nr; i++) {
 		res = subnet_compare(&sf1->routes[i].subnet, subnet);
 		if (res == NOMATCH || res == INCLUDED) {
-			memcpy(&sf2->routes[j],  &sf1->routes[i], sizeof(struct route));
+			copy_route(&sf2->routes[j],  &sf1->routes[i]);
 			j++;
 			st_debug(ADDRREMOVE, 2, "%P is not included in %P\n", *subnet, sf1->routes[i]);
 			continue;
@@ -948,7 +947,7 @@ int subnet_file_remove(const struct subnet_file *sf1, struct subnet_file *sf2, c
 			 sf2->routes = new_r;
 		} /* realloc */
 		for (res = 0; res < n; res++) {
-			memcpy(&sf2->routes[j],  &sf1->routes[i], sizeof(struct route));
+			copy_route(&sf2->routes[j],  &sf1->routes[i]);
 			copy_subnet(&sf2->routes[j].subnet, &r[res]);
 			j++;
 		}

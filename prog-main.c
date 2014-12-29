@@ -21,6 +21,7 @@
 #include "generic_command.h"
 #include "config_file.h"
 #include "st_printf.h"
+#include "ipinfo.h"
 
 const char *default_fmt = "%I;%m;%D;%G;%C";
 struct file_options fileoptions[] = {
@@ -60,6 +61,7 @@ static int run_help(int argc, char **argv, void *options);
 static int run_version(int argc, char **argv, void *options);
 static int run_confdesc(int argc, char **argv, void *options);
 static int run_relation(int argc, char **argv, void *options);
+static int run_ipinfo(int argc, char **argv, void *options);
 static int run_echo(int argc, char **argv, void *options);
 static int run_print(int argc, char **argv, void *options);
 static int run_test(int argc, char **argv, void *options);
@@ -78,6 +80,7 @@ struct st_command commands[] = {
 	{ "echo",	&run_echo,	2},
 	{ "print",	&run_print,	1},
 	{ "relation",	&run_relation,	2},
+	{ "ipinfo",	&run_ipinfo,	1},
 	{ "diff",	&run_diff,	2},
 	{ "compare",	&run_compare,	2},
 	{ "missing",	&run_missing,	2},
@@ -120,6 +123,7 @@ void usage() {
 	printf("echo FMT ARG2       : try to get subnet from ARG2 and echo it according to FMT\n");
 	printf("print FILE1         : just read & print FILE1; use a -fmt FMT to print CSV fields you want\n");
 	printf("relation IP1 IP2    : prints a relationship between IP1 and IP2\n");
+	printf("ipinfo IP|all|IPvX  : prints information about IP, or all known subnets (all, IPv4 or IPv6)\n");
 	printf("compare FILE1 FILE2 : compare FILE1 & FILE2, printing subnets in FILE1 INCLUDED in FILE2\n");
 	printf("missing FILE1 FILE2 : prints subnets from FILE1 that are not covered by FILE2; GW is not checked\n");
 	printf("paip PAIP FILE1     : load IPAM, and print FILE1 subnet with comment extracted from IPAM\n");
@@ -209,11 +213,16 @@ static int run_relation(int arc, char **argv, void *options) {
 	}
 	return 0;
 }
+
 static int run_echo(int arc, char **argv, void *options) {
 	int res;
 	struct subnet subnet;
 
 	res = get_subnet_or_ip(argv[3], &subnet);
+	if (strstr(argv[2], "%s")) {
+		fprintf(stderr, "Bad FMT, %%s is not allowed in this context\n");
+		return 0;
+	}
 	if (res == IPV4_A || res == IPV6_A)
 		st_printf(argv[2], subnet, subnet);
 	else if (res == IPV4_N || res == IPV6_N)
@@ -221,6 +230,31 @@ static int run_echo(int arc, char **argv, void *options) {
 	else
 		printf("Invalid IP");
 	printf("\n");
+	return 0;
+}
+
+static int run_ipinfo(int arc, char **argv, void *options) {
+	int res;
+	struct options *nof = options;
+	struct subnet subnet;
+
+	if (!strcasecmp(argv[2], "all")) {
+		fprint_ipv4_known_subnets(nof->output_file);
+		fprint_ipv6_known_subnets(nof->output_file);
+		return 0;
+	} else if (!strcasecmp(argv[2], "ipv4")) {
+		fprint_ipv4_known_subnets(nof->output_file);
+		return 0;
+	} else if (!strcasecmp(argv[2], "ipv6")) {
+		fprint_ipv6_known_subnets(nof->output_file);
+		return 0;
+	}
+	res = get_subnet_or_ip(argv[2], &subnet);
+	if (res > 1000) {
+		fprintf(stderr, "Invalid IP %s\n", argv[2]);
+		return -1;
+	}
+	fprint_ip_info(nof->output_file, &subnet);
 	return 0;
 }
 
