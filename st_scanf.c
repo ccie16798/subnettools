@@ -169,7 +169,7 @@ static int match_char_against_range(char c, const char *expr, int *i) {
 		return res;
 }
 /* parse STRING in at index *j according to fmt at index *i
-   store output in o if not NULL, else consumes ap
+   store output in o if not NULL, else put it to thrash
    fmt = FORMAT buffer
    in  = input buffer
    i   = index in fmt
@@ -455,7 +455,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
  * if expr has a conversion specifier, put the result in 'o' 
  */
 static int match_expr_single(const char *expr, char *in, struct sto *o, int *num_o) {
-	int i, j, res;
+	int i, j, j2, res;
 	int a = 0;
 	char c;
 	int saved_num_o = *num_o;
@@ -491,16 +491,17 @@ static int match_expr_single(const char *expr, char *in, struct sto *o, int *num
 				break;
 			case '%':
 				debug(SCANF, 3, "conversion specifier to handle %lu\n", (unsigned long)(o + *num_o));
-				res = parse_conversion_specifier(in, expr, &i, &j, o + *num_o);
+				j2 = j;
+				res = parse_conversion_specifier(in, expr, &i, &j, &o[*num_o]);
 				if (res == 0)
 					return a;
 				if (o) {
-					debug(SCANF, 4, "conv specifier successfull '%c'\n", o[*num_o].type);
+					debug(SCANF, 4, "conv specifier successfull '%c' for %d\n", o[*num_o].type, *num_o);
 				} else {
 					debug(SCANF, 4, "conv specifier successfull\n");
 				}
 				*num_o += 1;
-				a += j;
+				a += (j - j2);
 				break;
 			case '\\':
 				i++;
@@ -532,13 +533,15 @@ static int match_expr(struct expr *e, char *in, struct sto *o, int *num_o) {
 	int saved_num_o = *num_o;
 
 	for (i = 0; i < e->num_expr; i++) {
-		res = match_expr_single(e->expr[i], in, o + *num_o, num_o);
-		debug(SCANF, 4, "Matching expr '%s' against input '%s' res=%d\n", e->expr[i], in, res);
+		res = match_expr_single(e->expr[i], in, o, num_o);
+		debug(SCANF, 4, "Matching expr '%s' against in '%s' res=%d numo='%d'\n", e->expr[i], in, res, *num_o);
 		if (res)
 			break;
 	}
-	if (res == 0)
+	if (res == 0) {
+		*num_o = saved_num_o;
 		return 0;
+	}
 	/* even if 'in' matches 'e', we may have to stop */
 	if (e->stop) {
 		res2 = e->stop(in, e);
@@ -582,7 +585,7 @@ static int find_charrange(char *remain, struct expr *e) {
 	return res;
 }
 
-static int st_vscanf(char *in, const char *fmt, va_list ap) {
+static int sto_sscanf(char *in, const char *fmt, struct sto *o, int *num_o) {
 	int i, j, i2, k;
 	int res;
 	int min_m, max_m;
@@ -590,12 +593,9 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 	char c;
 	char expr[64];
 	struct expr e;
-	struct sto sto[20];
-	struct sto *o;
-	int num_o; /* number of objects found inside an expression */
 	int num_cs; /* number of conversion specifier found in an expression */
 
-	o = sto;
+	*num_o = 0;
 	i = 0; /* index in fmt */
 	j = 0; /* index in in */
 	n_found = 0; /* number of arguments found */
@@ -651,10 +651,9 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 				e.stop = &find_charrange;
 			}
 			n_match = 0; /* number of type expression matches */
-			num_o = 0;   /* number of expression specifiers found inside expr */
 			/* try to find at most max_m expr */
 			while (n_match < max_m) {
-				res = match_expr(&e, in + j, o, &num_o);
+				res = match_expr(&e, in + j, o, num_o);
 				if (res == 0)
 					break;
 				j += res;
@@ -664,41 +663,41 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 					break;
 				}
 			}
-			debug(SCANF, 3, "Exiting loop with expr '%s' matched %d times, found %d objects\n", expr, n_match, num_o);
+			debug(SCANF, 3, "Exiting loop with expr '%s' matched %d times, found %d objects\n", expr, n_match, *num_o);
 			if (n_match < min_m) {
 				debug(SCANF, 1, "found expr '%s' %d times, but required %d\n", expr, n_match, min_m);
 				return n_found;
 			}
-			/* if there was a conversion specifier, we must consume va_list */
 			if (num_cs) {
 				if (n_match > 1) {
-					num_o /= n_match;
-					debug(SCANF, 1, "conversion specifier matching in a pattern is supported only with '?'; restoring only %d found objects\n", num_o);
+					*num_o /= n_match;
+					debug(SCANF, 1, "conversion specifier matching in a pattern is supported only with '?'; restoring only %d found objects\n", *num_o);
 				}
 				if (n_match) {
-					consume_valist_from_object(o, num_o, ap);
-					n_found += num_o;
+					debug(SCANF, 4, "found %d CS so far\n", *num_o);
+					n_found += *num_o;
 				} else {
 					/* 0 match but we had num_cs conversion specifier 
 					   we must consume them */
 					debug(SCANF, 4, "0 match but there was %d CS so consume them\n", num_cs);
 					for (k = 0; k < num_cs; k++) {
-						/* FIXME they should maybe be returned as struct sto so caller can know if it matched or not */
-						o = va_arg(ap, struct sto *);
+						o[*num_o].type = 0;
+						*num_o += 1;
 					}
-				}
+				} 
 			}
 			i++;
+			printf("TYPE '%c' '%c'\n", o[0].type, o[1].type);
 			continue;
 		}
 		if (c == '\0' || in[j] == '\0') {
 			return n_found;
 		} else if (c == '%') {
-			res = parse_conversion_specifier(in, fmt, &i, &j, o);
+			res = parse_conversion_specifier(in, fmt, &i, &j, o + *num_o);
 
 			if (res == 0)
 				return n_found;
-			consume_valist_from_object(o, 1, ap);
+			*num_o += res;
 			n_found += res;
 		} else if (c == '.') {
 			if (is_multiple_char(fmt[i + 1])) {
@@ -722,15 +721,13 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 			if (is_multiple_char(fmt[i]))
 				continue;
 			i2 = 0;
-			res = match_expr_single(expr, in + j, o, &i2);
+			res = match_expr_single(expr, in + j, o, num_o);
 			if (res == 0) {
 				debug(SCANF, 1, "Expr'%s' didnt match in 'in' at offset %d\n", expr, j);
 				return n_found;
-
 			}
+			debug(SCANF, 4, "Expr'%s' matched 'in' res=%d at offset %d, found %d objects\n", expr, res, j, *num_o);
 			j += res;
-			consume_valist_from_object(o, i2, ap);
-			debug(SCANF, 4, "Expr'%s' matched 'in' at offset %d, found %d objects\n", expr, j, i2);
 			n_found += i2;
 		} else {
 			if (fmt[i] == '\\') {
@@ -764,6 +761,16 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 		}
 
 	} /* while 1 */
+}
+
+int st_vscanf(char *in, const char *fmt, va_list ap) {
+	int res, num_o;
+	struct sto o[40];
+
+	res = sto_sscanf(in, fmt, o, &num_o);
+	consume_valist_from_object(o, num_o, ap);
+
+	return res;
 }
 
 int st_sscanf(char *in, const char *fmt, ...) {
