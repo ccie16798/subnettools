@@ -5,10 +5,10 @@
 #define TYPE_INT        2
 
 struct file_options {
-        char *name;
-        int type; /* int or string */
-        int size;
-        size_t object_offset; /*offset in a  struct; don't set it manually, set it with offsetuf(struct mystruct, my_field */
+	char *name;
+	int type; /* int or string */
+	int size;
+	size_t object_offset; /*offset in a  struct; don't set it manually, set it with offsetuf(struct mystruct, my_field */
 	char *long_desc;
 };
 
@@ -17,8 +17,8 @@ struct file_options {
 #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 #define sizeofmember(TYPE, MEMBER) sizeof(((TYPE *)0)->MEMBER)
 #define container_of(ptr, type, member) ({                      \
-                const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
-                (type *)( (char *)__mptr - offsetof(type,member) );})
+		const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
+		(type *)( (char *)__mptr - offsetof(type,member) );})
 
 #define  FILEOPT_LINE(__truc, __STRUCT, __TYPE)  #__truc, __TYPE, sizeof(((__STRUCT *)0)->__truc), offsetof(__STRUCT, __truc)
 extern struct file_options fileoptions[];
