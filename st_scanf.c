@@ -396,6 +396,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 			j2 = *j + 1;
 			n_found++;
 		default:
+			debug(SCANF, 1, "Unknow conversion specifier '%c'\n", fmt[*i + 1]);
 			break;
 	} /* switch */
 	*j = j2;
