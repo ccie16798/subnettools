@@ -212,7 +212,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 		*i -= 1;
 		if (max_field_length > sizeof(buffer) - 2)
 			max_field_length = sizeof(buffer) - 2;
-		debug(SCANF, 3, "Found max field length %d\n", max_field_length);
+		debug(SCANF, 4, "Found max field length %d\n", max_field_length);
 	} else
 		max_field_length = sizeof(buffer) - 2;
 	switch (fmt[*i + 1]) {
@@ -232,7 +232,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 			}
 			res = get_subnet_or_ip(buffer, v_sub);
 			if (res < 1000) {
-				debug(SCANF, 2, "'%s' is a valid IP\n", buffer);
+				debug(SCANF, 5, "'%s' is a valid IP\n", buffer);
 				n_found++;
 			} else {
 				debug(SCANF, 2, "'%s' is an invalid IP\n", buffer);
@@ -252,7 +252,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 			}
 			res = get_single_ip(in + *j, v_addr, j2 -*j);
 			if (res < 1000) {
-				debug(SCANF, 2, "'%s' is a valid IP\n", buffer);
+				debug(SCANF, 5, "'%s' is a valid IP\n", buffer);
 				n_found++;
 			} else {
 				debug(SCANF, 2, "'%s' is an invalid IP\n", buffer);
@@ -270,10 +270,9 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 				debug(SCANF, 2, "no MASK found at offset %d\n", *j);
 				return n_found;
 			}
-			debug(SCANF, 2, "possible MASK '%s' starting at offset %d\n", buffer, *j);
 			res = string2mask(buffer, 21);
 			if (res != BAD_MASK) {
-				debug(SCANF, 2, "'%s' is a valid MASK\n", buffer);
+				debug(SCANF, 5, "'%s' is a valid MASK\n", buffer);
 				n_found++;
 			} else {
 				debug(SCANF, 2, "'%s' is an invalid MASK\n", buffer);
@@ -304,7 +303,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 				j2++;
 			}
 			*v_long *= sign;
-			debug(SCANF, 2, "found LONG '%ld' at offset %d\n", *v_long, *j);
+			debug(SCANF, 5, "found LONG '%ld' at offset %d\n", *v_long, *j);
 			n_found++;
 			break;
 		case 'd':
@@ -325,7 +324,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 				j2++;
 			}
 			*v_int *= sign;
-			debug(SCANF, 2, "found INT '%d' at offset %d\n", *v_int, *j);
+			debug(SCANF, 5, "found INT '%d' at offset %d\n", *v_int, *j);
 			n_found++;
 			break;
 		case 's':
@@ -349,7 +348,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 				return n_found;
 			}
 			v_s[j2 - *j] = '\0';
-			debug(SCANF, 2, "found STRING '%s' starting at offset %d \n", v_s, *j);
+			debug(SCANF, 5, "found STRING '%s' starting at offset %d \n", v_s, *j);
 			n_found++;
 			break;
 		case 'W':
@@ -374,7 +373,6 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 					return n_found;
 			}
 			*i += i2;
-			debug(SCANF, 5, "CHAR RANGE '%s' to find at offset %d\n", expr, *j);
 			i2 = 0;
 			while (match_char_against_range(in[j2], expr, &i2)) {
 				v_s[j2 - *j] = in[j2];
@@ -458,8 +456,8 @@ static int match_expr_single(const char *expr, char *in, struct sto *o, int *num
 		c = expr[i];
 		if (c == '\0')
 			return a;
-		debug(SCANF, 5, "remaining in  ='%s'\n", in + j);
-		debug(SCANF, 5, "remaining expr='%s'\n", expr + i);
+		debug(SCANF, 8, "remaining in  ='%s'\n", in + j);
+		debug(SCANF, 8, "remaining expr='%s'\n", expr + i);
 		switch (c) {
 			case '(':
 				i++;
@@ -486,9 +484,9 @@ static int match_expr_single(const char *expr, char *in, struct sto *o, int *num
 				if (res == 0)
 					return a;
 				if (o) {
-					debug(SCANF, 3, "conv specifier successfull '%c'\n", o[*num_o].type);
+					debug(SCANF, 4, "conv specifier successfull '%c'\n", o[*num_o].type);
 				} else {
-					debug(SCANF, 3, "conv specifier successfull\n");
+					debug(SCANF, 4, "conv specifier successfull\n");
 				}
 				*num_o += 1;
 				a += j;
@@ -597,7 +595,6 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 		if (is_multiple_char(c)) {
 			min_m = min_match(c);
 			max_m = max_match(c);
-			debug(SCANF, 5, "need to find expression '%s' %c time\n", expr, c);
 			e.expr[0] = expr;
 			e.num_expr = 1;
 			e.end_of_expr = fmt[i + 1]; /* if necessary */
@@ -628,7 +625,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 						debug(SCANF, 1, "Unmatched '[', closing\n");
 						return n_found;
 					}
-					debug(SCANF, 3, "pattern matching will end on '%s'\n", e.end_expr);
+					debug(SCANF, 4, "pattern matching will end on '%s'\n", e.end_expr);
 					e.stop = &find_charrange;
 				}
 			} else if (fmt[i + 1] == '(') { //FIXME
@@ -637,7 +634,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 					debug(SCANF, 1, "Unmatched '(', closing\n");
 					return n_found;
 				}
-				debug(SCANF, 3, "pattern matching will end on '%s'\n", e.end_expr);
+				debug(SCANF, 4, "pattern matching will end on '%s'\n", e.end_expr);
 				e.stop = &find_charrange;
 			}
 			n_match = 0; /* number of type expression matches */
@@ -667,7 +664,6 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 				if (n_match > 1) {
 					num_o /= n_match;
 					debug(SCANF, 1, "conversion specifier matching in a pattern is supported only with '?'; restoring only %d found objects\n", num_o);
-
 				}
 				if (n_match) {
 					consume_valist_from_object(o, num_o, ap);
@@ -699,18 +695,17 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 				i++;
 				continue;
 			}
-			debug(SCANF, 2, "fmt[%d]='.', match any char\n", i);
+			debug(SCANF, 8, "fmt[%d]='.', match any char\n", i);
 			i++;
 			j++;
 		} else if (c == '(' || c == '[') {
 			char c2 = (c == '(' ? ')' : ']');
-			debug(SCANF, 2, "fmt[%d]=%c, waiting expr\n", i, c);
 			i2 = strxcpy_until(expr, fmt + i, sizeof(expr), c2);
 			if (i2 == -1) {
 				debug(SCANF, 1, "Invalid format '%s', unmatched '%c'\n", fmt, c);
 				return n_found;
 			}
-			debug(SCANF, 2, "found expr '%s'\n", expr);
+			debug(SCANF, 8, "found expr '%s'\n", expr);
 			i += i2;
 			if (is_multiple_char(fmt[i]))
 				continue;
@@ -723,6 +718,7 @@ static int st_vscanf(char *in, const char *fmt, va_list ap) {
 			}
 			j += res;
 			consume_valist_from_object(o, i2, ap);
+			debug(SCANF, 4, "Expr'%s' matched 'in' at offset %d, found %d objects\n", expr, j, i2);
 			n_found += i2;
 		} else {
 			if (fmt[i] == '\\') {
