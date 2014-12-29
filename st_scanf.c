@@ -396,41 +396,41 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 	return n_found;
 }
 
-static void consume_valist_from_object(struct sto *o, int n, va_list ap) {
-	int i;
-	void *ptr;
-
-	for (i = 0; i < n; i++) {
-		debug(SCANF, 8, "restoring '%c' to va_list\n", o[i].type);
-		ptr = va_arg(ap, void *);
-		switch (o[i].type) {
-			case '[':
-			case 's':
-			case 'W':
-				strcpy((char *)ptr, o[i].s_char);
-				break;
-			case 'I':
-				copy_ipaddr((struct ip_addr *)ptr, &o[i].s_addr);
-				break;
-			case 'P':
-				copy_subnet((struct subnet *)ptr, &o[i].s_subnet);
-				break;
-			case 'd':
-			case 'M':
-				*((int *)ptr) = o[i].s_int;
-				break;
-			case 'l':
-				*((long *)ptr) = o[i].s_long;
-				break;
-			case 'c':
-				*((char *)ptr) = o[i].s_char[0];
-				break;
-			default:
-				debug(SCANF, 1, "Unknown object type '%c'\n", o[i].type);
-		}
-	}
-
-}
+#define consume_valist_from_object(__o, __n, __ap) do { \
+	int __i; \
+	void *ptr; \
+	\
+	for (__i = 0; __i < __n; __i++) { \
+		debug(SCANF, 8, "restoring '%c' to va_list\n", __o[__i].type); \
+		ptr = va_arg(__ap, void *); \
+		switch (__o[__i].type) { \
+			case '[': \
+			case 's': \
+			case 'W': \
+				  strcpy((char *)ptr, __o[__i].s_char); \
+			break; \
+			case 'I': \
+				  copy_ipaddr((struct ip_addr *)ptr, &__o[__i].s_addr); \
+			break; \
+			case 'P': \
+				  copy_subnet((struct subnet *)ptr, &__o[__i].s_subnet); \
+			break; \
+			case 'd': \
+			case 'M': \
+				  *((int *)ptr) = __o[__i].s_int; \
+			break; \
+			case 'l': \
+				  *((long *)ptr) = __o[__i].s_long; \
+			break; \
+			case 'c': \
+				  *((char *)ptr) = __o[__i].s_char[0]; \
+			break; \
+			default: \
+				 debug(SCANF, 1, "Unknown object type '%c'\n", __o[__i].type); \
+		} \
+	} \
+	\
+} while (0);
 
 /*
  * match a single pattern 'expr' against 'in'
