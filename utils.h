@@ -5,6 +5,13 @@ int isInt(const char *s);
 int isUnsignedInt(const char *s);
 int isPower2 (unsigned int x); 
 int mylog2(unsigned int x);
+/* take a isxdigit char as argument;
+   returns is decimal conversion
+*/
+int char2int(char c);
+
+/* remove all spaces from char */
+char *remove_space(char *s);
 
 /* strtok variants ; dont treat consecutive delim chars as one */
 char *simple_strtok(char *s, const char *delim);

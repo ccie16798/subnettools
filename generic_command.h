@@ -2,9 +2,9 @@
 #define GENERIC_COMMAND_H
 
 struct st_command {
-        char *name;
-        int (*run_cmd)(int argc, char **argv, void *options);
-        int required_args;
+	char *name;
+	int (*run_cmd)(int argc, char **argv, void *options);
+	int required_args;
 	int hidden;
 };
 /* generic command line parser

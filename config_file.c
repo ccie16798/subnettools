@@ -80,7 +80,7 @@ int open_config_file(char *name, void *nof) {
 						break;
 					}
 
-					debug(CONFIGFILE, 5, "line %lu copying INT %s at (int)offset %d, size %d\n", line, s, (int)offset, (int)fileoptions[i].size);
+					debug(CONFIGFILE, 5, "line %lu copying INT %s at offset %d, size %d\n", line, s, (int)offset, (int)fileoptions[i].size);
 					found = atoi(s);
 					memcpy(object + offset, &found,  fileoptions[i].size); /* FIXME */
 					break;

@@ -31,7 +31,8 @@ reg_test() {
 	fi
 }
 
-
+#test for IPv4/IPv6 handling
+reg_test print invalid_ips_masks.txt
 #basic print to test fmt
 reg_test -c st-fmt.conf print route_aggipv6-2
 reg_test -c st-fmt.conf print route_aggipv4

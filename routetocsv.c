@@ -18,9 +18,9 @@
 #include "utils.h"
 #include "st_printf.h"
 
-struct csvparser {
+struct csvconverter {
 	const char *name;
-	int (*parser)(char *name, FILE *, FILE *);
+	int (*converter)(char *name, FILE *, FILE *);
 	const char *desc;
 };
 
@@ -29,9 +29,9 @@ int cisco_route_conf_to_csv(char *name, FILE *input_name, FILE *output);
 int cisco_fw_to_csv(char *name, FILE *input_name, FILE *output);
 int cisco_nexus_to_csv(char *name, FILE *input_name, FILE *output);
 int ipso_route_to_csv(char *name, FILE *input_name, FILE *output);
-void csvparser_help(FILE *output);
+void csvconverter_help(FILE *output);
 
-struct csvparser csvparsers[] = {
+struct csvconverter csvconverters[] = {
 	{ "CiscoRouter", 	&cisco_route_to_csv, 	"ouput of 'show ip route' or 'sh ipv6 route' on Cisco IOS, IOS-XE" },
 	{ "CiscoRouterConf", &cisco_route_conf_to_csv, "full configuration or ipv6/ipv4 static routes"},
 	{ "CiscoFW", 	&cisco_fw_to_csv, 	"ouput of 'show route', IPv4 only"},
@@ -42,24 +42,24 @@ struct csvparser csvparsers[] = {
 };
 
 
-void csvparser_help(FILE *output) {
+void csvconverter_help(FILE *output) {
 	int i = 0;
 
-	fprintf(output, "available parsers : \n");
+	fprintf(output, "available converters : \n");
 	while (1) {
-		if (csvparsers[i].name == NULL)
+		if (csvconverters[i].name == NULL)
 			break;
-		fprintf(stderr, " %s : %s\n", csvparsers[i].name, csvparsers[i].desc);
+		fprintf(stderr, " %s : %s\n", csvconverters[i].name, csvconverters[i].desc);
 		i++;
 	}
 }
 
-int runcsv(char *name, char *filename, FILE *output) {
+int run_csvconverter(char *name, char *filename, FILE *output) {
 	int i = 0;
 	FILE *f;
 
 	if (!strcasecmp(name, "help")) {
-		csvparser_help(stdout);
+		csvconverter_help(stdout);
 		return 0;
 	}
 	if (filename == NULL) {
@@ -72,17 +72,17 @@ int runcsv(char *name, char *filename, FILE *output) {
 		return -2;
 	}
 	while (1) {
-		if (csvparsers[i].name == NULL)
+		if (csvconverters[i].name == NULL)
 			break;
-		if (!strcasecmp(name, csvparsers[i].name)) {
-			csvparsers[i].parser(filename, f, output);
+		if (!strcasecmp(name, csvconverters[i].name)) {
+			csvconverters[i].converter(filename, f, output);
 			return 0;
 		}
 		i++;
 
 	}
-	fprintf(stderr, "Unknow route parser : %s\n", name);
-	csvparser_help(stderr);
+	fprintf(stderr, "Unknow route converter : %s\n", name);
+	csvconverter_help(stderr);
 	return -2;
 }
 /* those fucking classfull IPSO nokia will print 10/8, 172.18/16 */
@@ -172,7 +172,7 @@ static int cisco_nexus_gw_handle(char *s, void *data, struct csv_state *state)  
 	int res;
 	struct ip_addr addr;
 
-	res = get_single_ip(s, &addr);
+	res = get_single_ip(s, &addr, 41);
 	if (state->state[1] == IPV4_A && res == IPV4_A) {
 		debug(PARSEROUTE, 5, "line %lu gw %s \n", state->line, s);
 		copy_ipaddr(&sf->routes[sf->nr].gw,  &addr);
@@ -306,7 +306,7 @@ static int ipso_gw_handle(char *s, void *data, struct csv_state *state) {
 
 	if (state->state[0] == 1) /* connected route, s = "directly" */
 		return CSV_VALID_FIELD;
-	res = get_single_ip(s, &addr);
+	res = get_single_ip(s, &addr, 41);
 	if ( res == BAD_IP) {
 		debug(PARSEROUTE, 2, "line %lu bad GW %s \n", state->line, s);
 		return CSV_INVALID_FIELD_BREAK;
@@ -500,7 +500,7 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 			continue;
 		}
 
-		res = get_single_ip(s, &addr);
+		res = get_single_ip(s, &addr, 41);
 		if (ip_ver == IPV4_A && res == IPV4_A) {
 			debug(PARSEROUTE, 5, "line %lu gw %s \n", line, s);
 			gw = s;
@@ -542,7 +542,7 @@ static int cisco_fw_prefix_handle(char *s, void *data, struct csv_state *state) 
 	int res;
 	struct ip_addr addr;
 
-	res = get_single_ip(s, &addr);
+	res = get_single_ip(s, &addr, 41);
 	if (res == BAD_IP) {
 		debug(PARSEROUTE, 2, "line %lu bad IP %s \n", state->line, s);
 		return CSV_INVALID_FIELD_BREAK;
@@ -556,7 +556,7 @@ static int cisco_fw_mask_handle(char *s, void *data, struct csv_state *state) {
 	struct  subnet_file *sf = data;
 	int num_mask;
 
-	num_mask = string2mask(s);
+	num_mask = string2mask(s, 21);
 	if ( num_mask == BAD_MASK) {
 		debug(PARSEROUTE, 2, "line %lu bad mask %s \n", state->line, s);
 		return CSV_INVALID_FIELD_BREAK;
@@ -585,7 +585,7 @@ static int cisco_fw_gw_handle(char *s, void *data, struct csv_state *state) {
 	struct ip_addr addr;
 	int res;
 
-	res = get_single_ip(s, &addr);
+	res = get_single_ip(s, &addr, 41);
 	if (res == BAD_IP) {
 		debug(PARSEROUTE, 2, "line %lu bad GW %s \n", state->line, s);
 		return CSV_INVALID_FIELD_BREAK;
@@ -680,7 +680,7 @@ int cisco_route_conf_to_csv(char *name, FILE *f, FILE *output) {
 		}
 		if (ip_ver == IPV4_A) { /* ipv6 got a mask in previous token */
 			MOVE_TO_NEXT_TOKEN(NULL);
-			num_mask = string2mask(s);
+			num_mask = string2mask(s, 21);
 			if ( res == BAD_MASK) {
 				debug(PARSEROUTE, 2, "line %lu bad mask %s \n", line, s);
 				continue;
@@ -691,7 +691,7 @@ int cisco_route_conf_to_csv(char *name, FILE *f, FILE *output) {
 			dev =  s;
 			MOVE_TO_NEXT_TOKEN(NULL);
 		}
-		res = get_single_ip(s, &addr);
+		res = get_single_ip(s, &addr, 41);
 		if (res == BAD_IP) {
 			debug(PARSEROUTE, 2, "line %lu bad GW %s \n", line, s);
 			continue;

@@ -41,9 +41,12 @@ int subnet_sort_ascending(struct subnet_file *sf);
 
 /* remove duplicate/included entries, and sort */
 int subnet_file_simplify(struct subnet_file *sf);
-/* same but take GW into account, must be equal */
+/* same but take GW into account, must be equal 
+ if mode == 0, prints the simplified route file
+ if mode == 1, prints the routes that can be removed 
+*/
 int route_file_simplify(struct subnet_file *sf,  int mode);
-/*
+/* aggregates entries from 'sf' as much as possible
  * mode == 1 means we take the GW into acoount
  * mode == 0 means we dont take the GW into account
  */

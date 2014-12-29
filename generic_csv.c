@@ -106,7 +106,7 @@ static int read_csv_body(FILE *f, char *name, struct csv_file *cf, struct csv_st
 	int pos;
 	unsigned long badlines = 0;
 
-	debug_timing_start();
+	debug_timing_start(2);
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res)) != NULL) {
 		if (state->line == ULONG_MAX) { /* paranoid check */
 			debug(LOAD_CSV, 1, "File %s is too big, we reached ULONG_MAX (%lu)\n", name, ULONG_MAX);
@@ -166,7 +166,7 @@ static int read_csv_body(FILE *f, char *name, struct csv_file *cf, struct csv_st
 			res = cf->endofline_callback(state, data);
 			if (res == CSV_CATASTROPHIC_FAILURE) {/* FATAL ERROR like no more memory*/
 				debug(LOAD_CSV, 1,  "line %lu : fatal error, aborting\n", state->line);
-				debug_timing_end();
+				debug_timing_end(2);
 				return -2;
 			} else if (res == CSV_END_FILE) {
 				debug(LOAD_CSV, 4,  "line %lu : endofline callback told us to end parsing\n", state->line);
@@ -182,7 +182,7 @@ static int read_csv_body(FILE *f, char *name, struct csv_file *cf, struct csv_st
 	else
 		res = CSV_VALID_FILE;
 	debug(LOAD_CSV, 2, "Parsed %lu lines, %lu good, %lu bad\n", state->line, state->line - badlines, badlines);
-	debug_timing_end();
+	debug_timing_end(2);
 	return res;
 }
 int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state* state, void *data) {

@@ -150,7 +150,7 @@ void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 					copy_subnet(&v_sub, &r->subnet);
 					subnet2str(&v_sub, buffer2, compression_level);
 					sprintf(buffer, "%s/%d", buffer2, (int)v_sub.mask);
-					a += sprintf(outbuf + j, BUFFER_FMT, buffer);	
+					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
 					break;
 				case 'G':
 					if (fmt[i2 + 1] >= '0' && fmt[i2 + 1] <= '3') {
@@ -213,7 +213,7 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap)  {
 	char buffer[128], temp[32];
 	char BUFFER_FMT[32];
 	int field_width;
-	/* variables from va_list */ 
+	/* variables from va_list */
 	struct  subnet  v_sub;
 	struct  ip_addr v_addr;
 	char *v_s;
@@ -379,7 +379,7 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap)  {
 						sprintf(buffer, "%s/%d", buffer2, (int)v_sub.mask);
 					} else
 						strcpy(buffer, "<Invalid IP/mask>");
-					a += sprintf(outbuf + j, BUFFER_FMT, buffer);	
+					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
 					break;
 				default:
 					debug(FMT, 2, "%c is not a valid char after a %c\n", fmt[i2], '%');
