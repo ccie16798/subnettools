@@ -1,3 +1,12 @@
+/*
+ * IPv4, IPv6 subnet/routes scanf equivalent with PATTERN matching
+ *
+ * Copyright (C) 2014 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of version 2 of the GNU General Public License
+ * as published by the Free Software Foundation.
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,10 +16,12 @@
 #include "iptools.h"
 #include "debug.h"
 #include "st_scanf.h"
+#include "st_object.h"
 
-// TO FIX : bound checking
+// TO check : bound checking
 // specifier at EOS
-// %[ handling
+// find_%S
+// (Expr1|expr2) handling
 
 struct expr {
 	int num_expr;
