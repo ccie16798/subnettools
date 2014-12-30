@@ -210,6 +210,7 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap, struct sto *o, in
 	char buffer[128], temp[32];
 	char BUFFER_FMT[32];
 	int field_width;
+	int o_num;
 	/* variables from va_list */
 	struct  subnet  v_sub;
 	struct  ip_addr v_addr;
@@ -371,6 +372,18 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap, struct sto *o, in
 				case 'O':
 					if (o == NULL)
 						break;
+					o_num = 0;
+					while (isdigit(fmt[i + 2])) {
+						o_num *= 10;
+						o_num += fmt[i + 2] - '0';
+						i++;
+					}
+					if (o_num >= max_o) {
+						debug(FMT, 1, "Invalid object number #%d, max %d\n", o_num, max_o);
+						break;
+					}
+					sto2string(buffer, &o[o_num], sizeof(buffer), 3);
+					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
 					break;
 				default:
 					debug(FMT, 2, "%c is not a valid char after a %c\n", fmt[i2], '%');

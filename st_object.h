@@ -1,6 +1,7 @@
 #ifndef ST_OBJECT
 #define ST_OBJECT
 #include "iptools.h"
+
 /* subnet tools object */
 struct sto { 
 	char type;
@@ -12,6 +13,8 @@ struct sto {
 		char		s_char[64];
 	};
 };
+
+int sto2string(char *s, const struct sto *o, size_t len, int comp_level);
 
 #define consume_valist_from_object(__o, __n, __ap) do { \
 	int __i; \
