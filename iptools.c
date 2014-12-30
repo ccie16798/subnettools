@@ -280,7 +280,7 @@ int addrv62str(ipv6 z, char *out_buffer, size_t len, int compress) {
 	if (i < 8) {
 		if (j >= len - 1)
 			return j;
-		a = sprintf(out_buffer + j, "%x", block(z, i));
+		a = snprintf(out_buffer + j, len - j, "%x", block(z, i));
 		j += a;
 	}
 	out_buffer[j] = '\0';
