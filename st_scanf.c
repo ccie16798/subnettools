@@ -700,7 +700,6 @@ static int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 				} 
 			}
 			i++;
-			printf("TYPE '%c' '%c'\n", o[0].type, o[1].type);
 			continue;
 		}
 		if (c == '\0' || in[j] == '\0') {

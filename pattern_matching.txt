@@ -66,4 +66,4 @@ WARNING : pattern matching is done 'char by char'  so ".*STRING" is not what you
 In FMT=.*toto " in="abcdtafbftoto" '.*' expansion will stop on the first 't'
 if you want .* to stop o, toto, write FMT=.*(toto)
 
-
+scanf("1.1.1.1 2.2.2.2", "%I (%s %I)?") will return 3; even if (%s %I) doesnt match; their value will be BOGUS 
