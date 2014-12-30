@@ -1,6 +1,6 @@
 #ifndef ST_PRINTF_H
 #define ST_PRINTF_H
-
+#include "st_object.h"
 /* simple and dummy print a route */
 void fprint_route(const struct route *r, FILE *output, int compress_level);
 /* print a route 'r' according to format 'fmt' into output */
