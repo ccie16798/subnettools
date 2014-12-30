@@ -577,7 +577,7 @@ static int find_charrange(char *remain, struct expr *e) {
 	return res;
 }
 
-static int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
+int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 	int i, j, i2, k;
 	int res;
 	int min_m, max_m;
