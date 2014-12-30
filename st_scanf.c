@@ -608,11 +608,13 @@ static int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 	char c;
 	char expr[64];
 	struct expr e;
+	int in_length;
 	int num_cs; /* number of conversion specifier found in an expression */
 
 	i = 0; /* index in fmt */
 	j = 0; /* index in in */
-	n_found = 0; /* number of arguments found */
+	n_found = 0; /* number of arguments/objects found */
+	in_length = (int)strlen(in);
 	expr[0] = '\0';
 	while (1) {
 		c = fmt[i];
@@ -678,8 +680,12 @@ static int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 				j += res;
 				n_match++;
 				if (in[j] == '\0') {
-					debug(SCANF, 1, "reached end of input scanning 'in'\n");
+					debug(SCANF, 3, "reached end of input scanning 'in'\n");
 					break;
+				}
+				if (j > in_length) {
+					fprintf(stderr, "BUG, input buffer override in %s line %d\n", __FUNCTION__, __LINE__);
+					return n_found;
 				}
 			}
 			debug(SCANF, 3, "Exiting loop with expr '%s' matched %d times, found %d objects so far\n", expr, n_match, n_found);
@@ -733,7 +739,7 @@ static int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 			char c2 = (c == '(' ? ')' : ']');
 			i2 = strxcpy_until(expr, fmt + i, sizeof(expr), c2);
 			if (i2 == -1) {
-				debug(SCANF, 1, "Invalid format '%s', unmatched '%c'\n", fmt, c);
+				debug(SCANF, 1, "Invalid format '%s', unmatched '%c'\n", fmt, c2);
 				return n_found;
 			}
 			debug(SCANF, 8, "found expr '%s'\n", expr);
@@ -753,6 +759,10 @@ static int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 			}
 			debug(SCANF, 4, "Expr'%s' matched 'in' res=%d at offset %d, found %d objects so far\n", expr, res, j, n_found);
 			j += res;
+			if (j > in_length) {
+				fprintf(stderr, "BUG, input buffer override in %s line %d\n", __FUNCTION__, __LINE__);
+				return n_found;
+			}
 		} else {
 			if (fmt[i] == '\\') {
 				c = escape_char(fmt[i + 1]);
