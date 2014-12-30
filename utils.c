@@ -76,6 +76,20 @@ char *remove_space(char *s) {
 	}
 }
 
+/* strlcpy */
+int strxcpy(char *dst, const char *src, int size) {
+	int i = 0;
+
+	while (1) {
+		if (src[i] == '\0' || i == size - 1)
+			break;
+		dst[i] = src[i];
+		i++;
+	}
+	dst[i] = '\0';
+	return i;
+}
+
 int strxcpy_until(char *dst, const char *src, int n, char end) {
 	int i = 0;
 
@@ -153,14 +167,6 @@ char *simple_strtok_r(char *s, const char *delim, char **s2) {
 	}
 	return NULL;
 }
-
-/* strlcpy */
-char *strxcpy(char *dest, const char *src, int size) {
-	strncpy(dest, src, size);
-	dest[size - 1] = '\0';
-	return dest;
-}
-
 
 char *fgets_truncate_buffer(char *buffer, int size, FILE *stream, int *res) {
 	char *s;

@@ -18,7 +18,7 @@ char *simple_strtok(char *s, const char *delim);
 char *simple_strtok_r(char *s, const char *delim, char **save_ptr) ;
 
 /* equivalent to strlcpy on some platforms */
-char *strxcpy(char *dest, const char *src, int size);
+int strxcpy(char *dest, const char *src, int size);
 
 /* copy src into dst as long as src!= end
  * copy end + EOS into dst
