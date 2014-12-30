@@ -30,6 +30,7 @@ struct expr {
 	char end_of_expr; /* if remain[i] = end_of_expr , we can stop*/
 	char end_expr[64];
 	int match_last;
+	int skip_stop; /* if positive, dont run e->stop */
 };
 
 
@@ -519,6 +520,10 @@ static int match_expr(struct expr *e, char *in, struct sto *o, int *num_o) {
 		*num_o = saved_num_o;
 		return 0;
 	}
+	if (e->skip_stop) {
+		e->skip_stop--;
+		return res;
+	}
 	/* even if 'in' matches 'e', we may have to stop */
 	if (e->stop) {
 		res2 = e->stop(in, e);
@@ -534,6 +539,28 @@ static int match_expr(struct expr *e, char *in, struct sto *o, int *num_o) {
 		return 0;
 	}
 	return res;
+}
+
+static int find_not_ip(char *remain, struct expr *e) {
+	char buffer[64];
+	int i = 0;
+	struct subnet s;
+
+	if (isspace(remain[0]))
+		return 0;
+
+	while (is_ip_char(remain[i]) && i < sizeof(buffer)) {
+		buffer[i] = remain[i];
+		i++;
+	}
+	if (i <= 2)
+		return 1;
+	buffer[i] = '\0';
+	if (get_subnet_or_ip(buffer, &s)  < 1000) {
+		e->skip_stop = i; /* remain[0...i] represents an IP, so dont try stop checking in that range */
+		return 0;
+	} else
+		return 1;
 }
 
 static int find_ip(char *remain, struct expr *e) {
@@ -605,6 +632,7 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 			e.end_of_expr = fmt[i + 1]; /* if necessary */
 			e.stop = NULL;
 			e.match_last = 0;
+			e.skip_stop = 0;
 			num_cs = count_cs(expr);
 			if (n_found + num_cs > max_o) {
 				debug(SCANF, 1, "Cannot get more than %d objets, already found %d\n", max_o, n_found);
@@ -623,6 +651,8 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 					e.stop = &find_ip;
 				} else if (c == 'P') {
 					e.stop = &find_ip;
+				} else if (c == 'S') {
+					e.stop = &find_not_ip;
 				} else if (c == 'M') {
 					e.stop = &find_mask;
 				} else if (c == 'W') {
