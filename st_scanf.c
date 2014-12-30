@@ -218,7 +218,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 		max_field_length = sizeof(buffer) - 2;
 	switch (fmt[*i + 1]) {
 		case '\0':
-			debug(SCANF, 1, "Invalid format string '%s', ends with %%\n", fmt);
+			debug(SCANF, 1, "Invalid format '%s', ends with %%\n", fmt);
 			return n_found;
 		case 'P':
 			ARG_SET(v_sub, struct subnet *);
@@ -379,11 +379,12 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 			ARG_SET(v_s, char *);
 			i2 = fill_char_range(fmt + *i + 1, expr);
 			if (i2 == -1) {
-					debug(SCANF, 1, "Invalid format '%s', no closing ]\n", fmt);
+					debug(SCANF, 1, "Invalid format '%s', no closing ']'\n", fmt);
 					return n_found;
 			}
 			*i += i2;
 			i2 = 0;
+			/* match_char_against_range cant return -1 here, fill_char_range above would have caught a bad expr */
 			while (match_char_against_range(in[j2], expr, &i2)) {
 				v_s[j2 - *j] = in[j2];
 				i2 = 0;
@@ -758,6 +759,10 @@ static int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 				return n_found;
 			}
 			res = match_expr_single(expr, in + j, o, &n_found);
+			if (res < 0) {
+				debug(SCANF, 1, "Bad format '%s'\n", fmt);
+				return n_found;
+			}
 			if (res == 0) {
 				debug(SCANF, 2, "Expr'%s' didnt match in 'in' at offset %d\n", expr, j);
 				return n_found;
