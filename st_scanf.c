@@ -483,10 +483,9 @@ static int match_expr_single(const char *expr, char *in, struct sto *o, int *num
 				break;
 			case '[': /* try to handle char range like [a-Zbce-f] */
 				res = match_char_against_range(in[j], expr, &i);
-				if (res == -1)
-					return -1;
-				if (res)
-					a++;
+				if (res <= 0)
+					return res;
+				a++;
 				j++;
 				break;
 			case '%':
@@ -535,6 +534,8 @@ static int match_expr(struct expr *e, char *in, struct sto *o, int *num_o) {
 	for (i = 0; i < e->num_expr; i++) {
 		res = match_expr_single(e->expr[i], in, o, num_o);
 		debug(SCANF, 4, "Matching expr '%s' against in '%s' res=%d numo='%d'\n", e->expr[i], in, res, *num_o);
+		if (res < 0)
+			return res;
 		if (res)
 			break;
 	}
@@ -656,7 +657,7 @@ static int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 				} else if (c == '[') {
 					res = strxcpy_until(e.end_expr, fmt + i + 2, sizeof(e.end_expr), ']');
 					if (res < 0) {
-						debug(SCANF, 1, "Unmatched '[', closing\n");
+						debug(SCANF, 1, "Bad format '%s', unmatched '['\n", expr);
 						return n_found;
 					}
 					debug(SCANF, 4, "pattern matching will end on '%s'\n", e.end_expr);
@@ -665,16 +666,20 @@ static int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 			} else if (fmt[i + 1] == '(') {
 				res = strxcpy_until(e.end_expr, fmt + i + 1, sizeof(e.end_expr), ')');
 				if (res < 0) {
-					debug(SCANF, 1, "Unmatched '(', closing\n");
+					debug(SCANF, 1, "Bad format '%s', unmatched '('\n", expr);
 					return n_found;
 				}
 				debug(SCANF, 4, "pattern matching will end on '%s'\n", e.end_expr);
 				e.stop = &find_charrange;
 			}
-			n_match = 0; /* number of type expression matches */
+			n_match = 0; /* number of time expression 'e' matches input*/
 			/* try to find at most max_m expr */
 			while (n_match < max_m) {
 				res = match_expr(&e, in + j, o, &n_found);
+				if (res < 0) {
+					debug(SCANF, 1, "Bad format '%s'\n", expr);
+					return n_found;
+				}
 				if (res == 0)
 					break;
 				j += res;
@@ -683,7 +688,7 @@ static int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 					debug(SCANF, 3, "reached end of input scanning 'in'\n");
 					break;
 				}
-				if (j > in_length) {
+				if (j > in_length) { /* can happen only if there is a BUG in 'match_expr' and its descendant */
 					fprintf(stderr, "BUG, input buffer override in %s line %d\n", __FUNCTION__, __LINE__);
 					return n_found;
 				}
@@ -754,12 +759,12 @@ static int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 			}
 			res = match_expr_single(expr, in + j, o, &n_found);
 			if (res == 0) {
-				debug(SCANF, 1, "Expr'%s' didnt match in 'in' at offset %d\n", expr, j);
+				debug(SCANF, 2, "Expr'%s' didnt match in 'in' at offset %d\n", expr, j);
 				return n_found;
 			}
 			debug(SCANF, 4, "Expr'%s' matched 'in' res=%d at offset %d, found %d objects so far\n", expr, res, j, n_found);
 			j += res;
-			if (j > in_length) {
+			if (j > in_length) { /* can happen only if there is a BUG in 'match_expr_single' and its descendant */
 				fprintf(stderr, "BUG, input buffer override in %s line %d\n", __FUNCTION__, __LINE__);
 				return n_found;
 			}
@@ -786,7 +791,7 @@ static int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 				continue;
 			}
 			if (in[j] != fmt[i]) {
-				debug(SCANF, 2, "in[%d]=%c, != fmt[%d]=%c, exiting\n",
+				debug(SCANF, 2, "in[%d]='%c', != fmt[%d]='%c', exiting\n",
 						j, in[j], i, fmt[i]);
 				return  n_found;
 			}
