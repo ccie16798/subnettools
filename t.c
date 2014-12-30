@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <unistd.h>
+#include "iptools.h"
 /* staging testing file 
  * not used in Makefile */
 struct options {
@@ -20,10 +21,12 @@ struct options {
 #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 int main(int argc, char **argv) {
 	char buff[8];
+	struct subnet s;
 	int a;
+	get_subnet_or_ip(argv[1], &s);
+	subnet2str(&s, buff, sizeof(buff), 3);
+	printf("%s\n", buff); 
 
-	a = strxcpy(buff, argv[1], sizeof(buff));
-	printf("'%s' '%s' %d %d\n", argv[1], buff, a, strlen(buff));
 //	printf("%d %d %d \n", offsetof(struct options, delim),  offsetof(struct options, delim2),  offsetof(struct options, delim4));
 	printf("%d %d\n", sizeof(long), sizeof(unsigned long long));
 }
