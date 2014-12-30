@@ -402,7 +402,7 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 			MOVE_TO_NEXT_TOKEN(NULL);
 			res = get_subnet_or_ip(s, &subnet);
 			if (res == IPV4_N) {
-				subnet2str(&subnet, ip2, 2);
+				subnet2str(&subnet, ip2, sizeof(ip2), 2);
 				num_mask = subnet.mask;
 				gw = "0.0.0.0";
 			} else if (res == IPV6_N) {
@@ -449,13 +449,13 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 			s = strtok(NULL, "\n, ");
 			debug(PARSEROUTE, 9, "line %lu parsing token %d : %s \n", line, token++, s);
 		} else if (res == IPV4_N) {
-			subnet2str(&subnet, ip2, 2);
+			subnet2str(&subnet, ip2, sizeof(ip2), 2);
 			num_mask = subnet.mask;
 			debug(PARSEROUTE, 5, "line %lu found IP/mask %s\n", line, s);
 			s = strtok(NULL, "\n, ");
 			debug(PARSEROUTE, 9, "line %lu parsing token %d : %s \n", line, token++, s);
 		} else if (res == IPV6_N) {
-			subnet2str(&subnet, ip2, 2);
+			subnet2str(&subnet, ip2, sizeof(ip2), 2);
 			num_mask = subnet.mask;
 			debug(PARSEROUTE, 5, "line %lu found IPv6/mask %s\n", line, s);
 			/** in show ipv6 route, the NH is printed on the next line so get a new line **/
@@ -672,7 +672,7 @@ int cisco_route_conf_to_csv(char *name, FILE *f, FILE *output) {
 		if (res == IPV4_A && ip_ver == IPV4_A) {
 			strcpy(ip1, s);
 		} else if (res == IPV6_N && ip_ver == IPV6_A) {
-			subnet2str(&subnet, ip1, 2);
+			subnet2str(&subnet, ip1, sizeof(ip1), 2);
 			num_mask =  subnet.mask;
 		} else {
 			debug(PARSEROUTE, 2, "line %lu bad IP %s \n", line, s);

@@ -32,10 +32,10 @@ void fprint_route(const struct route *r, FILE *output, int compress_level) {
 	char buffer2[52];
 	struct subnet s;
 
-	subnet2str(&r->subnet, buffer, compress_level);
+	subnet2str(&r->subnet, buffer, sizeof(buffer), compress_level);
 	copy_ipaddr(&s.ip_addr, &r->gw);
 	s.ip_ver = r->subnet.ip_ver;
-	subnet2str(&s, buffer2, 2);
+	subnet2str(&s, buffer2, sizeof(buffer2), 2);
 	fprintf(output, "%s;%d;%s;%s;%s\n", buffer, r->subnet.mask, r->device, buffer2, r->comment);
 }
 /*
@@ -142,13 +142,13 @@ void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 						previous_subnet(&v_sub);
 					else if (fmt[i2] == 'U')
 						next_subnet(&v_sub);
-					subnet2str(&v_sub, buffer, compression_level);
+					subnet2str(&v_sub, buffer, sizeof(buffer), compression_level);
 					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
 					break;
 				case 'P': /* Prefix */
 					SET_IP_COMPRESSION_LEVEL(fmt[i2 + 1]);
 					copy_subnet(&v_sub, &r->subnet);
-					subnet2str(&v_sub, buffer2, compression_level);
+					subnet2str(&v_sub, buffer2, sizeof(buffer2), compression_level);
 					sprintf(buffer, "%s/%d", buffer2, (int)v_sub.mask);
 					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
 					break;
@@ -156,7 +156,7 @@ void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 					SET_IP_COMPRESSION_LEVEL(fmt[i2 + 1]);
 					copy_ipaddr(&sub.ip_addr, &r->gw);
 					sub.ip_ver = r->subnet.ip_ver;
-					subnet2str(&sub, buffer, compression_level);
+					subnet2str(&sub, buffer, sizeof(buffer2), compression_level);
 					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
 					break;
 				default:
@@ -328,7 +328,7 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap)  {
 					SET_IP_COMPRESSION_LEVEL(fmt[i2 + 1]);
 					/* safegard a little */
 					if (v_addr.ip_ver == IPV4_A || v_addr.ip_ver == IPV6_A)
-						addr2str(&v_addr, buffer, compression_level);
+						addr2str(&v_addr, buffer, sizeof(buffer), compression_level);
 					else
 						strcpy(buffer,"<Invalid IP>");
 					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
@@ -350,7 +350,7 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap)  {
 							previous_subnet(&v_sub);
 						else if (fmt[i2] == 'U')
 							next_subnet(&v_sub);
-						subnet2str(&v_sub, buffer, compression_level);
+						subnet2str(&v_sub, buffer, sizeof(buffer), compression_level);
 					} else
 						strcpy(buffer, "<Invalid IP>");
 					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
@@ -361,7 +361,7 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap)  {
 
 					if (v_sub.ip_ver == IPV4_A || v_sub.ip_ver == IPV6_A) {
 						char buffer2[128];
-						subnet2str(&v_sub, buffer2, compression_level);
+						subnet2str(&v_sub, buffer2, sizeof(buffer2), compression_level);
 						sprintf(buffer, "%s/%d", buffer2, (int)v_sub.mask);
 					} else
 						strcpy(buffer, "<Invalid IP/mask>");

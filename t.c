@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
 	char buff[8];
 	int a;
 
-	a = strxcpy_until(buff, argv[1], sizeof(buff), 'e');
+	a = strxcpy(buff, argv[1], sizeof(buff));
 	printf("'%s' '%s' %d %d\n", argv[1], buff, a, strlen(buff));
 //	printf("%d %d %d \n", offsetof(struct options, delim),  offsetof(struct options, delim2),  offsetof(struct options, delim4));
 	printf("%d %d\n", sizeof(long), sizeof(unsigned long long));

@@ -178,15 +178,14 @@ int subnet_compare_ipv4(ipv4 prefix1, u32 mask1, ipv4 prefix2, u32 mask2) {
 	}
 }
 
-int addrv42str(ipv4 z, char *out_buffer) {
+int addrv42str(ipv4 z, char *out_buffer, size_t len) {
 	int a, b, c, d;
 
 	d = z % 256;
 	c = (z >> 8) % 256;
 	b = (z >> 16) % 256;
 	a = (z >> 24) % 256;
-	sprintf(out_buffer, "%d.%d.%d.%d", a,b,c,d);
-	return 0;
+	return snprintf(out_buffer, len, "%d.%d.%d.%d", a,b,c,d);
 }
 
 /*
@@ -197,16 +196,16 @@ int addrv42str(ipv4 z, char *out_buffer) {
  * compress = 2 ==> FULL compression but doesnt convert Embedded IPv4
  * compress = 3 ==> FULL compression but and convert Embedded IPv4
  */
-int addrv62str(ipv6 z, char *out_buffer, int compress) {
+int addrv62str(ipv6 z, char *out_buffer, size_t len, int compress) {
 	int a, i, j;
 	int skip = 0, max_skip = 0;
 	int skip_index = 0, max_skip_index = 0;
 
 	if (compress == 0) {
-		a = sprintf(out_buffer, "%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x", block(z, 0), block(z, 1) , block(z, 2) , block(z, 3) , block(z, 4), block(z, 5), block(z, 6), block(z, 7));
+		a = snprintf(out_buffer, len, "%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x", block(z, 0), block(z, 1) , block(z, 2) , block(z, 3) , block(z, 4), block(z, 5), block(z, 6), block(z, 7));
 		return a;
 	} else if (compress == 1) {
-		a = sprintf(out_buffer, "%x:%x:%x:%x:%x:%x:%x:%x", block(z,0), block(z, 1) , block(z, 2) , block(z, 3) , block(z, 4), block(z, 5), block(z, 6), block(z, 7));
+		a = snprintf(out_buffer, len, "%x:%x:%x:%x:%x:%x:%x:%x", block(z,0), block(z, 1) , block(z, 2) , block(z, 3) , block(z, 4), block(z, 5), block(z, 6), block(z, 7));
 		return a;
 	}
 	/**
@@ -244,35 +243,43 @@ int addrv62str(ipv6 z, char *out_buffer, int compress) {
 		/* Mapped& Compatible IPv4 address */
 		if (block(z, 5) == 0x0) {
 			if (block(z, 6) == 0 && block(z, 7) == 1) /** the loopback address */
-				return sprintf(out_buffer, "::1");
+				return snprintf(out_buffer, len, "::1");
 			else
-				return sprintf(out_buffer, "::%d.%d.%d.%d", block(z, 6) >> 8, block(z, 6) & 0xff,
+				return snprintf(out_buffer, len, "::%d.%d.%d.%d", block(z, 6) >> 8, block(z, 6) & 0xff,
 						block(z, 7) >> 8, block(z, 7) & 0xff);
 		}
 		if (block(z, 5) == 0xffff)
-			return sprintf(out_buffer, "::ffff:%d.%d.%d.%d", block(z, 6) >> 8, block(z, 6) & 0xff,
+			return snprintf(out_buffer, len, "::ffff:%d.%d.%d.%d", block(z, 6) >> 8, block(z, 6) & 0xff,
 					block(z, 7) >> 8, block(z, 7) & 0xff);
 	}
 	j = 0;
 	for (i = 0; i < max_skip_index; i++) {
-		a = sprintf(out_buffer + j, "%x:", block(z, i));
+		if (j >= len - 1)
+			return j;
+		a = snprintf(out_buffer + j, len - j, "%x:", block(z, i));
 		j += a;
 		debug(PARSEIPV6, 9, "building output  %d : %s\n", i, out_buffer);
 	}
 	if (max_skip > 0) {
+		if (j >= len - 1)
+			return j;
 		if (max_skip_index)
-			a = sprintf(out_buffer + j, ":");
+			a = snprintf(out_buffer + j, len - j, ":");
 		else
-			a = sprintf(out_buffer + j, "::");
+			a = snprintf(out_buffer + j, len - j, "::");
 		debug(PARSEIPV6, 9, "building output  %d : %s\n", i, out_buffer);
 		j += a;
 	}
 	for (i = max_skip_index + max_skip; i < 7; i++) {
-		a = sprintf(out_buffer + j, "%x:", block(z, i));
+		if (j >= len - 1)
+			return j;
+		a = snprintf(out_buffer + j, len - j, "%x:", block(z, i));
 		debug(PARSEIPV6, 9, "building output  %d : %s\n", i, out_buffer);
 		j += a;
 	}
 	if (i < 8) {
+		if (j >= len - 1)
+			return j;
 		a = sprintf(out_buffer + j, "%x", block(z, i));
 		j += a;
 	}
@@ -281,21 +288,21 @@ int addrv62str(ipv6 z, char *out_buffer, int compress) {
 }
 
 /* outbuffer must be large enough **/
-int subnet2str(const struct subnet *s, char *out_buffer, int comp_level) {
+int subnet2str(const struct subnet *s, char *out_buffer, size_t len, int comp_level) {
 	if (s->ip_ver == IPV4_A)
-		return addrv42str(s->ip, out_buffer);
+		return addrv42str(s->ip, out_buffer, len);
 	if (s->ip_ver == IPV6_A)
-		return addrv62str(s->ip6, out_buffer, comp_level);
+		return addrv62str(s->ip6, out_buffer, len, comp_level);
 	out_buffer[0] = '\0';
 	return -1;
 }
 
 /* outbuffer must be large enough **/
-int addr2str(const struct ip_addr *a, char *out_buffer, int comp_level) {
+int addr2str(const struct ip_addr *a, char *out_buffer, size_t len, int comp_level) {
 	if (a->ip_ver == IPV4_A)
-		return addrv42str(a->ip, out_buffer);
+		return addrv42str(a->ip, out_buffer, len);
 	if (a->ip_ver == IPV6_A)
-		return addrv62str(a->ip6, out_buffer, comp_level);
+		return addrv62str(a->ip6, out_buffer, len, comp_level);
 	out_buffer[0] = '\0';
 	return -1;
 }

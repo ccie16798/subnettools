@@ -290,7 +290,7 @@ void diff_files(const struct subnet_file *sf1, const struct subnet_file *sf2, st
 
 		if (i == sf1->nr) { /* FILE1 ended  print remaining FILE2 lines */
 			mask2 = sf2->routes[j].subnet.mask;
-			subnet2str(&sf2->routes[j].subnet, buffer2, 2);
+			subnet2str(&sf2->routes[j].subnet, buffer2, sizeof(buffer2), 2);
 			fprintf(nof->output_file, ";;;%s;%d\n", buffer2, mask2);
 			j++;
 			if (j == sf2->nr)
@@ -299,7 +299,7 @@ void diff_files(const struct subnet_file *sf1, const struct subnet_file *sf2, st
 		}
 		if (j == sf2->nr) { /* FILE2 ended  print remaining FILE1 lines */
 			mask1 = sf1->routes[i].subnet.mask;
-			subnet2str(&sf1->routes[i].subnet, buffer1, 2);
+			subnet2str(&sf1->routes[i].subnet, buffer1, sizeof(buffer1), 2);
 			printf("%s;%d;;;\n", buffer1, mask1);
 			i++;
 			if (i == sf1->nr)
@@ -307,9 +307,9 @@ void diff_files(const struct subnet_file *sf1, const struct subnet_file *sf2, st
 			continue;
 		}
 		mask1 = sf1->routes[i].subnet.mask;
-		subnet2str(&sf1->routes[i].subnet, buffer1, 2);
+		subnet2str(&sf1->routes[i].subnet, buffer1, sizeof(buffer1), 2);
 		mask2 = sf2->routes[j].subnet.mask;
-		subnet2str(&sf2->routes[j].subnet, buffer2, 2);
+		subnet2str(&sf2->routes[j].subnet, buffer2, sizeof(buffer1), 2);
 		a = 0;
 		res = subnet_compare(&sf1->routes[i].subnet, &sf2->routes[j].subnet);
 		debug(ADDRCOMP, 5, "i=%lu j=%lu comparing %s/%d  to %s/%d : %d \n", i, j, buffer1, mask1, buffer2, mask2, res);
@@ -323,7 +323,7 @@ void diff_files(const struct subnet_file *sf1, const struct subnet_file *sf2, st
 				jmax++;
 				if (jmax == sf2->nr)
 					break;
-				subnet2str(&sf2->routes[jmax].subnet, buffer2, 2);
+				subnet2str(&sf2->routes[jmax].subnet, buffer2, sizeof(buffer2), 2);
 				mask2 = sf2->routes[jmax].subnet.mask;
 				res = subnet_compare(&sf1->routes[i].subnet, &sf2->routes[jmax].subnet);
 				debug(ADDRCOMP, 5, "i=%lu jmax=%lu comparing %s/%d  to %s/%d : %d \n", i, jmax, buffer1, mask1, buffer2, mask2, res);
@@ -345,7 +345,7 @@ void diff_files(const struct subnet_file *sf1, const struct subnet_file *sf2, st
 				if (imax == sf1->nr)
 					break;
 
-				subnet2str(&sf1->routes[imax].subnet, buffer1, 2);
+				subnet2str(&sf1->routes[imax].subnet, buffer1, sizeof(buffer1), 2);
 				mask1 = sf1->routes[imax].subnet.mask;
 				res   = subnet_compare(&sf1->routes[imax].subnet, &sf2->routes[j].subnet);
 				debug(ADDRCOMP, 5, "imax=%lu j=%lu comparing %s/%d  to %s/%d : %d \n", i, jmax, buffer1, mask1, buffer2, mask2, res);
@@ -369,7 +369,7 @@ void diff_files(const struct subnet_file *sf1, const struct subnet_file *sf2, st
 			fprintf(nof->output_file, ";;;%s;%d\n", buffer2, mask2);
 			while (1) { /* we increase until FILE2 is EQUALS or superior to FILE1 */
 				mask2 = sf2->routes[j].subnet.mask;
-				subnet2str(&sf2->routes[j].subnet, buffer2, 2);
+				subnet2str(&sf2->routes[j].subnet, buffer2, sizeof(buffer2), 2);
 				res = subnet_compare(&sf1->routes[i].subnet, &sf2->routes[j].subnet);
 				if (res == EQUALS || res == INCLUDED )
 					break;
@@ -385,7 +385,7 @@ void diff_files(const struct subnet_file *sf1, const struct subnet_file *sf2, st
 			fprintf(nof->output_file, "%s;%d;;;\n", buffer1, mask1);
 			while (1) {
 				mask1 = sf1->routes[i].subnet.mask;
-				subnet2str(&sf1->routes[i].subnet, buffer1, 2);
+				subnet2str(&sf1->routes[i].subnet, buffer1, sizeof(buffer1), 2);
 				res = subnet_compare(&sf1->routes[i].subnet, &sf2->routes[j].subnet);
 				if (res == EQUALS || res == INCLUDES)
 					break;
@@ -416,7 +416,7 @@ void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *
 	debug_timing_start(2);
 	for (i = 0; i < sf1->nr; i++) {
 		mask1 = sf1->routes[i].subnet.mask;
-		subnet2str(&sf1->routes[i].subnet, buffer1, 2);
+		subnet2str(&sf1->routes[i].subnet, buffer1, sizeof(buffer1), 2);
 		find_equals = 0;
 
 		/** first try an exact match **/
@@ -446,7 +446,7 @@ void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *
 		 **/
 		for (j = 0; j < paip->nr; j++) {
 			mask2 = paip->routes[j].subnet.mask;
-			subnet2str(&paip->routes[j].subnet, buffer2, 2);
+			subnet2str(&paip->routes[j].subnet, buffer2, sizeof(buffer2), 2);
 			res = subnet_compare( &sf1->routes[i].subnet, &paip->routes[j].subnet);
 			if (res == INCLUDED) {
 				find_included = 1;
@@ -465,7 +465,7 @@ void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *
 			}
 		}
 		if (find_included) {
-			subnet2str(&find_subnet, buffer2, 2);
+			subnet2str(&find_subnet, buffer2, sizeof(buffer2), 2);
 			fprintf(nof->output_file, "###%s;%d is included in  %s;%d;%s\n", buffer1, mask1, buffer2, find_mask, find_comment);
 		}
 	}

@@ -123,10 +123,10 @@ int subnet_is_superior(const struct subnet *s1, const struct subnet *s2);
 
 /* address to addr converting functions
    output buffer MUST be allocated by caller and large enough */
-int addrv42str(ipv4 z, char *out_buffer);
-int addrv62str(ipv6 z, char *out_buffer, int compress);
-int subnet2str(const struct subnet *s, char *out_buffer, int comp_level);
-int addr2str(const struct ip_addr *a, char *out_buffer, int comp_level);
+int addrv42str(ipv4 z, char *out_buffer, size_t len);
+int addrv62str(ipv6 z, char *out_buffer, size_t len, int compress);
+int subnet2str(const struct subnet *s, char *out_buffer, size_t len, int comp_level);
+int addr2str(const struct ip_addr *a, char *out_buffer, size_t len, int comp_level);
 int mask2ddn(u32 mask, char *out_buffer);
 
 /* fill struct subnet from a string
