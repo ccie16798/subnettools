@@ -520,8 +520,8 @@ static int match_expr(struct expr *e, char *in, struct sto *o, int *num_o) {
 		*num_o = saved_num_o;
 		return 0;
 	}
-	if (e->skip_stop) {
-		e->skip_stop--;
+	if (e->skip_stop > 0) {
+		e->skip_stop -= res;
 		return res;
 	}
 	/* even if 'in' matches 'e', we may have to stop */
