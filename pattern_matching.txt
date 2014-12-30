@@ -49,18 +49,23 @@ Pattern matching chars
 scanf("1.1.1.0 vlan55 2.2.2.2", "%I (%s )?%I", &ip, &device, &nhop)
 scanf("1.1.1.0 2.2.2.2", "%I (%s )?%I", &ip, &device, &nhop)
 
-Notes :
-------- 
+Notes on '(expr)*' expansion, specially '.*' expansion
+------------------------------------------------------
 when does (expr)* expansion ends?? not an easy question 
-(expr)* expansion endds if expr doesnt match input buffer of course, but even if it matches :
-"(expr)*%I"?
+(expr)* expansion ends if expr doesnt match input buffer of course, but even if it matches it can stop :
+
+"(expr)*%I"
 ==> for each char, it tries to determine if "remain" is an IP
 "(expr)*%s" 
-==> when expr doesnt match any more or on first no-space char
+==> on first sequence of non-space char
 "(expr)*%[
 ==> on the first match of the char range
 "(expr)*%c"
-==> on the first non matching char
+==> on the first non matching char (so '.*%c' is illegal) 
+"(expr)%S"
+==> on the first string that do not represent an IP
+scanf("1.1.1.1 toto",  ".*%S", string) will set string to 'toto'; it will not set '.1.1.1', even if '.1.1.1' is not an IP
+
 
 WARNING : pattern matching is done 'char by char'  so ".*STRING" is not what you think it is
 In FMT=.*toto " in="abcdtafbftoto" '.*' expansion will stop on the first 't'
