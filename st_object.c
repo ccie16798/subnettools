@@ -18,7 +18,6 @@
 
 
 int sto2string(char *s, const struct sto *o, size_t len, int comp_level) {
-	int l;
 	switch (o->type) {
 		case '[':
 		case 's':
@@ -45,6 +44,7 @@ int sto2string(char *s, const struct sto *o, size_t len, int comp_level) {
 			return 1;
 			break;
 		default:
+			s[0] = '\0';
 			return -1;
 			break;
 	}

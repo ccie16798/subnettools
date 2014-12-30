@@ -16,6 +16,7 @@
 #include "iptools.h"
 #include "bitmap.h"
 #include "utils.h"
+#include "st_object.h"
 
 #define ST_VSPRINTF_BUFFER_SIZE 2048
 
@@ -202,7 +203,7 @@ void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
  * sadly a lot of code if common with fprint_route_fmt
  * But this cannot really be avoided
  */
-static int st_vsprintf(char *out, const char *fmt, va_list ap)  {
+static int st_vsprintf(char *out, const char *fmt, va_list ap, struct sto *o, int max_o)  {
 	int i, j, a ,i2, compression_level;
 	char c;
 	char outbuf[ST_VSPRINTF_BUFFER_SIZE];
@@ -367,6 +368,10 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap)  {
 						strcpy(buffer, "<Invalid IP/mask>");
 					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
 					break;
+				case 'O':
+					if (o == NULL)
+						break;
+					break;
 				default:
 					debug(FMT, 2, "%c is not a valid char after a %c\n", fmt[i2], '%');
 					outbuf[j] = '%';
@@ -411,7 +416,7 @@ int st_sprintf(char *out, const char *fmt, ...) {
 	int ret;
 
 	va_start(ap, fmt);
-	ret = st_vsprintf(out, fmt, ap);
+	ret = st_vsprintf(out, fmt, ap, NULL, 0);
 	va_end(ap);
 	return ret;
 }
@@ -421,7 +426,7 @@ void st_fprintf(FILE *f, const char *fmt, ...) {
 	va_list ap;
 
 	va_start(ap, fmt);
-	st_vsprintf(buffer, fmt, ap);
+	st_vsprintf(buffer, fmt, ap, NULL, 0);
 	va_end(ap);
 	fprintf(f, "%s", buffer);
 }
@@ -431,7 +436,7 @@ void st_printf(const char *fmt, ...) {
 	va_list ap;
 
 	va_start(ap, fmt);
-	st_vsprintf(buffer, fmt, ap);
+	st_vsprintf(buffer, fmt, ap, NULL, 0);
 	va_end(ap);
 	printf("%s", buffer);
 }
