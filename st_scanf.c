@@ -577,6 +577,21 @@ static int find_ip(char *remain, struct expr *e) {
 		return 0;
 }
 
+static int find_mask(char *remain, struct expr *e) {
+	int i = 0;
+	int res;
+	
+	while (isdigit(remain[i]) || remain[i] == '.')
+		i++;
+	if (i == 0)
+		return 0;
+
+	res = string2mask(remain, i - 1);
+	if (res == BAD_MASK)
+		return 0;
+	return res; 
+}
+
 static int find_charrange(char *remain, struct expr *e) {
 	int i = 0;
 	int res;
@@ -626,7 +641,7 @@ static int sto_sscanf(char *in, const char *fmt, struct sto *o, int *num_o) {
 				} else if (c == 'P') {
 					e.stop = &find_ip;
 				} else if (c == 'M') {
-					e.stop = &find_int;
+					e.stop = &find_mask;
 				} else if (c == 'W') {
 					e.stop = &find_word;
 				} else if (c == 's') {
