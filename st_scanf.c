@@ -627,7 +627,12 @@ static int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 			e.stop = NULL;
 			e.match_last = 0;
 			num_cs = count_cs(expr);
+			if (n_found + num_cs > max_o) {
+				debug(SCANF, 1, "Cannot get more than %d objets, already found %d\n", max_o, n_found);
+				return n_found;
+			}
 			debug(SCANF, 5, "need to find expression '%s' %c time, with %d conversion specifiers\n", expr, c, num_cs);
+			/* we need to find when the expr expansion will end, in case it matches anything like '.*' */
 			if (fmt[i + 1] == '%') {
 				c = conversion_specifier(fmt + i + 2);
 				if (c == '\0') {
@@ -705,6 +710,10 @@ static int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 		if (c == '\0' || in[j] == '\0') {
 			return n_found;
 		} else if (c == '%') {
+			if (n_found >= max_o - 1) {
+				debug(SCANF, 1, "Cannot get more than %d objets, already found %d\n", max_o, n_found);
+				return n_found;
+			}
 			res = parse_conversion_specifier(in, fmt, &i, &j, o + n_found);
 
 			if (res == 0)
@@ -732,6 +741,11 @@ static int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 			if (is_multiple_char(fmt[i]))
 				continue;
 			i2 = 0;
+			num_cs = count_cs(expr);
+			if (n_found + num_cs >= max_o) {
+				debug(SCANF, 1, "Cannot get more than %d objets, already found %d\n", max_o, n_found);
+				return n_found;
+			}
 			res = match_expr_single(expr, in + j, o, &n_found);
 			if (res == 0) {
 				debug(SCANF, 1, "Expr'%s' didnt match in 'in' at offset %d\n", expr, j);
