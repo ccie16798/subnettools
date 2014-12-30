@@ -600,7 +600,7 @@ static int find_charrange(char *remain, struct expr *e) {
 	return res;
 }
 
-static int sto_sscanf(char *in, const char *fmt, struct sto *o, int *num_o) {
+static int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 	int i, j, i2, k;
 	int res;
 	int min_m, max_m;
@@ -610,7 +610,6 @@ static int sto_sscanf(char *in, const char *fmt, struct sto *o, int *num_o) {
 	struct expr e;
 	int num_cs; /* number of conversion specifier found in an expression */
 
-	*num_o = 0;
 	i = 0; /* index in fmt */
 	j = 0; /* index in in */
 	n_found = 0; /* number of arguments found */
@@ -668,7 +667,7 @@ static int sto_sscanf(char *in, const char *fmt, struct sto *o, int *num_o) {
 			n_match = 0; /* number of type expression matches */
 			/* try to find at most max_m expr */
 			while (n_match < max_m) {
-				res = match_expr(&e, in + j, o, num_o);
+				res = match_expr(&e, in + j, o, &n_found);
 				if (res == 0)
 					break;
 				j += res;
@@ -678,26 +677,25 @@ static int sto_sscanf(char *in, const char *fmt, struct sto *o, int *num_o) {
 					break;
 				}
 			}
-			debug(SCANF, 3, "Exiting loop with expr '%s' matched %d times, found %d objects\n", expr, n_match, *num_o);
+			debug(SCANF, 3, "Exiting loop with expr '%s' matched %d times, found %d objects so far\n", expr, n_match, n_found);
 			if (n_match < min_m) {
 				debug(SCANF, 1, "found expr '%s' %d times, but required %d\n", expr, n_match, min_m);
 				return n_found;
 			}
 			if (num_cs) {
 				if (n_match > 1) {
-					*num_o /= n_match;
-					debug(SCANF, 1, "conversion specifier matching in a pattern is supported only with '?'; restoring only %d found objects\n", *num_o);
+					// FIXME
+					//debug(SCANF, 1, "conversion specifier matching in a pattern is supported only with '?'; restoring only %d found objects\n", *num_o);
 				}
 				if (n_match) {
-					debug(SCANF, 4, "found %d CS so far\n", *num_o);
-					n_found += *num_o;
+					debug(SCANF, 4, "found %d CS so far\n", n_found);
 				} else {
 					/* 0 match but we had num_cs conversion specifier 
 					   we must consume them */
 					debug(SCANF, 4, "0 match but there was %d CS so consume them\n", num_cs);
 					for (k = 0; k < num_cs; k++) {
-						o[*num_o].type = 0;
-						*num_o += 1;
+						o[n_found].type = 0;
+						n_found += 1;
 					}
 				} 
 			}
@@ -708,11 +706,10 @@ static int sto_sscanf(char *in, const char *fmt, struct sto *o, int *num_o) {
 		if (c == '\0' || in[j] == '\0') {
 			return n_found;
 		} else if (c == '%') {
-			res = parse_conversion_specifier(in, fmt, &i, &j, o + *num_o);
+			res = parse_conversion_specifier(in, fmt, &i, &j, o + n_found);
 
 			if (res == 0)
 				return n_found;
-			*num_o += res;
 			n_found += res;
 		} else if (c == '.') {
 			if (is_multiple_char(fmt[i + 1])) {
@@ -736,14 +733,13 @@ static int sto_sscanf(char *in, const char *fmt, struct sto *o, int *num_o) {
 			if (is_multiple_char(fmt[i]))
 				continue;
 			i2 = 0;
-			res = match_expr_single(expr, in + j, o, num_o);
+			res = match_expr_single(expr, in + j, o, &n_found);
 			if (res == 0) {
 				debug(SCANF, 1, "Expr'%s' didnt match in 'in' at offset %d\n", expr, j);
 				return n_found;
 			}
-			debug(SCANF, 4, "Expr'%s' matched 'in' res=%d at offset %d, found %d objects\n", expr, res, j, *num_o);
+			debug(SCANF, 4, "Expr'%s' matched 'in' res=%d at offset %d, found %d objects so far\n", expr, res, j, n_found);
 			j += res;
-			n_found += i2;
 		} else {
 			if (fmt[i] == '\\') {
 				c = escape_char(fmt[i + 1]);
@@ -779,11 +775,11 @@ static int sto_sscanf(char *in, const char *fmt, struct sto *o, int *num_o) {
 }
 
 int st_vscanf(char *in, const char *fmt, va_list ap) {
-	int res, num_o;
+	int res;
 	struct sto o[40];
 
-	res = sto_sscanf(in, fmt, o, &num_o);
-	consume_valist_from_object(o, num_o, ap);
+	res = sto_sscanf(in, fmt, o, 40);
+	consume_valist_from_object(o, res, ap);
 
 	return res;
 }
