@@ -441,6 +441,36 @@ void st_printf(const char *fmt, ...) {
 	printf("%s", buffer);
 }
 
+int sto_sprintf(char *out, const char *fmt, struct sto *o, int max_o, ...) {
+	va_list ap;
+	int ret;
+
+	va_start(ap, max_o);
+	ret = st_vsprintf(out, fmt, ap, o, max_o);
+	va_end(ap);
+	return ret;
+}
+
+void sto_fprintf(FILE *f, const char *fmt, struct sto *o, int max_o, ...) {
+	char buffer[ST_VSPRINTF_BUFFER_SIZE];
+	va_list ap;
+
+	va_start(ap, max_o);
+	st_vsprintf(buffer, fmt, ap, o, max_o);
+	va_end(ap);
+	fprintf(f, "%s", buffer);
+}
+
+void sto_printf(const char *fmt, struct sto *o, int max_o, ...) {
+	char buffer[ST_VSPRINTF_BUFFER_SIZE];
+	va_list ap;
+
+	va_start(ap, max_o);
+	st_vsprintf(buffer, fmt, ap, o, max_o);
+	va_end(ap);
+	printf("%s", buffer);
+}
+
 void fprint_subnet_file(const struct subnet_file *sf, FILE *output, int compress_level) {
 	unsigned long i;
 

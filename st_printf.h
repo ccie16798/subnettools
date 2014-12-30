@@ -17,6 +17,13 @@ int st_sprintf(char *out, const char *fmt, ...);
 void st_fprintf(FILE *f, const char *fmt, ...);
 void st_printf(const char *fmt, ...);
 
+/* object-based variant; use %Oxx to print xx element from a previously filled sto list
+ *
+ */
+void sto_sprintf(const char *fmt, struct sto *o, int max_o, ...);
+void sto_fprintf(const char *fmt, struct sto *o, int max_o, ...);
+void sto_printf(const char *fmt, struct sto *o, int max_o, ...);
+
 void print_route(const struct route *r, FILE *output, int comp_level);
 void fprint_route_fmt(const struct route *r, FILE *output,  const char *fmt);
 void print_subnet_file(const struct subnet_file *sf, int comp_level);
