@@ -31,6 +31,32 @@ reg_test() {
 	fi
 }
 
+reg_test_scanf() {
+	local output_file
+	local n
+
+	n=2
+	$PROG scanf "1.1.1.1 zob    1.1.1.2    name 25" " *%I (%S )?.*%I *(name) %d" > res/scanf1 
+	$PROG scanf "1.1.1.1   1.1.1.2    name 25" " *%I (%S )?.*%I *(name) %d" > res/scanf2 
+
+	for i in `seq 1 $n`; do
+		output_file=scanf$i
+		if [ ! -f ref/$output_file ]; then
+			echo "No ref file found for this test, creating it 'ref/$output_file'"	
+			cp res/$output_file ref/$output_file
+		else
+			echo -n "reg test [scanf #$i] :"
+			diff res/$output_file ref/$output_file > /dev/null
+			if [ $? -eq 0 ]; then
+				echo -e "\033[32mOK\033[0m"
+			else
+				echo -e "\033[31mKO\033[0m"
+			fi
+		fi
+	done
+	
+}
+
 #test for IPv4/IPv6 handling
 reg_test print invalid_ips_masks.txt
 #basic print to test fmt
@@ -68,6 +94,8 @@ reg_test remove subnet 2001:db8::/32 2001:db8:a::/64
 reg_test remove subnet 2001:db8::/32 2001:db8:ffff:ffff::/64
 reg_test remove file route_aggipv6-2 2001:dbb::/64
 reg_test remove file route_aggipv4 10.1.4.0/32
+# scanf
+reg_test_scanf
 # converter
 reg_test convert CiscoRouter iproute_cisco
 reg_test convert CiscoRouter iproutecisco_ECMP 
