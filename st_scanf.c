@@ -692,37 +692,53 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 			/* we need to find when the expr expansion will end, in case it matches anything like '.*' */
 			if (fmt[i + 1] == '%') {
 				c = conversion_specifier(fmt + i + 2);
-				if (c == '\0') {
-					debug(SCANF, 1, "Invalid format string '%s', ends with %%\n", fmt);
-					return n_found;
-				} else if (c == 'd') {
-					e.stop = &find_int;
-				} else if (c == 'u') {
-					e.stop = &find_uint;
-				} else if (c == 'I') {
-					e.stop = &find_ip;
-				} else if (c == 'P') {
-					e.stop = &find_ip;
-				} else if (c == 'S') {
-					e.stop = &find_not_ip;
-				} else if (c == 'M') {
-					e.stop = &find_mask;
-				} else if (c == 'W') {
-					e.stop = &find_word;
-				} else if (c == 's') {
-					e.stop = &find_string;
-				} else if (c == 'c') {
-				} else if (c == '[') {
-					res = strxcpy_until(e.end_expr, fmt + i + 2, sizeof(e.end_expr), ']');
-					if (res < 0) {
-						debug(SCANF, 1, "Bad format '%s', unmatched '['\n", expr);
+
+				switch (c) {
+					case '\0':
+						debug(SCANF, 1, "Invalid format string '%s', ends with %%\n", fmt);
 						return n_found;
-					}
-					debug(SCANF, 4, "pattern matching will end on '%s'\n", e.end_expr);
-					e.stop = &find_charrange;
-				}
-			} else if (fmt[i + 1] == '(') {
-				res = strxcpy_until(e.end_expr, fmt + i + 1, sizeof(e.end_expr), ')');
+					case 'd':
+						e.stop = &find_int;
+						break;
+					case 'u':
+						e.stop = &find_uint;
+						break;
+					case 'l':
+						if (fmt[i + 3] == 'd')
+							e.stop = &find_int;
+						else if (fmt[i + 3] == 'u')
+							e.stop = &find_uint;
+						break;
+					case 'I':
+					case 'P':
+						e.stop = &find_ip;
+						break;
+					case 'S':
+						e.stop = &find_not_ip;
+						break;
+					case 'M':
+						e.stop = &find_mask;
+						break;
+					case 'W':
+						e.stop = &find_word;
+						break;
+					case 's':
+						e.stop = &find_string;
+						break;
+					case '[':
+						res = strxcpy_until(e.end_expr, fmt + i + 2, sizeof(e.end_expr), ']');
+						if (res < 0) {
+							debug(SCANF, 1, "Bad format '%s', unmatched '['\n", expr);
+							return n_found;
+						}
+						debug(SCANF, 4, "pattern matching will end on '%s'\n", e.end_expr);
+						e.stop = &find_charrange;
+						break;
+					default:
+						break;
+				} /* switch c */
+		} else if (fmt[i + 1] == '(') {
+			res = strxcpy_until(e.end_expr, fmt + i + 1, sizeof(e.end_expr), ')');
 				if (res < 0) {
 					debug(SCANF, 1, "Bad format '%s', unmatched '('\n", expr);
 					return n_found;
