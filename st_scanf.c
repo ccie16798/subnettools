@@ -430,6 +430,8 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 			i2 = 0;
 			/* match_char_against_range cant return -1 here, fill_char_range above would have caught a bad expr */
 			while (match_char_against_range(in[j2], expr, &i2)) {
+				if (in[j2] == '\0')
+					break;
 				v_s[j2 - *j] = in[j2];
 				i2 = 0;
 				j2++;
