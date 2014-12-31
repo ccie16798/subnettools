@@ -29,6 +29,7 @@ int cisco_route_to_csv(char *name, FILE *input_name, FILE *output);
 int cisco_route_conf_to_csv(char *name, FILE *input_name, FILE *output);
 int cisco_fw_to_csv(char *name, FILE *input_name, FILE *output);
 int cisco_nexus_to_csv(char *name, FILE *input_name, FILE *output);
+int cisco_nexus_to_csv2(char *name, FILE *input_name, FILE *output);
 int ipso_route_to_csv(char *name, FILE *input_name, FILE *output);
 void csvconverter_help(FILE *output);
 
@@ -39,6 +40,7 @@ struct csvconverter csvconverters[] = {
 	{ "IPSO",		&ipso_route_to_csv, 	"output of clish show route"  },
 	{ "GAIA",		&ipso_route_to_csv ,	"output of clish show route" },
 	{ "CiscoNexus",	&cisco_nexus_to_csv ,	"output of show ip route on Cisco Nexus NXOS" },
+	{ "CiscoNexus2",&cisco_nexus_to_csv2 ,	"output of show ip route on Cisco Nexus NXOS" },
 	{ NULL, NULL }
 };
 
@@ -283,16 +285,14 @@ int cisco_nexus_to_csv2(char *name, FILE *f, FILE *output) {
 	char *s;
 	unsigned long line = 0;
 	int badline = 0;
-	struct subnet subnet;
-	struct ip_addr gw;
 	struct route route;
 	struct sto o[10];
 	int res;
 	int search_prefix = 1;
 
 	fprintf(output, "prefix;mask;device;GW;comment\n");
-
 	
+	memset(&route, 0, sizeof(route));
         while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
 		if (search_prefix) {
@@ -302,6 +302,7 @@ int cisco_nexus_to_csv2(char *name, FILE *f, FILE *output) {
 				badline++;
 				continue;
 			}
+			search_prefix = 0;
 		} else {
 			res = sto_sscanf(s, " *(*via) %I.*%[^ ,]", o, 4);
 			if (res == 0) {
@@ -309,8 +310,19 @@ int cisco_nexus_to_csv2(char *name, FILE *f, FILE *output) {
 				badline++;
 				continue;
 			}
-			
-
+			if (o[0].s_addr.ip_ver == route.subnet.ip_ver) {
+				copy_ipaddr(&route.gw, &o[0].s_addr);
+			} else {
+				st_debug(PARSEROUTE, 4, "line %lu bad GW '%I'\n", line, o[0].s_addr);	
+			}
+			if (o[1].s_char[0] != '\0') {
+				strxcpy(route.device, o[1].s_char, sizeof(route.device));
+			} else {
+				st_debug(PARSEROUTE, 4, "line %lu void device'\n", line);	
+			}
+			fprint_route(&route, output, 3);
+			search_prefix = 1;
+			memset(&route, 0, sizeof(route));
 		}
 
 	}
