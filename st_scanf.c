@@ -29,7 +29,9 @@ struct expr {
 	int (*stop)(char *remain, struct expr *e);
 	char end_of_expr; /* if remain[i] = end_of_expr , we can stop*/
 	char end_expr[64];
-	int match_last;
+	int match_last; /* if set, the expansion will stop the last time ->stop return positive value */ 
+	int last_match; /* the last pos in input string where the ->stop(remain, e) matched */
+	int has_stopped;
 	int skip_stop; /* if positive, dont run e->stop */
 };
 
@@ -525,6 +527,7 @@ static int match_expr(struct expr *e, char *in, struct sto *o, int *num_o) {
 		return res;
 	}
 	/* even if 'in' matches 'e', we may have to stop */
+	e->has_stopped = 0;
 	if (e->stop) {
 		res2 = e->stop(in, e);
 		debug(SCANF, 4, "trying to stop on '%s', res=%d\n", in, res2);
@@ -536,6 +539,7 @@ static int match_expr(struct expr *e, char *in, struct sto *o, int *num_o) {
 		/* if we matched a CS but decide we need to stop, we must restore
 		  *num_o to its  original value */
 		*num_o = saved_num_o;
+		e->has_stopped = 1;
 		return 0;
 	}
 	return res;
@@ -631,14 +635,25 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 			e.num_expr = 1;
 			e.end_of_expr = fmt[i + 1]; /* if necessary */
 			e.stop = NULL;
+			e.last_match = -1;
 			e.match_last = 0;
-			e.skip_stop = 0;
+			e.skip_stop  = 0;
 			num_cs = count_cs(expr);
 			if (n_found + num_cs > max_o) {
 				debug(SCANF, 1, "Cannot get more than %d objets, already found %d\n", max_o, n_found);
 				return n_found;
 			}
 			debug(SCANF, 5, "need to find expression '%s' %c time, with %d conversion specifiers\n", expr, c, num_cs);
+			if (fmt[i + 1] == '$') {
+				if (max_m < 2) {
+					debug(SCANF, 1, "'$' special char is only allowed after mutiple expansion chars like '*', '+'\n");
+
+				} else {
+					e.match_last = 1;
+					debug(SCANF, 4, "we will stop on the last match\n");
+				}
+				i++;
+			}
 			/* we need to find when the expr expansion will end, in case it matches anything like '.*' */
 			if (fmt[i + 1] == '%') {
 				c = conversion_specifier(fmt + i + 2);
@@ -688,6 +703,8 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 				}
 				if (res == 0)
 					break;
+				if (e.has_stopped)
+					e.last_match = j;
 				j += res;
 				n_match++;
 				if (in[j] == '\0') {
