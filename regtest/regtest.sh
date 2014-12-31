@@ -2,6 +2,8 @@
 
 
 PROG=../subnet-tools
+n_ok=0
+n_ko=0
 
 reg_test() {
 	local output_file
@@ -26,8 +28,10 @@ reg_test() {
 	diff res/$output_file ref/$output_file > /dev/null
 	if [ $? -eq 0 ]; then
 		echo -e "\033[32mOK\033[0m"
+		n_ok=$((n_ok + 1))
 	else
 		echo -e "\033[31mKO\033[0m"
+		n_ko=$((n_ko + 1))
 	fi
 }
 
@@ -35,7 +39,7 @@ reg_test_scanf() {
 	local output_file
 	local n
 
-	n=9
+	n=11
 	$PROG scanf "1.1.1.1 zob    1.1.1.2    name 25" " *%I (%S )?.*%I *(name) %d" > res/scanf1 
 	$PROG scanf "1.1.1.1   1.1.1.2    name 25" " *%I (%S )?.*%I *(name) %d" > res/scanf2 
 	$PROG scanf "1.1.1.1  1.1.1.2 2.2.2.2 toto   r" " *%I .*%S" > res/scanf3
@@ -45,6 +49,8 @@ reg_test_scanf() {
 	$PROG scanf "ip route vrf TRUC 10.1.1.0 255.255.248.0 Vlan38 192.168.1.3 tag 8 name HELLO" "ip route.*%I %M (%S )?.*%I.*(name).*%s" > res/scanf7
 	$PROG scanf "ip route 100.1.1.0 255.248.0.0 192.168.1.3 tag 8 name HELLO" "ip route.*%I %M (%S )?.*%I.*(name).*%s" > res/scanf8
 	$PROG scanf "ip route 100.1.1.0 255.248.0.0 Vlan38 192.168.1.3 tag 8 name HELLO" "ip route.*%I %M (%S )?.*%I.*(name).*%s" > res/scanf9
+	$PROG scanf "1234567891242434244244" ".*%[2-4]" >  res/scanf10
+	$PROG scanf "1234567891242434244244" ".*$%[2-4]" >  res/scanf11
 
 	for i in `seq 1 $n`; do
 		output_file=scanf$i
@@ -56,13 +62,23 @@ reg_test_scanf() {
 			diff res/$output_file ref/$output_file > /dev/null
 			if [ $? -eq 0 ]; then
 				echo -e "\033[32mOK\033[0m"
+				n_ok=$((n_ok + 1))
 			else
+				n_ko=$((n_ko + 1))
 				echo -e "\033[31mKO\033[0m"
 			fi
 		fi
 	done
 	
 }
+
+result() {
+	echo -n "Summary : "
+	echo -ne "\033[32m $n_ok OK\033[0m"
+	echo -n ","
+	echo -e "\033[31m $n_ko KO\033[0m"
+}
+
 
 #test for IPv4/IPv6 handling
 reg_test print invalid_ips_masks.txt
@@ -121,3 +137,5 @@ reg_test ipinfo 233.10.56.1
 reg_test ipinfo 10.0.2.1/16
 reg_test ipinfo 127.0.2.1/24
 reg_test ipinfo fe80::215:afff:fedb:3b9e/64
+
+result
