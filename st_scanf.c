@@ -28,7 +28,7 @@ struct expr {
 	int (*stop)(char *remain, struct expr *e);
 	char end_of_expr; /* if remain[i] = end_of_expr , we can stop*/
 	char end_expr[64];
-	int match_last; /* if set, the expansion will stop the last time ->stop return positive value && and previous stop DIDNOT*/ 
+	int match_last; /* if set, the expansion will stop the last time ->stop return positive value && and previous stop DIDNOT*/
 	int last_match; /* the last pos in input string where the ->stop(remain, e) matched and ->stop(remain - 1, e) DIDNOT */
 	int last_nmatch;
 	int has_stopped;
@@ -131,7 +131,7 @@ static int find_string(char *remain, struct expr *e) {
 /*
  * from fmt string starting with '[', fill expr with the range
  */
-int fill_char_range(const char *fmt, char *expr) {
+static int fill_char_range(const char *fmt, char *expr) {
 	int i = 0;
 
 	while (fmt[i] != ']') {
@@ -461,7 +461,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 /*
  * match a single pattern 'expr' against 'in'
  * returns 0 if doesnt match, number of matched char in input buffer
- * if expr has a conversion specifier, put the result in 'o' 
+ * if expr has a conversion specifier, put the result in 'o'
  */
 static int match_expr_single(const char *expr, char *in, struct sto *o, int *num_o) {
 	int i, j, j2, res;
@@ -621,7 +621,7 @@ static int find_ip(char *remain, struct expr *e) {
 static int find_mask(char *remain, struct expr *e) {
 	int i = 0;
 	int res;
-	
+
 	while (isdigit(remain[i]) || remain[i] == '.')
 		i++;
 	if (i == 0)
@@ -630,7 +630,7 @@ static int find_mask(char *remain, struct expr *e) {
 	res = string2mask(remain, i - 1);
 	if (res == BAD_MASK)
 		return 0;
-	return res; 
+	return res;
 }
 
 static int find_charrange(char *remain, struct expr *e) {
@@ -796,14 +796,14 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 				if (n_match) {
 					debug(SCANF, 4, "found %d CS so far\n", n_found);
 				} else {
-					/* 0 match but we had num_cs conversion specifier 
+					/* 0 match but we had num_cs conversion specifier
 					   we must consume them */
 					debug(SCANF, 4, "0 match but there was %d CS so consume them\n", num_cs);
 					for (k = 0; k < num_cs; k++) {
 						o[n_found].type = 0;
 						n_found += 1;
 					}
-				} 
+				}
 			}
 			i++;
 			continue;
@@ -902,7 +902,6 @@ int st_vscanf(char *in, const char *fmt, va_list ap) {
 
 	res = sto_sscanf(in, fmt, o, 40);
 	consume_valist_from_object(o, res, ap);
-
 	return res;
 }
 
@@ -915,4 +914,3 @@ int st_sscanf(char *in, const char *fmt, ...) {
 	va_end(ap);
 	return ret;
 }
-
