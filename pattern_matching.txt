@@ -45,19 +45,29 @@ Pattern matching chars
 * : the preceding sequence matches 0 or more times
 + : the preceding sequence matches 1 or more times
 ? : the preceding sequence matches 0 or 1 times
+$ : the sequence expansion ends on the "last match" (see below) 
+
 (expr) : a sequence to match; can containes one conversion specifier with '?' like
 scanf("1.1.1.0 vlan55 2.2.2.2", "%I (%s )?%I", &ip, &device, &nhop)
 scanf("1.1.1.0 2.2.2.2", "%I (%s )?%I", &ip, &device, &nhop)
 
+if '.' or '*' if preceded by a special '$' char, than means expansion will stop on the last time (pos CAN stop AND previous pos CANNOT stop)
+for example :
+scanf("i L2     10.73.0.6/32 [115/200] via 10.73.10.106, 5d08h, Vlan860" ".*$%s") will return 'Vlan860' ('Vlan860' is a STRING and ' Vlan860' is not) 
+it is important to understand AND '&& previous pos CANNOT stop' without that clause, 
+scanf("i L2     10.73.0.6/32 [115/200] via 10.73.10.106, 5d08h, Vlan860" ".*$%s") would return the last input char '0', which is a valid STRING.
+
+
+
 Notes on '(expr)*' expansion, specially '.*' expansion
 ------------------------------------------------------
-when does (expr)* expansion ends?? not an easy question 
-(expr)* expansion ends if expr doesnt match input buffer of course, but even if it matches it can stop :
+when does (expr)* expansion ends?? it not an easy question 
+(expr)* expansion ends if 'expr' doesnt match input buffer of course, but even if it matches it can stop  before :
 
 "(expr)*%I"
 ==> for each char, it tries to determine if "remain" is an IP
 "(expr)*%s" 
-==> on first sequence of non-space char
+==> on first non-space char
 "(expr)*%[
 ==> on the first match of the char range
 "(expr)*%c"
@@ -67,8 +77,8 @@ when does (expr)* expansion ends?? not an easy question
 scanf("1.1.1.1 toto",  ".*%S", string) will set string to 'toto'; it will not set '.1.1.1', even if '.1.1.1' is not an IP
 
 
-WARNING : pattern matching is done 'char by char'  so ".*STRING" is not what you think it is
+WARNING : pattern matching is done 'char by char'  so ".*STRING" is not what you think it is :
 In FMT=.*toto " in="abcdtafbftoto" '.*' expansion will stop on the first 't'
-if you want .* to stop o, toto, write FMT=.*(toto)
+if you want '.*' to stop on toto, write FMT=.*(toto)
 
 scanf("1.1.1.1 2.2.2.2", "%I (%s %I)?") will return 3; even if (%s %I) doesnt match; their value will be BOGUS 
