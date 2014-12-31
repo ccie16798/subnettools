@@ -34,9 +34,17 @@ int sto2string(char *s, const struct sto *o, size_t len, int comp_level) {
 			return snprintf(s, len, "%s/%d", buffer, (int)o->s_subnet.mask);
 			break;
 		case 'u':
-			return snprintf(s, len, "%u", o->s_uint);
+			if (o->conversion == 'l')
+				return snprintf(s, len, "%lu", o->s_ulong);
+			else
+				return snprintf(s, len, "%u", o->s_uint);
 			break;
 		case 'd':
+			if (o->conversion == 'l')
+				return snprintf(s, len, "%ld", o->s_long);
+			else
+				return snprintf(s, len, "%d", o->s_int);
+			break;
 		case 'M':
 			return snprintf(s, len, "%d", o->s_int);
 			break;

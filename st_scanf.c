@@ -218,6 +218,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 	else { \
 	__NAME = (__TYPE)&o->s_char; \
 	o->type = fmt[*i + 1]; \
+	o->conversion = 0; \
 	} \
 } while (0);
 
@@ -237,6 +238,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 		debug(SCANF, 4, "Found max field length %d\n", max_field_length);
 	} else
 		max_field_length = sizeof(buffer) - 2;
+
 	switch (fmt[*i + 1]) {
 		case '\0':
 			debug(SCANF, 1, "Invalid format '%s', ends with %%\n", fmt);
@@ -306,11 +308,13 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 			*i += 1;
 			if (fmt[*i + 1] != 'd' && fmt[*i + 1] != 'u') {
 				debug(SCANF, 1, "Invalid format '%s', only specifier allowed after %%l is 'd'\n", fmt);
-				/* but we treat it as long int */
+				return n_found;
 			}
+			if (o)
+				o->conversion = 'l';
 			ARG_SET(v_long, long *);
 			*v_long = 0;
-			if (in[*j] == '-') {
+			if (in[*j] == '-' && fmt[*i + 1] == 'd') {
 				sign = -1;
 				j2++;
 			} else
@@ -320,12 +324,16 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 				return n_found;
 			}
 			while (isdigit(in[j2]) && j2 - *j < max_field_length) {
-				*v_long *= 10;
+				*v_long *= 10UL;
 				*v_long += (in[j2] - '0') ;
 				j2++;
 			}
 			*v_long *= sign;
-			debug(SCANF, 5, "found LONG '%ld' at offset %d\n", *v_long, *j);
+			if (fmt[*i + 1] == 'u') {
+				debug(SCANF, 5, "found ULONG '%lu' at offset %d\n", (unsigned long)*v_long, *j);
+			} else {
+				debug(SCANF, 5, "found LONG '%ld' at offset %d\n", *v_long, *j);
+			}
 			n_found++;
 			break;
 		case 'd':
@@ -361,7 +369,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 				*v_uint += (in[j2] - '0') ;
 				j2++;
 			}
-			debug(SCANF, 5, "found UINT '%d' at offset %d\n", *v_uint, *j);
+			debug(SCANF, 5, "found UINT '%u' at offset %d\n", *v_uint, *j);
 			n_found++;
 			break;
 		case 'S': /* a special STRING that doesnt represent an IP */

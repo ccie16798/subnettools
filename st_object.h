@@ -12,6 +12,7 @@ struct sto {
 		int 		s_int;
 		unsigned int 	s_uint;
 		long 		s_long;
+		unsigned long 	s_ulong;
 		char		s_char[64];
 	};
 };
@@ -39,9 +40,17 @@ int sto2string(char *s, const struct sto *o, size_t len, int comp_level);
 				  copy_subnet((struct subnet *)ptr, &__o[__i].s_subnet); \
 			break; \
 			case 'u': \
-				*((unsigned int *)ptr) = __o[__i].s_uint; \
+				if (__o[__i].conversion  == 'l') \
+					*((unsigned long *)ptr) = __o[__i].s_ulong; \
+				else \
+					*((unsigned int *)ptr) = __o[__i].s_uint; \
 				break; \
 			case 'd': \
+				if (__o[__i].conversion  == 'l') \
+					*((long *)ptr) = __o[__i].s_long; \
+				else \
+					*((int *)ptr) = __o[__i].s_int; \
+				break; \
 			case 'M': \
 				  *((int *)ptr) = __o[__i].s_int; \
 				break; \
