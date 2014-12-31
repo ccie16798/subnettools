@@ -17,6 +17,7 @@
 #include "generic_csv.h"
 #include "utils.h"
 #include "st_printf.h"
+#include "st_scanf.h"
 
 struct csvconverter {
 	const char *name;
@@ -276,6 +277,46 @@ int cisco_nexus_to_csv(char *name, FILE *f, FILE *output) {
 	return 1;
 }
 
+
+int cisco_nexus_to_csv2(char *name, FILE *f, FILE *output) {
+	char buffer[1024];
+	char *s;
+	unsigned long line = 0;
+	int badline = 0;
+	struct subnet subnet;
+	struct ip_addr gw;
+	struct route route;
+	struct sto o[10];
+	int res;
+	int search_prefix = 1;
+
+	fprintf(output, "prefix;mask;device;GW;comment\n");
+
+	
+        while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
+		line++;
+		if (search_prefix) {
+			res = st_sscanf(s, "%P", &route.subnet);
+			if (res == 0) {
+				debug(PARSEROUTE, 4, "line %lu bad IP no subnet found\n", line);
+				badline++;
+				continue;
+			}
+		} else {
+			res = sto_sscanf(s, " *(*via) %I.*%[^ ,]", o, 4);
+			if (res == 0) {
+				debug(PARSEROUTE, 4, "line %lu bad IP no subnet found\n", line);
+				badline++;
+				continue;
+			}
+			
+
+		}
+
+	}
+	return 1;
+
+}
 
 static int ipso_type_handle(char *s, void *data, struct csv_state *state) {
 	if (s[0] == 'C' )
