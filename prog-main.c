@@ -55,6 +55,7 @@ static int run_common(int argc, char **argv, void *options);
 static int run_addfiles(int argc, char **argv, void *options);
 static int run_sort(int argc, char **argv, void *options);
 static int run_sum(int argc, char **argv, void *options);
+static int run_scanf(int argc, char **argv, void *options);
 static int run_subnetagg(int argc, char **argv, void *options);
 static int run_routeagg(int argc, char **argv, void *options);
 static int run_remove(int argc, char **argv, void *options);
@@ -97,6 +98,7 @@ struct st_command commands[] = {
 	{ "subnetagg",	&run_subnetagg,	1},
 	{ "routeagg",	&run_routeagg,	1},
 	{ "removesubnet", &run_remove,	3},
+	{ "scanf",	&run_scanf,	2},
 	{ "help",	&run_help,	0},
 	{ "version",	&run_version,	0},
 	{ "confdesc",	&run_confdesc,	0},
@@ -142,6 +144,7 @@ void usage() {
 	printf("addfiles FILE1 FILE2: merge CSV subnet files FILE1 & FILE2; prints the sum of both files (EXPERIMENTAL)\n");
 	printf("convert PARSER FILE1: convert FILE1 to csv using parser PARSER\n");
 	printf("convert help        : use '%s convert help' for available parsers \n", PROG_NAME);
+	printf("scanf STRING1 FMT   : scan STRING1 according to scanf-like format FMT\n");
 	printf("confdesc            : print a small explanation of %s configuration file\n", PROG_NAME);
 	printf("help                : This HELP \n");
 	printf("version             : %s version \n", PROG_NAME);
@@ -460,7 +463,6 @@ static int run_addfiles(int arc, char **argv, void *options) {
 	return 0;
 }
 
-
 static int run_sort(int arc, char **argv, void *options) {
 	int res;
 	struct subnet_file sf;
@@ -479,6 +481,7 @@ static int run_sort(int arc, char **argv, void *options) {
 	free(sf.routes);
 	return 0;
 }
+
 static int run_sum(int arc, char **argv, void *options) {
 	int res;
 	struct subnet_file sf;
@@ -580,6 +583,16 @@ static int run_remove(int arc, char **argv, void *options) {
 	return 0;
 }
 
+static int run_scanf(int arc, char **argv, void *options) {
+	int res;
+	struct sto o[40];
+
+	
+        res = sto_sscanf(argv[2], argv[3], o, 40);
+	sto_printf("%O0 %O1 %O2 %O3 %O4 %O5 %O6 %O7\n", o, res);
+	return 0;
+}
+
 static int run_help(int arc, char **argv, void *options) {
 	usage();
 	return 0;
@@ -635,6 +648,7 @@ static int option_verbose(int arc, char **argv, void *options) {
 	debugs_level[__D_ALL] = 1;
 	return 0;
 }
+
 static int option_delim(int argc, char **argv, void *options) {
 	struct options *nof = options;
 
