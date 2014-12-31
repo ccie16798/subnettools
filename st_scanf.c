@@ -19,9 +19,8 @@
 #include "st_object.h"
 
 // TO check : bound checking
-// specifier at EOS
-// find_%S
 // (Expr1|expr2) handling
+// {a,b} multiplier
 
 struct expr {
 	int num_expr;
@@ -81,10 +80,12 @@ static char conversion_specifier(const char *fmt) {
 static int count_cs(const char *expr) {
 	int i, n;
 	n = 0;
-	for (i = 0; ;i++) {
+	if (expr[0] == '%')
+		n++;
+	for (i = 1; ;i++) {
 		if (expr[i] == '\0')
 			return n;
-		if (expr[i] == '%')
+		if (expr[i] == '%' && expr[i - 1] != '\\') /* unlike regular scanf, escape char is '\' and only that */
 			n++;
 	}
 	return 0;
@@ -112,6 +113,10 @@ static int min_match(char c) {
 */
 static int find_int(char *remain, struct expr *e) {
 	return isdigit(*remain) || (*remain == '-' && isdigit(remain[1]));
+}
+
+static int find_uint(char *remain, struct expr *e) {
+	return isdigit(*remain);
 }
 
 static int find_word(char *remain, struct expr *e) {
@@ -204,6 +209,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 	char *v_s;
 	long *v_long;
 	int *v_int;
+	unsigned int *v_uint;
 	int sign;
 
 #define ARG_SET(__NAME, __TYPE) do { \
@@ -298,7 +304,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 			break;
 		case 'l':
 			*i += 1;
-			if (fmt[*i + 1] != 'd') {
+			if (fmt[*i + 1] != 'd' && fmt[*i + 1] != 'u') {
 				debug(SCANF, 1, "Invalid format '%s', only specifier allowed after %%l is 'd'\n", fmt);
 				/* but we treat it as long int */
 			}
@@ -341,6 +347,21 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 			}
 			*v_int *= sign;
 			debug(SCANF, 5, "found INT '%d' at offset %d\n", *v_int, *j);
+			n_found++;
+			break;
+		case 'u':
+			ARG_SET(v_uint, unsigned int *);
+			*v_uint = 0;
+			if (!isdigit(in[j2])) {
+				debug(SCANF, 2, "no UINT found at offset %d \n", *j);
+				return n_found;
+			}
+			while (isdigit(in[j2]) && j2 - *j < max_field_length) {
+				*v_uint *= 10;
+				*v_uint += (in[j2] - '0') ;
+				j2++;
+			}
+			debug(SCANF, 5, "found UINT '%d' at offset %d\n", *v_uint, *j);
 			n_found++;
 			break;
 		case 'S': /* a special STRING that doesnt represent an IP */
@@ -668,6 +689,8 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 					return n_found;
 				} else if (c == 'd') {
 					e.stop = &find_int;
+				} else if (c == 'u') {
+					e.stop = &find_uint;
 				} else if (c == 'I') {
 					e.stop = &find_ip;
 				} else if (c == 'P') {

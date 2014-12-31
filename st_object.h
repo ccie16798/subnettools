@@ -5,10 +5,12 @@
 /* subnet tools object */
 struct sto { 
 	char type;
+	char conversion; /* like 'l' for long int */
 	union {
 		struct subnet 	s_subnet;
 		struct ip_addr 	s_addr;
 		int 		s_int;
+		unsigned int 	s_uint;
 		long 		s_long;
 		char		s_char[64];
 	};
@@ -29,23 +31,26 @@ int sto2string(char *s, const struct sto *o, size_t len, int comp_level);
 			case 'W': \
 			case 'S': \
 				  strcpy((char *)ptr, __o[__i].s_char); \
-			break; \
+				break; \
 			case 'I': \
 				  copy_ipaddr((struct ip_addr *)ptr, &__o[__i].s_addr); \
-			break; \
+				break; \
 			case 'P': \
 				  copy_subnet((struct subnet *)ptr, &__o[__i].s_subnet); \
 			break; \
+			case 'u': \
+				*((unsigned int *)ptr) = __o[__i].s_uint; \
+				break; \
 			case 'd': \
 			case 'M': \
 				  *((int *)ptr) = __o[__i].s_int; \
-			break; \
+				break; \
 			case 'l': \
 				  *((long *)ptr) = __o[__i].s_long; \
-			break; \
+				break; \
 			case 'c': \
 				  *((char *)ptr) = __o[__i].s_char[0]; \
-			break; \
+				break; \
 			default: \
 				 debug(SCANF, 1, "Unknown object type '%c'\n", __o[__i].type); \
 		} \
