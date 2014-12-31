@@ -737,8 +737,8 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 					default:
 						break;
 				} /* switch c */
-		} else if (fmt[i + 1] == '(') {
-			res = strxcpy_until(e.end_expr, fmt + i + 1, sizeof(e.end_expr), ')');
+			} else if (fmt[i + 1] == '(') {
+				res = strxcpy_until(e.end_expr, fmt + i + 1, sizeof(e.end_expr), ')');
 				if (res < 0) {
 					debug(SCANF, 1, "Bad format '%s', unmatched '('\n", expr);
 					return n_found;
@@ -758,8 +758,8 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 				if (res == 0)
 					break;
 				/* we check also if the previous invocation return positive or not
-				scanf("abdsdfdsf t e 121.1.1.1", ".*$I") should return '121.1.1.1' not '1.1.1.1'
-				scanf("abdsdfdsf t e STRING", ".*$s") should return 'STRING' not just 'G'
+				   scanf("abdsdfdsf t e 121.1.1.1", ".*$I") should return '121.1.1.1' not '1.1.1.1'
+				   scanf("abdsdfdsf t e STRING", ".*$s") should return 'STRING' not just 'G'
 				 */
 				if (e.has_stopped && e_has_stopped == 0) {
 					e.last_match = j;
