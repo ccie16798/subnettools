@@ -29,8 +29,9 @@ struct expr {
 	int (*stop)(char *remain, struct expr *e);
 	char end_of_expr; /* if remain[i] = end_of_expr , we can stop*/
 	char end_expr[64];
-	int match_last; /* if set, the expansion will stop the last time ->stop return positive value */ 
-	int last_match; /* the last pos in input string where the ->stop(remain, e) matched */
+	int match_last; /* if set, the expansion will stop the last time ->stop return positive value && and previous stop DIDNOT*/ 
+	int last_match; /* the last pos in input string where the ->stop(remain, e) matched and ->stop(remain - 1, e) DIDNOT */
+	int last_nmatch;
 	int has_stopped;
 	int skip_stop; /* if positive, dont run e->stop */
 };
@@ -539,7 +540,10 @@ static int match_expr(struct expr *e, char *in, struct sto *o, int *num_o) {
 		/* if we matched a CS but decide we need to stop, we must restore
 		  *num_o to its  original value */
 		*num_o = saved_num_o;
-		e->has_stopped = 1;
+		if (e->match_last) { /* if we need find the last match, lie about the result */
+			e->has_stopped = 1;
+			return res;
+		}
 		return 0;
 	}
 	return res;
@@ -617,6 +621,7 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 	char expr[64];
 	struct expr e;
 	int in_length;
+	int e_has_stopped;
 	int num_cs; /* number of conversion specifier found in an expression */
 
 	i = 0; /* index in fmt */
@@ -635,9 +640,10 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 			e.num_expr = 1;
 			e.end_of_expr = fmt[i + 1]; /* if necessary */
 			e.stop = NULL;
-			e.last_match = -1;
-			e.match_last = 0;
-			e.skip_stop  = 0;
+			e.last_match  = -1;
+			e.last_nmatch = -1;
+			e.match_last  = 0;
+			e.skip_stop   = 0;
 			num_cs = count_cs(expr);
 			if (n_found + num_cs > max_o) {
 				debug(SCANF, 1, "Cannot get more than %d objets, already found %d\n", max_o, n_found);
@@ -695,6 +701,7 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 			}
 			n_match = 0; /* number of time expression 'e' matches input*/
 			/* try to find at most max_m expr */
+			e_has_stopped = 0;
 			while (n_match < max_m) {
 				res = match_expr(&e, in + j, o, &n_found);
 				if (res < 0) {
@@ -703,8 +710,15 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 				}
 				if (res == 0)
 					break;
-				if (e.has_stopped)
+				/* we check also if the previous invocation return positive or not
+				scanf("abdsdfdsf t e 121.1.1.1", ".*$I") should return '121.1.1.1' not '1.1.1.1'
+				scanf("abdsdfdsf t e STRING", ".*$s") should return 'STRING' not just 'G'
+				 */
+				if (e.has_stopped && e_has_stopped == 0) {
 					e.last_match = j;
+					e.last_nmatch = n_match + 1;
+				}
+				e_has_stopped = e.has_stopped;
 				j += res;
 				n_match++;
 				if (in[j] == '\0') {
@@ -717,6 +731,12 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 				}
 			}
 			debug(SCANF, 3, "Exiting loop with expr '%s' matched %d times, found %d objects so far\n", expr, n_match, n_found);
+			if (e.match_last) {
+				j       = e.last_match;
+				n_match = e.last_nmatch;
+				debug(SCANF, 3, "but last match asked so lets rewind to '%d' matches\n",  n_match);
+			}
+
 			if (n_match < min_m) {
 				debug(SCANF, 1, "found expr '%s' %d times, but required %d\n", expr, n_match, min_m);
 				return n_found;
