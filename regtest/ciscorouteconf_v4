@@ -1,0 +1,87 @@
+ip route vrf ZORGLUB-MPLS 10.0.109.0 255.255.255.128 Vlan108 10.58.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.48.132.0 255.255.254.0 Vlan4012 10.58.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.49.134.0 255.255.254.0 10.58.1.62 tag 42 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.49.154.0 255.255.254.0 Serial1/0
+ip route vrf ZORGLUB-MPLS 10.49.158.0 255.255.255.0 10.58.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.49.160.0 255.255.252.0 10.58.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.49.180.0 255.255.254.0 10.58.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.49.182.0 255.255.255.0 10.58.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.49.183.0 255.255.255.224 10.58.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.49.183.32 255.255.255.224 10.58.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.49.183.64 255.255.255.192 10.58.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.49.183.128 255.255.255.128 10.58.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.49.200.0 255.255.252.0 10.58.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.49.204.0 255.255.252.0 10.58.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.49.237.0 255.255.255.0 10.58.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.49.240.0 255.255.255.0 10.58.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.57.137.32 255.255.255.224 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.57.137.64 255.255.255.192 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.57.157.64 255.255.255.192 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.57.157.128 255.255.255.128 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.57.172.168 255.255.255.248 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.57.172.176 255.255.255.240 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.13.32 255.255.255.224 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.25.0 255.255.255.0 10.28.1.145 name vers_V03:RP
+ip route vrf ZORGLUB-MPLS 10.58.25.144 255.255.255.240 10.28.1.177 name vers_V06:SMTP
+ip route vrf ZORGLUB-MPLS 10.58.28.0 255.255.255.224 10.28.1.161 name vers_V04:XFB
+ip route vrf ZORGLUB-MPLS 10.58.28.192 255.255.255.224 10.28.1.193 name vers_V05:DNS
+ip route vrf ZORGLUB-MPLS 10.58.58.0 255.255.255.0 10.28.1.145 name vers_V03:RP
+ip route vrf ZORGLUB-MPLS 10.58.59.0 255.255.255.0 10.28.1.145 name vers_V03:RP
+ip route vrf ZORGLUB-MPLS 10.58.128.0 255.255.192.0 10.28.1.62 name vers_Fedelan_RC_Externes
+ip route vrf ZORGLUB-MPLS 10.58.128.0 255.255.255.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.129.0 255.255.255.0 10.28.1.78 name vers_Contexte_RCEXTP
+ip route vrf ZORGLUB-MPLS 10.58.130.0 255.255.254.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.132.0 255.255.254.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.134.0 255.255.254.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.136.0 255.255.255.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.137.0 255.255.255.128 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.137.192 255.255.255.224 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.138.0 255.255.255.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.139.0 255.255.255.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.140.0 255.255.255.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.142.0 255.255.254.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.146.0 255.255.254.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.148.0 255.255.255.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.150.0 255.255.254.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.152.0 255.255.254.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.156.0 255.255.252.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.161.0 255.255.255.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.162.0 255.255.255.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.163.0 255.255.255.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.164.0 255.255.254.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.166.0 255.255.255.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.167.0 255.255.255.240 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.168.0 255.255.255.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.169.0 255.255.255.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.171.0 255.255.255.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.172.0 255.255.254.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.174.0 255.255.254.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.176.0 255.255.255.224 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.176.2 255.255.255.255 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.176.3 255.255.255.255 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.176.4 255.255.255.255 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.179.0 255.255.255.128 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.180.0 255.255.254.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.182.0 255.255.255.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.185.0 255.255.255.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.190.0 255.255.254.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.192.0 255.255.254.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.194.0 255.255.254.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.196.0 255.255.252.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.197.0 255.255.255.224 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.200.0 255.255.254.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.202.0 255.255.255.0 10.28.1.62
+ip route vrf ZORGLUB-MPLS 10.58.203.0 255.255.255.0 10.28.1.62
+ip route vrf ZORGLUB-MPLS 10.58.204.0 255.255.254.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.206.0 255.255.255.0 10.28.1.62
+ip route vrf ZORGLUB-MPLS 10.58.208.0 255.255.252.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.58.213.0 255.255.255.0 10.28.1.62
+ip route vrf ZORGLUB-MPLS 10.58.215.0 255.255.255.0 10.28.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.42.217.10 255.255.255.255 10.58.1.78 name vers_Contexte_RCEXTP
+ip route vrf ZORGLUB-MPLS 10.81.24.0 255.255.252.0 10.58.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.82.108.0 255.255.254.0 10.58.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.156.64.0 255.255.192.0 10.58.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.156.66.160 255.255.255.224 10.58.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.166.95.0 255.255.255.0 10.58.1.62
+ip route vrf ZORGLUB-MPLS 10.176.122.0 255.255.255.128 10.58.1.62 name vers_RouteurstotoTelecom
+ip route vrf ZORGLUB-MPLS 10.186.128.0 255.255.255.0 10.58.1.62 name vers_RouteurstotoTelecom

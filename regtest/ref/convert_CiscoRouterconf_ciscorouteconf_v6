@@ -1,0 +1,4 @@
+prefix;mask;device;GW;comment
+2001:12::;64;serial1/0;fe80::254;toto
+2001:45::;64;serial0/1;2001:4:5:6::1;
+2001:24::;64;serial0/1;::;

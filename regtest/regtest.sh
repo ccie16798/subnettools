@@ -39,7 +39,7 @@ reg_test_scanf() {
 	local output_file
 	local n
 
-	n=11
+	n=12
 	$PROG scanf "1.1.1.1 zob    1.1.1.2    name 25" " *%I (%S )?.*%I *(name) %d" > res/scanf1 
 	$PROG scanf "1.1.1.1   1.1.1.2    name 25" " *%I (%S )?.*%I *(name) %d" > res/scanf2 
 	$PROG scanf "1.1.1.1  1.1.1.2 2.2.2.2 toto   r" " *%I .*%S" > res/scanf3
@@ -51,6 +51,8 @@ reg_test_scanf() {
 	$PROG scanf "ip route 100.1.1.0 255.248.0.0 Vlan38 192.168.1.3 tag 8 name HELLO" "ip route.*%I %M (%S )?.*%I.*(name).*%s" > res/scanf9
 	$PROG scanf "1234567891242434244244" ".*%[2-4]" >  res/scanf10
 	$PROG scanf "1234567891242434244244" ".*$%[2-4]" >  res/scanf11
+	$PROG scanf "ddfsdfsdf   2001:2:3::1" ".*$%I" > res/scanf12
+
 
 	for i in `seq 1 $n`; do
 		output_file=scanf$i
@@ -120,6 +122,8 @@ reg_test remove file route_aggipv4 10.1.4.0/32
 # scanf
 reg_test_scanf
 # converter
+reg_test convert CiscoRouterconf ciscorouteconf_v4
+reg_test convert CiscoRouterconf ciscorouteconf_v6
 reg_test convert CiscoRouter iproute_cisco
 reg_test convert CiscoRouter iproutecisco_ECMP 
 reg_test convert IPSO iproute_nokia
