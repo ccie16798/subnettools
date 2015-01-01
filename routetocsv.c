@@ -29,7 +29,6 @@ int cisco_route_to_csv(char *name, FILE *input_name, FILE *output);
 int cisco_route_conf_to_csv(char *name, FILE *input_name, FILE *output);
 int cisco_fw_to_csv(char *name, FILE *input_name, FILE *output);
 int cisco_nexus_to_csv(char *name, FILE *input_name, FILE *output);
-int cisco_nexus_to_csv2(char *name, FILE *input_name, FILE *output);
 int ipso_route_to_csv(char *name, FILE *input_name, FILE *output);
 void csvconverter_help(FILE *output);
 
@@ -40,7 +39,6 @@ struct csvconverter csvconverters[] = {
 	{ "IPSO",		&ipso_route_to_csv, 	"output of clish show route"  },
 	{ "GAIA",		&ipso_route_to_csv ,	"output of clish show route" },
 	{ "CiscoNexus",	&cisco_nexus_to_csv ,	"output of show ip route on Cisco Nexus NXOS" },
-	{ "CiscoNexus2",&cisco_nexus_to_csv2 ,	"output of show ip route on Cisco Nexus NXOS" },
 	{ NULL, NULL }
 };
 
@@ -136,151 +134,9 @@ if ( badline ) \
 	char *gw, *dev="", *comment=""; \
 	fprintf(output, "prefix;mask;device;GW;comment\n");
 
-/* Nexus route : GW is on another line
-   10.24.16.1/32, ubest/mbest: 1/0    ==> state->state[0] = 0
- *via 10.24.16.1, Vlan104, [0/0], 1y7w, hsrp     => state->state[0] = 1
- */
-static int cisco_nexus_prefix_handle(char *s, void *data, struct csv_state *state) {
-	struct  subnet_file *sf = data;
-	int res;
-	struct subnet subnet;
 
-	if (state->state[0] == 0) { /* line should start with prefix */
-		res = get_subnet_or_ip(s, &subnet);
-		if (res == BAD_IP || res == IPV6_A || res == IPV4_A) {
-			debug(PARSEROUTE, 3, "bad prefix '%s' line %lu\n", s, state->line);
-			return CSV_INVALID_FIELD_BREAK;
-		}
-		if (state->state[1] == -1) /* state[1] == IP_VERSION, must be consistent */
-			state->state[1] = subnet.ip_ver;
-		else if (state->state[1] != subnet.ip_ver ) {
-			debug(PARSEROUTE, 1, "line %lu inconsistent IP version, not supported\n", state->line);
-			return CSV_INVALID_FIELD_BREAK;
-		}
-
-		copy_subnet(&sf->routes[sf->nr].subnet,  &subnet);
-		state->state[0] = 1;
-		return CSV_VALID_FIELD_BREAK;
-	} else { /* line should start with '*via' */
-		if (strcasecmp(s, "*via")) {
-			debug(PARSEROUTE, 2, "line %lu invalid, expected '*via' field but found '%s'\n", state->line, s);
-			return CSV_INVALID_FIELD_BREAK;
-		}
-		return CSV_VALID_FIELD;
-	}
-}
-
-static int cisco_nexus_gw_handle(char *s, void *data, struct csv_state *state)  {
-	struct  subnet_file *sf = data;
-	int res;
-	struct ip_addr addr;
-
-	res = get_single_ip(s, &addr, 41);
-	if (state->state[1] == IPV4_A && res == IPV4_A) {
-		debug(PARSEROUTE, 5, "line %lu gw %s \n", state->line, s);
-		copy_ipaddr(&sf->routes[sf->nr].gw,  &addr);
-		return CSV_VALID_FIELD;
-	} else if  (state->state[1] == IPV6_A && res == IPV6_A)  {
-		debug(PARSEROUTE, 5, "line %lu gw6 %s \n", state->line, s);
-		copy_ipaddr(&sf->routes[sf->nr].gw,  &addr);
-		return CSV_VALID_FIELD;
-	} else if (state->state[1] == IPV6_A && res > 1000)  { /** for IPv6, there can be no NH or in case of MPBGP a NH in global table CHECK ME NEXUS**/
-		debug(PARSEROUTE, 5, "line %lu gw6 %s \n", state->line, s);
-		strxcpy(sf->routes[sf->nr].device, s, sizeof(sf->routes[sf->nr].device));
-		memset(&sf->routes[sf->nr].gw, 0, sizeof(struct ip_addr));
-		state->state[0] = 0;
-		return CSV_VALID_FIELD_BREAK;
-	} else {
-		debug(PARSEROUTE, 2, "line %lu gw %s invalid IP\n", state->line, s);
-		return CSV_INVALID_FIELD_BREAK;
-	}
-}
-
-static int cisco_nexus_device_handle(char *s, void *data, struct csv_state *state)  {
-	struct  subnet_file *sf = data;
-
-	if (s[0] == '[')  /* missing device, for example in a recursive route*/
-		sf->routes[sf->nr].device[0] = '\0';
-	else
-		strxcpy(sf->routes[sf->nr].device, s, sizeof(sf->routes[sf->nr].device));
-	debug(PARSEROUTE, 6, "line %lu found dev '%s'\n", state->line, s);
-	state->state[0] = 0;
-	return CSV_VALID_FIELD_BREAK;
-}
-
-static int noheader(char *s) {
-	return 0;
-}
-
-int cisco_nexus_endofline_callback(struct csv_state *state, void *data) {
-	struct  subnet_file *sf = data;
-	if (state->badline) {
-		state->state[0] = 0;
-		debug(PARSEROUTE, 3, "Invalid line %lu\n", state->line);
-		return -1;
-	}
-	if (state->state[0] == 0)
-		sf->nr++;
-	if  (sf->nr == sf->max_nr) {
-		debug(MEMORY, 2, "need to reallocate memory\n");
-		sf->max_nr *= 2;
-		sf->routes = realloc(sf->routes,  sizeof(struct route) * sf->max_nr);
-		if (sf->routes == NULL) {
-			fprintf(stderr, "unable to reallocate, need to abort\n");
-			return  CSV_CATASTROPHIC_FAILURE;
-		}
-	}
-	return 1;
-}
-
-static int general_sf__endofline_callback(struct csv_state *state, void *data) {
-	struct  subnet_file *sf = data;
-	if (state->badline) {
-		debug(PARSEROUTE, 2, "line %lu is bad \n", state->line);
-		return -1;
-	}
-	sf->nr++;
-	if  (sf->nr == sf->max_nr) {
-		debug(MEMORY, 2, "need to reallocate memory\n");
-		sf->max_nr *= 2;
-		sf->routes = realloc(sf->routes,  sizeof(struct route) * sf->max_nr);
-		if (sf->routes == NULL) {
-			fprintf(stderr, "unable to reallocate, need to abort\n");
-			return  CSV_CATASTROPHIC_FAILURE;
-		}
-	}
-	return 1;
-}
 
 int cisco_nexus_to_csv(char *name, FILE *f, FILE *output) {
-	struct csv_field csv_field[] = {
-		{ "prefix"	, 0,  1, 0, &cisco_nexus_prefix_handle },
-		{ "gw"		, 0,  2, 0, &cisco_nexus_gw_handle },
-		{ "device"	, 0,  3, 0, &cisco_nexus_device_handle },
-		{ NULL, 0,0,0, NULL }
-	};
-	struct csv_file cf;
-	struct csv_state state;
-	struct subnet_file sf;
-
-	state.state[0] = 0; /*  == 0 ==> line with prefix, == 1 ==> line with GW/DEVICE */
-	state.state[1] = -1; /*ip_ver */
-
-	init_csv_file(&cf, csv_field, ", \n", &strtok_r);
-	cf.is_header = &noheader;
-	cf.endofline_callback = &cisco_nexus_endofline_callback;
-
-	if (alloc_subnet_file(&sf, 4096) == -1)
-		return -2;
-
-	generic_load_csv(name, &cf, &state, &sf);
-	fprintf(output, "prefix;mask;device;GW;comment\n");
-	fprint_subnet_file(&sf, output, 2);
-	return 1;
-}
-
-
-int cisco_nexus_to_csv2(char *name, FILE *f, FILE *output) {
 	char buffer[1024];
 	char *s;
 	unsigned long line = 0;
@@ -295,6 +151,7 @@ int cisco_nexus_to_csv2(char *name, FILE *f, FILE *output) {
 	memset(&route, 0, sizeof(route));
         while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
+		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
 		if (search_prefix) {
 			res = st_sscanf(s, "%P", &route.subnet);
 			if (res == 0) {
@@ -315,7 +172,7 @@ int cisco_nexus_to_csv2(char *name, FILE *f, FILE *output) {
 			} else {
 				st_debug(PARSEROUTE, 4, "line %lu bad GW '%I'\n", line, o[0].s_addr);	
 			}
-			if (o[1].s_char[0] != '\0') {
+			if (o[1].s_char[0] != '\0' && o[1].s_char[0] != '[') {
 				strxcpy(route.device, o[1].s_char, sizeof(route.device));
 			} else {
 				st_debug(PARSEROUTE, 4, "line %lu void device'\n", line);	
@@ -377,6 +234,28 @@ static int ipso_device_handle(char *s, void *data, struct csv_state *state) {
 	return CSV_VALID_FIELD;
 }
 
+static int general_sf__endofline_callback(struct csv_state *state, void *data) {
+	struct subnet_file *sf = data;
+	if (state->badline) {
+		debug(PARSEROUTE, 2, "line %lu is bad \n", state->line);
+		return -1;
+	}
+	sf->nr++;
+	if (sf->nr == sf->max_nr) {
+		debug(MEMORY, 2, "need to reallocate memory\n");
+		sf->max_nr *= 2;
+		sf->routes = realloc(sf->routes, sizeof(struct route) * sf->max_nr);
+		if (sf->routes == NULL) {
+			fprintf(stderr, "unable to reallocate, need to abort\n");
+			return CSV_CATASTROPHIC_FAILURE;
+		}
+	}
+	return 1;
+}
+
+static int noheader(char *s) {
+	return 0;
+}
 /* ouput of clish gaia, ipso */
 int ipso_route_to_csv(char *name, FILE *f, FILE *output) {
 	struct csv_field csv_field[] = {
