@@ -291,7 +291,7 @@ int cisco_nexus_to_csv2(char *name, FILE *f, FILE *output) {
 	int search_prefix = 1;
 
 	fprintf(output, "prefix;mask;device;GW;comment\n");
-	
+
 	memset(&route, 0, sizeof(route));
         while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
@@ -306,7 +306,7 @@ int cisco_nexus_to_csv2(char *name, FILE *f, FILE *output) {
 		} else {
 			res = sto_sscanf(s, " *(*via) %I.*%[^ ,]", o, 4);
 			if (res == 0) {
-				debug(PARSEROUTE, 4, "line %lu bad IP no subnet found\n", line);
+				debug(PARSEROUTE, 4, "line %lu bad GW line no subnet found\n", line);
 				badline++;
 				continue;
 			}
@@ -676,95 +676,36 @@ int cisco_fw_to_csv(char *name, FILE *f, FILE *output) {
 }
 
 int cisco_route_conf_to_csv(char *name, FILE *f, FILE *output) {
-	int ip_ver = -1;
-	char ip1[51];
-	int num_mask;
-	struct ip_addr addr;
-	COMMON_PARSER_HEADER
+	char buffer[1024];
+	char *s;
+	unsigned long line = 0;
+	int badline = 0;
+	struct route route;
+	struct sto o[10];
+	int res;
 
+	fprintf(output, "prefix;mask;device;GW;comment\n");
+	memset(&route, 0, sizeof(route));
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
+		debug(PARSEROUTE, 2, "line %lu buffer : '%s'", line, s);
 		line++;
-		dev = "";
-		comment = "";
-		MOVE_TO_NEXT_TOKEN(s);
-		if (res) {
-			debug(PARSEROUTE, 1, "File %s line %lu is longer than max size %d, discarding %d chars\n",
-					name, line, (int)sizeof(buffer), res);
-
-		}
-		if (!strcmp(s, "ip")) {
-			if (ip_ver == -1)
-				ip_ver = IPV4_A;
-			else if (ip_ver != IPV4_A) {
-				debug(PARSEROUTE, 1, "line %lu inconsistent IP version\n", line);
-				continue;
-			}
-		} else if (!strcmp(s, "ipv6")) {
-			if (ip_ver == -1)
-				ip_ver = IPV6_A;
-			else if (ip_ver != IPV6_A) {
-				debug(PARSEROUTE, 1, "line %lu inconsistent IP version\n", line);
-				continue;
-			}
-		} else {
-			debug(PARSEROUTE, 2, "line %lu doesnt start with ip/ipv6\n", line);
+		res = sto_sscanf(buffer, "ip(v6)? route.*%I.%M (%S)? *%I.*(name) %s", o, 6);
+		if (res < 2) {
+			debug(PARSEROUTE, 2, "Invalid line %lu\n", line);
+			badline++;
 			continue;
 		}
-		MOVE_TO_NEXT_TOKEN(NULL);
-		if (strcmp(s, "route")) {
-			debug(PARSEROUTE, 2, "line %lu doesnt start with route\n", line);
-			continue;
-		}
-		MOVE_TO_NEXT_TOKEN(NULL);
-		if (!strcmp(s, "vrf")) { /** need to skip 2 tokens */
-			debug(PARSEROUTE, 8, "vrf spotted line %lu\n", line);
-			MOVE_TO_NEXT_TOKEN(NULL);
-			MOVE_TO_NEXT_TOKEN(NULL);
-		}
-		res = get_subnet_or_ip(s, &subnet);
-		if (res == IPV4_A && ip_ver == IPV4_A) {
-			strcpy(ip1, s);
-		} else if (res == IPV6_N && ip_ver == IPV6_A) {
-			subnet2str(&subnet, ip1, sizeof(ip1), 2);
-			num_mask =  subnet.mask;
-		} else {
-			debug(PARSEROUTE, 2, "line %lu bad IP %s \n", line, s);
-			continue;
-		}
-		if (ip_ver == IPV4_A) { /* ipv6 got a mask in previous token */
-			MOVE_TO_NEXT_TOKEN(NULL);
-			num_mask = string2mask(s, 21);
-			if ( res == BAD_MASK) {
-				debug(PARSEROUTE, 2, "line %lu bad mask %s \n", line, s);
-				continue;
-			}
-		}
-		MOVE_TO_NEXT_TOKEN(NULL);
-		if (!isdigit(s[0])) { /* ip route 1.1.1.1 255.255.2555.0 Eth1/0 ... */
-			dev =  s;
-			MOVE_TO_NEXT_TOKEN(NULL);
-		}
-		res = get_single_ip(s, &addr, 41);
-		if (res == BAD_IP) {
-			debug(PARSEROUTE, 2, "line %lu bad GW %s \n", line, s);
-			continue;
-		}
-		gw = s;
-		while (1) {
-			s = strtok(NULL, " \n");
-			if (s == NULL)
-				break;
-			if (!strcmp(s, "name")) {
-				s = strtok(NULL, " \n");
-				if (s == NULL) {
-					debug(PARSEROUTE, 2, "line %lu NULL Comment\n", line);
-					break;
-				}
-				comment = s;
-			}
-		} // while 1
-
-		fprintf(output, "%s;%d;%s;%s;%s\n", ip1, num_mask, dev, gw, comment);
-	} // while fgets
-	return 0;
+		copy_ipaddr(&route.subnet.ip_addr, &o[0].s_addr);
+		route.subnet.mask = o[1].s_int;
+		if (o[2].type == 'S')
+			strcpy(route.device, o[2].s_char);
+		if (res >= 4 && o[3].type == 'I')
+			copy_ipaddr(&route.gw, &o[3].s_addr);
+		if (res >= 5 && o[4].type == 's')
+			strcpy(route.comment, o[4].s_char);
+		fprint_route(&route, output, 3);
+		memset(&route, 0, sizeof(route));
+		o[1].type = o[2].type = o[3].type = o[4].type = 0;
+	}
+	return 1;
 }
