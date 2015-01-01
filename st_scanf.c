@@ -614,8 +614,10 @@ static int find_ip(char *remain, struct expr *e) {
 	if (i <= 2)
 		return 0;
 	buffer[i] = '\0';
-	if (get_subnet_or_ip(buffer, &s)  < 1000)
+	if (get_subnet_or_ip(buffer, &s)  < 1000) {
+		e->skip_stop = i; /* useful for .$* matching */
 		return 1;
+	}
 	else
 		return 0;
 }
