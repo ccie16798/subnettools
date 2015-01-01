@@ -17,6 +17,8 @@ struct sto {
 	};
 };
 
+int sto_is_string(struct sto *o);
+
 int sto2string(char *s, const struct sto *o, size_t len, int comp_level);
 
 #define consume_valist_from_object(__o, __n, __ap) do { \

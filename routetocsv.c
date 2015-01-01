@@ -576,7 +576,7 @@ int cisco_route_conf_to_csv(char *name, FILE *f, FILE *output) {
 		}
 		copy_ipaddr(&route.subnet.ip_addr, &o[0].s_addr);
 		route.subnet.mask = o[1].s_int;
-		if (o[2].type == 'S')
+		if (sto_is_string(&o[2]))
 			strcpy(route.device, o[2].s_char);
 		if (res >= 4 && o[3].type == 'I')
 			copy_ipaddr(&route.gw, &o[3].s_addr);
