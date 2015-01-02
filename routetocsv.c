@@ -27,7 +27,6 @@ struct csvconverter {
 
 int cisco_route_to_csv(char *name, FILE *input_name, FILE *output);
 int cisco_route_conf_to_csv(char *name, FILE *input_name, FILE *output);
-int cisco_fw_to_csv(char *name, FILE *input_name, FILE *output);
 int cisco_fw_conf_to_csv(char *name, FILE *input_name, FILE *output);
 int cisco_nexus_to_csv(char *name, FILE *input_name, FILE *output);
 int ipso_route_to_csv(char *name, FILE *input_name, FILE *output);
@@ -467,92 +466,6 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 
 	} // while
 	return 0;
-}
-
-
-static int cisco_fw_prefix_handle(char *s, void *data, struct csv_state *state) {
-	struct  subnet_file *sf = data;
-	int res;
-	struct ip_addr addr;
-
-	res = get_single_ip(s, &addr, 41);
-	if (res == BAD_IP) {
-		debug(PARSEROUTE, 2, "line %lu bad IP %s \n", state->line, s);
-		return CSV_INVALID_FIELD_BREAK;
-	}
-	copy_ipaddr(&sf->routes[sf->nr].subnet.ip_addr, &addr);
-	//memcpy(&sf->routes[sf->nr], &subnet, sizeof(subnet));
-	return CSV_VALID_FIELD;
-}
-
-static int cisco_fw_mask_handle(char *s, void *data, struct csv_state *state) {
-	struct  subnet_file *sf = data;
-	int num_mask;
-
-	num_mask = string2mask(s, 21);
-	if ( num_mask == BAD_MASK) {
-		debug(PARSEROUTE, 2, "line %lu bad mask %s \n", state->line, s);
-		return CSV_INVALID_FIELD_BREAK;
-	}
-	sf->routes[sf->nr].subnet.mask = num_mask;
-	return CSV_VALID_FIELD;
-}
-
-static int cisco_fw_route_handle(char *s, void *data, struct csv_state *state) {
-	if (strcmp(s, "route")) {
-		debug(PARSEROUTE, 5, "line %lu doesnt start with route\n", state->line); /* debug 5 becoz maybe the file doesnt contain only routes */
-		return CSV_INVALID_FIELD_BREAK;
-	} else
-		return CSV_VALID_FIELD;
-}
-
-static int cisco_fw_dev_handle(char *s, void *data, struct csv_state *state) {
-	struct  subnet_file *sf = data;
-
-	strxcpy(sf->routes[sf->nr].device, s, sizeof(sf->routes[sf->nr].device));
-	return CSV_VALID_FIELD;
-}
-
-static int cisco_fw_gw_handle(char *s, void *data, struct csv_state *state) {
-	struct  subnet_file *sf = data;
-	struct ip_addr addr;
-	int res;
-
-	res = get_single_ip(s, &addr, 41);
-	if (res == BAD_IP) {
-		debug(PARSEROUTE, 2, "line %lu bad GW %s \n", state->line, s);
-		return CSV_INVALID_FIELD_BREAK;
-	}
-	copy_ipaddr(&sf->routes[sf->nr].gw, &addr);
-	return CSV_VALID_FIELD;
-}
-
-int cisco_fw_to_csv(char *name, FILE *f, FILE *output) {
-	struct csv_field csv_field[] = {
-		{ "route"	, 0,  1, 0, &cisco_fw_route_handle },
-		{ "device"	, 0,  2, 0, &cisco_fw_dev_handle },
-		{ "prefix"	, 0,  3, 0, &cisco_fw_prefix_handle },
-		{ "mask"	, 0,  4, 0, &cisco_fw_mask_handle },
-		{ "gw"		, 0,  5, 0, &cisco_fw_gw_handle },
-		{ NULL, 0,0,0, NULL }
-	};
-	struct csv_file cf;
-	struct csv_state state;
-	struct subnet_file sf;
-
-	state.state[1] = -1; /*ip_ver */
-
-	init_csv_file(&cf, csv_field, ", \n", &strtok_r);
-	cf.is_header = &noheader;
-	cf.endofline_callback = &general_sf__endofline_callback;
-
-	if (alloc_subnet_file(&sf, 4096) == -1)
-		return -2;
-
-	generic_load_csv(name, &cf, &state, &sf);
-	fprintf(output, "prefix;mask;device;GW;comment\n");
-	fprint_subnet_file(&sf, output, 2);
-	return 1;
 }
 
 int cisco_fw_conf_to_csv(char *name, FILE *f, FILE *output) {
