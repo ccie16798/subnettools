@@ -134,7 +134,6 @@ int cisco_nexus_to_csv(char *name, FILE *f, FILE *output) {
 
 	}
 	return 1;
-
 }
 
 static int ipso_type_handle(char *s, void *data, struct csv_state *state) {

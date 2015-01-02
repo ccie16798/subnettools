@@ -39,6 +39,7 @@ int sto2string(char *s, const struct sto *o, size_t len, int comp_level);
 				  copy_ipaddr((struct ip_addr *)ptr, &__o[__i].s_addr); \
 				break; \
 			case 'P': \
+			case 'Q': \
 				  copy_subnet((struct subnet *)ptr, &__o[__i].s_subnet); \
 			break; \
 			case 'u': \

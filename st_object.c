@@ -32,6 +32,7 @@ int sto2string(char *s, const struct sto *o, size_t len, int comp_level) {
 		case 'I':
 			return addr2str(&o->s_addr, s, len, comp_level);
 			break;
+		case 'Q':
 		case 'P':
 			subnet2str(&o->s_subnet, buffer, sizeof(buffer), comp_level);
 			return snprintf(s, len, "%s/%d", buffer, (int)o->s_subnet.mask);

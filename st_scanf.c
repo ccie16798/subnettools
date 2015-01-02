@@ -243,6 +243,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 		case '\0':
 			debug(SCANF, 1, "Invalid format '%s', ends with %%\n", fmt);
 			return n_found;
+		case 'Q': /* classfull subnet */
 		case 'P':
 			ARG_SET(v_sub, struct subnet *);
 			while ((is_ip_char(in[j2])||in[j2] == '/') && j2 - *j < max_field_length) {
@@ -254,7 +255,10 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 				debug(SCANF, 2, "no IP found at offset %d\n", *j);
 				return n_found;
 			}
-			res = get_subnet_or_ip(buffer, v_sub);
+			if (fmt[*i + 1] == 'P')
+				res = get_subnet_or_ip(buffer, v_sub);
+			else
+				res = classfull_get_subnet(buffer, v_sub);
 			if (res < 1000) {
 				debug(SCANF, 5, "'%s' is a valid IP\n", buffer);
 				n_found++;
