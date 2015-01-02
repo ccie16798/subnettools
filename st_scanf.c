@@ -335,9 +335,9 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 				debug(SCANF, 1, "Invalid format '%s', only specifier allowed after %%l is 'd'\n", fmt);
 				return n_found;
 			}
+			ARG_SET(v_short, short *);
 			if (o)
 				o->conversion = 'h';
-			ARG_SET(v_short, short *);
 			*v_short = 0;
 			if (in[*j] == '-' && fmt[*i + 1] == 'd') {
 				sign = -1;
@@ -367,9 +367,9 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 				debug(SCANF, 1, "Invalid format '%s', only specifier allowed after %%l is 'd'\n", fmt);
 				return n_found;
 			}
+			ARG_SET(v_long, long *);
 			if (o)
 				o->conversion = 'l';
-			ARG_SET(v_long, long *);
 			*v_long = 0;
 			if (in[*j] == '-' && fmt[*i + 1] == 'd') {
 				sign = -1;
