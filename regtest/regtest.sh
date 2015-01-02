@@ -55,8 +55,8 @@ reg_test_scanf() {
 	$PROG scanf "ab]ca 1.1.1.1" "%[]abc].*%I" > res/scanf13
 	$PROG scanf "ab]ca1.1.1.1" "[]abc]*%I" > res/scanf14
 	$PROG scanf " 1.1/16 1.1.1.1 toto" " *%Q.*$%S" > res/scanf15
-	$PROG scanf "abcdef1.1.1.1"   ".*[f-g]%I"  > res/scan16
-	$PROG scanf "abcdef1.1.1.1"   ".*[^a-e]%I" > res/scan17
+	$PROG scanf "abcdef1.1.1.1"   ".*[f-g]%I"  > res/scanf16
+	$PROG scanf "abcdef1.1.1.1"   ".*[^a-e]%I" > res/scanf17
 	for i in `seq 1 $n`; do
 		output_file=scanf$i
 		if [ ! -f ref/$output_file ]; then
@@ -122,6 +122,11 @@ reg_test remove subnet 2001:db8::/32 2001:db8:a::/64
 reg_test remove subnet 2001:db8::/32 2001:db8:ffff:ffff::/64
 reg_test remove file route_aggipv6-2 2001:dbb::/64
 reg_test remove file route_aggipv4 10.1.4.0/32
+
+reg_test split 2001:db8:1::/48 16,16,16
+reg_test split 2001:db8:1::/48 16
+reg_test split 10.2.0.0/16 256,4
+
 # scanf
 reg_test_scanf
 # converter
