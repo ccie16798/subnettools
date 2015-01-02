@@ -318,8 +318,7 @@ int mask2ddn(u32 mask, char *out) {
 		for ( ; i < 4; i++)
 			s[i] = 0;
 	}
-        sprintf(out, "%d.%d.%d.%d", s[0], s[1], s[2], s[3]);
-	return 0;
+	return  sprintf(out, "%d.%d.%d.%d", s[0], s[1], s[2], s[3]);
 }
 
 u32 string2mask(const char *s, int len) {
