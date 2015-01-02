@@ -715,6 +715,9 @@ int classfull_get_subnet(const char *s, struct subnet *subnet) {
 			current_block *= 10;
 			current_block += s[i] - '0';
 			continue;
+		} else if (s[i] == ':') {
+			/* that may be IPv6 and IPv6 is classless, so fall-back to a regular get_subnet_or_ip */
+			return get_subnet_or_ip(s, subnet);
 		} else {
 			debug(PARSEIP, 2, "invalid IP '%s',  contains '%c'\n", s, s[i]);
 			return BAD_IP;
