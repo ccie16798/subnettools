@@ -670,7 +670,7 @@ int get_subnet_or_ip(const char *s, struct subnet *subnet) {
 	debug(PARSEIP, 2, "bad prefix '%s'\n", s);
 	return BAD_IP;
 }
-/* those fucking classfull IPSO nokia will print 10/8, 172.18/16 */
+/* some platforms will print IPv4 classfull subnet and remove 0 like 10/8, 172.30/16 etc... */
 int classfull_get_subnet(const char *s, struct subnet *subnet) {
 	int truc[4];
 	int i;

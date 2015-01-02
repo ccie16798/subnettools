@@ -130,17 +130,6 @@ int addr2str(const struct ip_addr *a, char *out_buffer, size_t len, int comp_lev
 int mask2ddn(u32 mask, char *out_buffer);
 
 
-/* those fucking classfull IPSO nokia will print 10/8, 172.18/16 */
-int classfull_get_subnet(const char *string, struct subnet *subnet);
-/* fill struct subnet from a string
- * returns :
- *    IPV4_A : IPv4 without mask
- *    IPV4_N : IPv4 + mask
- *    IPV6_A : IPv6 without mask
- *    IPV6_N : IPv6 +  mask
- *    BAD_IP, BAD_MASK on error
- */
-int get_subnet_or_ip(const char *s, struct subnet *subnet);
 /* read len chars from 's' and try to convert to a struct ip_addr
  * s doesnt need to be '\0' ended
  * returns :
@@ -149,6 +138,7 @@ int get_subnet_or_ip(const char *s, struct subnet *subnet);
  *    BAD_IP otherwise
  * */
 int get_single_ip(const char *s, struct ip_addr *addr, int len);
+
 /* read len chars from 's' and try to convert to a subnet mask length
  * s doesnt need to be '\0' ended
  * returns :
@@ -156,6 +146,20 @@ int get_single_ip(const char *s, struct ip_addr *addr, int len);
  *     BAD_MASK otherwise
 */
 u32 string2mask(const char *s, int len) ;
+
+
+/* fills struct subnet from a string
+ * returns :
+ *    IPV4_A : IPv4 without mask
+ *    IPV4_N : IPv4 + mask
+ *    IPV6_A : IPv6 without mask
+ *    IPV6_N : IPv6 +  mask
+ *    BAD_IP, BAD_MASK on error
+ */
+int get_subnet_or_ip(const char *s, struct subnet *subnet);
+
+/* variant of get_subnet_or_ip that allows IPv4 address to not print 'useless 0' like 10/8, 172.20/16, 192.168.1/24 */
+int classfull_get_subnet(const char *string, struct subnet *subnet);
 
 /* try to aggregate s1 & s2, putting the result 'in aggregated_subnet' if possible
  * returns negative if impossible to aggregate, positive if possible */
