@@ -31,12 +31,9 @@
 void fprint_route(const struct route *r, FILE *output, int compress_level) {
 	char buffer[52];
 	char buffer2[52];
-	struct subnet s;
 
 	subnet2str(&r->subnet, buffer, sizeof(buffer), compress_level);
-	copy_ipaddr(&s.ip_addr, &r->gw);
-	s.ip_ver = r->subnet.ip_ver;
-	subnet2str(&s, buffer2, sizeof(buffer2), 2);
+	addr2str(&r->gw, buffer2, sizeof(buffer2), 2);
 	fprintf(output, "%s;%d;%s;%s;%s\n", buffer, r->subnet.mask, r->device, buffer2, r->comment);
 }
 /*
