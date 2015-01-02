@@ -59,6 +59,7 @@ static int run_scanf(int argc, char **argv, void *options);
 static int run_subnetagg(int argc, char **argv, void *options);
 static int run_routeagg(int argc, char **argv, void *options);
 static int run_remove(int argc, char **argv, void *options);
+static int run_split(int argc, char **argv, void *options);
 static int run_help(int argc, char **argv, void *options);
 static int run_version(int argc, char **argv, void *options);
 static int run_confdesc(int argc, char **argv, void *options);
@@ -98,6 +99,7 @@ struct st_command commands[] = {
 	{ "subnetagg",	&run_subnetagg,	1},
 	{ "routeagg",	&run_routeagg,	1},
 	{ "removesubnet", &run_remove,	3},
+	{ "split",	&run_split,	2},
 	{ "scanf",	&run_scanf,	2},
 	{ "help",	&run_help,	0},
 	{ "version",	&run_version,	0},
@@ -581,6 +583,20 @@ static int run_remove(int arc, char **argv, void *options) {
 
 	}
 	return 0;
+}
+
+static int run_split(int arc, char **argv, void *options) {
+	struct subnet subnet;
+	struct options *nof = options;
+	int res;
+
+	res = get_subnet_or_ip(argv[2], &subnet);
+	if (res != IPV6_N && res != IPV4_N) {
+		fprintf(stderr, "split works on subnet and '%s' is not\n", argv[2]);
+		return -1;
+	}
+	res = subnet_split(nof->output_file, &subnet, argv[3]);
+	return res;
 }
 
 static int run_scanf(int arc, char **argv, void *options) {
