@@ -14,7 +14,8 @@ FEATURES
 - subnet aggregation
 - converting 'sh ip route' files to a CSV
 - native IPv6 & IPv4 support
-- IPv4 & IPv6 address information 
+- IPv4 & IPv6 address information
+- Powerfull pattern matching engine
 
 - subnettools FILE format is a CSV where each line represent a route ; a route is
 -* a subnet
@@ -179,10 +180,8 @@ work TODO
 - adding more converters (and fixing IPv6 converters)
 - fixing ECMP in converters (maybe)
 - bitmap printing
-- rewrite converters with st_sscanf (v0.8)
 - improve st_sscanf : teach about OR, and {a, b} multipliers
 - subnet splitting (before v1.0)
 - implement progress bar (what is your 1M line aggregation doing??) (before v1.0)
 - recode max-field-length in st_printf.c (remove 1 sprintf)
 - code precision in st_printf.C
-- make get_subnet_or_ip & get_single_ip strict, no space allowed; up to the caller to remove unwanted spaces
