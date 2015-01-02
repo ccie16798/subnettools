@@ -140,6 +140,7 @@ void usage() {
 	printf("subnetagg FILE1     : sort and aggregate subnets in CSV FILE1; GW is not checked\n");
 	printf("routeagg  FILE1     : sort and aggregate subnets in CSV FILE1; GW is checked\n");
 	printf("removesub TYPE O1 S1: remove Subnet S from Object O1; if TYPE=file O1=a file, if TYPE=subnet 01=a subnet\n");
+	printf("split S, <l1,l2,..> : split subnet S l1 times, the result l2 times, and so on..\n");
 	printf("simplify1 FILE1     : simplify CSV subnet file FILE1; duplicate or included networks are removed; GW is checked\n");
 	printf("simplify2 FILE1     : simplify CSV subnet file FILE1; prints redundant routes that can be removed\n");
 	printf("common FILE1 FILE2  : merge CSV subnet files FILE1 & FILE2; prints common routes only; GW isn't checked\n");
