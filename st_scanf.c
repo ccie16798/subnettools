@@ -229,6 +229,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 	char *v_s;
 	long *v_long;
 	int *v_int;
+	short *v_short;
 	unsigned int *v_uint;
 	int sign;
 
@@ -327,6 +328,38 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 				return n_found;
 			}
 			*v_int = res;
+			break;
+		case 'h':
+			*i += 1;
+			if (fmt[*i + 1] != 'd' && fmt[*i + 1] != 'u') {
+				debug(SCANF, 1, "Invalid format '%s', only specifier allowed after %%l is 'd'\n", fmt);
+				return n_found;
+			}
+			if (o)
+				o->conversion = 'h';
+			ARG_SET(v_short, short *);
+			*v_short = 0;
+			if (in[*j] == '-' && fmt[*i + 1] == 'd') {
+				sign = -1;
+				j2++;
+			} else
+				sign = 1;
+			if (!isdigit(in[j2])) {
+				return n_found;
+			}
+			while (isdigit(in[j2]) && j2 - *j < max_field_length) {
+				debug(SCANF, 2, "no SHORT found at offset %d \n", *j);
+				*v_short *= 10;
+				*v_short += (in[j2] - '0') ;
+				j2++;
+			}
+			*v_short *= sign;
+			if (fmt[*i + 1] == 'u') {
+				debug(SCANF, 5, "found USHORT '%hu' at offset %d\n", (unsigned short)*v_short, *j);
+			} else {
+				debug(SCANF, 5, "found SHORT '%hd' at offset %d\n", *v_short, *j);
+			}
+			n_found++;
 			break;
 		case 'l':
 			*i += 1;
@@ -752,6 +785,7 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 						e.stop = &find_uint;
 						break;
 					case 'l':
+					case 'h':
 						if (fmt[i + 3] == 'd')
 							e.stop = &find_int;
 						else if (fmt[i + 3] == 'u')

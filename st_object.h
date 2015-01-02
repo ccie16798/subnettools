@@ -10,6 +10,8 @@ struct sto {
 		struct subnet 	s_subnet;
 		struct ip_addr 	s_addr;
 		int 		s_int;
+		short		s_short;
+		unsigned short	s_ushort;
 		unsigned int 	s_uint;
 		long 		s_long;
 		unsigned long 	s_ulong;
@@ -45,12 +47,16 @@ int sto2string(char *s, const struct sto *o, size_t len, int comp_level);
 			case 'u': \
 				if (__o[__i].conversion  == 'l') \
 					*((unsigned long *)ptr) = __o[__i].s_ulong; \
+				else if (__o[__i].conversion  == 'h') \
+					*((unsigned short *)ptr) = __o[__i].s_ushort; \
 				else \
 					*((unsigned int *)ptr) = __o[__i].s_uint; \
 				break; \
 			case 'd': \
 				if (__o[__i].conversion  == 'l') \
 					*((long *)ptr) = __o[__i].s_long; \
+				else if (__o[__i].conversion  == 'h') \
+					*((short *)ptr) = __o[__i].s_short; \
 				else \
 					*((int *)ptr) = __o[__i].s_int; \
 				break; \

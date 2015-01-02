@@ -40,12 +40,16 @@ int sto2string(char *s, const struct sto *o, size_t len, int comp_level) {
 		case 'u':
 			if (o->conversion == 'l')
 				return snprintf(s, len, "%lu", o->s_ulong);
+			else if (o->conversion == 'h')
+				return snprintf(s, len, "%hu", o->s_ushort);
 			else
 				return snprintf(s, len, "%u", o->s_uint);
 			break;
 		case 'd':
 			if (o->conversion == 'l')
 				return snprintf(s, len, "%ld", o->s_long);
+			else if (o->conversion == 'h')
+				return snprintf(s, len, "%hd", o->s_short);
 			else
 				return snprintf(s, len, "%d", o->s_int);
 			break;
