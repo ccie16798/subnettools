@@ -130,12 +130,25 @@ static int find_string(char *remain, struct expr *e) {
 
 /*
  * from fmt string starting with '[', fill expr with the range
+ * a bit like strxpy_until, but not quite since a ']' is allowed right after the opeing '[' or a '^' if present
  */
-static int fill_char_range(const char *fmt, char *expr) {
-	int i = 0;
+static int fill_char_range(char *expr, const char *fmt, int n) {
+	int i = 1;
+
+	/* to include a ']' in a range, it must be right after the opening ']' or after '^'
+	 * we need to copy it before we enter the generic loop  */
+	expr[0] = '[';
+	if (fmt[i] == '^') {
+		expr[i] = '^';
+		i++;
+	}
+	if (fmt[i] == ']') { 
+		expr[i] = ']';
+		i++;
+	}
 
 	while (fmt[i] != ']') {
-		if (fmt[i] == '\0')
+		if (fmt[i] == '\0' || i == n - 1)
 			return -1;
 		expr[i] = fmt[i];
 		i++;
@@ -162,6 +175,12 @@ static int match_char_against_range(char c, const char *expr, int *i) {
 		invert = 1;
 		*i += 1;
 	}
+	/* to include a ']' in a range, must be right after '[' of '[^' */
+	if (expr[*i] == ']') {
+		res = (c == ']');
+		*i += 1;
+	}
+
 	while (expr[*i] != ']') {
 		low = expr[*i];
 		if (low == '\0') {
@@ -425,10 +444,10 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 			break;
 		case '[':
 			ARG_SET(v_s, char *);
-			i2 = fill_char_range(fmt + *i + 1, expr);
+			i2 = fill_char_range(expr, fmt + *i + 1, sizeof(expr));
 			if (i2 == -1) {
-					debug(SCANF, 1, "Invalid format '%s', no closing ']'\n", fmt);
-					return n_found;
+				debug(SCANF, 1, "Invalid format '%s', no closing ']'\n", fmt);
+				return n_found;
 			}
 			*i += i2;
 			i2 = 0;
@@ -759,7 +778,7 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 						e.stop = &find_string;
 						break;
 					case '[':
-						res = strxcpy_until(e.end_expr, fmt + i + 2, sizeof(e.end_expr), ']');
+						res = fill_char_range(e.end_expr, fmt + i + 2, sizeof(e.end_expr));
 						if (res < 0) {
 							debug(SCANF, 1, "Bad format '%s', unmatched '['\n", expr);
 							return n_found;
@@ -874,6 +893,7 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 			i += i2;
 			if (is_multiple_char(fmt[i]))
 				continue;
+
 			i2 = 0;
 			num_cs = count_cs(expr);
 			if (n_found + num_cs >= max_o) {
