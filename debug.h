@@ -13,14 +13,15 @@
 #define __D_GREP	9
 #define __D_ADDRCOMP	10
 #define __D_PARSEROUTE	11
-#define __D_AGGREGATE	12
 #define __D_DEBUG    	13
 #define __D_TRYGUESS 	14
 #define __D_CONFIGFILE  15
 #define __D_CSVHEADER   16
 #define __D_FMT		17
 #define __D_SCANF	18
-#define __D_ADDRREMOVE	19
+#define __D_AGGREGATE	30
+#define __D_ADDRREMOVE	31
+#define __D_SPLIT	32
 
 #define debug(__EVENT, __DEBUG_LEVEL, __FMT...) \
 	do { \

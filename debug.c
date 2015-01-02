@@ -21,12 +21,13 @@ struct debug debugs[] = {
 	{ "addrcomp",	__D_ADDRCOMP,	"debug subnet file comparison functions"},
 	{ "parseroute", __D_PARSEROUTE,	"debug parsing of routes file to CSV"},
 	{ "aggregate",	__D_AGGREGATE,	"debug subnet aggregate functions"}, 
+	{ "addrremove",	__D_ADDRREMOVE,	"debug address removal" },
+	{ "split",	__D_SPLIT,	"debug subnet splitting" },
 	{ "debug",	__D_DEBUG,	"debug DEBUG, yes we can! :)" },
 	{ "tryguess",	__D_TRYGUESS,	"debug TRYGUESS" },
 	{ "configfile",	__D_CONFIGFILE,	"debug config file parsing" },
 	{ "fmt",	__D_FMT,	"debug FMT dynamic output" },
 	{ "scanf",	__D_SCANF,	"debug st_scanf" },
-	{ "addrremove",	__D_ADDRREMOVE,	"debug address removal" },
 	{0, 0}
 };
 
