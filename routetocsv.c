@@ -28,6 +28,7 @@ struct csvconverter {
 int cisco_route_to_csv(char *name, FILE *input_name, FILE *output);
 int cisco_route_conf_to_csv(char *name, FILE *input_name, FILE *output);
 int cisco_fw_to_csv(char *name, FILE *input_name, FILE *output);
+int cisco_fw_conf_to_csv(char *name, FILE *input_name, FILE *output);
 int cisco_nexus_to_csv(char *name, FILE *input_name, FILE *output);
 int ipso_route_to_csv(char *name, FILE *input_name, FILE *output);
 void csvconverter_help(FILE *output);
@@ -35,7 +36,7 @@ void csvconverter_help(FILE *output);
 struct csvconverter csvconverters[] = {
 	{ "CiscoRouter", 	&cisco_route_to_csv, 	"ouput of 'show ip route' or 'sh ipv6 route' on Cisco IOS, IOS-XE" },
 	{ "CiscoRouterConf", &cisco_route_conf_to_csv, "full configuration or ipv6/ipv4 static routes"},
-	{ "CiscoFW", 	&cisco_fw_to_csv, 	"ouput of 'show route', IPv4 only"},
+	{ "CiscoFWConf", 	&cisco_fw_conf_to_csv, 	"ouput of 'show conf', IPv4 only"},
 	{ "IPSO",		&ipso_route_to_csv, 	"output of clish show route"  },
 	{ "GAIA",		&ipso_route_to_csv ,	"output of clish show route" },
 	{ "CiscoNexus",	&cisco_nexus_to_csv ,	"output of show ip route on Cisco Nexus NXOS" },
@@ -554,6 +555,32 @@ int cisco_fw_to_csv(char *name, FILE *f, FILE *output) {
 	return 1;
 }
 
+int cisco_fw_conf_to_csv(char *name, FILE *f, FILE *output) {
+	char buffer[1024];
+	char *s;
+	unsigned long line = 0;
+	int badline = 0;
+	struct route route;
+	int res;
+
+	fprintf(output, "prefix;mask;device;GW;comment\n");
+
+	memset(&route, 0, sizeof(route));
+        while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
+		line++;
+		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
+		res = st_sscanf(s, "route *%S *%I *%M %I", route.device, &route.subnet.ip_addr, &route.subnet.mask, &route.gw);
+		if (res < 4) {
+			debug(PARSEROUTE, 2, "Invalid line %lu\n", line);
+			badline++;
+			continue;
+		}
+		fprint_route(&route, output, 3);
+		memset(&route, 0, sizeof(route));
+	}
+	return 1;
+}
+
 int cisco_route_conf_to_csv(char *name, FILE *f, FILE *output) {
 	char buffer[1024];
 	char *s;
@@ -566,8 +593,8 @@ int cisco_route_conf_to_csv(char *name, FILE *f, FILE *output) {
 	fprintf(output, "prefix;mask;device;GW;comment\n");
 	memset(&route, 0, sizeof(route));
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
-		debug(PARSEROUTE, 2, "line %lu buffer : '%s'", line, s);
 		line++;
+		debug(PARSEROUTE, 9, "line %lu buffer : '%s'", line, s);
 		res = sto_sscanf(buffer, "ip(v6)? route.*%I.%M (%S)? *%I.*(name) %s", o, 6);
 		if (res < 2) {
 			debug(PARSEROUTE, 2, "Invalid line %lu\n", line);
