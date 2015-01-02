@@ -626,6 +626,26 @@ static int find_ip(char *remain, struct expr *e) {
 		return 0;
 }
 
+static int find_classfull_subnet(char *remain, struct expr *e) {
+	char buffer[64];
+	int i = 0;
+	struct subnet s;
+
+	while ((is_ip_char(remain[i]) || remain[i] == '/') && i < sizeof(buffer)) {
+		buffer[i] = remain[i];
+		i++;
+	}
+	if (i <= 2)
+		return 0;
+	buffer[i] = '\0';
+	if (classfull_get_subnet(buffer, &s)  < 1000) {
+		e->skip_stop = i; /* useful for .$* matching */
+		return 1;
+	}
+	else
+		return 0;
+}
+
 static int find_mask(char *remain, struct expr *e) {
 	int i = 0;
 	int res;
@@ -718,6 +738,11 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 							e.stop = &find_uint;
 						break;
 					case 'I':
+						e.stop = &find_ip;
+						break;
+					case 'Q':
+						e.stop = &find_classfull_subnet;
+						break;
 					case 'P':
 						e.stop = &find_ip;
 						break;
