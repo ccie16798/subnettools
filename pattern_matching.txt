@@ -3,9 +3,9 @@ st_scanf NOTE
 (some text here is copy&paste from scanf man page)
 
 st_scanf() is a variation of regular scanf, but with the following notable differences :
-- support additionnal conversion specifier to automatically fill pointer to struct subnet, struct ip_addr)
-- has not full support for all scanf specifiers; see below for supported
-- it is a full pattern-matching engine
+- support additionnal conversion specifiers to automatically fill pointers to IP objects like struct subnet, struct ip_addr
+- has not full support for all scanf specifiers; see below for supported ones;
+- st_scanf is a full pattern-matching engine
 - '%' is escaped with '\%' instead of '%%'
 - space has no special meaning in st_scanf, a sequence of spaces must be matched by a regular expression' *' or ' +'
 
@@ -24,7 +24,7 @@ tion, the conversion fails this is a matching failure.
 4. a sequence of chars surrounded by  [ ]  (a char range)
 5. the special char '.' that matches any input char
 
-1 & 2 are scanf compliant but 3+ are additions
+1 & 2 are scanf() compliant but 3+ are ist_scanf()  additions
 in st_scanf, a sequence can be followed by a special 'sequence multiplier'  (see below)
 
 conversions specifiers
@@ -39,10 +39,10 @@ Each conversion specification starts with the '%' char
 if field length is provided, st_scanf will copy (field_length - 1) chars from input, and add the terminating null byte
 
 WRONG CODE :
-	buffer[10]
+	char buffer[10];
 	st_scanf(input, "%s", buffer);  ==> can crash if input has more than 9chars
 RIGHT CODE :
-	buffer[10]
+	char buffer[10];
 	st_scanf(input, "%10s", buffer);  ==> cannot crash ; will copy NINE char from input and add the terminating null byte ('\0')
 
 supported conversion specifiers
@@ -51,11 +51,11 @@ supported conversion specifiers
 sequence  and  the terminating null byte ('\0'), which is added automatically
 
 %W : a WORD, a sequence of alphabetic chars; can be followed by another conversion specifier like (%d or %IP) 
-for %W and %s, it is  a good idea for the caller to specify a field_length, otherwise it will easily crash :
+for %W and %s, it is a good idea for the caller to specify a field_length, otherwise it will easily crash :
 
 %I : an IP; scan for the longest sequence of IP chars "[0-9][a-f][A-F].:" and tries to interpret ; the next pointer must be a pointer to a 'struct ip_addr'
 
-%P : a prefix in the form 'IP/mask' ; scan for the longest sequence of IP chars "[0-9][a-f][A-F].:/" and tries to interpret ;  the next pointer must be a pointer to a 'struct subnet "
+%P : a prefix in the form 'IP/mask' ; scan for the longest sequence of IP chars "[0-9][a-f][A-F].:/" and tries to interpret; the next pointer must be a pointer to a 'struct subnet "
 
 %Q : same as %P except that input can be an IPv4 subnet with ending '0's removed, like '10/8, 172.17/16'
 
@@ -66,8 +66,6 @@ for %W and %s, it is  a good idea for the caller to specify a field_length, othe
 %u : Matches an unsigned decimal integer; the next pointer must be a pointer to unsigned int. (or unsigned long if there is a l type modifier character)
 
 %M : a mask; input can either represent 'unsigned int' or a ddn mask '255.255.255.0'
-
-%ld : a long int
 
 %[  : Matches a nonempty sequence of characters from the specified set of accepted characters; the next pointer must be a pointer to char, and there  must
 be enough room for all the characters in the string, plus a terminating null byte.  The usual skip of leading white space is suppressed.  The string
@@ -99,7 +97,7 @@ sequence multiplier
 ? : the preceding sequence matches 0 or 1 times
 $ : the sequence expansion ends on the "last match" (see below) 
 
-if '+' or '*' is preceded by a special '$' char, than means expansion will stop on the last time (pos CAN stop AND previous pos CANNOT stop)
+if '+' or '*' is preceded by a special '$' char, than means expansion will stop on the last time : (pos CAN stop AND previous pos CANNOT stop)
 for example :
 st_scanf("i L2     10.73.0.6/32 [115/200] via 10.73.10.106, 5d08h, Vlan860",  ".*$%s", string) will return 'Vlan860' ('Vlan860' is a STRING and ' Vlan860' is not) 
 it is important to understand AND '&& previous pos CANNOT stop' without that clause, 
@@ -116,6 +114,12 @@ if next sequence is a regular char :
 ------------------------------------
 expansion will end on the first occurence of that char
 st_scanf("abcdefghijk", ".*g"); expansion ends after 'abcdefg' 
+
+etienne@debian:~/st$  ./subnet-tools -D scanf:3 scanf  "cdea1.1.1.1"   ".*a%I"                                                                         
+sto_sscanf : Exiting loop with expr '.' matched 3 times, found 0 objects so far
+1.1.1.1       
+etienne@debian:~/st$  ./subnet-tools -D scanf:3 scanf  "cdea1.1.1.1"   ".*e%I"
+sto_sscanf : Exiting loop with expr '.' matched 2 times, found 0 objects so far
 
 if next sequence is a conversion specifier :
 --------------------------------------------
