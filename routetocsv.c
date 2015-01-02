@@ -326,6 +326,7 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 				badline++;
 				debug(PARSEROUTE, 1, "line %lu invalid 'is subnetted' '%s'\n", line, s);
 				is_subnetted = 0;
+				memset(&route, 0, sizeof(route));
 				continue;
 			}
 			if (res == 2) {
@@ -360,8 +361,6 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 				continue;
 			}
 		} else {
-			if (ip_ver == -1)
-				ip_ver = IPV6_A;
 			if (res < 2) {
 				debug(PARSEROUTE, 1, "line %lu Invalid line '%s', no next-hop\n", line, s);
 				continue;
