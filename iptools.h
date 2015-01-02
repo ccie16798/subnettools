@@ -129,6 +129,9 @@ int subnet2str(const struct subnet *s, char *out_buffer, size_t len, int comp_le
 int addr2str(const struct ip_addr *a, char *out_buffer, size_t len, int comp_level);
 int mask2ddn(u32 mask, char *out_buffer);
 
+
+/* those fucking classfull IPSO nokia will print 10/8, 172.18/16 */
+int classfull_get_subnet(const char *string, struct subnet *subnet);
 /* fill struct subnet from a string
  * returns :
  *    IPV4_A : IPv4 without mask

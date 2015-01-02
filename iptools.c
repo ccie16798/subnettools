@@ -670,6 +670,29 @@ int get_subnet_or_ip(const char *s, struct subnet *subnet) {
 	debug(PARSEIP, 2, "bad prefix '%s'\n", s);
 	return BAD_IP;
 }
+/* those fucking classfull IPSO nokia will print 10/8, 172.18/16 */
+int classfull_get_subnet(const char *string, struct subnet *subnet) {
+	char s2[51], out[51];
+	char *s, *save_s;
+	int truc[4];
+
+	strxcpy(s2, string,sizeof(s2));
+	memset(truc, 0, sizeof(truc));
+	s = s2;
+	s = strtok_r(s, "/\n", &save_s);
+	if (s == NULL) {
+		debug(PARSEIP,2, "Invalid prefix nokia %s\n", string);
+		return BAD_IP;
+	}
+	sscanf(s, "%d.%d.%d.%d", &truc[0], &truc[1], &truc[2], &truc[3]);
+	s = strtok_r(NULL, "/\n", &save_s);
+	if (s == NULL) {
+		debug(PARSEIP,2, "Invalid prefix nokia %s, no mask\n", string);
+		return BAD_IP;
+	}
+	sprintf(out, "%d.%d.%d.%d/%s", truc[0], truc[1], truc[2], truc[3], s);
+	return get_subnet_or_ip(out, subnet);
+}
 
 int subnet_is_superior(const struct subnet *s1, const struct subnet *s2) {
 	int i, res;
