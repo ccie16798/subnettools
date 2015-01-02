@@ -33,8 +33,9 @@ st_scanf will use "conversion specifier" to fill user specified pointers with in
 
 Each conversion specification starts with the '%' char
 - followed by an optional field_length (like '%40s');
-- An optional type modifier character.  For example, the l type modifier is used with integer conversions such as %d to specify that the corresponding
-              pointer argument refers to a long int rather than a pointer to an int.
+- An optional type modifier character.  For example, the l type modifier is used with integer conversions such
+as %d to specify that the corresponding pointer argument refers to a long int rather than a pointer to an int
+(only 'l' and 'h' are supported )
 
 if field length is provided, st_scanf will copy (field_length - 1) chars from input, and add the terminating null byte
 
