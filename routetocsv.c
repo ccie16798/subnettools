@@ -85,6 +85,45 @@ int run_csvconverter(char *name, char *filename, FILE *output) {
 	csvconverter_help(stderr);
 	return -2;
 }
+/*
+ * output of 'show route' on IPSO or GAIA
+ */
+int ipso_route_to_csv(char *name, FILE *f, FILE *output) {
+	char buffer[1024];
+	char *s;
+	unsigned long line = 0;
+	int badline = 0;
+	struct route route;
+	int res;
+
+	fprintf(output, "prefix;mask;device;GW;comment\n");
+
+	memset(&route, 0, sizeof(route));
+        while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
+		line++;
+		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
+		if (s[0] == 'C') {/* connected route */
+			res = st_sscanf(s, ".*%Q.*$%s", &route.subnet, route.device);
+			if (res < 2) {
+				debug(PARSEROUTE, 9, "line %lu invalid connected route '%s'\n", line, buffer);
+				badline++;
+				continue;
+			}
+			fprint_route(&route, output, 3);
+			memset(&route, 0, sizeof(route));
+		}
+		res = st_sscanf(s, ".*%Q *(via) %I.*%[^ ,]", &route.subnet, &route.gw, route.device);
+		if (res < 3) {
+			debug(PARSEROUTE, 9, "line %lu incorret connected route '%s'\n", line, buffer);
+			badline++;
+			continue;
+		}
+		fprint_route(&route, output, 3);
+		memset(&route, 0, sizeof(route));
+
+	}
+	return 1;
+}
 
 int cisco_nexus_to_csv(char *name, FILE *f, FILE *output) {
 	char buffer[1024];
@@ -135,106 +174,6 @@ int cisco_nexus_to_csv(char *name, FILE *f, FILE *output) {
 	}
 	return 1;
 }
-
-static int ipso_type_handle(char *s, void *data, struct csv_state *state) {
-	if (s[0] == 'C' )
-		state->state[0] = 1; /* connected route */
-	else
-		state->state[0] = 0;
-	return CSV_VALID_FIELD;
-}
-
-static int ipso_prefix_handle(char *s, void *data, struct csv_state *state) {
-	struct  subnet_file *sf = data;
-	int res;
-	struct subnet subnet;
-
-	res = classfull_get_subnet(s, &subnet);
-	if (res == BAD_IP) {
-		debug(PARSEROUTE, 2, "line %lu bad IP %s \n", state->line, s);
-		return CSV_INVALID_FIELD_BREAK;
-	}
-	copy_subnet(&sf->routes[sf->nr].subnet, &subnet);
-	return CSV_VALID_FIELD;
-}
-
-static int ipso_gw_handle(char *s, void *data, struct csv_state *state) {
-	struct  subnet_file *sf = data;
-	int res;
-	struct ip_addr addr;
-
-	if (state->state[0] == 1) /* connected route, s = "directly" */
-		return CSV_VALID_FIELD;
-	res = get_single_ip(s, &addr, 41);
-	if ( res == BAD_IP) {
-		debug(PARSEROUTE, 2, "line %lu bad GW %s \n", state->line, s);
-		return CSV_INVALID_FIELD_BREAK;
-	}
-	copy_ipaddr(&sf->routes[sf->nr].gw, &addr);
-	return CSV_VALID_FIELD;
-}
-
-static int ipso_device_handle(char *s, void *data, struct csv_state *state) {
-	struct  subnet_file *sf = data;
-
-	strxcpy(sf->routes[sf->nr].device, s, sizeof(sf->routes[sf->nr].device));
-	if (state->state[0] == 0) /* if non connected route, line is over ; break */
-		return CSV_VALID_FIELD_BREAK;
-	return CSV_VALID_FIELD;
-}
-
-static int general_sf__endofline_callback(struct csv_state *state, void *data) {
-	struct subnet_file *sf = data;
-	if (state->badline) {
-		debug(PARSEROUTE, 2, "line %lu is bad \n", state->line);
-		return -1;
-	}
-	sf->nr++;
-	if (sf->nr == sf->max_nr) {
-		debug(MEMORY, 2, "need to reallocate memory\n");
-		sf->max_nr *= 2;
-		sf->routes = realloc(sf->routes, sizeof(struct route) * sf->max_nr);
-		if (sf->routes == NULL) {
-			fprintf(stderr, "unable to reallocate, need to abort\n");
-			return CSV_CATASTROPHIC_FAILURE;
-		}
-	}
-	return 1;
-}
-
-static int noheader(char *s) {
-	return 0;
-}
-/* ouput of clish gaia, ipso */
-int ipso_route_to_csv(char *name, FILE *f, FILE *output) {
-	struct csv_field csv_field[] = {
-		{ "type"	, 0,  1, 0, &ipso_type_handle },
-		{ "prefix"	, 0,  2, 0, &ipso_prefix_handle },
-		{ "gw"		, 0,  4, 0, &ipso_gw_handle },
-		{ "device"	, 0,  5, 0, &ipso_device_handle },
-		{ "device2"	, 0,  6, 0, &ipso_device_handle }, /* device is on 6th field in case of connected route */
-		{ NULL, 0,0,0, NULL }
-	};
-	struct csv_file cf;
-	struct csv_state state;
-	struct subnet_file sf;
-
-	state.state[0] = 0; /*  == 0 ==> line with prefix, == 1 ==> line with GW/DEVICE */
-	state.state[1] = -1; /*ip_ver */
-
-	init_csv_file(&cf, csv_field, ", \n", &strtok_r);
-	cf.is_header = &noheader;
-	cf.endofline_callback = &general_sf__endofline_callback;
-
-	if (alloc_subnet_file(&sf, 4096) == -1)
-		return -2;
-
-	generic_load_csv(name, &cf, &state, &sf);
-	fprintf(output, "prefix;mask;device;GW;comment\n");
-	fprint_subnet_file(&sf, output, 2);
-	return 1;
-}
-
 
 /*
  * output of show ip route or show ipv6 route
