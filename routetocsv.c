@@ -162,7 +162,6 @@ int cisco_nexus_to_csv(char *name, FILE *f, FILE *output) {
 			}
 			nhop = 0;
 		}
-
 	}
 	return 1;
 }
@@ -197,6 +196,7 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 		line++;
 		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
 		if (!strncmp(s, "Gateway ", 8)) {
+			ip_ver = IPV4_A;
 			debug(PARSEROUTE, 5, "line %lu \'is gateway of last resort, skipping'\n", line);
 			continue;
 		} else if (strstr(s, "variably subnetted")) {
