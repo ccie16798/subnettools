@@ -671,27 +671,82 @@ int get_subnet_or_ip(const char *s, struct subnet *subnet) {
 	return BAD_IP;
 }
 /* those fucking classfull IPSO nokia will print 10/8, 172.18/16 */
-int classfull_get_subnet(const char *string, struct subnet *subnet) {
-	char s2[51], out[51];
-	char *s, *save_s;
+int classfull_get_subnet(const char *s, struct subnet *subnet) {
 	int truc[4];
+	int i;
+	u32 mask = 0;
+	int current_block = 0;
+	int count_dot = 0;
 
-	strxcpy(s2, string,sizeof(s2));
+	if  (s[0] == '.') {
+		debug(PARSEIP, 2, "invalid prefix '%s', starts with '.'\n", s);
+		return BAD_IP;
+	}
 	memset(truc, 0, sizeof(truc));
-	s = s2;
-	s = strtok_r(s, "/\n", &save_s);
-	if (s == NULL) {
-		debug(PARSEIP,2, "Invalid prefix nokia %s\n", string);
+	for (i = 0; ; i++) {
+		if (s[i] == '\0' || s[i] == '/') {
+			truc[count_dot] = current_block;
+			if (current_block > 255) {
+				debug(PARSEIP, 2, "invalid IP '%s', %d too big\n", s, current_block);
+				return BAD_IP;
+			}
+			break;
+		} else if (s[i] == '.') {
+			if  (s[i + 1] == '.') {
+				debug(PARSEIP, 2, "invalid IP '%s', contains 2 consecutives '.'\n", s);
+				return BAD_IP;
+			}
+			if  (s[i + 1] == '\0') {
+				debug(PARSEIP, 2, "invalid IP '%s', ends with '.'\n", s);
+				return BAD_IP;
+			}
+			if (current_block > 255) {
+				debug(PARSEIP, 2, "invalid IP '%s', %d too big\n", s, current_block);
+				return BAD_IP;
+			}
+			if (count_dot == 3) {
+				debug(PARSEIP, 2, "invalid IP '%s', too many '.'\n", s);
+				return BAD_IP;
+			}
+			truc[count_dot] = current_block;
+			count_dot++;
+			current_block = 0;
+		} else if (isdigit(s[i])) {
+			current_block *= 10;
+			current_block += s[i] - '0';
+			continue;
+		} else {
+			debug(PARSEIP, 2, "invalid IP '%s',  contains '%c'\n", s, s[i]);
+			return BAD_IP;
+		}
+	}
+	if (s[i] != '/') {
+		debug(PARSEIP,2, "Invalid classfull prefix '%s', no mask\n", s);
 		return BAD_IP;
 	}
-	sscanf(s, "%d.%d.%d.%d", &truc[0], &truc[1], &truc[2], &truc[3]);
-	s = strtok_r(NULL, "/\n", &save_s);
-	if (s == NULL) {
-		debug(PARSEIP,2, "Invalid prefix nokia %s, no mask\n", string);
+	i++;
+	if (s[i] == '\0') {
+		debug(PARSEIP,2, "Invalid classfull prefix '%s', no mask\n", s);
 		return BAD_IP;
 	}
-	sprintf(out, "%d.%d.%d.%d/%s", truc[0], truc[1], truc[2], truc[3], s);
-	return get_subnet_or_ip(out, subnet);
+	for (; ; i++) {
+		if (s[i] == '\0')
+			break;
+		if (!isdigit(s[i])) {
+			debug(PARSEIP, 2, "invalid prefix '%s', mask contains '%c'\n", s, s[i]);
+			return BAD_IP;
+		}
+		mask *= 10;
+		mask += s[i] - '0';
+	}
+	if (mask > 32) {
+		debug(PARSEIP, 2, "invalid prefix '%s', mask '%d' too big \n", s, (int)mask);
+		return BAD_MASK;
+	}
+	subnet->ip = (truc[0] << 24) + (truc[1] << 16) + (truc[2] << 8) + truc[3];
+        subnet->ip_ver = IPV4_A;
+	subnet->mask = mask;
+	return IPV4_N;
 }
 
 int subnet_is_superior(const struct subnet *s1, const struct subnet *s2) {
