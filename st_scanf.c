@@ -611,7 +611,7 @@ static int find_ip(char *remain, struct expr *e) {
 		buffer[i] = remain[i];
 		i++;
 	}
-	if (i <= 2)
+	if (i <= 1)
 		return 0;
 	buffer[i] = '\0';
 	if (get_subnet_or_ip(buffer, &s)  < 1000) {
