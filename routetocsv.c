@@ -101,7 +101,7 @@ int ipso_route_to_csv(char *name, FILE *f, FILE *output) {
 		line++;
 		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
 		if (s[0] == 'C') {/* connected route */
-			res = st_sscanf(s, ".*%Q.*$%s", &route.subnet, route.device);
+			res = st_sscanf(s, ".*%Q.*$%32s", &route.subnet, route.device);
 			if (res < 2) {
 				debug(PARSEROUTE, 9, "line %lu invalid connected route '%s'\n", line, buffer);
 				badline++;
@@ -110,7 +110,7 @@ int ipso_route_to_csv(char *name, FILE *f, FILE *output) {
 			fprint_route(&route, output, 3);
 			memset(&route, 0, sizeof(route));
 		}
-		res = st_sscanf(s, ".*%Q *(via) %I.*%[^ ,]", &route.subnet, &route.gw, route.device);
+		res = st_sscanf(s, ".*%Q *(via) %I.*%32[^ ,]", &route.subnet, &route.gw, route.device);
 		if (res < 3) {
 			debug(PARSEROUTE, 9, "line %lu incorret connected route '%s'\n", line, buffer);
 			badline++;
@@ -139,7 +139,7 @@ int cisco_nexus_to_csv(char *name, FILE *f, FILE *output) {
 		line++;
 		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
 		if (strstr(s, "*via ")) {
-			res = st_sscanf(s, " *(*via) %I.*%[^ ,]", &route.gw, route.device);
+			res = st_sscanf(s, " *(*via) %I.*%32[^ ,]", &route.gw, route.device);
 			if (res == 0) {
 				debug(PARSEROUTE, 4, "line %lu bad GW line no subnet found\n", line);
 				badline++;
@@ -215,7 +215,7 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 			continue;
 		} else if (strstr(s, "directly connected")) {
 			/* C       10.73.5.92/30 is directly connected, Vlan346 */
-			res = st_sscanf(s, ".*%P.*$%s", &route.subnet, route.device);
+			res = st_sscanf(s, ".*%P.*$%32s", &route.subnet, route.device);
 			if (res < 2) {
 				badline++;
 				debug(PARSEROUTE, 1, "line %lu invalid connected route '%s'\n", line, s);
@@ -228,7 +228,7 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 			continue;
 		}
 		if (is_subnetted) {
-			res = st_sscanf(s, ".*%I.*(via) %I.*$%S", &route.subnet.ip_addr, &route.gw, route.device);
+			res = st_sscanf(s, ".*%I.*(via) %I.*$%32S", &route.subnet.ip_addr, &route.gw, route.device);
 			if (res < 2) {
 				badline++;
 				debug(PARSEROUTE, 1, "line %lu invalid 'is subnetted' '%s'\n", line, s);
@@ -247,7 +247,7 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 			memset(&route, 0, sizeof(route));
 			continue;
 		}
-		res = st_sscanf(s, ".*%P.*(via) %I.*$%s", &route.subnet, &route.gw, route.device);
+		res = st_sscanf(s, ".*%P.*(via) %I.*$%32s", &route.subnet, &route.gw, route.device);
 		if (res == 0) {
 			badline++;
 			debug(PARSEROUTE, 1, "line %lu Invalid line '%s'\n", line, s);
@@ -262,7 +262,7 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 				debug(PARSEROUTE, 1, "line %lu Invalid line, no next hop found\n", line);
 				break;
 			}
-			res = st_sscanf(s, " *(via) (%I)?.*%[^, \n]", &route.gw, route.device);
+			res = st_sscanf(s, " *(via) (%I)?.*%32[^, \n]", &route.gw, route.device);
 			if (res == 0) {
 				debug(PARSEROUTE, 1, "line %lu Invalid line '%s', no next-hop\n", line, s);
 				continue;
@@ -295,7 +295,7 @@ int cisco_fw_conf_to_csv(char *name, FILE *f, FILE *output) {
         while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
 		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
-		res = st_sscanf(s, "(ipv6 )?route *%S *%I.%M %I", route.device, &route.subnet.ip_addr, &route.subnet.mask, &route.gw);
+		res = st_sscanf(s, "(ipv6 )?route *%32S *%I.%M %I", route.device, &route.subnet.ip_addr, &route.subnet.mask, &route.gw);
 		if (res < 4) {
 			debug(PARSEROUTE, 2, "Invalid line %lu\n", line);
 			badline++;
@@ -321,7 +321,7 @@ int cisco_route_conf_to_csv(char *name, FILE *f, FILE *output) {
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
 		debug(PARSEROUTE, 9, "line %lu buffer : '%s'", line, s);
-		res = sto_sscanf(buffer, "ip(v6)? route.*%I.%M (%S)? *%I.*(name) %s", o, 6);
+		res = sto_sscanf(buffer, "ip(v6)? route.*%I.%M (%32S)? *%I.*(name) %128s", o, 6);
 		if (res < 2) {
 			debug(PARSEROUTE, 2, "Invalid line %lu\n", line);
 			badline++;
