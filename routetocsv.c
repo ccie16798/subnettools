@@ -14,7 +14,6 @@
 #include "debug.h"
 #include "routetocsv.h"
 #include "iptools.h"
-#include "generic_csv.h"
 #include "utils.h"
 #include "st_printf.h"
 #include "st_scanf.h"
@@ -38,7 +37,7 @@ struct csvconverter csvconverters[] = {
 	{ "CiscoFWConf", 	&cisco_fw_conf_to_csv, 	"ouput of 'show conf'"},
 	{ "IPSO",		&ipso_route_to_csv, 	"output of clish show route"  },
 	{ "GAIA",		&ipso_route_to_csv ,	"output of clish show route" },
-	{ "CiscoNexus",	&cisco_nexus_to_csv ,	"output of show ip route on Cisco Nexus NXOS" },
+	{ "CiscoNexus",		&cisco_nexus_to_csv ,	"output of show ip route on Cisco Nexus NXOS" },
 	{ NULL, NULL }
 };
 
@@ -79,7 +78,6 @@ int run_csvconverter(char *name, char *filename, FILE *output) {
 			return 0;
 		}
 		i++;
-
 	}
 	fprintf(stderr, "Unknow route converter : %s\n", name);
 	csvconverter_help(stderr);
@@ -131,9 +129,8 @@ int cisco_nexus_to_csv(char *name, FILE *f, FILE *output) {
 	unsigned long line = 0;
 	int badline = 0;
 	struct route route;
-	struct sto o[10];
 	int res;
-	int search_prefix = 1;
+	int nhop = 0;
 
 	fprintf(output, "prefix;mask;device;GW;comment\n");
 
@@ -141,34 +138,29 @@ int cisco_nexus_to_csv(char *name, FILE *f, FILE *output) {
         while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
 		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
-		if (search_prefix) {
+		if (strstr(s, "*via ")) {
+			res = st_sscanf(s, " *(*via) %I.*%[^ ,]", &route.gw, route.device);
+			if (res == 0) {
+				debug(PARSEROUTE, 4, "line %lu bad GW line no subnet found\n", line);
+				badline++;
+				continue;
+			}
+			if (res == 1)
+				route.device[0] = '\0';
+			if (route.device[0] == '[')
+				route.device[0] = '\0';
+			if (nhop == 0)
+				fprint_route(&route, output, 3);
+			nhop++;
+		} else {
+			memset(&route, 0, sizeof(route));
 			res = st_sscanf(s, "%P", &route.subnet);
 			if (res == 0) {
 				debug(PARSEROUTE, 4, "line %lu bad IP no subnet found\n", line);
 				badline++;
 				continue;
 			}
-			search_prefix = 0;
-		} else {
-			res = sto_sscanf(s, " *(*via) %I.*%[^ ,]", o, 4);
-			if (res == 0) {
-				debug(PARSEROUTE, 4, "line %lu bad GW line no subnet found\n", line);
-				badline++;
-				continue;
-			}
-			if (o[0].s_addr.ip_ver == route.subnet.ip_ver) {
-				copy_ipaddr(&route.gw, &o[0].s_addr);
-			} else {
-				st_debug(PARSEROUTE, 4, "line %lu bad GW '%I'\n", line, o[0].s_addr);
-			}
-			if (o[1].s_char[0] != '\0' && o[1].s_char[0] != '[') {
-				strxcpy(route.device, o[1].s_char, sizeof(route.device));
-			} else {
-				st_debug(PARSEROUTE, 4, "line %lu void device'\n", line);
-			}
-			fprint_route(&route, output, 3);
-			search_prefix = 1;
-			memset(&route, 0, sizeof(route));
+			nhop = 0;
 		}
 
 	}
