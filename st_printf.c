@@ -279,11 +279,11 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap, struct sto *o, in
 			a = 0;
 			/* try to get a field width (if any) */
 			if (fmt[i2] == '\0') {
-				debug(FMT, 2, "End of String after a %c\n", '%');
+				debug(FMT, 2, "End of String after a '%c'\n", '%');
 				outbuf[j++] = '%';
 				break;
 			} else if (fmt[i2] == '-') {
-				temp[0] = '-';
+				temp[0] = '-'; /** pad left */
 				i2++;
 			}
 			/*
