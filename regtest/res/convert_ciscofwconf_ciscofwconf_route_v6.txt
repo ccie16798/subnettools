@@ -1,0 +1,4 @@
+prefix;mask;device;GW;comment
+::;0;outside;2001:400:3:1::1;
+2001:5:6:7::;64;inside;fe80::2;
+2001:5:6:8::;64;inside;fe80::3;

@@ -122,10 +122,12 @@ reg_test remove file route_aggipv4 10.1.4.0/32
 # scanf
 reg_test_scanf
 # converter
-reg_test convert CiscoRouterconf ciscorouteconf_v4
-reg_test convert CiscoRouterconf ciscorouteconf_v6
-reg_test convert CiscoRouter iproute_cisco
-reg_test convert CiscoRouter iproutecisco_ECMP 
+reg_test convert CiscoRouterconf 	ciscorouteconf_v4
+reg_test convert CiscoRouterconf 	ciscorouteconf_v6
+reg_test convert ciscofwconf     	ciscofwconf_route_v4.txt 
+reg_test convert ciscofwconf     	ciscofwconf_route_v6.txt 
+reg_test convert CiscoRouter     	iproute_cisco
+reg_test convert CiscoRouter		iproutecisco_ECMP 
 reg_test convert IPSO iproute_nokia
 reg_test convert CiscoNexus iproute_nexus
 reg_test convert CiscoNexus iproutecisconexus_ECMP
