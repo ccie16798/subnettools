@@ -690,7 +690,7 @@ static int find_expr(char *remain, struct expr *e) {
 }
 
 int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
-	int i, j, i2, k;
+	int i, j, k;
 	int res;
 	int min_m, max_m;
 	int n_found, n_match;
@@ -895,21 +895,20 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 			char c2 = (c == '(' ? ')' : ']');
 			if (c == '(') {
 				c2 = ')';
-				i2 = strxcpy_until(expr, fmt + i, sizeof(expr), c2);
+				res = strxcpy_until(expr, fmt + i, sizeof(expr), c2);
 			} else {
 				c = ']';
-				i2 = fill_char_range(expr, fmt + i, sizeof(expr));
+				res = fill_char_range(expr, fmt + i, sizeof(expr));
 			}
-			if (i2 == -1) {
+			if (res == -1) {
 				debug(SCANF, 1, "Invalid format '%s', unmatched '%c'\n", fmt, c2);
 				return n_found;
 			}
 			debug(SCANF, 8, "found expr '%s'\n", expr);
-			i += i2;
+			i += res;
 			if (is_multiple_char(fmt[i]))
 				continue;
 
-			i2 = 0;
 			num_cs = count_cs(expr);
 			if (n_found + num_cs >= max_o) {
 				debug(SCANF, 1, "Cannot get more than %d objets, already found %d\n", max_o, n_found);
@@ -960,7 +959,6 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 			i++;
 			j++;
 		}
-
 	} /* while 1 */
 }
 
