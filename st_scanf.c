@@ -270,7 +270,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 				j2++;
 			}
 			buffer[j2 - *j] = '\0';
-			if (j2 - *j <= 2) {
+			if (j2 - *j <= 1) {
 				debug(SCANF, 2, "no IP found at offset %d\n", *j);
 				return n_found;
 			}
