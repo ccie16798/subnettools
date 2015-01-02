@@ -55,5 +55,12 @@ int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct
 unsigned long long sum_subnet_file(struct subnet_file *sf);
 
 int subnet_file_remove(const struct subnet_file *sf1, struct subnet_file *sf2, const struct subnet *s2);
+
+/* split s, "n,m,k" means :
+ *   first split 's' n times,
+ *   second splits resulting subnet m times
+ *   last splits resulting subnet k times
+ *   split will produce 'n * m * k' subnets */
+int subnet_split(FILE *out, const struct subnet *s, char *string_levels);
 #else
 #endif

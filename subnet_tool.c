@@ -957,3 +957,101 @@ int subnet_file_remove(const struct subnet_file *sf1, struct subnet_file *sf2, c
 
 	return 1;
 }
+
+static int parse_levels(char *s, int *levels) {
+	int i = 0, current = 0;
+	int n_levels = 0;
+
+	if (!isdigit(s[i])) {
+		debug(SPLIT, 1, "Invalid level string '%s', starts with '%c'\n", s, s[0]);
+		return -1;
+	}
+	while (1) {
+		if (s[i] == '\0')
+			break;
+		if (s[i] == ',' && s[i + 1] == ',') {
+			debug(SPLIT, 1, "Invalid level string '%s', 2 consecutives ','\n", s);
+			return -1;
+		} else if (s[i] == ',' && s[i + 1] == '\0') {
+                        debug(SPLIT, 1, "Invalid level string '%s', ends with','\n", s);
+                        return -1;
+		}
+		if (s[i] == ',') {
+			if (!isPower2(current)) {
+				debug(SPLIT, 1, "split level %d is not a power of two\n", current);
+				return -1;
+			}
+			levels[n_levels] = current;
+			debug(SPLIT, 5, "split level#%d = %d\n", n_levels, levels[n_levels]);
+			n_levels++;
+			if (n_levels == 8) {
+				debug(SPLIT, 1, "only 10 split levels are supported\n");
+				return n_levels;
+			}
+			current = 0;
+		} else if (isdigit(s[i])) {
+			current *= 10;
+			current += (s[i] - '0');
+		} else {
+			debug(SPLIT, 1, "Invalid level string '%s', 2 consecutives ','\n", s);
+			return -1;
+		}
+		i++;
+	}
+	if (!isPower2(current)) {
+		debug(SPLIT, 1, "split level %d is not a power of two\n", current);
+		return -1;
+	}
+	levels[n_levels] = current;
+	debug(SPLIT, 5, "split level#%d = %d\n", n_levels, levels[n_levels]);
+	n_levels++;
+	return n_levels;
+}
+
+static int sum_log_to(int *level, int n, int max_n) {
+	int i, res = 0;
+
+	for (i = n; i < max_n; i++)
+		res += mylog2(level[i]);
+	return res;
+}
+
+/* split n,m means split 's' n times, and each resulting subnet m times */
+int subnet_split(FILE *out, const struct subnet *s, char *string_levels) {
+	int i = 0, k, res;
+	int levels[12];
+	int n_levels;
+	struct subnet subnet;
+	int base_mask;
+	int sum = 0;
+
+	res = parse_levels(string_levels, levels);
+	if (res < 0)
+		return res;
+	n_levels = res;
+	res = sum_log_to(levels, 0, n_levels);
+	if  ((s->ip_ver == IPV4_A && res > (32 - s->mask))
+			|| (s->ip_ver == IPV6_A && res > (128 - s->mask))) {
+		debug(SPLIT, 1, "split level too big for mask\n");
+		return -1;
+	}
+	sum = 1;
+	/* calculate the number of time we need to loop */
+	for (i = 0; i < n_levels; i++)
+		sum *= levels[i];
+	copy_subnet(&subnet, s);
+	base_mask = subnet.mask;
+
+	i = 0;
+	while (i < sum) {
+		for (k = 0; k < n_levels - 1; k++) {
+			subnet.mask = base_mask + sum_log_to(levels, 0, k + 1);
+			st_fprintf(out, "%N/%m;", subnet, subnet);
+		}
+		subnet.mask = base_mask + sum_log_to(levels, 0, k + 1);
+		st_fprintf(out, "%N/%m\n", subnet, subnet);
+		next_subnet(&subnet);
+		i++;
+	}
+	return 1;
+}
