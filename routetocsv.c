@@ -143,12 +143,12 @@ int cisco_nexus_to_csv(char *name, FILE *f, FILE *output) {
 			if (o[0].s_addr.ip_ver == route.subnet.ip_ver) {
 				copy_ipaddr(&route.gw, &o[0].s_addr);
 			} else {
-				st_debug(PARSEROUTE, 4, "line %lu bad GW '%I'\n", line, o[0].s_addr);	
+				st_debug(PARSEROUTE, 4, "line %lu bad GW '%I'\n", line, o[0].s_addr);
 			}
 			if (o[1].s_char[0] != '\0' && o[1].s_char[0] != '[') {
 				strxcpy(route.device, o[1].s_char, sizeof(route.device));
 			} else {
-				st_debug(PARSEROUTE, 4, "line %lu void device'\n", line);	
+				st_debug(PARSEROUTE, 4, "line %lu void device'\n", line);
 			}
 			fprint_route(&route, output, 3);
 			search_prefix = 1;
@@ -277,14 +277,23 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 
 	memset(&route, 0, sizeof(route));
 	fprintf(output, "prefix;mask;device;GW;comment\n");
+#define CHECK_IP_VER  \
+	if (ip_ver == -1) { \
+		ip_ver = route.subnet.ip_ver; \
+	} else if (route.subnet.ip_ver != ip_ver) { \
+		debug(PARSEROUTE, 1, "line %lu Invalid '%s', inconsistent IP version\n", line, s); \
+		badline++; \
+		continue; \
+	} \
+
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
 		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
 		if (!strncmp(s, "Gateway ", 8)) {
-                        debug(PARSEROUTE, 5, "line %lu \'is gateway of last resort, skipping'\n", line);
+			debug(PARSEROUTE, 5, "line %lu \'is gateway of last resort, skipping'\n", line);
 			continue;
 		} else if (strstr(s, "variably subnetted")) {
-                        debug(PARSEROUTE, 5, "line %lu \'is variably subnetted, skipping'\n", line);
+			debug(PARSEROUTE, 5, "line %lu \'is variably subnetted, skipping'\n", line);
 			continue;
 		} else if (strstr(s, "is subnetted")) {
 			debug(PARSEROUTE, 5, "line %lu \'is subnetted'\n", line);
@@ -306,13 +315,7 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 				memset(&route, 0, sizeof(route));
 				continue;
 			}
-			if (ip_ver == -1) {
-				ip_ver = route.subnet.ip_ver;
-			} else if (route.subnet.ip_ver != ip_ver) {
-				debug(PARSEROUTE, 1, "line %lu Invalid '%s', inconsistent IP version\n", line, s);
-				badline++;
-				continue;
-			}
+			CHECK_IP_VER
 			fprint_route(&route, output, 3);
 			memset(&route, 0, sizeof(route));
 			continue;
@@ -326,16 +329,10 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 				continue;
 			}
 			if (res == 2) {
-				debug(PARSEROUTE, 1, "line %lu no device found\n", line);
-				route.device[0] = '\0';	
+				debug(PARSEROUTE, 4, "line %lu no device found\n", line);
+				route.device[0] = '\0';
 			}
-			if (ip_ver == -1) {
-				ip_ver = route.subnet.ip_ver;
-			} else if (route.subnet.ip_ver != ip_ver) {
-				debug(PARSEROUTE, 1, "line %lu Invalid '%s', inconsistent IP version\n", line, s);
-				badline++;
-				continue;
-			}
+			CHECK_IP_VER
 			route.subnet.mask = find_mask;
 			is_subnetted--;
 			fprint_route(&route, output, 3);
@@ -349,13 +346,7 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 			memset(&route, 0, sizeof(route));
 			continue;
 		}
-		if (ip_ver == -1) {
-			ip_ver = route.subnet.ip_ver;
-		} else if (route.subnet.ip_ver != ip_ver) {
-			debug(PARSEROUTE, 1, "line %lu Invalid '%s', inconsistent IP version\n", line, s);
-			badline++;
-			continue;
-		}
+		CHECK_IP_VER
 		if (ip_ver == IPV6_A) {
 			s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res);
 			line++;
