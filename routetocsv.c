@@ -569,7 +569,7 @@ int cisco_fw_conf_to_csv(char *name, FILE *f, FILE *output) {
         while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
 		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
-		res = st_sscanf(s, "route *%S *%I *%M %I", route.device, &route.subnet.ip_addr, &route.subnet.mask, &route.gw);
+		res = st_sscanf(s, "(ipv6 )?route *%S *%I.%M %I", route.device, &route.subnet.ip_addr, &route.subnet.mask, &route.gw);
 		if (res < 4) {
 			debug(PARSEROUTE, 2, "Invalid line %lu\n", line);
 			badline++;
