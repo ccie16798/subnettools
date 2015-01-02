@@ -28,6 +28,49 @@
 		compression_level = 3; \
 	} while (0);
 
+#define sprint_unsigned(__type) \
+static inline int sprint_u##__type(char *s, unsigned __type a) { \
+	char c[32]; \
+	int j, i = 0; \
+\
+	do { \
+		c[i] = '0' + a % 10; \
+		a /= 10; \
+		i++; \
+	} while (a); \
+	for (j = 0; j < i;j++) \
+		s[j] = c[i - j - 1]; \
+	return i; \
+}
+
+#define  sprint_signed(__type) \
+static inline int sprint_##__type (char *s, __type b) { \
+	char c[32]; \
+	int j, i = 0; \
+	unsigned __type a = b; \
+	if ( a >  ((unsigned __type)-1) / 2) { \
+		s[0] = '-'; \
+		a = ((unsigned __type)-1) - a; \
+		a++; \
+		s++; \
+	} \
+\
+	do { \
+		c[i] = '0' + a % 10; \
+		a /= 10; \
+		i++; \
+	} while (a); \
+	for (j = 0; j < i; j++) \
+		s[j ] = c[i -j - 1]; \
+	return i; \
+}
+sprint_signed(short)
+sprint_signed(int)
+sprint_signed(long)
+sprint_unsigned(short)
+sprint_unsigned(int)
+sprint_unsigned(long)
+
 void fprint_route(const struct route *r, FILE *output, int compress_level) {
 	char buffer[52];
 	char buffer2[52];
