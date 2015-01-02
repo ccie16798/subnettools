@@ -1,7 +1,7 @@
 /*
  * IPv4, IPv6 subnet/routes scanf equivalent with PATTERN matching
  *
- * Copyright (C) 2014 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ * Copyright (C) 2014,2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
@@ -681,7 +681,7 @@ static int find_mask(char *remain, struct expr *e) {
 	return res;
 }
 
-static int find_charrange(char *remain, struct expr *e) {
+static int find_expr(char *remain, struct expr *e) {
 	int i = 0;
 	int res;
 
@@ -785,7 +785,7 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 							return n_found;
 						}
 						debug(SCANF, 4, "pattern matching will end on '%s'\n", e.end_expr);
-						e.stop = &find_charrange;
+						e.stop = &find_expr;
 						break;
 					default:
 						break;
@@ -797,7 +797,15 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 					return n_found;
 				}
 				debug(SCANF, 4, "pattern matching will end on '%s'\n", e.end_expr);
-				e.stop = &find_charrange;
+				e.stop = &find_expr;
+			} else if (fmt[i + 1] == '[') {
+				res = fill_char_range(e.end_expr, fmt + i + 1, sizeof(e.end_expr));
+				if (res < 0) {
+					debug(SCANF, 1, "Bad format '%s', unmatched '['\n", expr);
+					return n_found;
+				}
+				debug(SCANF, 4, "pattern matching will end on '%s'\n", e.end_expr);
+				e.stop = &find_expr;
 			}
 			n_match = 0; /* number of time expression 'e' matches input*/
 			/* try to find at most max_m expr */
