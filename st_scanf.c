@@ -155,7 +155,7 @@ static int fill_char_range(char *expr, const char *fmt, int n) {
 	}
 	expr[i] = ']';
 	expr[i + 1] = '\0';
-	return i;
+	return i + 1;
 }
 /*
  * match character c against STRING expr like [acde-g]
@@ -187,6 +187,7 @@ static int match_char_against_range(char c, const char *expr, int *i) {
 				debug(SCANF, 1, "Invalid expr '%s', no closing ']' found\n", expr);
 				return -1;
 		}
+		/* expr[*i + 2] != ']' means we can match a '-' only if it is right before the ending ']' */
 		if (expr[*i + 1] == '-' && expr[*i + 2] != ']' ) {
 			high = expr[*i + 2];
 			if (high == '\0') {
@@ -449,7 +450,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 				debug(SCANF, 1, "Invalid format '%s', no closing ']'\n", fmt);
 				return n_found;
 			}
-			*i += i2;
+			*i += (i2 - 1);
 			i2 = 0;
 			/* match_char_against_range cant return -1 here, fill_char_range above would have caught a bad expr */
 			while (match_char_against_range(in[j2], expr, &i2)) {
@@ -884,7 +885,13 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 			j++;
 		} else if (c == '(' || c == '[') {
 			char c2 = (c == '(' ? ')' : ']');
-			i2 = strxcpy_until(expr, fmt + i, sizeof(expr), c2);
+			if (c == '(') {
+				c2 = ')';
+				i2 = strxcpy_until(expr, fmt + i, sizeof(expr), c2);
+			} else {
+				c = ']';
+				i2 = fill_char_range(expr, fmt + i, sizeof(expr));
+			}
 			if (i2 == -1) {
 				debug(SCANF, 1, "Invalid format '%s', unmatched '%c'\n", fmt, c2);
 				return n_found;
