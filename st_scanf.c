@@ -486,7 +486,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 			*i += (i2 - 1);
 			i2 = 0;
 			/* match_char_against_range cant return -1 here, fill_char_range above would have caught a bad expr */
-			while (match_char_against_range(in[j2], expr, &i2)) {
+			while (match_char_against_range(in[j2], expr, &i2) && j2 - *j < max_field_length - 1) {
 				if (in[j2] == '\0')
 					break;
 				v_s[j2 - *j] = in[j2];
@@ -813,7 +813,10 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 						e.stop = &find_string;
 						break;
 					case '[':
-						res = fill_char_range(e.end_expr, fmt + i + 2, sizeof(e.end_expr));
+						k = 0;
+						while (isdigit(fmt[i + k + 2])) /* we must take field length into account */
+							k++;
+						res = fill_char_range(e.end_expr, fmt + i + k + 2, sizeof(e.end_expr));
 						if (res < 0) {
 							debug(SCANF, 1, "Bad format '%s', unmatched '['\n", expr);
 							return n_found;
