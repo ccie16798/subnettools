@@ -79,13 +79,41 @@ void fprint_route(const struct route *r, FILE *output, int compress_level) {
 	addr2str(&r->gw, buffer2, sizeof(buffer2), 2);
 	fprintf(output, "%s;%d;%s;%s;%s\n", buffer, r->subnet.mask, r->device, buffer2, r->comment);
 }
+
+void inline pad_n(char *s, int n, char c) {
+	int i;
+	for (i = 0; i < n; i++)
+		s[i] = c;
+}
+
+inline int pad_buffer_out(char *out, const char *buffer, int buff_size, 
+		int field_width, int pad_left, char c) {
+	int res;
+
+	buff_size = strlen(buffer);
+	if (buff_size > field_width) {
+		strcpy(out, buffer);
+		res = buff_size;
+	} else if (pad_left) {
+		strcpy(out, buffer);
+		pad_n(out + buff_size, field_width - buff_size, c);
+		res = field_width;
+	} else {
+		pad_n(out, field_width - buff_size, c);
+		strcpy(out + field_width - buff_size, buffer);
+		res = field_width;
+	}
+	return res;
+}
 /*
  * a very specialized function to print a struct route */
 void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 	int i, j, a ,i2, compression_level;
+	char pad_value;
+	int res, pad_left;
 	char c;
 	char outbuf[512 + 140];
-	char buffer[128], buffer2[128], temp[32];
+	char buffer[128], buffer2[128];
 	struct subnet sub;
 	char BUFFER_FMT[32];
 	int field_width;
@@ -109,36 +137,30 @@ void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 		if (c == '%') {
 			i2 = i + 1;
 			a = 0;
+			pad_left = 0;
+			pad_value = ' ';
+			field_width = 0;
 			/* try to get a field width (if any) */
 			if (fmt[i2] == '\0') {
-				debug(FMT, 2, "End of String after a %c\n", '%');
+				debug(FMT, 2, "End of String after a '%c'\n", '%');
 				outbuf[j++] = '%';
 				break;
 			} else if (fmt[i2] == '-') {
-				temp[0] = '-';
+				pad_left = 1;
 				i2++;
 			}
-			/*
-			 * try to get an int into temp[]
-			 * temp should hold the size of the ouput buf
-			 */
+			if (fmt[i] == '0') {
+				pad_value = '0';
+				i2++;
+			}
 			while (isdigit(fmt[i2])) {
-				temp[i2 - i - 1] = fmt[i2];
+				field_width *= 10;
+				field_width += fmt[i2] - '0';
 				i2++;
 			}
-			temp[i2 - i - 1] = '\0';
-			debug(FMT, 9, "Field width String is '%s'\n", temp);
-			if (temp[0] == '-' && temp[1] == '\0') {
-				debug(FMT, 2, "Invalid field width '-'");
-				field_width = 0;
-
-			} else if (temp[0] == '\0') {
-				field_width = 0;
-			} else {
-				field_width = atoi(temp);
-			}
-			debug(FMT, 9, "Field width Int is '%d'\n", field_width);
-			i += strlen(temp);
+			debug(FMT, 6, "Field width Int is '%d', padding is %s\n", field_width, 
+					(pad_left ? "left": "right") );
+			i = i2 - 1;
 			/* preparing FMT */
 			if (field_width)
 				sprintf(BUFFER_FMT, "%%%ds", field_width);
@@ -153,20 +175,26 @@ void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 					break;
 				case 'M':
 					if (r->subnet.ip_ver == IPV4_A)
-						mask2ddn(r->subnet.mask, buffer);
+						res = mask2ddn(r->subnet.mask, buffer);
 					else
-						sprintf(buffer, "%d", r->subnet.mask);
-					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
+						res = sprintf(buffer, "%d", r->subnet.mask);
+					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, ' ');
+					a += res;
 					break;
 				case 'm':
-					sprintf(buffer, "%d", r->subnet.mask);
-					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
+					res = sprintf(buffer, "%d", r->subnet.mask);
+					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, ' ');
+					a += res;
 					break;
 				case 'D':
-					a += sprintf(outbuf + j, BUFFER_FMT, r->device);
+					res = strlen(r->device);
+					res = pad_buffer_out(outbuf + j, r->device, res, field_width, pad_left, ' ');
+					a += res;
 					break;
 				case 'C':
-					a += sprintf(outbuf + j, BUFFER_FMT, r->comment);
+					res = strlen(r->comment);
+					res = pad_buffer_out(outbuf + j, r->comment, res, field_width, pad_left, ' ');
+					a += res;
 					break;
 				case 'U': /* upper subnet */
 				case 'L': /* lower subnet */
@@ -183,22 +211,25 @@ void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 						previous_subnet(&v_sub);
 					else if (fmt[i2] == 'U')
 						next_subnet(&v_sub);
-					subnet2str(&v_sub, buffer, sizeof(buffer), compression_level);
-					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
+					res = subnet2str(&v_sub, buffer, sizeof(buffer), compression_level);
+					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, ' ');
+					a += res;
 					break;
 				case 'P': /* Prefix */
 					SET_IP_COMPRESSION_LEVEL(fmt[i2 + 1]);
 					copy_subnet(&v_sub, &r->subnet);
 					subnet2str(&v_sub, buffer2, sizeof(buffer2), compression_level);
-					sprintf(buffer, "%s/%d", buffer2, (int)v_sub.mask);
-					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
+					res = sprintf(buffer, "%s/%d", buffer2, (int)v_sub.mask);
+					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, ' ');
+					a += res;
 					break;
 				case 'G':
 					SET_IP_COMPRESSION_LEVEL(fmt[i2 + 1]);
 					copy_ipaddr(&sub.ip_addr, &r->gw);
 					sub.ip_ver = r->subnet.ip_ver;
-					subnet2str(&sub, buffer, sizeof(buffer2), compression_level);
-					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
+					res = subnet2str(&sub, buffer, sizeof(buffer2), compression_level);
+					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, ' ');
+					a += res;
 					break;
 				default:
 					debug(FMT, 2, "%c is not a valid char after a %c\n", fmt[i2], '%');
@@ -239,31 +270,6 @@ void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 	fprintf(output, "%s\n", outbuf);
 }
 
-void inline pad_n(char *s, int n, char c) {
-	int i;
-	for (i = 0; i < n; i++)
-		s[i] = c;
-}
-
-inline int pad_buffer_out(char *out, char *buffer, int buff_size, 
-		int field_width, int pad_left, char c) {
-	int res;
-
-	buff_size = strlen(buffer);
-	if (buff_size > field_width) {
-		strcpy(out, buffer);
-		res = buff_size;
-	} else if (pad_left) {
-		strcpy(out, buffer);
-		pad_n(out + buff_size, field_width - buff_size, c);
-		res = field_width;
-	} else {
-		pad_n(out, field_width - buff_size, c);
-		strcpy(out + field_width - buff_size, buffer);
-		res = field_width;
-	}
-	return res;
-}
 /*
  * sadly a lot of code if common with fprint_route_fmt
  * But this cannot really be avoided
@@ -274,7 +280,6 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap, struct sto *o, in
 	char c;
 	char outbuf[ST_VSPRINTF_BUFFER_SIZE];
 	char buffer[128];
-	char BUFFER_FMT[32];
 	int field_width;
 	int pad_left, pad_value;
 	int o_num;
@@ -328,11 +333,6 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap, struct sto *o, in
 			debug(FMT, 6, "Field width Int is '%d', padding is %s\n", field_width, 
 					(pad_left ? "left": "right") );
 			i = i2 - 1;
-			/* preparing FMT */
-			if (field_width)
-				sprintf(BUFFER_FMT, "%%%ds", field_width);
-			else
-				sprintf(BUFFER_FMT, "%%s");
 			switch (fmt[i2]) {
 				case '\0':
 					outbuf[j] = '%';
