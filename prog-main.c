@@ -272,7 +272,7 @@ static int run_print(int arc, char **argv, void *options) {
 
 	res = load_netcsv_file(argv[2], &sf, nof);
 	if (res < 0)
-		fprintf(stderr,"invalid file %s; not a CSV?\n", argv[2]);
+		fprintf(stderr, "invalid file %s; not a CSV?\n", argv[2]);
 	fprint_subnet_file_fmt(&sf, nof->output_file, nof->output_fmt);
 	return 0;
 }
@@ -284,10 +284,10 @@ static int run_diff(int arc, char **argv, void *options) {
 
 	res = load_netcsv_file(argv[2], &sf1, nof);
 	if (res < 0)
-		fprintf(stderr,"invalid file %s; not a CSV?\n", argv[2]);
+		fprintf(stderr, "invalid file %s; not a CSV?\n", argv[2]);
 	res = load_netcsv_file(argv[3], &sf2, nof);
 	if (res < 0)
-		fprintf(stderr,"invalid file %s; not a CSV?\n", argv[3]);
+		fprintf(stderr, "invalid file %s; not a CSV?\n", argv[3]);
 	diff_files(&sf1, &sf2, nof);
 	return 0;
 }
@@ -299,10 +299,10 @@ static int run_compare(int arc, char **argv, void *options) {
 
 	res = load_netcsv_file(argv[2], &sf1, nof);
 	if (res < 0)
-		fprintf(stderr,"invalid file %s; not a CSV?\n", argv[2]);
+		fprintf(stderr, "invalid file %s; not a CSV?\n", argv[2]);
 	res = load_netcsv_file(argv[3], &sf2, nof);
 	if (res < 0)
-		fprintf(stderr,"invalid file %s; not a CSV?\n", argv[3]);
+		fprintf(stderr, "invalid file %s; not a CSV?\n", argv[3]);
 	compare_files(&sf1, &sf2, nof);
 	return 0;
 }
@@ -314,12 +314,12 @@ static int run_missing(int arc, char **argv, void *options) {
 
 	res = load_netcsv_file(argv[2], &sf1, nof);
 	if (res < 0) {
-		fprintf(stderr,"invalid file %s; not a CSV?\n", argv[2]);
+		fprintf(stderr, "invalid file %s; not a CSV?\n", argv[2]);
 		return res;
 	}
 	res = load_netcsv_file(argv[3], &sf2, nof);
 	if (res < 0) {
-		fprintf(stderr,"invalid file %s; not a CSV?\n", argv[3]);
+		fprintf(stderr, "invalid file %s; not a CSV?\n", argv[3]);
 		return res;
 	}
 	res = missing_routes(&sf1, &sf2, &sf3);
@@ -339,12 +339,12 @@ static int run_paip(int arc, char **argv, void *options) {
 
 	res = load_PAIP(argv[2], &paip, nof);
 	if (res < 0) {
-		fprintf(stderr,"invalid IPAM file %s; not a CSV?\n", argv[2]);
+		fprintf(stderr, "invalid IPAM file %s; not a CSV?\n", argv[2]);
 		return res;
 	}
 	res = load_netcsv_file(argv[3], &sf, nof);
 	if (res < 0) {
-		fprintf(stderr,"invalid file %s; not a CSV?\n", argv[3]);
+		fprintf(stderr, "invalid file %s; not a CSV?\n", argv[3]);
 		return res;
 	}
 	print_file_against_paip(&sf, &paip, nof);
