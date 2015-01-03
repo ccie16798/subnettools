@@ -15,7 +15,12 @@ FEATURES
 - subnet splitting (multiple levels)
 - converting 'sh ip route' files to a CSV
 - native IPv6 & IPv4 support
+<<<<<<< HEAD
 - IPv4 & IPv6 address information (known subnet membership, decoding of embedded IPs like Teredo)
+=======
+- IPv4 & IPv6 address information
+- Powerfull pattern matching engine
+>>>>>>> 0a818573cd2a8786c6f470aac8db5de24ea9fc92
 
 - subnettools FILE format is a CSV where each line represent a route ; a route is
 -* a subnet
