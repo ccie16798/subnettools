@@ -21,6 +21,7 @@
 // TO check : bound checking
 // (Expr1|expr2) handling
 // {a,b} multiplier
+// READ HEX :x; :hx
 
 struct expr {
 	int num_expr;
