@@ -48,11 +48,12 @@ static inline int sprint_##__type (char *s, __type b) { \
 	char c[32]; \
 	int j, i = 0; \
 	unsigned __type a = b; \
+	int is_signed = 0; \
 	if ( a >  ((unsigned __type)-1) / 2) { \
 		s[0] = '-'; \
 		a = ((unsigned __type)-1) - a; \
 		a++; \
-		s++; \
+		is_signed = 1; \
 	} \
 \
 	do { \
@@ -61,8 +62,8 @@ static inline int sprint_##__type (char *s, __type b) { \
 		i++; \
 	} while (a); \
 	for (j = 0; j < i; j++) \
-		s[j ] = c[i -j - 1]; \
-	return i; \
+		s[j + is_signed] = c[i - j - 1]; \
+	return (i + is_signed); \
 }
 sprint_signed(short)
 sprint_signed(int)
@@ -90,7 +91,7 @@ inline int pad_buffer_out(char *out, const char *buffer, int buff_size,
 		int field_width, int pad_left, char c) {
 	int res;
 
-	buff_size = strlen(buffer);
+	//buff_size = strlen(buffer);
 	if (buff_size > field_width) {
 		strcpy(out, buffer);
 		res = buff_size;
@@ -360,7 +361,8 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 					break;
 				case 'd':
 					v_int = va_arg(ap, int);
-					res = sprintf(buffer, "%d", v_int);
+					//res = sprintf(buffer, "%d", v_int);
+					res = sprint_int(buffer, v_int);
 					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, pad_value);
 					a += res;
 					break;
@@ -371,7 +373,8 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 					break;
 				case 'u':
 					v_unsigned = va_arg(ap, unsigned);
-					sprintf(buffer, "%u", v_unsigned);
+					//res = sprintf(buffer, "%u", v_unsigned);
+					res = sprint_uint(buffer, v_unsigned);
 					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, pad_value);
 					a += res;
 					break;
