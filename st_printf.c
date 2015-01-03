@@ -239,17 +239,44 @@ void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 	fprintf(output, "%s\n", outbuf);
 }
 
+void inline pad_n(char *s, int n, char c) {
+	int i;
+	for (i = 0; i < n; i++)
+		s[i] = c;
+}
+
+inline int pad_buffer_out(char *out, char *buffer, int buff_size, 
+		int field_width, int pad_left, char c) {
+	int res;
+
+	buff_size = strlen(buffer);
+	if (buff_size > field_width) {
+		strcpy(out, buffer);
+		res = buff_size;
+	} else if (pad_left) {
+		strcpy(out, buffer);
+		pad_n(out + buff_size, field_width - buff_size, c);
+		res = field_width;
+	} else {
+		pad_n(out, field_width - buff_size, c);
+		strcpy(out + field_width - buff_size, buffer);
+		res = field_width;
+	}
+	return res;
+}
 /*
  * sadly a lot of code if common with fprint_route_fmt
  * But this cannot really be avoided
  */
 static int st_vsprintf(char *out, const char *fmt, va_list ap, struct sto *o, int max_o)  {
 	int i, j, a ,i2, compression_level;
+	int res;
 	char c;
 	char outbuf[ST_VSPRINTF_BUFFER_SIZE];
-	char buffer[128], temp[32];
+	char buffer[128];
 	char BUFFER_FMT[32];
 	int field_width;
+	int pad_left, pad_value;
 	int o_num;
 	/* variables from va_list */
 	struct  subnet  v_sub;
@@ -277,36 +304,30 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap, struct sto *o, in
 		if (c == '%') {
 			i2 = i + 1;
 			a = 0;
+			pad_left = 0;
+			pad_value = ' ';
+			field_width = 0;
 			/* try to get a field width (if any) */
 			if (fmt[i2] == '\0') {
 				debug(FMT, 2, "End of String after a '%c'\n", '%');
 				outbuf[j++] = '%';
 				break;
 			} else if (fmt[i2] == '-') {
-				temp[0] = '-'; /** pad left */
+				pad_left = 1;
 				i2++;
 			}
-			/*
-			 * try to get an int into temp[]
-			 * temp should hold the size of the ouput buf
-			 */
+			if (fmt[i] == '0') {
+				pad_value = '0';
+				i2++;
+			}
 			while (isdigit(fmt[i2])) {
-				temp[i2 - i - 1] = fmt[i2];
+				field_width *= 10;
+				field_width += fmt[i2] - '0';
 				i2++;
 			}
-			temp[i2 - i - 1] = '\0';
-			debug(FMT, 9, "Field width String is '%s'\n", temp);
-			if (temp[0] == '-' && temp[1] == '\0') {
-				debug(FMT, 2, "Invalid field width '-'");
-				field_width = 0;
-
-			} else if (temp[0] == '\0') {
-				field_width = 0;
-			} else {
-				field_width = atoi(temp);
-			}
-			debug(FMT, 9, "Field width Int is '%d'\n", field_width);
-			i += strlen(temp);
+			debug(FMT, 6, "Field width Int is '%d', padding is %s\n", field_width, 
+					(pad_left ? "left": "right") );
+			i = i2 - 1;
 			/* preparing FMT */
 			if (field_width)
 				sprintf(BUFFER_FMT, "%%%ds", field_width);
@@ -322,27 +343,32 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap, struct sto *o, in
 				case 'M':
 					v_sub = va_arg(ap, struct subnet);
 					if (v_sub.ip_ver == IPV4_A)
-						mask2ddn(v_sub.mask, buffer);
+						res = mask2ddn(v_sub.mask, buffer);
 					else
-						sprintf(buffer, "%d", (int)v_sub.mask);
-					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
+						res = sprintf(buffer, "%d", (int)v_sub.mask);
+					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, ' ');
+					a += res;
 					break;
 				case 'm':
 					v_sub = va_arg(ap, struct subnet);
-					sprintf(buffer, "%d", (int)v_sub.mask);
-					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
+					res = sprintf(buffer, "%d", (int)v_sub.mask);
+					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, ' ');
+					a += res;
 					break;
 				case 's': /* almost standard %s printf, except that size is limited to 128 */
 					v_s = va_arg(ap, char *);
-					strxcpy(buffer, v_s, sizeof(buffer) - 1);
+					res = strxcpy(buffer, v_s, sizeof(buffer) - 1);
+
 					if (strlen(v_s) >= sizeof(buffer) - 1)
 						debug(FMT, 1, "truncating string '%s' to %d bytes\n", v_s, (int)(sizeof(buffer) - 1));
-					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
+					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, ' ');
+					a += res;
 					break;
 				case 'd':
 					v_int = va_arg(ap, int);
-					sprintf(buffer, "%d", v_int);
-					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
+					res = sprintf(buffer, "%d", v_int);
+					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, pad_value);
+					a += res;
 					break;
 				case 'c':
 					v_c = va_arg(ap, int);
@@ -352,28 +378,33 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap, struct sto *o, in
 				case 'u':
 					v_unsigned = va_arg(ap, unsigned);
 					sprintf(buffer, "%u", v_unsigned);
-					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
+					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, pad_value);
+					a += res;
 					break;
 				case 'l':
 					if (fmt[i2 + 1] == 'u') {
 						v_ulong = va_arg(ap, unsigned long);
-						sprintf(buffer, "%lu", v_ulong);
+						res = sprintf(buffer, "%lu", v_ulong);
 						i++;
 					} else {
 						v_long = va_arg(ap, long);
-						sprintf(buffer, "%ld", v_long);
+						res = sprintf(buffer, "%ld", v_long);
 					}
-					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
+					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, pad_value);
+					a += res;
 					break;
 				case 'a':
 					v_addr = va_arg(ap, struct ip_addr);
 					SET_IP_COMPRESSION_LEVEL(fmt[i2 + 1]);
 					/* safegard a little */
 					if (v_addr.ip_ver == IPV4_A || v_addr.ip_ver == IPV6_A)
-						addr2str(&v_addr, buffer, sizeof(buffer), compression_level);
-					else
+						res = addr2str(&v_addr, buffer, sizeof(buffer), compression_level);
+					else {
 						strcpy(buffer,"<Invalid IP>");
-					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
+						res = strlen(buffer);
+					}
+					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, ' ');
+					a += res;
 					break;
 				case 'U': /* upper subnet */
 				case 'L': /* lower subnet */
@@ -392,10 +423,13 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap, struct sto *o, in
 							previous_subnet(&v_sub);
 						else if (fmt[i2] == 'U')
 							next_subnet(&v_sub);
-						subnet2str(&v_sub, buffer, sizeof(buffer), compression_level);
-					} else
+						res = subnet2str(&v_sub, buffer, sizeof(buffer), compression_level);
+					} else {
 						strcpy(buffer, "<Invalid IP>");
-					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
+						res = strlen(buffer);
+					}
+					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, ' ');
+					a += res;
 					break;
 				case 'P': /* Prefix */
 					v_sub = va_arg(ap, struct subnet);
@@ -404,10 +438,13 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap, struct sto *o, in
 					if (v_sub.ip_ver == IPV4_A || v_sub.ip_ver == IPV6_A) {
 						char buffer2[128];
 						subnet2str(&v_sub, buffer2, sizeof(buffer2), compression_level);
-						sprintf(buffer, "%s/%d", buffer2, (int)v_sub.mask);
-					} else
+						res = sprintf(buffer, "%s/%d", buffer2, (int)v_sub.mask);
+					} else {
 						strcpy(buffer, "<Invalid IP/mask>");
-					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
+						res = strlen(buffer);
+					}
+					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, ' ');
+					a += res;
 					break;
 				case 'O':
 					if (o == NULL)
@@ -422,8 +459,9 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap, struct sto *o, in
 						debug(FMT, 1, "Invalid object number #%d, max %d\n", o_num, max_o);
 						break;
 					}
-					sto2string(buffer, &o[o_num], sizeof(buffer), 3);
-					a += sprintf(outbuf + j, BUFFER_FMT, buffer);
+					res = sto2string(buffer, &o[o_num], sizeof(buffer), 3);
+					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, ' ');
+					a += res;
 					break;
 				default:
 					debug(FMT, 2, "%c is not a valid char after a %c\n", fmt[i2], '%');
