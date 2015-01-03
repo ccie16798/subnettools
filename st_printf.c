@@ -148,7 +148,7 @@ int fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 				pad_left = 1;
 				i2++;
 			}
-			if (fmt[i] == '0') {
+			if (fmt[i2] == '0') {
 				pad_value = '0';
 				i2++;
 			}
