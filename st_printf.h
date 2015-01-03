@@ -25,7 +25,7 @@ int sto_fprintf(const char *fmt, struct sto *o, int max_o, ...);
 int sto_printf(const char *fmt, struct sto *o, int max_o, ...);
 
 void print_route(const struct route *r, FILE *output, int comp_level);
-void fprint_route_fmt(const struct route *r, FILE *output,  const char *fmt);
+int fprint_route_fmt(const struct route *r, FILE *output,  const char *fmt);
 void print_subnet_file(const struct subnet_file *sf, int comp_level);
 void fprint_subnet_file(const struct subnet_file *sf, FILE *output, int comp_level);
 void fprint_subnet_file_fmt(const struct subnet_file *sf, FILE *output, const char *fmt);
