@@ -315,7 +315,7 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 				pad_left = 1;
 				i2++;
 			}
-			if (fmt[i] == '0') {
+			if (fmt[i2] == '0') {
 				pad_value = '0';
 				i2++;
 			}
