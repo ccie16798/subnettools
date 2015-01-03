@@ -16,11 +16,12 @@ int main(int argc, char **argv) {
 	char buffer[64];
 
 	get_subnet_or_ip("2.2.2.2", &s1);
-	get_subnet_or_ip("2001:3:4::1", &s2);
+	get_subnet_or_ip("2001:3:4::1/64", &s2);
 
 	st_printf("%d %u %d\n", a1, a2, a3);
-	st_printf("%06d %u %d\n", a1, a2, a3);
-	st_printf("%s;%10s;%-10s\n", string, string, string);
-	st_printf("%I-%10I\n", s1, s2);
+	st_printf("'%06d' '%20u' '%-20d'\n", a1, a2, a3);
+	st_printf("'%s';'%10s';'%-10s'\n", string, string, string);
+	st_printf("%I-%10I : [%-20N - %20B]\n", s1, s2, s2, s2);
+	st_printf("%P-%20P : [%-20N - %20B]\n", s2, s2, s2, s2);
 
 }
