@@ -4,7 +4,7 @@
 /* simple and dummy print a route */
 void fprint_route(const struct route *r, FILE *output, int compress_level);
 /* print a route 'r' according to format 'fmt' into output */
-void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt);
+int fprint_route_fmt(const struct route *r, FILE *output, const char *fmt);
 
 /* subnettool variants of sprintf, fprintf and printf
  * fmt understand the following types :
@@ -13,16 +13,16 @@ void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt);
  * %m : a subnet mask      input variable is struct subnet *
  * %M : a subnet mask (ddn)
  */
-int st_sprintf(char *out, const char *fmt, ...);
-void st_fprintf(FILE *f, const char *fmt, ...);
-void st_printf(const char *fmt, ...);
+int st_snprintf(char *out, size_t n, const char *fmt, ...);
+int st_fprintf(FILE *f, const char *fmt, ...);
+int st_printf(const char *fmt, ...);
 
 /* object-based variant; use %Oxx to print xx element from a previously filled sto list
  *
  */
-void sto_sprintf(const char *fmt, struct sto *o, int max_o, ...);
-void sto_fprintf(const char *fmt, struct sto *o, int max_o, ...);
-void sto_printf(const char *fmt, struct sto *o, int max_o, ...);
+int sto_snprintf(char *out, size_t len, const char *fmt, struct sto *o, int max_o, ...);
+int sto_fprintf(const char *fmt, struct sto *o, int max_o, ...);
+int sto_printf(const char *fmt, struct sto *o, int max_o, ...);
 
 void print_route(const struct route *r, FILE *output, int comp_level);
 void fprint_route_fmt(const struct route *r, FILE *output,  const char *fmt);

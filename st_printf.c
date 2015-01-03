@@ -107,7 +107,7 @@ inline int pad_buffer_out(char *out, const char *buffer, int buff_size,
 }
 /*
  * a very specialized function to print a struct route */
-void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
+int fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 	int i, j, a ,i2, compression_level;
 	char pad_value;
 	int res, pad_left;
@@ -115,7 +115,6 @@ void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 	char outbuf[512 + 140];
 	char buffer[128], buffer2[128];
 	struct subnet sub;
-	char BUFFER_FMT[32];
 	int field_width;
 	struct subnet v_sub;
 	/* %I for IP */
@@ -161,11 +160,6 @@ void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 			debug(FMT, 6, "Field width Int is '%d', padding is %s\n", field_width, 
 					(pad_left ? "left": "right") );
 			i = i2 - 1;
-			/* preparing FMT */
-			if (field_width)
-				sprintf(BUFFER_FMT, "%%%ds", field_width);
-			else
-				sprintf(BUFFER_FMT, "%%s");
 			switch (fmt[i2]) {
 				case '\0':
 					outbuf[j] = '%';
@@ -266,19 +260,19 @@ void fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 			i++;
 		}
 	}
+	outbuf[j++] = '\n';
 	outbuf[j] = '\0';
-	fprintf(output, "%s\n", outbuf);
+	return fputs(outbuf, output);
 }
 
 /*
  * sadly a lot of code if common with fprint_route_fmt
  * But this cannot really be avoided
  */
-static int st_vsprintf(char *out, const char *fmt, va_list ap, struct sto *o, int max_o)  {
+static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, struct sto *o, int max_o)  {
 	int i, j, a ,i2, compression_level;
 	int res;
 	char c;
-	char outbuf[ST_VSPRINTF_BUFFER_SIZE];
 	char buffer[128];
 	int field_width;
 	int pad_left, pad_value;
@@ -300,7 +294,7 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap, struct sto *o, in
 	while (1) {
 		c = fmt[i];
 		debug(FMT, 5, "Still to parse : '%s'\n", fmt + i);
-		if (j > sizeof(outbuf) - 140) { /* 128 is the max size */
+		if (j > len - 140) { /* 128 is the max size */
 			debug(FMT, 1, "output buffer maybe too small, truncating\n");
 			break;
 		}
@@ -499,57 +493,57 @@ static int st_vsprintf(char *out, const char *fmt, va_list ap, struct sto *o, in
 		}
 	}
 	outbuf[j] = '\0';
-	return sprintf(out, "%s", outbuf);
+	return j;
 }
 
-int st_sprintf(char *out, const char *fmt, ...) {
+int st_snprintf(char *out, size_t len, const char *fmt, ...) {
 	va_list ap;
 	int ret;
 
 	va_start(ap, fmt);
-	ret = st_vsprintf(out, fmt, ap, NULL, 0);
+	ret = st_vsnprintf(out, len, fmt, ap, NULL, 0);
 	va_end(ap);
 	return ret;
 }
 
-void st_fprintf(FILE *f, const char *fmt, ...) {
+int st_fprintf(FILE *f, const char *fmt, ...) {
 	char buffer[ST_VSPRINTF_BUFFER_SIZE];
 	va_list ap;
 
 	va_start(ap, fmt);
-	st_vsprintf(buffer, fmt, ap, NULL, 0);
+	st_vsnprintf(buffer, sizeof(buffer), fmt, ap, NULL, 0);
 	va_end(ap);
-	fprintf(f, "%s", buffer);
+	return fprintf(f, "%s", buffer);
 }
 
-void st_printf(const char *fmt, ...) {
+int st_printf(const char *fmt, ...) {
 	char buffer[ST_VSPRINTF_BUFFER_SIZE];
 	va_list ap;
 
 	va_start(ap, fmt);
-	st_vsprintf(buffer, fmt, ap, NULL, 0);
+	st_vsnprintf(buffer, sizeof(buffer), fmt, ap, NULL, 0);
 	va_end(ap);
-	printf("%s", buffer);
+	return printf("%s", buffer);
 }
 
-int sto_sprintf(char *out, const char *fmt, struct sto *o, int max_o, ...) {
+int sto_snprintf(char *out, size_t len, const char *fmt, struct sto *o, int max_o, ...) {
 	va_list ap;
 	int ret;
 
 	va_start(ap, max_o);
-	ret = st_vsprintf(out, fmt, ap, o, max_o);
+	ret = st_vsnprintf(out, len, fmt, ap, o, max_o);
 	va_end(ap);
 	return ret;
 }
 
-void sto_fprintf(FILE *f, const char *fmt, struct sto *o, int max_o, ...) {
+int sto_fprintf(FILE *f, const char *fmt, struct sto *o, int max_o, ...) {
 	char buffer[ST_VSPRINTF_BUFFER_SIZE];
 	va_list ap;
 
 	va_start(ap, max_o);
-	st_vsprintf(buffer, fmt, ap, o, max_o);
+	st_vsnprintf(buffer, sizeof(buffer), fmt, ap, o, max_o);
 	va_end(ap);
-	fprintf(f, "%s", buffer);
+	return fprintf(f, "%s", buffer);
 }
 
 void sto_printf(const char *fmt, struct sto *o, int max_o, ...) {
@@ -557,7 +551,7 @@ void sto_printf(const char *fmt, struct sto *o, int max_o, ...) {
 	va_list ap;
 
 	va_start(ap, max_o);
-	st_vsprintf(buffer, fmt, ap, o, max_o);
+	st_vsnprintf(buffer, sizeof(buffer), fmt, ap, o, max_o);
 	va_end(ap);
 	printf("%s", buffer);
 }
