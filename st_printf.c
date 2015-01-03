@@ -172,12 +172,12 @@ int fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 					if (r->subnet.ip_ver == IPV4_A)
 						res = mask2ddn(r->subnet.mask, buffer);
 					else
-						res = sprintf(buffer, "%d", r->subnet.mask);
+						res = sprint_uint(buffer, r->subnet.mask);
 					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, ' ');
 					a += res;
 					break;
 				case 'm':
-					res = sprintf(buffer, "%d", r->subnet.mask);
+					res = sprint_uint(buffer, r->subnet.mask);
 					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, ' ');
 					a += res;
 					break;
@@ -287,6 +287,8 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 	unsigned v_unsigned;
 	long v_long;
 	unsigned long v_ulong;
+	short v_short;
+	unsigned short v_ushort;
 	/* %a for ip_addr */
 	/* %I for subnet_IP */
 	/* %m for subnet_mask */
@@ -340,13 +342,13 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 					if (v_sub.ip_ver == IPV4_A)
 						res = mask2ddn(v_sub.mask, buffer);
 					else
-						res = sprintf(buffer, "%d", (int)v_sub.mask);
+						res = sprint_uint(buffer, v_sub.mask);
 					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, ' ');
 					a += res;
 					break;
 				case 'm':
 					v_sub = va_arg(ap, struct subnet);
-					res = sprintf(buffer, "%d", (int)v_sub.mask);
+					res = sprint_uint(buffer, v_sub.mask);
 					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, ' ');
 					a += res;
 					break;
@@ -361,7 +363,6 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 					break;
 				case 'd':
 					v_int = va_arg(ap, int);
-					//res = sprintf(buffer, "%d", v_int);
 					res = sprint_int(buffer, v_int);
 					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, pad_value);
 					a += res;
@@ -373,19 +374,38 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 					break;
 				case 'u':
 					v_unsigned = va_arg(ap, unsigned);
-					//res = sprintf(buffer, "%u", v_unsigned);
 					res = sprint_uint(buffer, v_unsigned);
+					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, pad_value);
+					a += res;
+					break;
+				case 'h':
+					if (fmt[i2 + 1] == 'u') {
+						v_ushort = va_arg(ap, unsigned);
+						res = sprint_ushort(buffer, v_ushort);
+						i++;
+					} else if (fmt[i2 + 1] == 'd') {
+						v_short = va_arg(ap, int);
+						res = sprint_short(buffer, v_short);
+						i++;
+					} else {
+						debug(FMT, 1, "Invalid format '%c' after '%%l'\n", fmt[i2 + 1]);
+						break;
+					}
 					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, pad_value);
 					a += res;
 					break;
 				case 'l':
 					if (fmt[i2 + 1] == 'u') {
 						v_ulong = va_arg(ap, unsigned long);
-						res = sprintf(buffer, "%lu", v_ulong);
+						res = sprint_ulong(buffer, v_ulong);
+						i++;
+					} else if (fmt[i2 + 1] == 'd') {
+						v_long = va_arg(ap, long);
+						res = sprint_long(buffer, v_long);
 						i++;
 					} else {
-						v_long = va_arg(ap, long);
-						res = sprintf(buffer, "%ld", v_long);
+						debug(FMT, 1, "Invalid format '%c' after '%%l'\n", fmt[i2 + 1]);
+						break;
 					}
 					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, pad_value);
 					a += res;
