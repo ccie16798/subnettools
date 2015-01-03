@@ -14,5 +14,8 @@ all: $(EXEC)
 subnet-tools: $(OBJS)
 	$(CC) -o $@ $^ $(CFLAGS)
 
+test-printf: test-printf.o debug.o utils.o st_printf.o iptools.o bitmap.o st_object.o
+	$(CC) -o $@ $^ $(CFLAGS)
+
 test : generic_csv.o debug.o utils.o
 	$(CC) -o $@ $^ $(CFLAGS) -DGENERICCSV_TEST
