@@ -189,3 +189,4 @@ work TODO
 - implement progress bar (what is your 1M line aggregation doing??) (before v1.0)
 - recode st_vsprintf as st_vsnprintf
 - code precision in st_printf.c
+- add hex support to st_printf and st_scanf
