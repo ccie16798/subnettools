@@ -120,7 +120,7 @@ inline int  snprint_hex##__type(char *s, unsigned __type a, size_t __len) { \
                 a /= 16; \
                 i++; \
         } while (a); \
-        for (j = 0; j < min(i, __len);j++) \
+        for (j = 0; j < min(i, (int)__len);j++) \
                 s[j] = c[i - j - 1]; \
         return j; \
 }
@@ -135,7 +135,7 @@ static inline int snprint_u##__type(char *s, unsigned __type a, size_t __len) { 
 		a /= 10; \
 		i++; \
 	} while (a); \
-	for (j = 0; j < min(i, __len);j++) \
+	for (j = 0; j < min(i, (int)__len);j++) \
 		s[j] = c[i - j - 1]; \
 	return j; \
 }
@@ -158,7 +158,7 @@ static inline int snprint_##__type (char *s, __type b, size_t __len) { \
 		a /= 10; \
 		i++; \
 	} while (a); \
-	for (j = 0; j < min(i, __len) - is_signed; j++) \
+	for (j = 0; j < min(i, (int)__len) - is_signed; j++) \
 	s[j + is_signed] = c[i - j - 1]; \
 	return (j + is_signed); \
 }
