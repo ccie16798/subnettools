@@ -19,7 +19,7 @@
 #include "heap.h"
 #include "st_printf.h"
 
-snprint_hex(short)
+sprint_hex(short)
 
 inline int is_ip_char(char c) {
 	return isxdigit(c) || c == ':' || c == '.';
@@ -275,27 +275,21 @@ int addrv62str(ipv6 z, char *out_buffer, size_t len, int compress) {
 	}
 	j = 0;
 	for (i = 0; i < max_skip_index; i++) {
-		a = sprintf(out_buffer + j, "%x:", block(z, i));
-		j += a;
-		debug(PARSEIPV6, 9, "building output  %d : %s\n", i, out_buffer);
+		j += sprint_hexshort(out_buffer + j, block(z, i));
+		out_buffer[j++] = ':';
 	}
 	if (max_skip > 0) {
-		if (max_skip_index)
-			a = sprintf(out_buffer + j, ":");
-		else
-			a = sprintf(out_buffer + j, "::");
-		debug(PARSEIPV6, 9, "building output %d : %s\n", i, out_buffer);
-		j += a;
+		out_buffer[j++] = ':';
+		if (!max_skip_index)
+			out_buffer[j++] = ':';
 	}
 	for (i = max_skip_index + max_skip; i < 7; i++) {
-		a = sprintf(out_buffer + j, "%x:", block(z, i));
-		debug(PARSEIPV6, 9, "building output %d : %s\n", i, out_buffer);
-		j += a;
+		j += sprint_hexshort(out_buffer + j, block(z, i));
+		out_buffer[j++] = ':';
 	}
-	if (i < 8) {
-		a = sprintf(out_buffer + j, "%x", block(z, i));
-		j += a;
-	}
+	if (i < 8)
+		j += sprint_hexshort(out_buffer + j, block(z, i));
+
 	out_buffer[j] = '\0';
 	return j;
 }
