@@ -38,6 +38,11 @@ int main(int argc, char **argv) {
 	printf("TEST LONG   : %ld %ld %ld %lu %lu\n", l1, l2, l3, l4, l5);
 	st_printf("TEST LONG2  : '%013ld' '%13ld' '%-4ld' '%lu' '%12lu'\n", l1, l2, l3, l4, l5);
 	printf("TEST LONG2  : '%013ld' '%13ld' '%-4ld' '%lu' '%12lu'\n", l1, l2, l3, l4, l5);
+	st_printf("TEST HEX1 : %x %hx %lx\n", a2, b, l5);
+	printf("TEST HEX1 : %x %hx %lx\n", a2, b, l5);
+	st_printf("TEST HEX2 : '%10x' %06hx %hx '%-20lx'\n", a2, sh1, sh2, l5);
+	printf("TEST HEX2 : '%10x' %06hx %hx '%-20lx'\n", a2, sh1, sh2, l5);
+	
 	st_printf("TEST STRING :'%s';'%10s';'%-10s'\n", string, string, string);
 	printf("TEST STRING :'%s';'%10s';'%-10s'\n", string, string, string);
 	st_printf("TEST IP1    : %I-%10I : [%-20N - %20B]\n", s1, s2, s2, s2);

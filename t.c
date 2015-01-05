@@ -17,6 +17,25 @@ struct options {
         FILE *output_file;
 };
 
+
+#define sprint_hex(__type) \
+inline int  sprint_hex##__type(char *s, unsigned __type a) { \
+        char c[32]; \
+        int j, i = 0; \
+\
+        do { \
+		if (a % 16 < 10) \
+                	c[i] = '0' + a % 16; \
+		else \
+			c[i] = 'a' + (a - 10) % 16; \
+                a /= 16; \
+                i++; \
+        } while (a); \
+        for (j = 0; j < i;j++) \
+                s[j] = c[i - j - 1]; \
+        return i; \
+}
+
 #define sprint_unsigned(__type) \
 inline int  sprint_u##__type(char *s, unsigned __type a) { \
 	char c[32]; \
@@ -54,6 +73,7 @@ inline int sprint_##__type (char *s, __type b) { \
 	return i; \
 }
 sprint_signed(short)
+sprint_hex(short)
 sprint_signed(int)
 sprint_unsigned(short)
 sprint_unsigned(int)
@@ -65,10 +85,10 @@ sprint_unsigned(long)
 int main(int argc, char **argv) {
 	char buff[32];
 	struct subnet s;
-	unsigned long a;
+	short a;
 	memset(buff, 0, 28);
-	 sscanf(argv[1], "%lu", &a);
-	sprint_short(buff, a);
+	 sscanf(argv[1], "%x", &a);
+	sprint_hexshort(buff, a);
 	printf("%s %hd\n", buff, a);
 
 //	printf("%d %d %d \n", offsetof(struct options, delim),  offsetof(struct options, delim2),  offsetof(struct options, delim4));
