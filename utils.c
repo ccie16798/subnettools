@@ -130,8 +130,6 @@ char *simple_strtok(char *s, const char *delim) {
 			if (*s == delim[i]) {
 				*s = '\0';
 				s2 = s + 1;
-				//printf("s2 %s\n",s2);
-				//printf("s3 %s\n",s3);
 				return s3;
 			}
 		}
@@ -158,8 +156,6 @@ char *simple_strtok_r(char *s, const char *delim, char **s2) {
 			if (*s == delim[i]) {
 				*s='\0';
 				*s2 = s + 1;
-				//printf("s2 %s\n",s2);
-				//printf("s3 %s\n",s3);
 				return s3;
 			}
 		}
