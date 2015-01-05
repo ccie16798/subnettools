@@ -127,7 +127,7 @@ int addrv42str(ipv4 z, char *out_buffer, size_t len);
 int addrv62str(ipv6 z, char *out_buffer, size_t len, int compress);
 int subnet2str(const struct subnet *s, char *out_buffer, size_t len, int comp_level);
 int addr2str(const struct ip_addr *a, char *out_buffer, size_t len, int comp_level);
-int mask2ddn(u32 mask, char *out_buffer);
+int mask2ddn(u32 mask, char *out_buffer, size_t len);
 
 
 /* read len chars from 's' and try to convert to a struct ip_addr

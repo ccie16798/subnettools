@@ -139,7 +139,7 @@ int fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 					break;
 				case 'M':
 					if (r->subnet.ip_ver == IPV4_A)
-						res = mask2ddn(r->subnet.mask, buffer);
+						res = mask2ddn(r->subnet.mask, buffer, sizeof(buffer));
 					else
 						res = sprint_uint(buffer, r->subnet.mask);
 					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, ' ');
@@ -309,7 +309,7 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 				case 'M':
 					v_sub = va_arg(ap, struct subnet);
 					if (v_sub.ip_ver == IPV4_A)
-						res = mask2ddn(v_sub.mask, buffer);
+						res = mask2ddn(v_sub.mask, buffer, sizeof(buffer));
 					else
 						res = sprint_uint(buffer, v_sub.mask);
 					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, ' ');

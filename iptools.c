@@ -320,10 +320,15 @@ int addr2str(const struct ip_addr *a, char *out_buffer, size_t len, int comp_lev
 	return -1;
 }
 /* IPv4 only, mask to Dot Decimal Notation */
-int mask2ddn(u32 mask, char *out) {
+int mask2ddn(u32 mask, char *out, size_t len) {
 	int i;
-	int s[4];
+	unsigned int s[4];
 
+	if (len < 16) {
+		fprintf(stderr, "BUG, %s needs at least a 16-bytes buffer\n", __FUNCTION__);
+		out[0] = '\0';
+		return -1;
+	}
 	for (i = 0; i < mask / 8; i++)
 		s[i] = 255;
 	if (i < 4) {
