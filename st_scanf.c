@@ -339,7 +339,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 		case 'h':
 			*i += 1;
 			if (fmt[*i + 1] != 'd' && fmt[*i + 1] != 'u' && fmt[*i + 1] != 'x') {
-				debug(SCANF, 1, "Invalid format '%s', only specifier allowed after %%l is 'd'\n", fmt);
+				debug(SCANF, 1, "Invalid format '%s', only specifier allowed after %%h are 'd', 'u', 'x'\n", fmt);
 				return n_found;
 			}
 			ARG_SET(v_short, short *);
@@ -359,8 +359,6 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 					j2++;
 				}
 				debug(SCANF, 5, "found short HEX '%x' at offset %d\n", *v_short, *j);
-				n_found++;
-				break;
 			} else {
 				if (in[*j] == '-' && fmt[*i + 1] == 'd') {
 					sign = -1;
@@ -382,38 +380,53 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 				} else {
 					debug(SCANF, 5, "found SHORT '%hd' at offset %d\n", *v_short, *j);
 				}
-				n_found++;
-				break;
 			}
+			n_found++;
+			break;
 		case 'l':
 			*i += 1;
-			if (fmt[*i + 1] != 'd' && fmt[*i + 1] != 'u') {
-				debug(SCANF, 1, "Invalid format '%s', only specifier allowed after %%l is 'd'\n", fmt);
+			if (fmt[*i + 1] != 'd' && fmt[*i + 1] != 'u' && fmt[*i + 1] != 'x') {
+				debug(SCANF, 1, "Invalid format '%s', only specifier allowed after %%l are 'd', 'u', 'x'\n", fmt);
 				return n_found;
 			}
 			ARG_SET(v_long, long *);
 			if (o)
 				o->conversion = 'l';
 			*v_long = 0;
-			if (in[*j] == '-' && fmt[*i + 1] == 'd') {
-				sign = -1;
-				j2++;
-			} else
-				sign = 1;
-			if (!isdigit(in[j2])) {
-				debug(SCANF, 2, "no LONG found at offset %d \n", *j);
-				return n_found;
-			}
-			while (isdigit(in[j2]) && j2 - *j < max_field_length) {
-				*v_long *= 10UL;
-				*v_long += (in[j2] - '0') ;
-				j2++;
-			}
-			*v_long *= sign;
-			if (fmt[*i + 1] == 'u') {
-				debug(SCANF, 5, "found ULONG '%lu' at offset %d\n", (unsigned long)*v_long, *j);
+			if (fmt[*i + 1] == 'x') {
+				if (in[j2] == '0' && in[j2 + 1] == 'x')
+					j2 += 2;
+				if (!isxdigit(in[j2])) {
+					debug(SCANF, 2, "no HEX found at offset %d \n", *j);
+					return n_found;
+				}
+				while (isxdigit(in[j2])) {
+					*v_long *= 16;
+					*v_long += char2int(in[j2]);
+					j2++;
+				}
+				debug(SCANF, 5, "found long HEX '%lx' at offset %d\n", (unsigned long)*v_long, *j);
 			} else {
-				debug(SCANF, 5, "found LONG '%ld' at offset %d\n", *v_long, *j);
+				if (in[*j] == '-' && fmt[*i + 1] == 'd') {
+					sign = -1;
+					j2++;
+				} else
+					sign = 1;
+				if (!isdigit(in[j2])) {
+					debug(SCANF, 2, "no LONG found at offset %d \n", *j);
+					return n_found;
+				}
+				while (isdigit(in[j2]) && j2 - *j < max_field_length) {
+					*v_long *= 10UL;
+					*v_long += (in[j2] - '0') ;
+					j2++;
+				}
+				*v_long *= sign;
+				if (fmt[*i + 1] == 'u') {
+					debug(SCANF, 5, "found ULONG '%lu' at offset %d\n", (unsigned long)*v_long, *j);
+				} else {
+					debug(SCANF, 5, "found LONG '%ld' at offset %d\n", *v_long, *j);
+				}
 			}
 			n_found++;
 			break;
