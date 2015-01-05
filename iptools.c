@@ -181,10 +181,15 @@ int subnet_compare_ipv4(ipv4 prefix1, u32 mask1, ipv4 prefix2, u32 mask2) {
 }
 
 int addrv42str(ipv4 z, char *out_buffer, size_t len) {
-	int a, b, c, d;
+	unsigned int a, b, c, d;
 
-	if (len < 17) {
-		fprintf(stderr, "BUG, %s needs at least a 17-bytes buffer\n", __FUNCTION__);
+	/*
+	 * instead of using snprint to check outbuff isnt overrun, we make sure output buffer is large enough
+	 * we refuse to print potentially truncated IPs and BUG early ; min size is (3 + 1) * 4
+	 */
+	if (len < 16) {
+		fprintf(stderr, "BUG, %s needs at least a 16-bytes buffer\n", __FUNCTION__);
+		out_buffer[0] = '\0';
 		return -1;
 	}
 	d = z % 256;
@@ -208,8 +213,13 @@ int addrv62str(ipv6 z, char *out_buffer, size_t len, int compress) {
 	int skip = 0, max_skip = 0;
 	int skip_index = 0, max_skip_index = 0;
 
-	if (len < 41) {
-		fprintf(stderr, "BUG, %s needs at least a 41-bytes buffer\n", __FUNCTION__);
+	/*
+	 * instead of using snprint to check outbuff isnt overrun at each step, we make sure output buffer is large enough
+	 * we refuse to print potentially truncated IPs and BUG early ; min size if (4 + 1) * 8
+	 */
+	if (len < 40) {
+		fprintf(stderr, "BUG, %s needs at least a 40-bytes buffer\n", __FUNCTION__);
+		out_buffer[0] = '\0';
 		return -1;
 	}
 	if (compress == 0) {
