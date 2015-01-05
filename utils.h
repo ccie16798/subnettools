@@ -158,8 +158,8 @@ static inline int snprint_##__type (char *s, __type b, size_t __len) { \
 		a /= 10; \
 		i++; \
 	} while (a); \
-	for (j = 0; j < min(i, (int)__len) - is_signed; j++) \
-	s[j + is_signed] = c[i - j - 1]; \
+	for (j = 0; j < min(i, (int)__len- is_signed); j++) \
+		s[j + is_signed] = c[i - j - 1]; \
 	return (j + is_signed); \
 }
 
