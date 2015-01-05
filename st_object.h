@@ -44,6 +44,14 @@ int sto2string(char *s, const struct sto *o, size_t len, int comp_level);
 			case 'Q': \
 				  copy_subnet((struct subnet *)ptr, &__o[__i].s_subnet); \
 			break; \
+			case 'x': \
+				if (__o[__i].conversion  == 'l') \
+					*((unsigned long *)ptr) = __o[__i].s_ulong; \
+				else if (__o[__i].conversion  == 'h') \
+					*((unsigned short *)ptr) = __o[__i].s_ushort; \
+				else \
+					*((unsigned int *)ptr) = __o[__i].s_uint; \
+				break; \
 			case 'u': \
 				if (__o[__i].conversion  == 'l') \
 					*((unsigned long *)ptr) = __o[__i].s_ulong; \

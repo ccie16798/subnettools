@@ -128,6 +128,20 @@ static int find_string(char *remain, struct expr *e) {
 	return !isspace(*remain);
 }
 
+static int find_hex(char *remain, struct expr *e) {
+	int i;
+
+	if (remain[0] == '0' && remain[1] == 'x' && isxdigit(remain[2])) {
+		i = 2;
+		while (isxdigit(remain[i]))
+			i++;
+		e->skip_stop = i;
+		return i;
+
+	}
+	return isxdigit(*remain);
+}
+
 
 /*
  * from fmt string starting with '[', fill expr with the range
@@ -430,6 +444,23 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 			debug(SCANF, 5, "found UINT '%u' at offset %d\n", *v_uint, *j);
 			n_found++;
 			break;
+		case 'x':
+			ARG_SET(v_uint, unsigned int *);
+			*v_uint = 0;
+			if (in[j2] == '0' && in[j2 + 1] == 'x')
+				j2 += 2;
+			if (!isxdigit(in[j2])) {
+				debug(SCANF, 2, "no HEX found at offset %d \n", *j);
+				return n_found;
+			}
+			while (isxdigit(in[j2])) {
+				*v_uint *= 16;
+				*v_uint += char2int(in[j2]);
+				j2++;
+			}
+			debug(SCANF, 5, "found HEX '%x' at offset %d\n", *v_uint, *j);
+			n_found++;
+			break;
 		case 'S': /* a special STRING that doesnt represent an IP */
 		case 's':
 			ARG_SET(v_s, char *);
@@ -612,6 +643,7 @@ static int match_expr(struct expr *e, char *in, struct sto *o, int *num_o) {
 		*num_o = saved_num_o;
 		return 0;
 	}
+	/* e->skip_stop positive means we wont test the remain to see if we need to stop */
 	if (e->skip_stop > 0) {
 		e->skip_stop -= res;
 		return res;
@@ -784,6 +816,9 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 						break;
 					case 'u':
 						e.stop = &find_uint;
+						break;
+					case 'x':
+						e.stop = find_hex;
 						break;
 					case 'l':
 					case 'h':
