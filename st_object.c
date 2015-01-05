@@ -16,12 +16,26 @@
 #include "debug.h"
 #include "st_object.h"
 
+
+snprint_signed(short)
+snprint_signed(int)
+snprint_signed(long)
+snprint_hex(short)
+snprint_hex(int)
+snprint_hex(long)
+snprint_unsigned(short)
+snprint_unsigned(int)
+snprint_unsigned(long)
+
+
 int sto_is_string(struct sto *o) {
 	return (o->type == 's' || o->type == 'S' || o->type == 'W' || o->type == '[');
 }
 
 int sto2string(char *s, const struct sto *o, size_t len, int comp_level) {
 	char buffer[128];
+	int res;
+
 	switch (o->type) {
 		case '[':
 		case 's':
@@ -39,33 +53,42 @@ int sto2string(char *s, const struct sto *o, size_t len, int comp_level) {
 			break;
 		case 'x':
 			if (o->conversion == 'l')
-				return snprintf(s, len, "%lx", o->s_ulong);
+				res = snprint_hexlong(s, o->s_ulong, len - 1);
 			else if (o->conversion == 'h')
-				return snprintf(s, len, "%hx", o->s_ushort);
+				res = snprint_hexshort(s, o->s_ushort, len - 1);
 			else
-				return snprintf(s, len, "%x", o->s_uint);
+				res = snprint_hexint(s, o->s_uint, len - 1);
+			s[res] = '\0';
 			break;
 		case 'u':
 			if (o->conversion == 'l')
-				return snprintf(s, len, "%lu", o->s_ulong);
+				res = snprint_ulong(s, o->s_ulong, len - 1);
 			else if (o->conversion == 'h')
-				return snprintf(s, len, "%hu", o->s_ushort);
+				res = snprint_ushort(s, o->s_ushort, len - 1);
 			else
-				return snprintf(s, len, "%u", o->s_uint);
+				res = snprint_uint(s, o->s_uint, len - 1);
+			s[res] = '\0';
+			return res;
 			break;
 		case 'd':
 			if (o->conversion == 'l')
-				return snprintf(s, len, "%ld", o->s_long);
+				res = snprint_long(s, o->s_long, len - 1);
 			else if (o->conversion == 'h')
-				return snprintf(s, len, "%hd", o->s_short);
+				res = snprint_short(s, o->s_short, len - 1);
 			else
-				return snprintf(s, len, "%d", o->s_int);
+				res = snprint_int(s, o->s_int, len - 1);
+			s[res] = '\0';
+			return res;
 			break;
 		case 'M':
-			return snprintf(s, len, "%d", o->s_int);
+			res = snprint_int(s, o->s_int, len - 1);
+			s[res] = '\0';
+			return res;
 			break;
 		case 'l':
-			return snprintf(s, len, "%ld", o->s_long);
+			res = snprint_long(s, o->s_long, len - 1);
+			s[res] = '\0';
+			return res;
 			break;
 		case 'c':
 			s[0] = o->s_char[0];
@@ -74,7 +97,7 @@ int sto2string(char *s, const struct sto *o, size_t len, int comp_level) {
 			break;
 		default:
 			s[0] = '\0';
-			return -1;
 			break;
 	}
+	return -1;
 }
