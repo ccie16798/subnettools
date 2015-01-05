@@ -28,9 +28,6 @@
 		compression_level = 3; \
 	} while (0);
 
-
-
-
 sprint_signed(short)
 sprint_signed(int)
 sprint_signed(long)
@@ -56,7 +53,7 @@ void inline pad_n(char *s, int n, char c) {
 		s[i] = c;
 }
 
-inline int pad_buffer_out(char *out, const char *buffer, int buff_size, 
+static inline int pad_buffer_out(char *out, size_t len, const char *buffer, int buff_size,
 		int field_width, int pad_left, char c) {
 	int res;
 
@@ -79,7 +76,6 @@ inline int pad_buffer_out(char *out, const char *buffer, int buff_size,
  * a very specialized function to print a struct route */
 int fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 	int i, j, a ,i2, compression_level;
-	char pad_value;
 	int res, pad_left;
 	char c;
 	char outbuf[512 + 140];
@@ -107,7 +103,6 @@ int fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 			i2 = i + 1;
 			a = 0;
 			pad_left = 0;
-			pad_value = ' ';
 			field_width = 0;
 			/* try to get a field width (if any) */
 			if (fmt[i2] == '\0') {
@@ -119,7 +114,7 @@ int fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 				i2++;
 			}
 			if (fmt[i2] == '0') {
-				pad_value = '0';
+				/* pad_value = '0'; pad value not used */
 				i2++;
 			}
 			while (isdigit(fmt[i2])) {
@@ -142,22 +137,26 @@ int fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 						res = mask2ddn(r->subnet.mask, buffer, sizeof(buffer));
 					else
 						res = sprint_uint(buffer, r->subnet.mask);
-					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, ' ');
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+							res, field_width, pad_left, ' ');
 					a += res;
 					break;
 				case 'm':
 					res = sprint_uint(buffer, r->subnet.mask);
-					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, ' ');
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+							res, field_width, pad_left, ' ');
 					a += res;
 					break;
 				case 'D':
 					res = strlen(r->device);
-					res = pad_buffer_out(outbuf + j, r->device, res, field_width, pad_left, ' ');
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, r->device,
+							res, field_width, pad_left, ' ');
 					a += res;
 					break;
 				case 'C':
 					res = strlen(r->comment);
-					res = pad_buffer_out(outbuf + j, r->comment, res, field_width, pad_left, ' ');
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, r->comment,
+							res, field_width, pad_left, ' ');
 					a += res;
 					break;
 				case 'U': /* upper subnet */
@@ -176,7 +175,8 @@ int fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 					else if (fmt[i2] == 'U')
 						next_subnet(&v_sub);
 					res = subnet2str(&v_sub, buffer, sizeof(buffer), compression_level);
-					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, ' ');
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+							res, field_width, pad_left, ' ');
 					a += res;
 					break;
 				case 'P': /* Prefix */
@@ -184,15 +184,17 @@ int fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 					copy_subnet(&v_sub, &r->subnet);
 					subnet2str(&v_sub, buffer2, sizeof(buffer2), compression_level);
 					res = sprintf(buffer, "%s/%d", buffer2, (int)v_sub.mask);
-					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, ' ');
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+							res, field_width, pad_left, ' ');
 					a += res;
 					break;
 				case 'G':
 					SET_IP_COMPRESSION_LEVEL(fmt[i2 + 1]);
 					copy_ipaddr(&sub.ip_addr, &r->gw);
 					sub.ip_ver = r->subnet.ip_ver;
-					res = subnet2str(&sub, buffer, sizeof(buffer2), compression_level);
-					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, ' ');
+					res = subnet2str(&sub, buffer, sizeof(buffer), compression_level);
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+							res, field_width, pad_left, ' ');
 					a += res;
 					break;
 				default:
@@ -312,13 +314,15 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 						res = mask2ddn(v_sub.mask, buffer, sizeof(buffer));
 					else
 						res = sprint_uint(buffer, v_sub.mask);
-					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, ' ');
+					res = pad_buffer_out(outbuf + j, len - j, buffer, res,
+							field_width, pad_left, ' ');
 					a += res;
 					break;
 				case 'm':
 					v_sub = va_arg(ap, struct subnet);
 					res = sprint_uint(buffer, v_sub.mask);
-					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, ' ');
+					res = pad_buffer_out(outbuf + j, len - j, buffer, res,
+							field_width, pad_left, ' ');
 					a += res;
 					break;
 				case 's': /* almost standard %s printf, except that size is limited to 128 */
@@ -327,13 +331,15 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 
 					if (strlen(v_s) >= sizeof(buffer) - 1)
 						debug(FMT, 1, "truncating string '%s' to %d bytes\n", v_s, (int)(sizeof(buffer) - 1));
-					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, ' ');
+					res = pad_buffer_out(outbuf + j, len - j, buffer, res,
+							field_width, pad_left, ' ');
 					a += res;
 					break;
 				case 'd':
 					v_int = va_arg(ap, int);
 					res = sprint_int(buffer, v_int);
-					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, pad_value);
+					res = pad_buffer_out(outbuf + j, len - j, buffer, res,
+							field_width, pad_left, pad_value);
 					a += res;
 					break;
 				case 'c':
@@ -344,13 +350,15 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 				case 'u':
 					v_unsigned = va_arg(ap, unsigned);
 					res = sprint_uint(buffer, v_unsigned);
-					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, pad_value);
+					res = pad_buffer_out(outbuf + j, len - j, buffer, res,
+							field_width, pad_left, pad_value);
 					a += res;
 					break;
 				case 'x':
 					v_unsigned = va_arg(ap, unsigned int);
 					res = sprint_hexint(buffer, v_unsigned);
-					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, pad_value);
+					res = pad_buffer_out(outbuf + j, len - j, buffer, res,
+							field_width, pad_left, pad_value);
 					a += res;
 					break;
 					
@@ -369,7 +377,8 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 						break;
 					}
 					i++;
-					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, pad_value);
+					res = pad_buffer_out(outbuf + j, len - j, buffer, res,
+							field_width, pad_left, pad_value);
 					a += res;
 					break;
 				case 'l':
@@ -387,7 +396,8 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 						break;
 					}
 					i++;
-					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, pad_value);
+					res = pad_buffer_out(outbuf + j, len - j, buffer, res,
+							field_width, pad_left, pad_value);
 					a += res;
 					break;
 				case 'a':
@@ -400,7 +410,8 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 						strcpy(buffer,"<Invalid IP>");
 						res = strlen(buffer);
 					}
-					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, ' ');
+					res = pad_buffer_out(outbuf + j, len - j, buffer, res,
+							field_width, pad_left, pad_value);
 					a += res;
 					break;
 				case 'U': /* upper subnet */
@@ -425,7 +436,8 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 						strcpy(buffer, "<Invalid IP>");
 						res = strlen(buffer);
 					}
-					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, ' ');
+					res = pad_buffer_out(outbuf + j, len - j, buffer, res,
+							field_width, pad_left, ' ');
 					a += res;
 					break;
 				case 'P': /* Prefix */
@@ -440,7 +452,8 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 						strcpy(buffer, "<Invalid IP/mask>");
 						res = strlen(buffer);
 					}
-					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, ' ');
+					res = pad_buffer_out(outbuf + j, len - j, buffer, res,
+							field_width, pad_left, ' ');
 					a += res;
 					break;
 				case 'O':
@@ -457,7 +470,8 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 						break;
 					}
 					res = sto2string(buffer, &o[o_num], sizeof(buffer), 3);
-					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, ' ');
+					res = pad_buffer_out(outbuf + j, len - j, buffer, res,
+							field_width, pad_left, ' ');
 					a += res;
 					break;
 				default:
