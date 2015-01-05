@@ -52,7 +52,7 @@ char *fgets_truncate_buffer(char *buffer, int size, FILE *stream, int *res);
  * Strings ARE NOT Nul-terminated
  */
 #define sprint_hex(__type) \
-inline int  sprint_hex##__type(char *s, unsigned __type a) { \
+static inline int  sprint_hex##__type(char *s, unsigned __type a) { \
         char c[32]; \
         int j, i = 0; \
 \
@@ -108,7 +108,7 @@ static inline int sprint_##__type (char *s, __type b) { \
 }
 
 #define snprint_hex(__type) \
-inline int  snprint_hex##__type(char *s, unsigned __type a, size_t __len) { \
+static inline int  snprint_hex##__type(char *s, unsigned __type a, size_t __len) { \
         char c[32]; \
         int j, i = 0; \
 \
