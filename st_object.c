@@ -59,6 +59,7 @@ int sto2string(char *s, const struct sto *o, size_t len, int comp_level) {
 			else
 				res = snprint_hexint(s, o->s_uint, len - 1);
 			s[res] = '\0';
+			return res;
 			break;
 		case 'u':
 			if (o->conversion == 'l')
