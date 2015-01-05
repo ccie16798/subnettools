@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
 
 	memset(buff, 0, 28);
 	sscanf(argv[1], "%x", &a);
-	res = snprint_hexshort(buff, a, 2);
+	res = snprint_hexshort(buff, a, 12);
 	buff[res] = '\0';
 	printf("%s\n", buff);
 	res = snprint_int(buff, b, 3);

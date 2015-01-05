@@ -57,14 +57,14 @@ static inline int  sprint_hex##__type(char *s, unsigned __type a) { \
         int j, i = 0; \
 \
         do { \
-		if (a % 16 < 10) \
-                	c[i] = '0' + a % 16; \
+		if ((a & 0x0f) < 10) \
+			c[i] = '0' + (a & 0x0f); \
 		else \
-			c[i] = 'a' + (a - 10) % 16; \
-                a /= 16; \
+			c[i] = 'a' + ((a & 0x0f) - 10); \
+                a >>= 4; \
                 i++; \
         } while (a); \
-        for (j = 0; j < i;j++) \
+        for (j = 0; j < i; j++) \
                 s[j] = c[i - j - 1]; \
         return i; \
 }
@@ -79,7 +79,7 @@ static inline int sprint_u##__type(char *s, unsigned __type a) { \
 		a /= 10; \
 		i++; \
 	} while (a); \
-	for (j = 0; j < i;j++) \
+	for (j = 0; j < i; j++) \
 		s[j] = c[i - j - 1]; \
 	return i; \
 }
@@ -113,14 +113,14 @@ static inline int  snprint_hex##__type(char *s, unsigned __type a, size_t __len)
         int j, i = 0; \
 \
         do { \
-		if (a % 16 < 10) \
-                	c[i] = '0' + a % 16; \
+		if ((a & 0xf) < 10) \
+			c[i] = '0' + (a & 0xf); \
 		else \
-			c[i] = 'a' + (a - 10) % 16; \
-                a /= 16; \
-                i++; \
+			c[i] = 'a' + ((a & 0xf) - 10); \
+		a >>= 4; \
+		i++; \
         } while (a); \
-        for (j = 0; j < min(i, (int)__len);j++) \
+        for (j = 0; j < min(i, (int)__len); j++) \
                 s[j] = c[i - j - 1]; \
         return j; \
 }
@@ -135,7 +135,7 @@ static inline int snprint_u##__type(char *s, unsigned __type a, size_t __len) { 
 		a /= 10; \
 		i++; \
 	} while (a); \
-	for (j = 0; j < min(i, (int)__len);j++) \
+	for (j = 0; j < min(i, (int)__len); j++) \
 		s[j] = c[i - j - 1]; \
 	return j; \
 }
