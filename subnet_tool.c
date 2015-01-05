@@ -68,7 +68,7 @@ static int netcsv_GW_handle(char *s, void *data, struct csv_state *state) {
 	struct ip_addr addr;
 	int res;
 
-	res = get_single_ip(s, &addr, 41);
+	res = string2addr(s, &addr, 41);
 	if (res != IPV4_A && res != IPV6_A) {  /* we accept that there's no gateway but we treat it has a comment instead */
 		strxcpy(sf->routes[sf->nr].comment, s, sizeof(sf->routes[sf->nr].comment));
 		if (strlen(s) >= sizeof(sf->routes[sf->nr].comment))

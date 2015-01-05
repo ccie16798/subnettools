@@ -306,7 +306,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 				debug(SCANF, 2, "no IP found at offset %d\n", *j);
 				return n_found;
 			}
-			res = get_single_ip(in + *j, v_addr, j2 -*j);
+			res = string2addr(in + *j, v_addr, j2 -*j);
 			if (res < 1000) {
 				debug(SCANF, 5, "'%s' is a valid IP\n", buffer);
 				n_found++;

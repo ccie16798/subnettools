@@ -137,7 +137,7 @@ int mask2ddn(u32 mask, char *out_buffer, size_t len);
  *    IPV6_A if addr is valid IPv6
  *    BAD_IP otherwise
  * */
-int get_single_ip(const char *s, struct ip_addr *addr, int len);
+int string2addr(const char *s, struct ip_addr *addr, int len);
 
 /* read len chars from 's' and try to convert to a subnet mask length
  * s doesnt need to be '\0' ended
