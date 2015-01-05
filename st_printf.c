@@ -418,7 +418,7 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 						v_short = va_arg(ap, int);
 						res = sprint_hexshort(buffer, v_short);
 					} else {
-						debug(FMT, 1, "Invalid format '%c' after '%%l'\n", fmt[i2 + 1]);
+						debug(FMT, 1, "Invalid format '%c' after '%%h'\n", fmt[i2 + 1]);
 						break;
 					}
 					i++;
