@@ -28,6 +28,25 @@
 		compression_level = 3; \
 	} while (0);
 
+
+#define sprint_hex(__type) \
+inline int  sprint_hex##__type(char *s, unsigned __type a) { \
+        char c[32]; \
+        int j, i = 0; \
+\
+        do { \
+		if (a % 16 < 10) \
+                	c[i] = '0' + a % 16; \
+		else \
+			c[i] = 'a' + (a - 10) % 16; \
+                a /= 16; \
+                i++; \
+        } while (a); \
+        for (j = 0; j < i;j++) \
+                s[j] = c[i - j - 1]; \
+        return i; \
+}
+
 #define sprint_unsigned(__type) \
 static inline int sprint_u##__type(char *s, unsigned __type a) { \
 	char c[32]; \
@@ -68,6 +87,9 @@ static inline int sprint_##__type (char *s, __type b) { \
 sprint_signed(short)
 sprint_signed(int)
 sprint_signed(long)
+sprint_hex(short)
+sprint_hex(int)
+sprint_hex(long)
 sprint_unsigned(short)
 sprint_unsigned(int)
 sprint_unsigned(long)
@@ -378,19 +400,28 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, pad_value);
 					a += res;
 					break;
+				case 'x':
+					v_unsigned = va_arg(ap, unsigned int);
+					res = sprint_hexint(buffer, v_unsigned);
+					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, pad_value);
+					a += res;
+					break;
+					
 				case 'h':
 					if (fmt[i2 + 1] == 'u') {
 						v_ushort = va_arg(ap, unsigned);
 						res = sprint_ushort(buffer, v_ushort);
-						i++;
 					} else if (fmt[i2 + 1] == 'd') {
 						v_short = va_arg(ap, int);
 						res = sprint_short(buffer, v_short);
-						i++;
+					} else if (fmt[i2 + 1] == 'x') {
+						v_short = va_arg(ap, int);
+						res = sprint_hexshort(buffer, v_short);
 					} else {
 						debug(FMT, 1, "Invalid format '%c' after '%%l'\n", fmt[i2 + 1]);
 						break;
 					}
+					i++;
 					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, pad_value);
 					a += res;
 					break;
@@ -398,15 +429,17 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 					if (fmt[i2 + 1] == 'u') {
 						v_ulong = va_arg(ap, unsigned long);
 						res = sprint_ulong(buffer, v_ulong);
-						i++;
 					} else if (fmt[i2 + 1] == 'd') {
 						v_long = va_arg(ap, long);
 						res = sprint_long(buffer, v_long);
-						i++;
+					} else if (fmt[i2 + 1] == 'x') {
+						v_ulong = va_arg(ap, unsigned long);
+						res = sprint_hexlong(buffer, v_ulong);
 					} else {
 						debug(FMT, 1, "Invalid format '%c' after '%%l'\n", fmt[i2 + 1]);
 						break;
 					}
+					i++;
 					res = pad_buffer_out(outbuf + j, buffer, res, field_width, pad_left, pad_value);
 					a += res;
 					break;
