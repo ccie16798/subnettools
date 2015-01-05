@@ -354,7 +354,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 					return n_found;
 				}
 				while (isxdigit(in[j2])) {
-					*v_short *= 16;
+					*v_short <<= 4;
 					*v_short += char2int(in[j2]);
 					j2++;
 				}
@@ -401,7 +401,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 					return n_found;
 				}
 				while (isxdigit(in[j2])) {
-					*v_long *= 16;
+					*v_long <<= 4;
 					*v_long += char2int(in[j2]);
 					j2++;
 				}
@@ -476,7 +476,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 				return n_found;
 			}
 			while (isxdigit(in[j2])) {
-				*v_uint *= 16;
+				*v_uint <<= 4;
 				*v_uint += char2int(in[j2]);
 				j2++;
 			}

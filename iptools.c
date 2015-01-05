@@ -560,7 +560,7 @@ static int string2addrv6(const char *s, struct ip_addr *addr, int len) {
 				return BAD_IP;
 
 			}
-			current_block *= 16;
+			current_block <<= 4;
 			current_block += char2int(s[i]);
 			num_digit++;
 			continue;
