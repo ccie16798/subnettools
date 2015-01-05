@@ -75,7 +75,7 @@ static inline int pad_buffer_out(char *out, size_t len, const char *buffer, int 
 /*
  * a very specialized function to print a struct route */
 int fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
-	int i, j, a ,i2, compression_level;
+	int i, j, i2, compression_level;
 	int res, pad_left;
 	char c;
 	char outbuf[512 + 140];
@@ -101,7 +101,6 @@ int fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 			break;
 		if (c == '%') {
 			i2 = i + 1;
-			a = 0;
 			pad_left = 0;
 			field_width = 0;
 			/* try to get a field width (if any) */
@@ -129,7 +128,7 @@ int fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 				case '\0':
 					outbuf[j] = '%';
 					debug(FMT, 2, "End of String after a %c\n", '%');
-					a += 1;
+					j++;
 					i--;
 					break;
 				case 'M':
@@ -139,25 +138,25 @@ int fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 						res = sprint_uint(buffer, r->subnet.mask);
 					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
 							res, field_width, pad_left, ' ');
-					a += res;
+					j += res;
 					break;
 				case 'm':
 					res = sprint_uint(buffer, r->subnet.mask);
 					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
 							res, field_width, pad_left, ' ');
-					a += res;
+					j += res;
 					break;
 				case 'D':
 					res = strlen(r->device);
 					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, r->device,
 							res, field_width, pad_left, ' ');
-					a += res;
+					j += res;
 					break;
 				case 'C':
 					res = strlen(r->comment);
 					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, r->comment,
 							res, field_width, pad_left, ' ');
-					a += res;
+					j += res;
 					break;
 				case 'U': /* upper subnet */
 				case 'L': /* lower subnet */
@@ -177,7 +176,7 @@ int fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 					res = subnet2str(&v_sub, buffer, sizeof(buffer), compression_level);
 					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
 							res, field_width, pad_left, ' ');
-					a += res;
+					j += res;
 					break;
 				case 'P': /* Prefix */
 					SET_IP_COMPRESSION_LEVEL(fmt[i2 + 1]);
@@ -186,7 +185,7 @@ int fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 					res = sprintf(buffer, "%s/%d", buffer2, (int)v_sub.mask);
 					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
 							res, field_width, pad_left, ' ');
-					a += res;
+					j += res;
 					break;
 				case 'G':
 					SET_IP_COMPRESSION_LEVEL(fmt[i2 + 1]);
@@ -195,22 +194,20 @@ int fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 					res = subnet2str(&sub, buffer, sizeof(buffer), compression_level);
 					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
 							res, field_width, pad_left, ' ');
-					a += res;
+					j += res;
 					break;
 				default:
 					debug(FMT, 2, "%c is not a valid char after a %c\n", fmt[i2], '%');
 					outbuf[j] = '%';
 					outbuf[j + 1] = fmt[i2];
-					a = 2;
+					j += 2;
 			} //switch
-			j += a;
 			i += 2;
 		} else if (c == '\\') {
 			switch (fmt[i + 1]) {
 				case '\0':
 					outbuf[j++] = '\\';
 					debug(FMT, 2, "End of String after a %c\n", '\\');
-					a = 1;
 					i--;
 					break;
 				case 'n':
@@ -242,7 +239,7 @@ int fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
  * But this cannot really be avoided
  */
 static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, struct sto *o, int max_o)  {
-	int i, j, a ,i2, compression_level;
+	int i, j, i2, compression_level;
 	int res;
 	char c;
 	char buffer[128];
@@ -260,10 +257,8 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 	unsigned long v_ulong;
 	short v_short;
 	unsigned short v_ushort;
-	/* %a for ip_addr */
-	/* %I for subnet_IP */
-	/* %m for subnet_mask */
-	i = 0;
+
+	i = 0; /* index in fmt */
 	j = 0; /* index in outbuf */
 	while (1) {
 		c = fmt[i];
@@ -276,7 +271,6 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 			break;
 		if (c == '%') {
 			i2 = i + 1;
-			a = 0;
 			pad_left = 0;
 			pad_value = ' ';
 			field_width = 0;
@@ -305,7 +299,7 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 				case '\0':
 					outbuf[j] = '%';
 					debug(FMT, 2, "End of String after a %c\n", '%');
-					a += 1;
+					j += 1;
 					i--;
 					break;
 				case 'M':
@@ -316,14 +310,14 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 						res = sprint_uint(buffer, v_sub.mask);
 					res = pad_buffer_out(outbuf + j, len - j, buffer, res,
 							field_width, pad_left, ' ');
-					a += res;
+					j += res;
 					break;
 				case 'm':
 					v_sub = va_arg(ap, struct subnet);
 					res = sprint_uint(buffer, v_sub.mask);
 					res = pad_buffer_out(outbuf + j, len - j, buffer, res,
 							field_width, pad_left, ' ');
-					a += res;
+					j += res;
 					break;
 				case 's': /* almost standard %s printf, except that size is limited to 128 */
 					v_s = va_arg(ap, char *);
@@ -333,33 +327,33 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 						debug(FMT, 1, "truncating string '%s' to %d bytes\n", v_s, (int)(sizeof(buffer) - 1));
 					res = pad_buffer_out(outbuf + j, len - j, buffer, res,
 							field_width, pad_left, ' ');
-					a += res;
+					j += res;
 					break;
 				case 'd':
 					v_int = va_arg(ap, int);
 					res = sprint_int(buffer, v_int);
 					res = pad_buffer_out(outbuf + j, len - j, buffer, res,
 							field_width, pad_left, pad_value);
-					a += res;
+					j += res;
 					break;
 				case 'c':
 					v_c = va_arg(ap, int);
 					outbuf[j] = v_c;
-					a++;
+					j++;
 					break;
 				case 'u':
 					v_unsigned = va_arg(ap, unsigned);
 					res = sprint_uint(buffer, v_unsigned);
 					res = pad_buffer_out(outbuf + j, len - j, buffer, res,
 							field_width, pad_left, pad_value);
-					a += res;
+					j += res;
 					break;
 				case 'x':
 					v_unsigned = va_arg(ap, unsigned int);
 					res = sprint_hexint(buffer, v_unsigned);
 					res = pad_buffer_out(outbuf + j, len - j, buffer, res,
 							field_width, pad_left, pad_value);
-					a += res;
+					j += res;
 					break;
 					
 				case 'h':
@@ -379,7 +373,7 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 					i++;
 					res = pad_buffer_out(outbuf + j, len - j, buffer, res,
 							field_width, pad_left, pad_value);
-					a += res;
+					j += res;
 					break;
 				case 'l':
 					if (fmt[i2 + 1] == 'u') {
@@ -398,7 +392,7 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 					i++;
 					res = pad_buffer_out(outbuf + j, len - j, buffer, res,
 							field_width, pad_left, pad_value);
-					a += res;
+					j += res;
 					break;
 				case 'a':
 					v_addr = va_arg(ap, struct ip_addr);
@@ -412,7 +406,7 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 					}
 					res = pad_buffer_out(outbuf + j, len - j, buffer, res,
 							field_width, pad_left, pad_value);
-					a += res;
+					j += res;
 					break;
 				case 'U': /* upper subnet */
 				case 'L': /* lower subnet */
@@ -438,7 +432,7 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 					}
 					res = pad_buffer_out(outbuf + j, len - j, buffer, res,
 							field_width, pad_left, ' ');
-					a += res;
+					j += res;
 					break;
 				case 'P': /* Prefix */
 					v_sub = va_arg(ap, struct subnet);
@@ -454,7 +448,7 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 					}
 					res = pad_buffer_out(outbuf + j, len - j, buffer, res,
 							field_width, pad_left, ' ');
-					a += res;
+					j += res;
 					break;
 				case 'O':
 					if (o == NULL)
@@ -472,22 +466,20 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 					res = sto2string(buffer, &o[o_num], sizeof(buffer), 3);
 					res = pad_buffer_out(outbuf + j, len - j, buffer, res,
 							field_width, pad_left, ' ');
-					a += res;
+					j += res;
 					break;
 				default:
 					debug(FMT, 2, "%c is not a valid char after a %c\n", fmt[i2], '%');
 					outbuf[j] = '%';
 					outbuf[j + 1] = fmt[i2];
-					a = 2;
+					j += 2;
 			} //switch
-			j += a;
 			i += 2;
 		} else if (c == '\\') {
 			switch (fmt[i + 1]) {
 				case '\0':
 					outbuf[j++] = '\\';
 					debug(FMT, 2, "End of String after a %c\n", '\\');
-					a = 1;
 					i--;
 					break;
 				case 'n':
