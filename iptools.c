@@ -907,7 +907,6 @@ void previous_subnet(struct subnet *s) {
 		shift_ipv6_right(s->ip6, 128 - s->mask);
 		decrease_ipv6(s->ip6);
 		shift_ipv6_left(s->ip6, 128 - s->mask);
-
 	}
 }
 
@@ -939,7 +938,6 @@ int can_decrease_mask(const struct subnet *s) {
 	}
 	return 0;
 }
-
 
 /*
  * remove s2 from s1 if possible
@@ -979,7 +977,7 @@ struct subnet *subnet_remove(const struct subnet *s1, const struct subnet *s2, i
 	first_ip(&test);
 	i = 0;
 	/** strategy is as follow :
-	test = S1/2;
+	test = S1;
 	do
 		do
 			increase test mask
@@ -1045,4 +1043,3 @@ struct subnet *subnet_remove(const struct subnet *s1, const struct subnet *s2, i
 	*n = i;
 	return news;
 }
-
