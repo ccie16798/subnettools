@@ -58,9 +58,13 @@ static inline char escape_char(char input_c) {
 }
 
 static int is_multiple_char(char c) {
-	return (c == '*' || c == '+' || c == '?');
+	return (c == '*' || c == '+' || c == '?' || c == '{');
 }
 
+/*
+ * find the conversion specifier char after a '%'
+ * (since it can the followed by a max_field_length)
+ */
 static char conversion_specifier(const char *fmt) {
 	int i = 0;
 
@@ -74,12 +78,28 @@ static char conversion_specifier(const char *fmt) {
 	return '\0';
 }
 
+static int max_match(char c) {
+	if (c == '*') return 1000000000;
+	if (c == '+') return 1000000000;
+	if (c == '?') return 1;
+	debug(SCANF, 1, "BUG, Invalid multiplier char '%c'\n", c);
+	return 0;
+}
+
+static int min_match(char c) {
+	if (c == '*') return 0;
+	if (c == '+') return 1;
+	if (c == '?') return 0;
+	debug(SCANF, 1, "BUG, Invalid multiplier char '%c'\n", c);
+	return 0;
+}
+
 /*
  * parse a brace multiplier like {,1} or {2} or {3,4} {4,}
  * min & max are set by this helper
  * return -1 if string is invalid, number of matched char
  */
-static int parse_brace_multiplier(char *s, int *min, int *max) {
+static int parse_brace_multiplier(const char *s, int *min, int *max) {
 	int i = 1;
 
 	*min = 0;
@@ -136,22 +156,6 @@ static int count_cs(const char *expr) {
 		if (expr[i] == '%' && expr[i - 1] != '\\') /* unlike regular scanf, escape char is '\' and only that */
 			n++;
 	}
-	return 0;
-}
-
-static int max_match(char c) {
-	if (c == '*') return 1000000000;
-	if (c == '+') return 1000000000;
-	if (c == '?') return 1;
-	debug(SCANF, 1, "BUG, Invalid multiplier char '%c'\n", c);
-	return 0;
-}
-
-static int min_match(char c) {
-	if (c == '*') return 0;
-	if (c == '+') return 1;
-	if (c == '?') return 0;
-	debug(SCANF, 1, "BUG, Invalid multiplier char '%c'\n", c);
 	return 0;
 }
 
@@ -871,8 +875,14 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 		debug(SCANF, 8, "Still to parse in FMT  : '%s'\n", fmt + i);
 		debug(SCANF, 8, "Still to parse in 'in' : '%s'\n", in + j);
 		if (is_multiple_char(c)) {
-			min_m = min_match(c);
-			max_m = max_match(c);
+			if (c == '{') {
+				res = parse_brace_multiplier(fmt + i, &min_m, &max_m);
+				if (res < 0)
+					return n_found;
+			} else {
+				min_m = min_match(c);
+				max_m = max_match(c);
+			}
 			e.expr = expr;
 			e.end_of_expr = fmt[i + 1]; /* if necessary */
 			e.stop = NULL;
