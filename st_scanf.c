@@ -653,10 +653,8 @@ static int match_expr_single(const char *expr, char *in, struct sto *o, int *num
 			default:
 				if (c == '|')
 					return a;
-				if (in[j] != c) {
-					*num_o = saved_num_o;
+				if (in[j] != c)
 					goto try_again;
-				}
 				i++;
 				j++;
 				a++;
@@ -669,6 +667,8 @@ static int match_expr_single(const char *expr, char *in, struct sto *o, int *num
 				return 0;
 			i += res;
 			j = 0;
+			a = 0;
+			*num_o = saved_num_o;
 			debug(SCANF, 4, "We have been given another chance, remaing expr '%s'\n", expr + i);
 	}
 }
