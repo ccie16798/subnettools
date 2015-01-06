@@ -24,8 +24,7 @@
 // READ HEX :x; :hx
 
 struct expr {
-	int num_expr;
-	char *expr[10];
+	char *expr;
 	int (*stop)(char *remain, struct expr *e);
 	char end_of_expr; /* if remain[i] = end_of_expr , we can stop*/
 	char end_expr[64];
@@ -678,19 +677,14 @@ static int match_expr_single(const char *expr, char *in, struct sto *o, int *num
  * n otherwise
  */
 static int match_expr(struct expr *e, char *in, struct sto *o, int *num_o) {
-	int i = 0;
 	int res = 0;
 	int res2;
 	int saved_num_o = *num_o;
 
-	for (i = 0; i < e->num_expr; i++) {
-		res = match_expr_single(e->expr[i], in, o, num_o);
-		debug(SCANF, 4, "Matching expr '%s' against in '%s' res=%d numo='%d'\n", e->expr[i], in, res, *num_o);
-		if (res < 0)
-			return res;
-		if (res)
-			break;
-	}
+	res = match_expr_single(e->expr, in, o, num_o);
+	debug(SCANF, 4, "Matching expr '%s' against in '%s' res=%d numo='%d'\n", e->expr, in, res, *num_o);
+	if (res < 0)
+		return res;
 	if (res == 0) {
 		*num_o = saved_num_o;
 		return 0;
@@ -831,8 +825,7 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 		if (is_multiple_char(c)) {
 			min_m = min_match(c);
 			max_m = max_match(c);
-			e.expr[0] = expr;
-			e.num_expr = 1;
+			e.expr = expr;
 			e.end_of_expr = fmt[i + 1]; /* if necessary */
 			e.stop = NULL;
 			e.last_match  = -1;
