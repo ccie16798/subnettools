@@ -74,6 +74,54 @@ static char conversion_specifier(const char *fmt) {
 	return '\0';
 }
 
+/*
+ * parse a brace multiplier like {,1} or {2} or {3,4} {4,}
+ * min & max are set by this helper
+ * return -1 if string is invalid, number of matched char
+ */
+static int parse_brace_multiplier(char *s, int *min, int *max) {
+	int i = 1;
+
+	*min = 0;
+	*max = 10000000;
+	if (s[i] == '}') {
+		debug(SCANF, 1, "Invalid empty multiplier '%s'\n", s);
+		return -1;
+	}
+	while (isdigit(s[i])) {
+		*min *= 10;
+		*min += s[i] - '0';
+		i++;
+	}
+	if (s[i] == ',') {
+		i++;
+		if (s[i] == '}') {
+			return i + 1;
+		} else if (isdigit(s[i])) {
+			*max = 0;
+			while (isdigit(s[i])) {
+				*max *= 10;
+				*max += s[i] - '0';
+				i++;
+			}
+			if (s[i] != '}') {
+				debug(SCANF, 1, "Invalid multiplier '%s', no closing '}'\n", s);
+				return -1;
+			}
+			if (min > max) {
+				debug(SCANF, 1, "Invalid range, min:%d > max:%d\n", *min, *max);
+				return -1;
+			}
+		}
+	} else if (s[i] == '}') {
+		*max = *min;
+		return i + 1;
+	} else {
+		debug(SCANF, 1, "Invalid range '%s' contains invalid char '%c'\n", s, s[i]);
+		return -1;
+	}
+	return -1;
+}
 /* count number of consersion specifier in an expr
  * doesnt validate CS are valid
  */
