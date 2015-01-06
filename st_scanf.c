@@ -606,7 +606,7 @@ static int match_expr_single(const char *expr, char *in, struct sto *o, int *num
 
 	while (1) {
 		c = expr[i];
-		if (c == '\0')
+		if (c == '\0' || c =='|')
 			return a;
 		debug(SCANF, 8, "remaining in  ='%s'\n", in + j);
 		debug(SCANF, 8, "remaining expr='%s'\n", expr + i);
@@ -625,7 +625,7 @@ static int match_expr_single(const char *expr, char *in, struct sto *o, int *num
 			case '[': /* try to handle char range like [a-Zbce-f] */
 				res = match_char_against_range(in[j], expr, &i);
 				if (res <= 0)
-					return res;
+					goto try_again;
 				a++;
 				j++;
 				break;
@@ -634,7 +634,7 @@ static int match_expr_single(const char *expr, char *in, struct sto *o, int *num
 				j2 = j;
 				res = parse_conversion_specifier(in, expr, &i, &j, &o[*num_o]);
 				if (res == 0)
-					return 0;
+					goto try_again;
 				if (o) {
 					debug(SCANF, 4, "conv specifier successfull '%c' for %d\n", o[*num_o].type, *num_o);
 				} else {
@@ -646,19 +646,30 @@ static int match_expr_single(const char *expr, char *in, struct sto *o, int *num
 			case '\\':
 				i++;
 				c = escape_char(expr[i]);
-			default:
-				if (in[j] != c) {
-					*num_o = saved_num_o;
+				if (c == '\0') {
+					debug(SCANF, 1, "expr '%s' invalid, '\\' at end of string\n", expr);
 					return 0;
 				}
-				if (c == '\0')
+			default:
+				if (c == '|')
 					return a;
+				if (in[j] != c) {
+					*num_o = saved_num_o;
+					goto try_again;
+				}
 				i++;
 				j++;
 				a++;
 				break;
 		}
-
+		continue;
+		try_again:
+			res = expr_try_again(expr + i);
+			if (res == -1) /* no '|' */
+				return 0;
+			i += res;
+			j = 0;
+			debug(SCANF, 4, "We have been given another chance, remaing expr '%s'\n", expr + i);
 	}
 }
 /* match expression e against input buffer
