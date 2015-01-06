@@ -324,11 +324,11 @@ u32 string2mask(const char *s, int len) {
 	if (s[i] == '/') /* leading / is permitted */
 		i++;
 	if (s[i] == '\0') {
-		debug(PARSEIP, 2, "invalid mask '%s', no digits found\n", s);
+		debug(PARSEIP, 2, "Invalid mask '%s', no digits found\n", s);
 		return BAD_MASK;
 	}
 	if (s[i] == '.') {
-		debug(PARSEIP, 2, "invalid mask '%s', starts with '.'\n", s);
+		debug(PARSEIP, 2, "Invalid mask '%s', starts with '.'\n", s);
 		return BAD_MASK;
 	}
 	for ( ; ; i++) {
@@ -336,42 +336,42 @@ u32 string2mask(const char *s, int len) {
 			break;
 		} else if (s[i] == '.') {
 		 	if (s[i + 1] == '.') {
-				debug(PARSEIP, 2, "invalid mask '%s', contains consecutive '.'\n", s);
+				debug(PARSEIP, 2, "Invalid mask '%s', contains consecutive '.'\n", s);
 				return BAD_MASK;
 			}
 			if (s[i + 1] == '\0') {
-				debug(PARSEIP, 2, "invalid mask '%s', ends with '.'\n", s);
+				debug(PARSEIP, 2, "Invalid mask '%s', ends with '.'\n", s);
 				return BAD_MASK;
 			}
 			count_dot++;
 		} else if (isdigit(s[i]))
 			continue;
 		else {
-			debug(PARSEIP, 2, "invalid mask '%s', contains '%c'\n", s, s[i]);
+			debug(PARSEIP, 2, "Invalid mask '%s', contains '%c'\n", s, s[i]);
 			return BAD_MASK;
 		}
 	}
 	if (count_dot == 0) { /* prefix length*/
 		a = atoi(s);
 		if (a > 128) {
-			debug(PARSEIP, 5, "invalid mask '%s', too long\n", s);
+			debug(PARSEIP, 5, "Invalid mask '%s', too long\n", s);
 			return BAD_MASK;
 		}
 		return a;
 	}
 	if (count_dot != 3) {
-		debug(PARSEIP, 5, "invalid mask '%s', bad format\n", s);
+		debug(PARSEIP, 5, "Invalid mask '%s', bad format\n", s);
 		return BAD_MASK;
 	}
 	a = 0;
 	sscanf(s, "%d.%d.%d.%d", truc, truc + 1, truc + 2, truc + 3);
 	for (i = 0; i < 4 ; i++) {
 		if (i && ( (truc[i] > truc[i - 1])  || (truc[i] && truc[i] < 255 && truc[i - 1] < 255))   ) {
-			debug(PARSEIP, 5, "invalid X.X.X.X mask %s\n",s);
+			debug(PARSEIP, 5, "Invalid X.X.X.X mask %s\n",s);
 			return BAD_MASK;
 		}
 		if (!isPower2(256 - truc[i])) {
-			debug(PARSEIP, 5, "invalid X.X.X.X mask, contains '%d'\n", truc[i]);
+			debug(PARSEIP, 5, "Invalid X.X.X.X mask, contains '%d'\n", truc[i]);
 			return BAD_MASK;
 		}
 		a += 8 - mylog2(256 - truc[i]);
@@ -386,36 +386,36 @@ static int string2addrv4(const char *s, struct ip_addr *addr, int len) {
 	int current_block = 0;
 
 	if (*s == '\0') {
-		debug(PARSEIP, 2, "invalid IP '%s', null\n", s);
+		debug(PARSEIP, 2, "Invalid IP '%s', null\n", s);
 		return BAD_IP;
 	}
 	if (*s == '.') {
-		debug(PARSEIP, 2, "invalid IP '%s', starts with '.'\n", s);
+		debug(PARSEIP, 2, "Invalid IP '%s', starts with '.'\n", s);
 		return BAD_IP;
 	}
 	for (i = 0; ; i++) {
 		if (s[i] == '\0' || i == len) {
 			truc[count_dot] = current_block;
 			if (current_block > 255) {
-				debug(PARSEIP, 2, "invalid IP '%s', %d too big\n", s, current_block);
+				debug(PARSEIP, 2, "Invalid IP '%s', %d too big\n", s, current_block);
 				return BAD_IP;
 			}
 			break;
 		} else if (s[i] == '.') {
 			if  (s[i + 1] == '.') {
-				debug(PARSEIP, 2, "invalid IP '%s', contains 2 consecutives '.'\n", s);
+				debug(PARSEIP, 2, "Invalid IP '%s', contains 2 consecutives '.'\n", s);
 				return BAD_IP;
 			}
 			if  (s[i + 1] == '\0') {
-				debug(PARSEIP, 2, "invalid IP '%s', ends with '.'\n", s);
+				debug(PARSEIP, 2, "Invalid IP '%s', ends with '.'\n", s);
 				return BAD_IP;
 			}
 			if (current_block > 255) {
-				debug(PARSEIP, 2, "invalid IP '%s', %d too big\n", s, current_block);
+				debug(PARSEIP, 2, "Invalid IP '%s', %d too big\n", s, current_block);
 				return BAD_IP;
 			}
 			if (count_dot == 3) {
-				debug(PARSEIP, 2, "invalid IP '%s', too many '.'\n", s);
+				debug(PARSEIP, 2, "Invalid IP '%s', too many '.'\n", s);
 				return BAD_IP;
 			}
 			truc[count_dot] = current_block;
@@ -426,12 +426,12 @@ static int string2addrv4(const char *s, struct ip_addr *addr, int len) {
 			current_block += s[i] - '0';
 			continue;
 		} else {
-			debug(PARSEIP, 2, "invalid IP '%s',  contains '%c'\n", s, s[i]);
+			debug(PARSEIP, 2, "Invalid IP '%s',  contains '%c'\n", s, s[i]);
 			return BAD_IP;
 		}
 	}
 	if (count_dot != 3) {
-		debug(PARSEIP, 2, "invalid IP '%s', not enough '.'\n", s);
+		debug(PARSEIP, 2, "Invalid IP '%s', not enough '.'\n", s);
 		return BAD_IP;
 	}
 	addr->ip = (truc[0] << 24) + (truc[1] << 16) + (truc[2] << 8) + truc[3];
@@ -478,15 +478,15 @@ static int string2addrv6(const char *s, struct ip_addr *addr, int len) {
 				count2++;
 		} else if (s[i] == '.') {
 			if (s[i - 1] == ':') {
-				debug(PARSEIPV6, 2, "invalid IP '%s', found '.' after ':'\n", s);
+				debug(PARSEIPV6, 2, "Invalid IP '%s', found '.' after ':'\n", s);
 				return BAD_IP;
 			}
 			if (i == len - 1 || s[i + 1] == '\0') {
-				debug(PARSEIPV6, 2, "invalid IP '%s', ends with '.'\n", s);
+				debug(PARSEIPV6, 2, "Invalid IP '%s', ends with '.'\n", s);
 				return BAD_IP;
 			}
 			if (s[i + 1] == '.') {
-				debug(PARSEIPV6, 2, "invalid IP '%s', contains 2 consecutives '.'\n", s);
+				debug(PARSEIPV6, 2, "Invalid IP '%s', contains 2 consecutives '.'\n", s);
 				return BAD_IP;
 			}
 			count_dot++;
@@ -565,7 +565,7 @@ static int string2addrv6(const char *s, struct ip_addr *addr, int len) {
 			num_digit++;
 			continue;
 		} else {
-			debug(PARSEIPV6, 2, "invalid char '%c' found in block#%d\n", s[i], out_i);
+			debug(PARSEIPV6, 2, "Invalid char '%c' found in block#%d\n", s[i], out_i);
 			return BAD_IP;
 		}
 		if (out_i == 6 && count_dot) { /* try to see if it is a ::ffff:IPv4 or ::Ipv4 */
@@ -614,7 +614,7 @@ int string2addr(const char *s, struct ip_addr *addr, int len) {
 			may_ipv6 = 2;
 			continue; /* this is valid for IPv6 only */
 		} else {
-			debug(PARSEIP, 5, "invalid IP %s,  contains [%c]\n", s, s[i]);
+			debug(PARSEIP, 5, "Invalid IP %s,  contains [%c]\n", s, s[i]);
 			return BAD_IP;
 		}
 	}
@@ -623,7 +623,7 @@ int string2addr(const char *s, struct ip_addr *addr, int len) {
 	if (may_ipv6 == 1)
 		return string2addrv6(s, addr, len);
 
-	debug(PARSEIP, 5, "invalid IPv4 or IPv6 : %s\n", s);
+	debug(PARSEIP, 5, "Invalid IPv4 or IPv6 : %s\n", s);
 	return BAD_IP;
 }
 
@@ -642,7 +642,7 @@ int get_subnet_or_ip(const char *s, struct subnet *subnet) {
 	int slash_i = 0;
 
 	if (*s == '\0'||*s == '/') {
-		debug(PARSEIP, 5, "invalid prefix %s, null IP\n", s);
+		debug(PARSEIP, 5, "Invalid prefix %s, null IP\n", s);
 		return BAD_IP;
 	}
 	debug(PARSEIP, 9, "prefix %s length %d\n", s, (int)strlen(s));
@@ -653,7 +653,7 @@ int get_subnet_or_ip(const char *s, struct subnet *subnet) {
 		} else if (isxdigit(s[i])||s[i] == '.'||s[i] == ':'||s[i] == ' ')
 			continue;
 		else {
-			debug(PARSEIP, 2, "invalid prefix '%s',  contains '%c'\n", s, s[i]);
+			debug(PARSEIP, 2, "Invalid prefix '%s', contains '%c'\n", s, s[i]);
 			return BAD_IP;
 		}
 	}
@@ -690,7 +690,7 @@ int classfull_get_subnet(const char *s, struct subnet *subnet) {
 	int count_dot = 0;
 
 	if  (s[0] == '.') {
-		debug(PARSEIP, 2, "invalid prefix '%s', starts with '.'\n", s);
+		debug(PARSEIP, 2, "Invalid prefix '%s', starts with '.'\n", s);
 		return BAD_IP;
 	}
 	memset(truc, 0, sizeof(truc));
@@ -698,25 +698,25 @@ int classfull_get_subnet(const char *s, struct subnet *subnet) {
 		if (s[i] == '\0' || s[i] == '/') {
 			truc[count_dot] = current_block;
 			if (current_block > 255) {
-				debug(PARSEIP, 2, "invalid IP '%s', %d too big\n", s, current_block);
+				debug(PARSEIP, 2, "Invalid IP '%s', %d too big\n", s, current_block);
 				return BAD_IP;
 			}
 			break;
 		} else if (s[i] == '.') {
 			if  (s[i + 1] == '.') {
-				debug(PARSEIP, 2, "invalid IP '%s', contains 2 consecutives '.'\n", s);
+				debug(PARSEIP, 2, "Invalid IP '%s', contains 2 consecutives '.'\n", s);
 				return BAD_IP;
 			}
 			if  (s[i + 1] == '\0') {
-				debug(PARSEIP, 2, "invalid IP '%s', ends with '.'\n", s);
+				debug(PARSEIP, 2, "Invalid IP '%s', ends with '.'\n", s);
 				return BAD_IP;
 			}
 			if (current_block > 255) {
-				debug(PARSEIP, 2, "invalid IP '%s', %d too big\n", s, current_block);
+				debug(PARSEIP, 2, "Invalid IP '%s', %d too big\n", s, current_block);
 				return BAD_IP;
 			}
 			if (count_dot == 3) {
-				debug(PARSEIP, 2, "invalid IP '%s', too many '.'\n", s);
+				debug(PARSEIP, 2, "Invalid IP '%s', too many '.'\n", s);
 				return BAD_IP;
 			}
 			truc[count_dot] = current_block;
@@ -730,7 +730,7 @@ int classfull_get_subnet(const char *s, struct subnet *subnet) {
 			/* that may be IPv6 and IPv6 is classless, so fall-back to a regular get_subnet_or_ip */
 			return get_subnet_or_ip(s, subnet);
 		} else {
-			debug(PARSEIP, 2, "invalid IP '%s',  contains '%c'\n", s, s[i]);
+			debug(PARSEIP, 2, "Invalid IP '%s',  contains '%c'\n", s, s[i]);
 			return BAD_IP;
 		}
 	}
@@ -747,14 +747,14 @@ int classfull_get_subnet(const char *s, struct subnet *subnet) {
 		if (s[i] == '\0')
 			break;
 		if (!isdigit(s[i])) {
-			debug(PARSEIP, 2, "invalid prefix '%s', mask contains '%c'\n", s, s[i]);
+			debug(PARSEIP, 2, "Invalid prefix '%s', mask contains '%c'\n", s, s[i]);
 			return BAD_IP;
 		}
 		mask *= 10;
 		mask += s[i] - '0';
 	}
 	if (mask > 32) {
-		debug(PARSEIP, 2, "invalid prefix '%s', mask '%d' too big \n", s, (int)mask);
+		debug(PARSEIP, 2, "Invalid prefix '%s', mask '%d' too big \n", s, (int)mask);
 		return BAD_MASK;
 	}
 	subnet->ip = (truc[0] << 24) + (truc[1] << 16) + (truc[2] << 8) + truc[3];
