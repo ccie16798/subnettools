@@ -90,7 +90,7 @@ static inline int sprint_##__type (char *s, __type b) { \
 	int j, i = 0; \
 	unsigned __type a = b; \
 	int is_signed = 0; \
-	if ( a >  ((unsigned __type)-1) / 2) { \
+	if (a >  ((unsigned __type)-1) / 2) { \
 		s[0] = '-'; \
 		a = ((unsigned __type)-1) - a; \
 		a++; \
@@ -146,7 +146,7 @@ static inline int snprint_##__type (char *s, __type b, size_t __len) { \
 	int j, i = 0; \
 	unsigned __type a = b; \
 	int is_signed = 0; \
-	if ( a >  ((unsigned __type)-1) / 2) { \
+	if (a >  ((unsigned __type)-1) / 2) { \
 		s[0] = '-'; \
 		a = ((unsigned __type)-1) - a; \
 		a++; \
