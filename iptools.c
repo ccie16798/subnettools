@@ -189,7 +189,7 @@ int addrv42str(ipv4 z, char *out_buffer, size_t len) {
  * compress = 0 ==> no adress compression
  * compress = 1 ==> remove leading zeros
  * compress = 2 ==> FULL compression but doesnt convert Embedded IPv4
- * compress = 3 ==> FULL compression but and convert Embedded IPv4
+ * compress = 3 ==> FULL compression and convert Embedded IPv4
  */
 int addrv62str(ipv6 z, char *out_buffer, size_t len, int compress) {
 	int a, i, j;
@@ -370,7 +370,6 @@ u32 string2mask(const char *s, int len) {
 			debug(PARSEIP, 5, "invalid X.X.X.X mask %s\n",s);
 			return BAD_MASK;
 		}
-
 		if (!isPower2(256 - truc[i])) {
 			debug(PARSEIP, 5, "invalid X.X.X.X mask, contains '%d'\n", truc[i]);
 			return BAD_MASK;
@@ -378,7 +377,6 @@ u32 string2mask(const char *s, int len) {
 		a += 8 - mylog2(256 - truc[i]);
 	}
 	return a;
-
 }
 
 static int string2addrv4(const char *s, struct ip_addr *addr, int len) {
@@ -472,19 +470,26 @@ static int string2addrv6(const char *s, struct ip_addr *addr, int len) {
 			return BAD_IP;
 		} else if (s[i] == ':') {
 			count++;
-			if (s[i + 1] == ':') {
-				count2++;
+			if (s[i + 1] == '.') {
+				debug(PARSEIPV6, 2, "invalid IP '%s', found '.' after ':'\n", s);
+				return BAD_IP;
 			}
-		} else if (s[i] == '.')
+			if (s[i + 1] == ':')
+				count2++;
+		} else if (s[i] == '.') {
+			if (i == len - 1 || s[i + 1] == '\0') {
+				debug(PARSEIPV6, 2, "invalid IP '%s', ends with '.'\n", s);
+				return BAD_IP;
+			}
+			if (s[i + 1] == '.') {
+				debug(PARSEIPV6, 2, "invalid IP '%s', contains 2 consecutives '.'\n", s);
+				return BAD_IP;
+			}
 			count_dot++;
-		else if (s[i] == '\0')
+		} else if (s[i] == '\0')
 			break;
 	}
 	/* getting the correct number of :, :: etc **/
-	if (count > 7) {
-		debug(PARSEIPV6, 2, "Bad ipv6 address '%s', too many ':', [%d]\n", s, count );
-		return BAD_IP;
-	}
 	if (count2 > 1) {
 		debug(PARSEIPV6, 2, "Bad ipv6 address '%s', too many '::', [%d]\n", s, count2 );
 		return BAD_IP;
@@ -494,12 +499,20 @@ static int string2addrv6(const char *s, struct ip_addr *addr, int len) {
 			debug(PARSEIPV6, 2, "Bad IPv4-Embedded/Mapped address '%s', wrong '.' count, [%d]\n", s, count_dot);
 			return BAD_IP;
 		}
+		if (count > 6) {
+			debug(PARSEIPV6, 2, "Bad ipv6 address '%s', too many ':', [%d]\n", s, count );
+			return BAD_IP;
+		}
 		if (count2 == 0 && count != 6) {
 			debug(PARSEIPV6, 1, "Bad IPv4-Embedded/Mapped address '%s', bad ':' count, [%d]\n", s, count );
 			return BAD_IP;
 		}
 		skipped_blocks = 7 - count;
 	} else {
+		if (count > 7) {
+			debug(PARSEIPV6, 2, "Bad ipv6 address '%s', too many ':', [%d]\n", s, count );
+			return BAD_IP;
+		}
 		if (count2 == 0 && count != 7) {
 			debug(PARSEIPV6, 2, "Bad ipv6 address '%s', not enough ':', [%d]\n", s, count );
 			return BAD_IP;
