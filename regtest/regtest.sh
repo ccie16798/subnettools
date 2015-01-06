@@ -39,16 +39,19 @@ reg_test_scanf() {
 	local output_file
 	local n
 
-	n=20
+	n=22
 	$PROG scanf "1.1.1.1 zob    1.1.1.2    name 25" " *%I (%S )?.*%I *(name) %d" > res/scanf1 
 	$PROG scanf "1.1.1.1   1.1.1.2    name 25" " *%I (%S )?.*%I *(name) %d" > res/scanf2 
 	$PROG scanf "1.1.1.1  1.1.1.2 2.2.2.2 toto   r" " *%I .*%S" > res/scanf3
 	$PROG scanf "1.1.1.1  1.1.1.2 2.2.2.2 toto   r" " *%I .*%[a-z]" > res/scanf4
+	# test last string matching .*$%s
 	$PROG scanf "i L2     10.73.0.6/32 [115/200] via 10.73.10.106, 5d08h, Vlan860" ".*%P.*(via )%I.*$%s" > res/scanf5
+	# test conversion specifier inside a ( )? construct and %S conversion specifier
 	$PROG scanf "ip route vrf TRUC 10.1.1.0 255.255.248.0 192.168.1.3 tag 8 name HELLO" "ip route.*%I %M (%S )?.*%I.*(name).*%s" > res/scanf6
 	$PROG scanf "ip route vrf TRUC 10.1.1.0 255.255.248.0 Vlan38 192.168.1.3 tag 8 name HELLO" "ip route.*%I %M (%S )?.*%I.*(name).*%s" > res/scanf7
 	$PROG scanf "ip route 100.1.1.0 255.248.0.0 192.168.1.3 tag 8 name HELLO" "ip route.*%I %M (%S )?.*%I.*(name).*%s" > res/scanf8
 	$PROG scanf "ip route 100.1.1.0 255.248.0.0 Vlan38 192.168.1.3 tag 8 name HELLO" "ip route.*%I %M (%S )?.*%I.*(name).*%s" > res/scanf9
+	# test char range and end on char range
 	$PROG scanf "1234567891242434244244" ".*%[2-4]" >  res/scanf10
 	$PROG scanf "1234567891242434244244" ".*$%[2-4]" >  res/scanf11
 	# end on IPv6
@@ -67,6 +70,10 @@ reg_test_scanf() {
 	$PROG scanf  "1234567890  abcdabcdabcd 1234567890"  "%9s[90 ]*%5[abcd](abcdabcd).*%9S" > res/scanf19
 	# test HEX scanning
 	$PROG scanf "0xfffeabc 200 0xfff1fffe" "%x *%hx .*$%lx" > res/scanf20
+	# test OR 
+	$PROG scanf "12 1.1.1.1 aa 1234" "(bozz|ss|%d %I) aa %d " > res/scanf21
+	# %d %S doesnt matchn %d %I does
+	$PROG scanf "12 1.1.1.1 aa 1234" "(bozz|ss|%d %S|%d %I) aa %d " > res/scanf22
 
 	for i in `seq 1 $n`; do
 		output_file=scanf$i
