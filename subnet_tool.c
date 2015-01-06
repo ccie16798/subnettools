@@ -973,7 +973,7 @@ int subnet_file_remove(const struct subnet_file *sf1, struct subnet_file *sf2, c
 	return 1;
 }
 
-static int parse_levels(char *s, int *levels) {
+static int split_parse_levels(char *s, int *levels) {
 	int i = 0, current = 0;
 	int n_levels = 0;
 
@@ -1040,7 +1040,7 @@ int subnet_split(FILE *out, const struct subnet *s, char *string_levels) {
 	int base_mask;
 	int sum = 0;
 
-	res = parse_levels(string_levels, levels);
+	res = split_parse_levels(string_levels, levels);
 	if (res < 0)
 		return res;
 	n_levels = res;

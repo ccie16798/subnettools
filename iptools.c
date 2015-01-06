@@ -1002,6 +1002,7 @@ struct subnet *subnet_remove(const struct subnet *s1, const struct subnet *s2, i
 
 		test = test + 1 (next subnet)
 	until test != S2
+
 	test = S2
 	do
 		test = test +1 (next subnet)
