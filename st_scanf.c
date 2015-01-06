@@ -116,7 +116,7 @@ static int parse_brace_multiplier(const char *s, int *min, int *max) {
 	if (s[i] == ',') {
 		i++;
 		if (s[i] == '}') {
-			return i + 1;
+			return i;
 		} else if (isdigit(s[i])) {
 			*max = 0;
 			while (isdigit(s[i])) {
@@ -132,10 +132,11 @@ static int parse_brace_multiplier(const char *s, int *min, int *max) {
 				debug(SCANF, 1, "Invalid range, min:%d > max:%d\n", *min, *max);
 				return -1;
 			}
+			return i;
 		}
 	} else if (s[i] == '}') {
 		*max = *min;
-		return i + 1;
+		return i;
 	} else {
 		debug(SCANF, 1, "Invalid range '%s' contains invalid char '%c'\n", s, s[i]);
 		return -1;
@@ -879,6 +880,7 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 				res = parse_brace_multiplier(fmt + i, &min_m, &max_m);
 				if (res < 0)
 					return n_found;
+				i += res;
 			} else {
 				min_m = min_match(c);
 				max_m = max_match(c);
