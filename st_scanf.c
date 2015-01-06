@@ -19,9 +19,7 @@
 #include "st_object.h"
 
 // TO check : bound checking
-// (Expr1|expr2) handling
 // {a,b} multiplier
-// READ HEX :x; :hx
 
 struct expr {
 	char *expr;
@@ -32,6 +30,7 @@ struct expr {
 	int last_match; /* the last pos in input string where the ->stop(remain, e) matched and ->stop(remain - 1, e) DIDNOT */
 	int last_nmatch;
 	int has_stopped;
+	int min_match;
 	int skip_stop; /* if positive, dont run e->stop */
 };
 
@@ -128,7 +127,7 @@ static int parse_brace_multiplier(const char *s, int *min, int *max) {
 				debug(SCANF, 1, "Invalid multiplier '%s', no closing '}'\n", s);
 				return -1;
 			}
-			if (min > max) {
+			if (*min > *max) {
 				debug(SCANF, 1, "Invalid range, min:%d > max:%d\n", *min, *max);
 				return -1;
 			}
@@ -747,6 +746,11 @@ static int match_expr(struct expr *e, char *in, struct sto *o, int *num_o) {
 		e->skip_stop -= res;
 		return res;
 	}
+	/* if a min match is required, dont try to stop expr matching */
+	if (e->min_match) {
+		e->min_match -= 1;
+		return res;
+	}
 	/* even if 'in' matches 'e', we may have to stop */
 	e->has_stopped = 0;
 	if (e->stop) {
@@ -890,6 +894,7 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 			e.stop = NULL;
 			e.last_match  = -1;
 			e.last_nmatch = -1;
+			e.min_match   = min_m;
 			e.match_last  = 0;
 			e.skip_stop   = 0;
 			num_cs = count_cs(expr);
