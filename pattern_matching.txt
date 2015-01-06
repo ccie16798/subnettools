@@ -48,9 +48,6 @@ RIGHT CODE :
 
 supported conversion specifiers
 -------------------------------
-%s : a char range ending with SPACE (tabs, space, end of line) ; the next pointer must be a pointer to character array that  is  long  enough  to  hold  the  input
-sequence  and  the terminating null byte ('\0'), which is added automatically
-
 %W : a WORD, a sequence of alphabetic chars; can be followed by another conversion specifier like (%d or %IP) 
 for %W and %s, it is a good idea for the caller to specify a field_length, otherwise it will easily crash :
 
@@ -60,15 +57,23 @@ for %W and %s, it is a good idea for the caller to specify a field_length, other
 
 %Q : same as %P except that input can be an IPv4 subnet with ending '0's removed, like '10/8, 172.17/16'
 
-%c : a single CHAR; the next pointer must be a pointer to character array
-
-%d : Matches an optionally signed decimal integer; the next pointer must be a pointer to int (or long int if there is a l type modifier character)
-
-%u : Matches an unsigned decimal integer; the next pointer must be a pointer to unsigned int. (or unsigned long if there is a l type modifier character)
+%S : same as '%s' but the pointer MUST not represent an IP
+st_scanf("1.1.1.1", "%S", string) WILL return 0
 
 %M : a mask; input can either represent 'unsigned int' or a ddn mask '255.255.255.0'
 
-%[  : Matches a nonempty sequence of characters from the specified set of accepted characters; the next pointer must be a pointer to char, and there  must
+%s : a char range ending with SPACE (tabs, space, end of line) ; the next pointer must be a pointer to character array that  is  long  enough  to  hold  the  input
+sequence  and  the terminating null byte ('\0'), which is added automatically
+
+%c : a single CHAR; the next pointer must be a pointer to character array
+
+%d : matches an optionally signed decimal integer; the next pointer must be a pointer to int (or short/long int depending on type modifier)
+
+%u : matches an unsigned decimal integer; the next pointer must be a pointer to unsigned int (or short/long int depending on type modifier)
+
+%x : matches and unsigned hexadecimal integer; string may or may not start with '0x'; the next pointer must be a pointer to unsigned int (or short/long int depending on type modifier)
+
+%[  : matches a nonempty sequence of characters from the specified set of accepted characters; the next pointer must be a pointer to char, and there  must
 be enough room for all the characters in the string, plus a terminating null byte.  The usual skip of leading white space is suppressed.  The string
 is to be made up of characters in (or not in) a particular set; the set is defined by the characters between the open  bracket  [  character  and  a
 close bracket ] character.  The set excludes those characters if the first character after the open bracket is a circumflex (^).  To include a close
@@ -77,26 +82,32 @@ bracket in the set, make it the first character after the open bracket or the ci
 character before the final close bracket.  For instance, [^]0-9-] means the set "everything except close bracket, zero through  nine,  and  hyphen".
 The string ends with the appearance of a character not in the (or, with a circumflex, in) set or when the field width runs out
 
-%S : same as '%s' but the pointer MUST not represent an IP 
-st_scanf("1.1.1.1", "%S", string) WILL return 0
 
 Pattern matching chars
 ======================
 
-st_scanf() define the 3 following additional sequences 
+st_scanf() define the 3 following additional sequences :
 [abcde-h] : any one of the chars in the brackets; see '%[' above; note that special chars ARE NOT interpreted inside a char range
-.         : matches ANY character
-(expr)    : a sequence to match; can containes one conversion specifier with '?' like
+.		: matches ANY character
+(expr)		: a sequence to match;
 
+expr can alse the form of '(expr_1|expr_2|...|expr_n)' ; the first expr to match will stop the pattern engine
+
+expr can contains one conversion specifier with '?' like
 st_scanf("1.1.1.0 vlan55 2.2.2.2", "%I (%s )?%I", &ip, &device, &nhop)
 st_scanf("1.1.1.0 2.2.2.2", "%I (%s )?%I", &ip, &device, &nhop)
 
+
 sequence multiplier
 -------------------
-* : the preceding sequence matches 0 or more times
-+ : the preceding sequence matches 1 or more times
-? : the preceding sequence matches 0 or 1 times
-$ : the sequence expansion ends on the "last match" (see below) 
+* 	: the preceding sequence matches 0 or more times
++ 	: the preceding sequence matches 1 or more times
+? 	: the preceding sequence matches 0 or 1 times
+$ 	: the sequence expansion ends on the "last match" (see below)
+{n,m}	: the sequence will need to match between n and m times; can have the form : 
+{n}	: matches n times precisely
+{,m}	: matches up to m times
+{n,}	: matches at least n times
 
 if '+' or '*' is preceded by a special '$' char, than means expansion will stop on the last time : (pos CAN stop AND previous pos CANNOT stop)
 for example :
