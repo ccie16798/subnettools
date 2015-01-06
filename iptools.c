@@ -456,12 +456,16 @@ static int string2addrv6(const char *s, struct ip_addr *addr, int len) {
 			return BAD_IP;
 		}
 		do_skip = 1;
-		if (s[2] == '\0') { /* special :: */
+		if (s[2] == '\0' || len == 2) { /* special :: */
 			memset(&addr->ip6, 0, sizeof(addr->ip6));
 			addr->ip_ver = IPV6_A;
 			return IPV6_A;
 		}
 		count2++;
+	} else if (s[0] == '.') {
+		/* we should not get here since addr2str calls addrv42str if it counts '.' */
+		debug(PARSEIPV6, 2, "Bad ipv6 address '%s', starts with '.'\n", s);
+		return BAD_IP;
 	}
 	/**  couting ':' (7max),  '::' (1max), and '.' (0 or 3) */
 	for (i = 1;  i < len; i++) {
@@ -470,13 +474,13 @@ static int string2addrv6(const char *s, struct ip_addr *addr, int len) {
 			return BAD_IP;
 		} else if (s[i] == ':') {
 			count++;
-			if (s[i + 1] == '.') {
+			if (i != len - 1 && s[i + 1] == ':')
+				count2++;
+		} else if (s[i] == '.') {
+			if (s[i - 1] == ':') {
 				debug(PARSEIPV6, 2, "invalid IP '%s', found '.' after ':'\n", s);
 				return BAD_IP;
 			}
-			if (s[i + 1] == ':')
-				count2++;
-		} else if (s[i] == '.') {
 			if (i == len - 1 || s[i + 1] == '\0') {
 				debug(PARSEIPV6, 2, "invalid IP '%s', ends with '.'\n", s);
 				return BAD_IP;
@@ -595,7 +599,7 @@ int string2addr(const char *s, struct ip_addr *addr, int len) {
 	int i;
 	int may_ipv4 = 0, may_ipv6 = 0;
 
-	for (i = 0; i < strlen(s); i++) {
+	for (i = 0; i < len; i++) {
 		if (s[i] == '.' && !may_ipv6) {
 			may_ipv4 = 1;
 			break;
@@ -604,6 +608,8 @@ int string2addr(const char *s, struct ip_addr *addr, int len) {
 			break;
 		} else if (isdigit(s[i]))
 			continue;
+		else if (s[i] == '\0')
+			break;
 		else if ((s[i] >= 'a' && s[i] <= 'f') || (s[i] >= 'A' && s[i] <= 'F')) {
 			may_ipv6 = 2;
 			continue; /* this is valid for IPv6 only */
@@ -612,12 +618,10 @@ int string2addr(const char *s, struct ip_addr *addr, int len) {
 			return BAD_IP;
 		}
 	}
-	if (may_ipv4) {
+	if (may_ipv4)
 		return string2addrv4(s, addr, len);
-	}
-	if (may_ipv6 == 1) {
+	if (may_ipv6 == 1)
 		return string2addrv6(s, addr, len);
-	}
 
 	debug(PARSEIP, 5, "invalid IPv4 or IPv6 : %s\n", s);
 	return BAD_IP;
