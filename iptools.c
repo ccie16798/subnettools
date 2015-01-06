@@ -37,23 +37,6 @@ inline void copy_route(struct route *a, const struct route *b) {
 	memcpy(a, b, sizeof(struct route));
 }
 
-#define SIZE_T_MAX ((size_t)0 - 1)
-int alloc_subnet_file(struct subnet_file *sf, unsigned long n) {
-	if (n > SIZE_T_MAX / sizeof(struct route)) { /* being paranoid */
-                fprintf(stderr, "error: too much memory requested for struct route\n");
-                return -1;
-	}
-	sf->routes = malloc(sizeof(struct route) * n);
-        debug(MEMORY, 2, "trying to alloc %lu bytes\n",  sizeof(struct route) * n);
-        if (sf->routes == NULL) {
-                fprintf(stderr, "error: cannot alloc  memory for sf->routes\n");
-                return -1;
-        }
-        sf->nr = 0;
-        sf->max_nr = n;
-	return 0;
-}
-
 /*
  * compare sub1 & sub2 for inclusion
  * returns :
