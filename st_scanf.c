@@ -103,7 +103,7 @@ static int parse_brace_multiplier(const char *s, int *min, int *max) {
 	int i = 1;
 
 	*min = 0;
-	*max = 10000000;
+	*max = 1000000000;
 	if (s[i] == '}') {
 		debug(SCANF, 1, "Invalid empty multiplier '%s'\n", s);
 		return -1;
