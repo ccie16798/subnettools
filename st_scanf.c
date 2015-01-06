@@ -274,7 +274,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 		case 'Q': /* classfull subnet */
 		case 'P':
 			ARG_SET(v_sub, struct subnet *);
-			while ((is_ip_char(in[j2])||in[j2] == '/') && j2 - *j < max_field_length) {
+			while ((is_ip_char(in[j2])||in[j2] == '/')) {
 				buffer[j2 - *j] = in[j2];
 				j2++;
 			}
@@ -297,7 +297,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 			break;
 		case 'I':
 			ARG_SET(v_addr, struct ip_addr *);
-			while (is_ip_char(in[j2]) && j2 - *j < max_field_length) {
+			while (is_ip_char(in[j2])) {
 				buffer[j2 - *j] = in[j2];
 				j2++;
 			}
@@ -317,7 +317,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 			break;
 		case 'M':
 			ARG_SET(v_int, int *);
-			while ((isdigit(in[j2]) || in[j2] == '.') && j2 - *j < max_field_length) {
+			while ((isdigit(in[j2]) || in[j2] == '.')) {
 				buffer[j2 - *j] = in[j2];
 				j2++;
 			}
@@ -442,7 +442,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 				debug(SCANF, 2, "no INT found at offset %d \n", *j);
 				return n_found;
 			}
-			while (isdigit(in[j2]) && j2 - *j < max_field_length) {
+			while (isdigit(in[j2])) {
 				*v_int *= 10;
 				*v_int += (in[j2] - '0') ;
 				j2++;
@@ -458,7 +458,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 				debug(SCANF, 2, "no UINT found at offset %d \n", *j);
 				return n_found;
 			}
-			while (isdigit(in[j2]) && j2 - *j < max_field_length) {
+			while (isdigit(in[j2])) {
 				*v_uint *= 10;
 				*v_uint += (in[j2] - '0') ;
 				j2++;
