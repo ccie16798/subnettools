@@ -280,7 +280,7 @@ int addrv62str(ipv6 z, char *out_buffer, size_t len, int compress) {
 	}
 	if (max_skip > 0) {
 		out_buffer[j++] = ':';
-		if (!max_skip_index)
+		if (!max_skip_index) /* means addr starts with 0 */
 			out_buffer[j++] = ':';
 	}
 	for (i = max_skip_index + max_skip; i < 7; i++) {
@@ -289,7 +289,6 @@ int addrv62str(ipv6 z, char *out_buffer, size_t len, int compress) {
 	}
 	if (i < 8)
 		j += sprint_hexshort(out_buffer + j, block(z, i));
-
 	out_buffer[j] = '\0';
 	return j;
 }
@@ -507,22 +506,23 @@ static int string2addrv6(const char *s, struct ip_addr *addr, int len) {
 		debug(PARSEIPV6, 2, "Bad ipv6 address '%s', too many '::', [%d]\n", s, count2 );
 		return BAD_IP;
 	}
-	if (count_dot == 0 && count2 == 0 && count != 7) {
-		debug(PARSEIPV6, 2, "Bad ipv6 address '%s', not enough ':', [%d]\n", s, count );
-		return BAD_IP;
-	}
-	if (count_dot && count_dot != 3) {
-		debug(PARSEIPV6, 2, "Bad IPv4-Embedded/Mapped address '%s', wrong '.' count, [%d]\n", s, count_dot);
-		return BAD_IP;
-	}
-	if (count_dot && count2 == 0 && count != 6) {
-		debug(PARSEIPV6, 1, "Bad IPv4-Embedded/Mapped address '%s', bad ':' count, [%d]\n", s, count );
-		return BAD_IP;
-	}
-	if (count_dot)
+	if (count_dot) {
+		if  (count_dot != 3) {
+			debug(PARSEIPV6, 2, "Bad IPv4-Embedded/Mapped address '%s', wrong '.' count, [%d]\n", s, count_dot);
+			return BAD_IP;
+		}
+		if (count2 == 0 && count != 6) {
+			debug(PARSEIPV6, 1, "Bad IPv4-Embedded/Mapped address '%s', bad ':' count, [%d]\n", s, count );
+			return BAD_IP;
+		}
 		skipped_blocks = 7 - count;
-	else
+	} else {
+		if (count2 == 0 && count != 7) {
+			debug(PARSEIPV6, 2, "Bad ipv6 address '%s', not enough ':', [%d]\n", s, count );
+			return BAD_IP;
+		}
 		skipped_blocks = 8 - count;
+	}
 
 	debug(PARSEIPV6, 8, "counted %d ':', %d '::', %d '.'\n", count, count2, count_dot);
 	i = (do_skip ? 1 : 0); /* in case we start with :: */
