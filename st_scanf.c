@@ -30,7 +30,7 @@ struct expr {
 	int match_last; /* if set, the expansion will stop the last time ->stop return positive value && and previous stop DIDNOT*/
 	int last_match; /* the last pos in input string where the ->stop(remain, e) matched and ->stop(remain - 1, e) DIDNOT */
 	int last_nmatch;
-	int has_stopped;
+	int has_stopped; /* set when ->early_stop decide to stop */
 	int min_match;
 	int skip_stop; /* if positive, dont run e->stop */
 };
@@ -69,8 +69,10 @@ static char conversion_specifier(const char *fmt) {
 	int i = 0;
 
 	while (1) {
-		if (fmt[i] == '\0')
+		if (fmt[i] == '\0') {
+			debug(SCANF, 1, "Invalid FMT, no conversion specifier found after '%%'\n");
 			return '\0';
+		}
 		if (!isdigit(fmt[i]))
 			return fmt[i];
 		i++;
