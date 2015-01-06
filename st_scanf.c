@@ -650,8 +650,7 @@ static inline int expr_try_again(const char *expr) {
  * if 'expr' includes conversion specifiers, put the result in 'o' and update 'num_o'
  */
 static int match_expr_single(const char *expr, char *in, struct sto *o, int *num_o) {
-	int i, j, j2, res;
-	int a = 0;
+	int i, j, res;
 	char c;
 	int saved_num_o = *num_o;
 
@@ -661,7 +660,7 @@ static int match_expr_single(const char *expr, char *in, struct sto *o, int *num
 	while (1) {
 		c = expr[i];
 		if (c == '\0' || c =='|')
-			return a;
+			return j;
 		debug(SCANF, 8, "remaining in  ='%s'\n", in + j);
 		debug(SCANF, 8, "remaining expr='%s'\n", expr + i);
 		switch (c) {
@@ -674,18 +673,15 @@ static int match_expr_single(const char *expr, char *in, struct sto *o, int *num
 			case '.':
 				i++;
 				j++;
-				a++;
 				break;
 			case '[': /* try to handle char range like [a-Zbce-f] */
 				res = match_char_against_range(in[j], expr, &i);
 				if (res <= 0)
 					goto try_again;
-				a++;
 				j++;
 				break;
 			case '%':
 				debug(SCANF, 3, "conversion specifier to handle %lu\n", (unsigned long)(o + *num_o));
-				j2 = j;
 				res = parse_conversion_specifier(in, expr, &i, &j, &o[*num_o]);
 				if (res == 0)
 					goto try_again;
@@ -695,7 +691,6 @@ static int match_expr_single(const char *expr, char *in, struct sto *o, int *num
 					debug(SCANF, 4, "conv specifier successfull\n");
 				}
 				*num_o += 1;
-				a += (j - j2);
 				break;
 			case '\\':
 				i++;
@@ -706,12 +701,11 @@ static int match_expr_single(const char *expr, char *in, struct sto *o, int *num
 				}
 			default:
 				if (c == '|')
-					return a;
+					return j;
 				if (in[j] != c)
 					goto try_again;
 				i++;
 				j++;
-				a++;
 				break;
 		}
 		continue;
@@ -721,7 +715,6 @@ static int match_expr_single(const char *expr, char *in, struct sto *o, int *num
 				return 0;
 			i += res;
 			j = 0;
-			a = 0;
 			*num_o = saved_num_o;
 			debug(SCANF, 4, "We have been given another chance, remaing expr '%s'\n", expr + i);
 	}
