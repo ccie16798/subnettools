@@ -23,7 +23,8 @@
 
 struct expr {
 	char *expr;
-	int (*stop)(char *remain, struct expr *e);
+	 /* even if expr, matches ->early_stop may force a return; useful ie to break '.*' expansion  */
+	int (*early_stop)(char *remain, struct expr *e);
 	char end_of_expr; /* if remain[i] = end_of_expr , we can stop*/
 	char end_expr[64];
 	int match_last; /* if set, the expansion will stop the last time ->stop return positive value && and previous stop DIDNOT*/
@@ -753,8 +754,8 @@ static int match_expr(struct expr *e, char *in, struct sto *o, int *num_o) {
 	}
 	/* even if 'in' matches 'e', we may have to stop */
 	e->has_stopped = 0;
-	if (e->stop) {
-		res2 = e->stop(in, e);
+	if (e->early_stop) {
+		res2 = e->early_stop(in, e);
 		debug(SCANF, 4, "trying to stop on '%s', res=%d\n", in, res2);
 	} else {
 		res2 = (*in == e->end_of_expr);
@@ -891,7 +892,7 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 			}
 			e.expr = expr;
 			e.end_of_expr = fmt[i + 1]; /* if necessary */
-			e.stop = NULL;
+			e.early_stop  = NULL;
 			e.last_match  = -1;
 			e.last_nmatch = -1;
 			e.min_match   = min_m;
@@ -922,43 +923,43 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 						debug(SCANF, 1, "Invalid format string '%s', ends with %%\n", fmt);
 						return n_found;
 					case 'd':
-						e.stop = &find_int;
+						e.early_stop = &find_int;
 						break;
 					case 'u':
-						e.stop = &find_uint;
+						e.early_stop = &find_uint;
 						break;
 					case 'x':
-						e.stop = find_hex;
+						e.early_stop = find_hex;
 						break;
 					case 'l':
 					case 'h':
 						if (fmt[i + 3] == 'd')
-							e.stop = &find_int;
+							e.early_stop = &find_int;
 						else if (fmt[i + 3] == 'u')
-							e.stop = &find_uint;
+							e.early_stop = &find_uint;
 						else if (fmt[i + 3] == 'x')
-							e.stop = &find_hex;
+							e.early_stop = &find_hex;
 						break;
 					case 'I':
-						e.stop = &find_ip;
+						e.early_stop = &find_ip;
 						break;
 					case 'Q':
-						e.stop = &find_classfull_subnet;
+						e.early_stop = &find_classfull_subnet;
 						break;
 					case 'P':
-						e.stop = &find_ip;
+						e.early_stop = &find_ip;
 						break;
 					case 'S':
-						e.stop = &find_not_ip;
+						e.early_stop = &find_not_ip;
 						break;
 					case 'M':
-						e.stop = &find_mask;
+						e.early_stop = &find_mask;
 						break;
 					case 'W':
-						e.stop = &find_word;
+						e.early_stop = &find_word;
 						break;
 					case 's':
-						e.stop = &find_string;
+						e.early_stop = &find_string;
 						break;
 					case '[':
 						k = 0;
@@ -970,7 +971,7 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 							return n_found;
 						}
 						debug(SCANF, 4, "pattern matching will end on '%s'\n", e.end_expr);
-						e.stop = &find_expr;
+						e.early_stop = &find_expr;
 						break;
 					default:
 						break;
@@ -982,7 +983,7 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 					return n_found;
 				}
 				debug(SCANF, 4, "pattern matching will end on '%s'\n", e.end_expr);
-				e.stop = &find_expr;
+				e.early_stop = &find_expr;
 			} else if (fmt[i + 1] == '[') {
 				res = fill_char_range(e.end_expr, fmt + i + 1, sizeof(e.end_expr));
 				if (res < 0) {
@@ -990,7 +991,7 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 					return n_found;
 				}
 				debug(SCANF, 4, "pattern matching will end on '%s'\n", e.end_expr);
-				e.stop = &find_expr;
+				e.early_stop = &find_expr;
 			}
 			n_match = 0; /* number of time expression 'e' matches input*/
 			/* try to find at most max_m expr */
