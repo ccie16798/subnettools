@@ -570,11 +570,30 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 	return n_found;
 }
 
+/*
+ * try to find a '|' char in the remaining expr
+ * return -1 if none found, the next expression if one is found
+ * if expr = AB | CD | EF, expr_try_again will return '4' (index of the space char after '|')
+ */
+static inline int expr_try_again(const char *expr) {
+	int i;
+
+	for (i = 0; ; i++) {
+		if (expr[i] == '\0')
+			return -1;
+		if (expr[i] == '|')
+			return i + 1;
+	}
+	return -1;
+}
 
 /*
  * match a single pattern 'expr' against 'in'
- * returns 0 if doesnt match, number of matched char in input buffer
- * if expr has a conversion specifier, put the result in 'o'
+ * returns :
+ *  0 if it doesnt match,
+ *  number of matched chars in input buffer if it matches
+ *
+ * if 'expr' includes conversion specifiers, put the result in 'o' and update 'num_o'
  */
 static int match_expr_single(const char *expr, char *in, struct sto *o, int *num_o) {
 	int i, j, j2, res;
