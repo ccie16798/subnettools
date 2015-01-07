@@ -6,8 +6,8 @@
 
 int main(int argc, char **argv) {
 	int 		a1 = 1000;
-	unsigned 	a2 = 4000000000;
-	int 		a3 = 4000000000;
+	unsigned 	a2 = 4000000000UL;
+	int 		a3 = 4000000000UL;
 	int 		a4 = -123;
 	unsigned short b = 65535;
 	/* long result will vary */
@@ -20,8 +20,9 @@ int main(int argc, char **argv) {
 	short 		sh2 = 32768;
 	unsigned short  sh3 = 0xffff;
 	struct subnet s1, s2;
-	char *string = "STRING";
-	char buffer[64];
+	char *string = "STRING1";
+	char buffer1[6];
+	char buffer2[18];
 
 	get_subnet_or_ip("2.2.2.2/24", &s1);
 	get_subnet_or_ip("2001:3:4::1/64", &s2);
@@ -48,5 +49,18 @@ int main(int argc, char **argv) {
 	st_printf("TEST IP1    : %I-%10I : [%-20N - %20B]\n", s1, s2, s2, s2);
 	st_printf("TEST IP2    : %P-%20P : [%-20N - %20B]\n", s2, s2, s2, s2);
 	st_printf("TEST MASK   : %N : %m - %M \n", s1, s1, s1);
-
+	
+	st_snprintf(buffer1, sizeof(buffer1), "abcdefghijk");
+	printf("TRUNC1 : '%s'\n", buffer1);
+	snprintf(buffer1, sizeof(buffer1), "abcdefghijk");
+	printf("TRUNC1 : '%s'\n", buffer1);
+	st_snprintf(buffer2, sizeof(buffer2), "abcdefghijk %040d", a1);
+	printf("TRUNC2 : '%s'\n", buffer2);
+	snprintf(buffer2, sizeof(buffer2), "abcdefghijk %040d", a1);
+	printf("TRUNC2 : '%s'\n", buffer2);
+	st_snprintf(buffer2, sizeof(buffer2), "abcdefghijk %-40d", a1);
+	printf("TRUNC3 : '%s'\n", buffer2);
+	snprintf(buffer2, sizeof(buffer2), "abcdefghijk %-40d", a1);
+	printf("TRUNC3 : '%s'\n", buffer2);
+	return 1;
 }
