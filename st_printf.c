@@ -284,12 +284,13 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 	while (1) {
 		c = fmt[i];
 		debug(FMT, 5, "Still to parse : '%s'\n", fmt + i);
-		if (j > len - 1) {
-			fprintf(stderr, "BUG in %s, buffer overrun, j=%d\n", __FUNCTION__, j);
+		if (j > len) {
+			fprintf(stderr, "BUG in %s, buffer overrun, j=%d len=%d\n", __FUNCTION__, j, (int)len);
 			break;
-		} else if (j == len - 1) {
-			debug(FMT, 1, "Output buffer is full, stopping\n");
-			break;	
+		} else if (j >= len - 1) {
+			debug(FMT, 2, "Output buffer is full, stopping\n");
+			outbuf[len - 1] = '\0';
+			return len;
 		}
 		if (c == '\0')
 			break;
