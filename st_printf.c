@@ -53,22 +53,43 @@ void inline pad_n(char *s, int n, char c) {
 		s[i] = c;
 }
 
-static inline int pad_buffer_out(char *out, size_t len, const char *buffer, int buff_size,
+
+/*
+ * print 'buffer' into 'out'
+ * pad the buffer if there's a field width, but don't copy more than 'len' chars into out
+ * 'out' wont have a terminating Nul-byte
+ */
+static inline int pad_buffer_out(char *out, size_t len, const char *buffer, size_t buff_size,
 		int field_width, int pad_left, char c) {
 	int res;
 
 	//buff_size = strlen(buffer);
+	debug(FMT, 7, "Padding : len=%d, buff_size=%d, field_width=%d\n", (int)len, (int)buff_size, field_width);
+	if (buff_size <= 0) {
+		debug(FMT, 2, "Cannot pad an Invalid buffer\n");
+		return 0;
+	}
 	if (buff_size > field_width) {
-		strcpy(out, buffer);
-		res = buff_size;
+		res = min(len, buff_size);
+		memcpy(out, buffer, res);
 	} else if (pad_left) {
-		strcpy(out, buffer);
-		pad_n(out + buff_size, field_width - buff_size, c);
-		res = field_width;
+		if (len <= buff_size) {
+			memcpy(out, buffer, len);
+			res = len;
+		} else {
+			res = min(field_width, (int)len);
+			strcpy(out, buffer);
+			pad_n(out + buff_size, res - buff_size, c);
+		}
 	} else {
-		pad_n(out, field_width - buff_size, c);
-		strcpy(out + field_width - buff_size, buffer);
-		res = field_width;
+		if (len <= field_width - buff_size) {
+			pad_n(out, len, c);
+			res = len;
+		} else {
+			res = min(field_width, (int)len);
+			pad_n(out, field_width - buff_size, c);
+			memcpy(out + field_width - buff_size, buffer, res);
+		}
 	}
 	return res;
 }
@@ -263,9 +284,12 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 	while (1) {
 		c = fmt[i];
 		debug(FMT, 5, "Still to parse : '%s'\n", fmt + i);
-		if (j > len - 140) { /* 128 is the max size */
-			debug(FMT, 1, "output buffer maybe too small, truncating\n");
+		if (j > len - 1) {
+			fprintf(stderr, "BUG in %s, buffer overrun, j=%d\n", __FUNCTION__, j);
 			break;
+		} else if (j == len - 1) {
+			debug(FMT, 1, "Output buffer is full, stopping\n");
+			break;	
 		}
 		if (c == '\0')
 			break;
@@ -464,8 +488,12 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 						break;
 					}
 					res = sto2string(buffer, &o[o_num], sizeof(buffer), 3);
-					res = pad_buffer_out(outbuf + j, len - j, buffer, res,
-							field_width, pad_left, ' ');
+					/* check if we need to print an Invalid object */
+					if (res > 0)
+						res = pad_buffer_out(outbuf + j, len - j, buffer, res,
+								field_width, pad_left, ' ');
+					else
+						res = 0;
 					j += res;
 					break;
 				default:
