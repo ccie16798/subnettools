@@ -25,16 +25,16 @@ int open_config_file(char *name, void *nof) {
 
 	f = fopen(name, "r");
 	if (f == NULL) {
-		fprintf(stderr, "Cannot open config file %s\n", name);
+		debug(CONFIGFILE, 1, "Cannot open config file '%s'\n", name);
 		return -1;
 	}
 	object = nof;
-	debug(CONFIGFILE, 2, "Opening config file %s\n", name);
+	debug(CONFIGFILE, 2, "Opening config file '%s'\n", name);
 
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &i))) {
 			line++;
 			if (i) {
-				debug(LOAD_CSV, 1, "File %s line %lu is longer than max size %d, discarding %d chars\n",
+				debug(CONFIGFILE, 1, "File %s line %lu is longer than max size %d, discarding %d chars\n",
 						name, line, (int)sizeof(buffer), i);
 			}
 			s = strtok(s, " =\n");
