@@ -70,23 +70,23 @@ static inline int pad_buffer_out(char *out, size_t len, const char *buffer, size
 		return 0;
 	}
 	if (buff_size > field_width) {
-		res = min(len, buff_size);
+		res = min(len - 1, buff_size);
 		memcpy(out, buffer, res);
 	} else if (pad_left) {
-		if (len <= buff_size) {
-			memcpy(out, buffer, len);
-			res = len;
+		if (len - 1 <= buff_size) {
+			res = len - 1;
+			memcpy(out, buffer, res);
 		} else {
-			res = min(field_width, (int)len);
+			res = min(field_width, (int)len - 1);
 			strcpy(out, buffer);
 			pad_n(out + buff_size, res - buff_size, c);
 		}
 	} else {
-		if (len <= field_width - buff_size) {
+		if (len - 1 <= field_width - buff_size) {
 			pad_n(out, len, c);
-			res = len;
+			res = len - 1;
 		} else {
-			res = min(field_width, (int)len);
+			res = min(field_width, (int)len - 1);
 			pad_n(out, field_width - buff_size, c);
 			memcpy(out + field_width - buff_size, buffer, res);
 		}
@@ -284,10 +284,10 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 	while (1) {
 		c = fmt[i];
 		debug(FMT, 5, "Still to parse : '%s'\n", fmt + i);
-		if (j > len) {
+		if (j >= len) {
 			fprintf(stderr, "BUG in %s, buffer overrun, j=%d len=%d\n", __FUNCTION__, j, (int)len);
 			break;
-		} else if (j >= len - 1) {
+		} else if (j == len - 1) {
 			debug(FMT, 2, "Output buffer is full, stopping\n");
 			outbuf[len - 1] = '\0';
 			return len;
