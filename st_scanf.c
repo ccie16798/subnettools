@@ -719,10 +719,10 @@ static int match_expr_single(const char *expr, char *in, struct sto *o, int *num
 			debug(SCANF, 4, "We have been given another chance, remaing expr '%s'\n", expr + i);
 	}
 }
-/* match expression e against input buffer
+/* match expression 'e' against input buffer 'in'
  * will return :
- * 0 if it doesnt match
- * n otherwise
+ * 0 if it doesnt match (or if e->early_stop allows)
+ * number of matched chars otherwise
  */
 static int match_expr(struct expr *e, char *in, struct sto *o, int *num_o) {
 	int res = 0;
@@ -737,24 +737,24 @@ static int match_expr(struct expr *e, char *in, struct sto *o, int *num_o) {
 		*num_o = saved_num_o;
 		return 0;
 	}
-	/* e->skip_stop positive means we wont test the remain to see if we need to stop */
+	/* e->skip_stop positive means we wont try to early-stop */
 	if (e->skip_stop > 0) {
 		e->skip_stop -= res;
 		return res;
 	}
-	/* if a min match is required, dont try to stop expr matching */
+	/* if a min match is required, dont try to early-stop expr matching */
 	if (e->min_match) {
 		e->min_match -= 1;
 		return res;
 	}
-	/* even if 'in' matches 'e', we may have to stop */
+	/* see if we can early stop */
 	e->has_stopped = 0;
 	if (e->early_stop) {
 		res2 = e->early_stop(in, e);
-		debug(SCANF, 4, "trying to stop on '%s', res=%d\n", in, res2);
+		debug(SCANF, 4, "trying to stop on  remaining '%s', res=%d\n", in, res2);
 	} else {
 		res2 = (*in == e->end_of_expr);
-		debug(SCANF, 4, "trying to stop on '%c', res=%d\n", e->end_of_expr, res2);
+		debug(SCANF, 4, "trying to stop on char '%c', res=%d\n", e->end_of_expr, res2);
 	}
 	if (res2) {
 		/* if we matched a CS but decide we need to stop, we must restore
@@ -1053,7 +1053,7 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 		if (c == '\0' || in[j] == '\0') {
 			return n_found;
 		} else if (c == '%') {
-			if (n_found >= max_o - 1) {
+			if (n_found > max_o - 1) {
 				debug(SCANF, 1, "Cannot get more than %d objets, already found %d\n", max_o, n_found);
 				return n_found;
 			}
