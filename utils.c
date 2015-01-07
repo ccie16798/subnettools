@@ -40,7 +40,7 @@ inline int char2int(char c) {
 	return 0;
 }
 
-int isPower2 (unsigned int x) {
+int isPower2(unsigned int x) {
 	while (((x % 2) == 0) && x > 1) /* if each time we divide x%2 == 0, x is power of two */
 		x /= 2;
 	return (x == 1);
