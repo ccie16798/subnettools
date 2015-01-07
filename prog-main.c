@@ -764,6 +764,8 @@ static void allow_core_dumps() {
 int main(int argc, char **argv) {
 	struct options nof;
 	int res;
+	char *s;
+	char conf_abs_path[256];
 
 	memset(&nof, 0 , sizeof(nof));
 	nof.output_file = stdout;
@@ -776,8 +778,15 @@ int main(int argc, char **argv) {
 	argv = argv + res;
 	if (argc < 2)
 		exit(1);
-	if (nof.config_file == NULL)
-		nof.config_file = "st.conf";
+	if (nof.config_file == NULL) {
+		/* default config file is $HOME/st.conf */
+		s = getenv("HOME");
+		if (s == NULL)
+			s = ".";
+		res = strxcpy(conf_abs_path, s, sizeof(conf_abs_path));
+		res = strxcpy(conf_abs_path + res, "/st.conf", sizeof(conf_abs_path) - res);
+		nof.config_file = conf_abs_path;
+	}
 	open_config_file(nof.config_file, &nof);
 
 	/* if delims are not set, set the default one*/
