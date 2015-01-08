@@ -29,17 +29,17 @@
 #define SIZE_T_MAX ((size_t)0 - 1)
 int alloc_subnet_file(struct subnet_file *sf, unsigned long n) {
 	if (n > SIZE_T_MAX / sizeof(struct route)) { /* being paranoid */
-                fprintf(stderr, "error: too much memory requested for struct route\n");
-                return -1;
+		fprintf(stderr, "error: too much memory requested for struct route\n");
+		return -1;
 	}
 	sf->routes = malloc(sizeof(struct route) * n);
-        debug(MEMORY, 2, "trying to alloc %lu bytes\n",  sizeof(struct route) * n);
-        if (sf->routes == NULL) {
-                fprintf(stderr, "error: cannot alloc  memory for sf->routes\n");
-                return -1;
-        }
-        sf->nr = 0;
-        sf->max_nr = n;
+	debug(MEMORY, 2, "trying to alloc %lu bytes\n",  sizeof(struct route) * n);
+	if (sf->routes == NULL) {
+		fprintf(stderr, "error: cannot alloc  memory for sf->routes\n");
+		return -1;
+	}
+	sf->nr = 0;
+	sf->max_nr = n;
 	return 0;
 }
 
@@ -107,12 +107,14 @@ static int netcsv_comment_handle(char *s, void *data, struct csv_state *state) {
 		debug(LOAD_CSV, 1, "line %lu STRING comment '%s'  too long, truncating to '%s'\n", state->line, s, sf->routes[sf->nr].comment);
 	return CSV_VALID_FIELD;
 }
+
 static int netcsv_is_header(char *s) {
 	if (isalpha(s[0]))
 		return 1;
 	else
 		return 0;
 }
+
 static int netcsv_endofline_callback(struct csv_state *state, void *data) {
 	struct subnet_file *sf = data;
 	struct route *new_r;
@@ -253,11 +255,11 @@ void compare_files(struct subnet_file *sf1, struct subnet_file *sf2, struct opti
 		}
 		if (find == 0)
 			st_fprintf(nof->output_file, "%I;%m;;;\n", sf1->routes[i].subnet, sf1->routes[i].subnet);
-	} // for sf1
+	}
 }
 
 /*
- * get routes from sf1 not  covered by sf2 INTO sf3 */
+ * get routes from sf1 not covered by sf2 INTO sf3 */
 int missing_routes(const struct subnet_file *sf1, const struct subnet_file *sf2, struct subnet_file *sf3) {
 	unsigned long i, j, k;
 	int res, find;
@@ -289,6 +291,7 @@ int missing_routes(const struct subnet_file *sf1, const struct subnet_file *sf2,
  * files MUST be sorted
  * this is not a basic diff where LINE1 equals LINE2
  * if LINE1 != LINE2 we try to get a relation between the subnets
+ * this func is borken
  */
 void diff_files(const struct subnet_file *sf1, const struct subnet_file *sf2, struct options *nof) {
 	unsigned long i = 0, j = 0;
@@ -634,7 +637,7 @@ int subnet_file_simplify(struct subnet_file *sf) {
 
 	new_r = malloc(sf->nr * sizeof(struct route));
 	if (tas.tab == NULL||new_r == NULL) {
-		fprintf(stderr, "%s : no memory \n", __FUNCTION__); // memory leak here :)
+		fprintf(stderr, "%s : no memory \n", __FUNCTION__);
 		return -1;
 	}
 	debug(MEMORY, 2, "Allocated %lu bytes for new struct route\n", sf->nr * sizeof(struct route));
@@ -648,6 +651,7 @@ int subnet_file_simplify(struct subnet_file *sf) {
                 r = popTAS(&tas);
                 if (r == NULL)
                         break;
+		/* because the 'new_r' list is sorted, we know the only network to consider is i - 1 */
 		res = subnet_compare(&r->subnet, &new_r[i - 1].subnet);
 		if (res == INCLUDED || res == EQUALS ) {
 			st_debug(ADDRCOMP, 3, "%P is included in %P, skipping\n", r->subnet, new_r[i - 1].subnet);
