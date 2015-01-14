@@ -999,17 +999,18 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 				}
 				if (res == 0)
 					break;
-				/* we check also if the previous invocation return positive or not
+				n_match++;
+				/* to set 'last_match', we check if the previous loop had stopped or not
+				   last _match is set if current loop HAS stopped and previous has not 
 				   scanf("abdsdfdsf t e 121.1.1.1", ".*$I") should return '121.1.1.1' not '1.1.1.1'
 				   scanf("abdsdfdsf t e STRING", ".*$s") should return 'STRING' not just 'G'
 				 */
 				if (e.has_stopped && e_has_stopped == 0) {
-					e.last_match = j;
-					e.last_nmatch = n_match + 1;
+					e.last_match  = j;
+					e.last_nmatch = n_match;
 				}
 				e_has_stopped = e.has_stopped;
 				j += res;
-				n_match++;
 				if (in[j] == '\0') {
 					debug(SCANF, 3, "reached end of input scanning 'in'\n");
 					break;
@@ -1020,6 +1021,7 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 				}
 			}
 			debug(SCANF, 3, "Exiting loop with expr '%s' matched %d times, found %d objects so far\n", expr, n_match, n_found);
+			/* in case of last match, we must update position in 'in' and n_match */ 
 			if (e.match_last) {
 				j       = e.last_match;
 				n_match = e.last_nmatch;
@@ -1058,10 +1060,10 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 				return n_found;
 			}
 			res = parse_conversion_specifier(in, fmt, &i, &j, o + n_found);
-
 			if (res == 0)
 				return n_found;
 			n_found += res;
+		/* any char */
 		} else if (c == '.') {
 			if (is_multiple_char(fmt[i + 1])) {
 				expr[0] = c;
@@ -1072,6 +1074,7 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 			debug(SCANF, 8, "fmt[%d]='.', match any char\n", i);
 			i++;
 			j++;
+		/* expression or char range */
 		} else if (c == '(' || c == '[') {
 			char c2 = (c == '(' ? ')' : ']');
 			if (c == '(') {
