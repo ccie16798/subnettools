@@ -962,7 +962,7 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 							k++;
 						res = fill_char_range(e.end_expr, fmt + i + k + 2, sizeof(e.end_expr));
 						if (res < 0) {
-							debug(SCANF, 1, "Bad format '%s', unmatched '['\n", expr);
+							debug(SCANF, 1, "Invalid format '%s', unmatched '['\n", expr);
 							return n_found;
 						}
 						debug(SCANF, 4, "pattern matching will end on '%s'\n", e.end_expr);
@@ -974,7 +974,7 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 			} else if (fmt[i + 1] == '(') {
 				res = strxcpy_until(e.end_expr, fmt + i + 1, sizeof(e.end_expr), ')');
 				if (res < 0) {
-					debug(SCANF, 1, "Bad format '%s', unmatched '('\n", expr);
+					debug(SCANF, 1, "Invalid format '%s', unmatched '('\n", expr);
 					return n_found;
 				}
 				debug(SCANF, 4, "pattern matching will end on '%s'\n", e.end_expr);
@@ -982,7 +982,7 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 			} else if (fmt[i + 1] == '[') {
 				res = fill_char_range(e.end_expr, fmt + i + 1, sizeof(e.end_expr));
 				if (res < 0) {
-					debug(SCANF, 1, "Bad format '%s', unmatched '['\n", expr);
+					debug(SCANF, 1, "Invalid format '%s', unmatched '['\n", expr);
 					return n_found;
 				}
 				debug(SCANF, 4, "pattern matching will end on '%s'\n", e.end_expr);
@@ -994,7 +994,7 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 			while (n_match < max_m) {
 				res = match_expr(&e, in + j, o, &n_found);
 				if (res < 0) {
-					debug(SCANF, 1, "Bad format '%s'\n", expr);
+					debug(SCANF, 1, "Invalid format '%s'\n", expr);
 					return n_found;
 				}
 				if (res == 0)
@@ -1100,7 +1100,7 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 			}
 			res = match_expr_single(expr, in + j, o, &n_found);
 			if (res < 0) {
-				debug(SCANF, 1, "Bad format '%s'\n", fmt);
+				debug(SCANF, 1, "Invalid format '%s'\n", fmt);
 				return n_found;
 			}
 			if (res == 0) {
