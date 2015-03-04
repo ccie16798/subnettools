@@ -34,20 +34,20 @@ int open_config_file(char *name, void *nof) {
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &i))) {
 			line++;
 			if (i) {
-				debug(CONFIGFILE, 1, "File %s line %lu is longer than max size %d, discarding %d chars\n",
+				debug(CONFIGFILE, 1, "%s line %lu is longer than max size %d, discarding %d chars\n",
 						name, line, (int)sizeof(buffer), i);
 			}
 			s = strtok(s, " =\n");
 			if (s == NULL) {
-				debug(CONFIGFILE, 6, "%s empty line %lu\n", name, line);
+				debug(CONFIGFILE, 6, "%s line %lu is empty\n", name, line);
 				continue;
 			}
 			if (s[0] == '#') {
-				debug(CONFIGFILE, 5, "%s comment line %lu\n", name, line);
+				debug(CONFIGFILE, 5, "%s line %lu is a comment\n", name, line);
 				continue;
 			}
 			found = 0;
-			for (i = 0; ;i++) {
+			for (i = 0; ; i++) {
 				if (fileoptions[i].name == NULL)
 					break;
 				if (!strcmp(s,  fileoptions[i].name)) {
@@ -72,7 +72,7 @@ int open_config_file(char *name, void *nof) {
 					debug(CONFIGFILE, 5, "line %lu copying STRING '%s' at offset %d, size %d\n", line, s, (int)offset, (int)fileoptions[i].size);
 					strxcpy(object + offset, s,  fileoptions[i].size);
 					if (strlen(s) >= fileoptions[i].size) {
-						debug(CONFIGFILE, 1, "line %lu STRING '%s' is too long,  truncated to '%s'\n", line, s, object + offset);
+						debug(CONFIGFILE, 1, "%s line %lu STRING '%s' is too long,  truncated to '%s'\n", name, line, s, object + offset);
 					}
 					break;
 				case TYPE_INT:
@@ -81,7 +81,7 @@ int open_config_file(char *name, void *nof) {
 						break;
 					}
 
-					debug(CONFIGFILE, 5, "line %lu copying INT '%s' at offset %d, size %d\n", line, s, (int)offset, (int)fileoptions[i].size);
+					debug(CONFIGFILE, 5, "%s line %lu copying INT '%s' at offset %d, size %d\n", name, line, s, (int)offset, (int)fileoptions[i].size);
 					found = atoi(s);
 					memcpy(object + offset, &found, fileoptions[i].size);
 					break;
