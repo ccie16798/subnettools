@@ -80,7 +80,7 @@ static char conversion_specifier(const char *fmt) {
 	return '\0';
 }
 
-static int max_match(char c) {
+static inline int max_match(char c) {
 	if (c == '*') return 1000000000;
 	if (c == '+') return 1000000000;
 	if (c == '?') return 1;
@@ -88,7 +88,7 @@ static int max_match(char c) {
 	return 0;
 }
 
-static int min_match(char c) {
+static inline int min_match(char c) {
 	if (c == '*') return 0;
 	if (c == '+') return 1;
 	if (c == '?') return 0;
