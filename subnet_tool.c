@@ -1041,12 +1041,12 @@ static int sum_log_to(int *level, int n, int max_n) {
 
 /* split n,m means split 's' n times, and each resulting subnet m times */
 int subnet_split(FILE *out, const struct subnet *s, char *string_levels) {
-	int i = 0, k, res;
+	int k, res;
 	int levels[12];
 	int n_levels;
 	struct subnet subnet;
 	int base_mask;
-	int sum = 0;
+	unsigned long sum = 0, i = 0;
 
 	res = split_parse_levels(string_levels, levels);
 	if (res < 0)
@@ -1054,8 +1054,8 @@ int subnet_split(FILE *out, const struct subnet *s, char *string_levels) {
 	n_levels = res;
 	res = sum_log_to(levels, 0, n_levels);
 	if  ((s->ip_ver == IPV4_A && res > (32 - s->mask))
-			|| (s->ip_ver == IPV6_A && res > (128 - s->mask))) {
-		debug(SPLIT, 1, "split level too big for mask\n");
+			|| (s->ip_ver == IPV6_A && res > (128 - s->mask)) || res > sizeof(sum) * 4) {
+		debug(SPLIT, 1, "Too many splits\n");
 		return -1;
 	}
 	sum = 1;
@@ -1136,11 +1136,12 @@ static int split_parse_levels_2(char *s, int *levels) {
 
 /* split n,m means split 's' n times, and each resulting subnet m times */
 int subnet_split_2(FILE *out, const struct subnet *s, char *string_levels) {
-	int i = 0, k, res;
+	unsigned long int i = 0;
+	int k, res;
 	int levels[12];
 	int n_levels;
 	struct subnet subnet;
-	int sum = 0;
+	unsigned long  sum = 0;
 
 	res = split_parse_levels_2(string_levels, levels);
 	if (res < 0)
@@ -1151,8 +1152,9 @@ int subnet_split_2(FILE *out, const struct subnet *s, char *string_levels) {
 	}
 	n_levels = res;
 	if  ((s->ip_ver == IPV4_A && levels[res - 1] > 32)
-			|| (s->ip_ver == IPV6_A && levels[res - 1] > 128 )) {
-		debug(SPLIT, 1, "split level too big for mask\n");
+			|| (s->ip_ver == IPV6_A && levels[res - 1] > 128)
+			|| (levels[n_levels - 1] - s->mask >=  sizeof(sum) * 8)) {
+		debug(SPLIT, 1, "Too many splits\n");
 		return -1;
 	}
 	sum = 1 << (levels[0] - s->mask);
