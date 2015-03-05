@@ -977,6 +977,10 @@ int subnet_file_remove(const struct subnet_file *sf1, struct subnet_file *sf2, c
 	return 1;
 }
 
+/*
+ * parse splits levels
+ * levels are M,N,O like 2,4,8 meaning split in 2, then split the result in 4, then split the result in 8
+ */
 static int split_parse_levels(char *s, int *levels) {
 	int i = 0, current = 0;
 	int n_levels = 0;
@@ -1068,6 +1072,102 @@ int subnet_split(FILE *out, const struct subnet *s, char *string_levels) {
 			st_fprintf(out, "%N/%m;", subnet, subnet);
 		}
 		subnet.mask = base_mask + sum_log_to(levels, 0, k + 1);
+		st_fprintf(out, "%N/%m\n", subnet, subnet);
+		next_subnet(&subnet);
+		i++;
+	}
+	return 1;
+}
+
+/*
+ * parse splits levels, second version
+ * levels are M,N,O like 24,28,30 meaning split in /24, then split the result in /28, then split the result in 
+ * /30
+ */
+static int split_parse_levels_2(char *s, int *levels) {
+	int i = 0, current = 0;
+	int n_levels = 0;
+
+	if (!isdigit(s[i])) {
+		debug(SPLIT, 1, "Invalid level string '%s', starts with '%c'\n", s, s[0]);
+		return -1;
+	}
+	while (1) {
+		if (s[i] == '\0')
+			break;
+		if (s[i] == ',' && s[i + 1] == ',') {
+			debug(SPLIT, 1, "Invalid level string '%s', 2 consecutives ','\n", s);
+			return -1;
+		} else if (s[i] == ',' && s[i + 1] == '\0') {
+                        debug(SPLIT, 1, "Invalid level string '%s', ends with','\n", s);
+                        return -1;
+		}
+		if (s[i] == ',') {
+			levels[n_levels] = current;
+			if (n_levels && current <= levels[n_levels - 1]) {
+				debug(SPLIT, 1, "Invalid split, %d >= %d\n", levels[n_levels - 1], current);
+				return -1;
+			}
+			debug(SPLIT, 5, "split level#%d = %d\n", n_levels, levels[n_levels]);
+			n_levels++;
+			if (n_levels == 8) {
+				debug(SPLIT, 1, "only 10 split levels are supported\n");
+				return n_levels;
+			}
+			current = 0;
+		} else if (isdigit(s[i])) {
+			current *= 10;
+			current += (s[i] - '0');
+		} else {
+			debug(SPLIT, 1, "Invalid level string '%s', 2 consecutives ','\n", s);
+			return -1;
+		}
+		i++;
+	}
+	levels[n_levels] = current;
+	if (n_levels && current <= levels[n_levels - 1]) {
+		debug(SPLIT, 1, "Invalid split, %d >= %d\n", levels[n_levels - 1], current);
+		return -1;
+	}
+	debug(SPLIT, 5, "split level#%d = %d\n", n_levels, levels[n_levels]);
+	n_levels++;
+	return n_levels;
+}
+
+/* split n,m means split 's' n times, and each resulting subnet m times */
+int subnet_split_2(FILE *out, const struct subnet *s, char *string_levels) {
+	int i = 0, k, res;
+	int levels[12];
+	int n_levels;
+	struct subnet subnet;
+	int sum = 0;
+
+	res = split_parse_levels_2(string_levels, levels);
+	if (res < 0)
+		return res;
+	if (levels[0] <= s->mask) {
+		debug(SPLIT, 1, "split mask lower than subnet mask\n");
+		return -1;
+	}
+	n_levels = res;
+	if  ((s->ip_ver == IPV4_A && levels[res - 1] > 32)
+			|| (s->ip_ver == IPV6_A && levels[res - 1] > 128 )) {
+		debug(SPLIT, 1, "split level too big for mask\n");
+		return -1;
+	}
+	sum = 1 << (levels[0] - s->mask);
+	/* calculate the number of time we need to loop */
+	for (i = 1; i < n_levels; i++)
+		sum *= (1 << (levels[i] - levels[i - 1]));
+	copy_subnet(&subnet, s);
+
+	i = 0;
+	while (i < sum) {
+		for (k = 0; k < n_levels - 1; k++) {
+			subnet.mask = levels[k];
+			st_fprintf(out, "%N/%m;", subnet, subnet);
+		}
+		subnet.mask = levels[k];
 		st_fprintf(out, "%N/%m\n", subnet, subnet);
 		next_subnet(&subnet);
 		i++;

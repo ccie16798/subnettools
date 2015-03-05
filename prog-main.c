@@ -60,6 +60,7 @@ static int run_subnetagg(int argc, char **argv, void *options);
 static int run_routeagg(int argc, char **argv, void *options);
 static int run_remove(int argc, char **argv, void *options);
 static int run_split(int argc, char **argv, void *options);
+static int run_split_2(int argc, char **argv, void *options);
 static int run_help(int argc, char **argv, void *options);
 static int run_version(int argc, char **argv, void *options);
 static int run_confdesc(int argc, char **argv, void *options);
@@ -100,6 +101,7 @@ struct st_command commands[] = {
 	{ "routeagg",	&run_routeagg,	1},
 	{ "removesubnet", &run_remove,	3},
 	{ "split",	&run_split,	2},
+	{ "split2",	&run_split_2,	2},
 	{ "scanf",	&run_scanf,	2},
 	{ "help",	&run_help,	0},
 	{ "version",	&run_version,	0},
@@ -141,6 +143,7 @@ void usage() {
 	printf("routeagg  FILE1     : sort and aggregate subnets in CSV FILE1; GW is checked\n");
 	printf("removesub TYPE O1 S1: remove Subnet S from Object O1; if TYPE=file O1=a file, if TYPE=subnet 01=a subnet\n");
 	printf("split S, <l1,l2,..> : split subnet S l1 times, the result l2 times, and so on..\n");
+	printf("split2 S, <m1,m2,..>: split subnet S with mask m1, then m2, and so on...\n");
 	printf("simplify1 FILE1     : simplify CSV subnet file FILE1; duplicate or included networks are removed; GW is checked\n");
 	printf("simplify2 FILE1     : simplify CSV subnet file FILE1; prints redundant routes that can be removed\n");
 	printf("common FILE1 FILE2  : merge CSV subnet files FILE1 & FILE2; prints common routes only; GW isn't checked\n");
@@ -597,6 +600,20 @@ static int run_split(int arc, char **argv, void *options) {
 		return -1;
 	}
 	res = subnet_split(nof->output_file, &subnet, argv[3]);
+	return res;
+}
+
+static int run_split_2(int arc, char **argv, void *options) {
+	struct subnet subnet;
+	struct options *nof = options;
+	int res;
+
+	res = get_subnet_or_ip(argv[2], &subnet);
+	if (res != IPV6_N && res != IPV4_N) {
+		fprintf(stderr, "split works on subnet and '%s' is not\n", argv[2]);
+		return -1;
+	}
+	res = subnet_split_2(nof->output_file, &subnet, argv[3]);
 	return res;
 }
 

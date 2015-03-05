@@ -62,5 +62,11 @@ int subnet_file_remove(const struct subnet_file *sf1, struct subnet_file *sf2, c
  *   last splits resulting subnet k times
  *   split will produce 'n * m * k' subnets */
 int subnet_split(FILE *out, const struct subnet *s, char *string_levels);
+/* split2 s, "n,m,k" means :
+ *   first split 's' into /n mask,
+ *   second splits resulting subnet in /m masks
+ *   etc...
+ */
+int subnet_split_2(FILE *out, const struct subnet *s, char *string_levels);
 #else
 #endif
