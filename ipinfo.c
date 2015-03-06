@@ -84,7 +84,7 @@ static void decode_isatap_ll(FILE *out, const struct subnet *s) {
 			block(s->ip6, 7) >> 8, block(s->ip6, 7) & 0xFF);
 }
 
-void decode_ipv4_multicast(FILE *out, const struct subnet *s) {
+static void decode_ipv4_multicast(FILE *out, const struct subnet *s) {
 	int i, res;
 	const struct known_subnet_desc *k = ipv4_mcast_known_subnets;
 	int found_mask, found_i;
@@ -337,7 +337,7 @@ void fprint_ip_info(FILE *out, const struct subnet *subnet) {
 		fprint_ipv6_info(out, subnet);
 }
 
-void fprint_ipv4_known_mcast_subnets(FILE *out) {
+static void fprint_ipv4_known_mcast_subnets(FILE *out) {
 	const struct known_subnet_desc *k;
 	int i;
 
