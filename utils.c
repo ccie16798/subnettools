@@ -154,7 +154,7 @@ char *simple_strtok_r(char *s, const char *delim, char **s2) {
 	while (*s != '\0') {
 		for (i = 0; i < strlen(delim); i++) {
 			if (*s == delim[i]) {
-				*s='\0';
+				*s  ='\0';
 				*s2 = s + 1;
 				return s3;
 			}
