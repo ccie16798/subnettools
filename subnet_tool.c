@@ -814,7 +814,8 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 	return 1;
 }
 
-int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct subnet_file *sf2, struct subnet_file *sf3) {
+int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct subnet_file *sf2,
+		struct subnet_file *sf3) {
 	unsigned long  i, j, can_add;
 	int res;
 	struct route *r;
@@ -852,7 +853,7 @@ int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct
 				can_add = 0; /* maybe the route we are matching is included in something; in that case we wont add it again */
 				break;
 			}
-		} // for i
+		}
 		if (can_add) {
 			st_debug(ADDRCOMP, 3, "Loop #2 add %P\n", sf2->routes[j].subnet);
 			addTAS(&tas, &sf2->routes[j]);
@@ -948,7 +949,6 @@ int subnet_file_remove(const struct subnet_file *sf1, struct subnet_file *sf2, c
 		} else if (res == EQUALS) {
 			st_debug(ADDRREMOVE, 2, "removing entire subnet %P\n", *subnet);
 			continue;
-
 		}
 		r = subnet_remove(&sf1->routes[i].subnet, subnet, &n);
 		if (n == -1) {
@@ -958,12 +958,12 @@ int subnet_file_remove(const struct subnet_file *sf1, struct subnet_file *sf2, c
 		/* realloc memory if necessary */
 		if (n + sf2->nr >= sf2->max_nr) {
 			sf2->max_nr *= 2;
-			 new_r = realloc(sf2->routes,  sizeof(struct route) * sf2->max_nr);
-			 if (new_r == NULL) {
-				 fprintf(stderr, "unable to reallocate, need to abort\n");
-				 return -3;
-			 }
-			 sf2->routes = new_r;
+			new_r = realloc(sf2->routes,  sizeof(struct route) * sf2->max_nr);
+			if (new_r == NULL) {
+				fprintf(stderr, "unable to reallocate, need to abort\n");
+				return -3;
+			}
+			sf2->routes = new_r;
 		} /* realloc */
 		for (res = 0; res < n; res++) {
 			copy_route(&sf2->routes[j],  &sf1->routes[i]);
@@ -973,7 +973,6 @@ int subnet_file_remove(const struct subnet_file *sf1, struct subnet_file *sf2, c
 		free(r);
 	}
 	sf2->nr = j;
-
 	return 1;
 }
 
@@ -1053,6 +1052,7 @@ int subnet_split(FILE *out, const struct subnet *s, char *string_levels) {
 		return res;
 	n_levels = res;
 	res = sum_log_to(levels, 0, n_levels);
+	/* make sure the splits levels are not too large; for IPv6, we can loop more than 2^(ulong bits) */
 	if  ((s->ip_ver == IPV4_A && res > (32 - s->mask))
 			|| (s->ip_ver == IPV6_A && res > (128 - s->mask)) || res > sizeof(sum) * 4) {
 		debug(SPLIT, 1, "Too many splits\n");
