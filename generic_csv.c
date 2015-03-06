@@ -175,7 +175,7 @@ static int read_csv_body(FILE *f, char *name, struct csv_file *cf, struct csv_st
 		}
 		if (state->badline)
 			badlines++;
-	} // while fgets
+	} /* while fgets */
 	/* end of file */
 	if (cf->endoffile_callback)
 		res = cf->endoffile_callback(state, data);
@@ -185,6 +185,7 @@ static int read_csv_body(FILE *f, char *name, struct csv_file *cf, struct csv_st
 	debug_timing_end(2);
 	return res;
 }
+
 int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state* state, void *data) {
 	FILE *f;
 	char buffer[1024];
