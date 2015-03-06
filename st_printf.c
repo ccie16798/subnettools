@@ -379,7 +379,6 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 							field_width, pad_left, pad_value);
 					j += res;
 					break;
-					
 				case 'h':
 					if (fmt[i2 + 1] == 'u') {
 						v_ushort = va_arg(ap, unsigned);

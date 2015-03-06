@@ -19,7 +19,8 @@
 #include "st_object.h"
 
 // TO check : bound checking
-// {a,b} multiplier
+
+#define ST_STRING_INFINITY 1000000000  /* Subnet tool definition of infinity */
 
 struct expr {
 	char *expr;
@@ -81,8 +82,8 @@ static char conversion_specifier(const char *fmt) {
 }
 
 static inline int max_match(char c) {
-	if (c == '*') return 1000000000;
-	if (c == '+') return 1000000000;
+	if (c == '*') return ST_STRING_INFINITY;
+	if (c == '+') return ST_STRING_INFINITY;
 	if (c == '?') return 1;
 	debug(SCANF, 1, "BUG, Invalid multiplier char '%c'\n", c);
 	return 0;
@@ -187,7 +188,6 @@ static int find_hex(char *remain, struct expr *e) {
 		return 1;
 	return isxdigit(*remain);
 }
-
 
 /*
  * from fmt string starting with '[', fill expr with the range
@@ -328,7 +328,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 		case 'Q': /* classfull subnet */
 		case 'P':
 			ARG_SET(v_sub, struct subnet *);
-			while ((is_ip_char(in[j2])||in[j2] == '/')) {
+			while ((is_ip_char(in[j2]) || in[j2] == '/')) {
 				buffer[j2 - *j] = in[j2];
 				j2++;
 			}
@@ -420,10 +420,10 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 				} else
 					sign = 1;
 				if (!isdigit(in[j2])) {
+					debug(SCANF, 2, "no SHORT found at offset %d \n", *j);
 					return n_found;
 				}
-				while (isdigit(in[j2]) && j2 - *j < max_field_length) {
-					debug(SCANF, 2, "no SHORT found at offset %d \n", *j);
+				while (isdigit(in[j2])) {
 					*v_short *= 10;
 					*v_short += (in[j2] - '0') ;
 					j2++;
