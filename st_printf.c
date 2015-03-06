@@ -47,7 +47,7 @@ void fprint_route(const struct route *r, FILE *output, int compress_level) {
 	fprintf(output, "%s;%d;%s;%s;%s\n", buffer, r->subnet.mask, r->device, buffer2, r->comment);
 }
 
-void inline pad_n(char *s, int n, char c) {
+static void inline pad_n(char *s, int n, char c) {
 	int i;
 	for (i = 0; i < n; i++)
 		s[i] = c;
