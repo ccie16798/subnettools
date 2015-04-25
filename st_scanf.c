@@ -924,7 +924,7 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 						e.early_stop = &find_uint;
 						break;
 					case 'x':
-						e.early_stop = find_hex;
+						e.early_stop = &find_hex;
 						break;
 					case 'l':
 					case 'h':
@@ -1001,7 +1001,7 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 					break;
 				n_match++;
 				/* to set 'last_match', we check if the previous loop had stopped or not
-				   last _match is set if current loop HAS stopped and previous has not 
+				   last_match is set if current loop HAS stopped and previous has not
 				   scanf("abdsdfdsf t e 121.1.1.1", ".*$I") should return '121.1.1.1' not '1.1.1.1'
 				   scanf("abdsdfdsf t e STRING", ".*$s") should return 'STRING' not just 'G'
 				 */
