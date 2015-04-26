@@ -60,6 +60,7 @@ int subnet_compare(const struct subnet *sub1, const struct subnet *sub2) {
 
 int is_equal_ipv6(ipv6 ip1, ipv6 ip2) {
 	int i;
+
 	for (i = 0; i < 4; i++)
 		if (ip1.n32[i] != ip2.n32[i])
 			return 0;
@@ -365,7 +366,7 @@ u32 string2mask(const char *s, int len) {
 	}
 	a = 0;
 	sscanf(s, "%d.%d.%d.%d", truc, truc + 1, truc + 2, truc + 3);
-	for (i = 0; i < 4 ; i++) {
+	for (i = 0; i < 4; i++) {
 		if (i && ( (truc[i] > truc[i - 1])  || (truc[i] && truc[i] < 255 && truc[i - 1] < 255))   ) {
 			debug(PARSEIP, 5, "Invalid X.X.X.X mask %s\n",s);
 			return BAD_MASK;
