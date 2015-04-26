@@ -330,15 +330,25 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 					v_sub = va_arg(ap, struct subnet);
 					if (v_sub.ip_ver == IPV4_A)
 						res = mask2ddn(v_sub.mask, buffer, sizeof(buffer));
-					else
+					else if (v_sub.ip_ver == IPV6_A)
 						res = sprint_uint(buffer, v_sub.mask);
+					else {
+						strcpy(buffer,"<Invalid mask>");
+						res = strlen(buffer);
+					}
 					res = pad_buffer_out(outbuf + j, len - j, buffer, res,
 							field_width, pad_left, ' ');
 					j += res;
 					break;
 				case 'm':
 					v_sub = va_arg(ap, struct subnet);
-					res = sprint_uint(buffer, v_sub.mask);
+					/* safegard a little */
+					if (v_sub.ip_ver == IPV4_A || v_sub.ip_ver == IPV6_A)
+						res = sprint_uint(buffer, v_sub.mask);
+					else {
+						strcpy(buffer,"<Invalid mask>");
+						res = strlen(buffer);
+					}
 					res = pad_buffer_out(outbuf + j, len - j, buffer, res,
 							field_width, pad_left, ' ');
 					j += res;
@@ -379,7 +389,7 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 							field_width, pad_left, pad_value);
 					j += res;
 					break;
-				case 'h':
+				case 'h':/* half integers handling */
 					if (fmt[i2 + 1] == 'u') {
 						v_ushort = va_arg(ap, unsigned);
 						res = sprint_ushort(buffer, v_ushort);
@@ -398,7 +408,7 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 							field_width, pad_left, pad_value);
 					j += res;
 					break;
-				case 'l':
+				case 'l': /* long stuff (like the bride would say) */
 					if (fmt[i2 + 1] == 'u') {
 						v_ulong = va_arg(ap, unsigned long);
 						res = sprint_ulong(buffer, v_ulong);
@@ -473,7 +483,7 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 							field_width, pad_left, ' ');
 					j += res;
 					break;
-				case 'O':
+				case 'O': /* st_object */
 					if (o == NULL)
 						break;
 					o_num = 0;
