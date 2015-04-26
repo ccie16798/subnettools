@@ -109,10 +109,11 @@ int ipso_route_to_csv(char *name, FILE *f, FILE *output) {
 			}
 			fprint_route(&route, output, 3);
 			memset(&route, 0, sizeof(route));
+			continue;
 		}
 		res = st_sscanf(s, ".*%Q *(via) %I.*%32[^ ,]", &route.subnet, &route.gw, route.device);
 		if (res < 3) {
-			debug(PARSEROUTE, 9, "line %lu incorret connected route '%s'\n", line, buffer);
+			debug(PARSEROUTE, 9, "line %lu invalid connected route '%s'\n", line, buffer);
 			badline++;
 			continue;
 		}
