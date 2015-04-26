@@ -155,14 +155,23 @@ int fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
 				case 'M':
 					if (r->subnet.ip_ver == IPV4_A)
 						res = mask2ddn(r->subnet.mask, buffer, sizeof(buffer));
-					else
+					else if (r->subnet.ip_ver == IPV6_A)
 						res = sprint_uint(buffer, r->subnet.mask);
+					else {
+						strcpy(buffer,"<Invalid mask>");
+						res = strlen(buffer);
+					}
 					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
 							res, field_width, pad_left, ' ');
 					j += res;
 					break;
 				case 'm':
-					res = sprint_uint(buffer, r->subnet.mask);
+					if (r->subnet.ip_ver == IPV4_A || r->subnet.ip_ver == IPV6_A)
+						res = sprint_uint(buffer, r->subnet.mask);
+					else {
+						strcpy(buffer,"<Invalid mask>");
+						res = strlen(buffer);
+					}
 					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
 							res, field_width, pad_left, ' ');
 					j += res;
