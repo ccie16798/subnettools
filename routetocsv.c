@@ -53,6 +53,9 @@ void csvconverter_help(FILE *output) {
 	}
 }
 
+/*
+ * execute converter "name" on input file "filename"
+ */
 int run_csvconverter(char *name, char *filename, FILE *output) {
 	int i = 0;
 	FILE *f;
@@ -280,8 +283,9 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 	return 1;
 }
 
-
-
+/*
+ * input from ASA firewall or FWSM
+ **/
 int cisco_fw_conf_to_csv(char *name, FILE *f, FILE *output) {
 	char buffer[1024];
 	char *s;
