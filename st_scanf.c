@@ -58,7 +58,7 @@ static inline char escape_char(char input_c) {
 	return c;
 }
 
-static int is_multiple_char(char c) {
+static inline int is_multiple_char(char c) {
 	return (c == '*' || c == '+' || c == '?' || c == '{');
 }
 
@@ -106,7 +106,7 @@ static int parse_brace_multiplier(const char *s, int *min, int *max) {
 	int i = 1;
 
 	*min = 0;
-	*max = 1000000000;
+	*max = ST_STRING_INFINITY;
 	if (s[i] == '}') {
 		debug(SCANF, 1, "Invalid empty multiplier '%s'\n", s);
 		return -1;
