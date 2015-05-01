@@ -101,8 +101,8 @@ int palo_to_csv(char *name, FILE *f, FILE *output) {
 
 	fprintf(output, "prefix;mask;device;GW;comment\n");
 
-	memset(&route, 0, sizeof(route));
         while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
+		memset(&route, 0, sizeof(route));
 		line++;
 		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
 		res = st_sscanf(s, "%P *%I.*$%32s", &route.subnet, &route.gw, route.device);
@@ -115,7 +115,6 @@ int palo_to_csv(char *name, FILE *f, FILE *output) {
 		if (strlen(route.device) < 3)
 			route.device[0] = '\0';
 		fprint_route(&route, output, 3);
-		memset(&route, 0, sizeof(route));
 	}
 	return 1;
 }
@@ -132,20 +131,18 @@ int ipso_route_to_csv(char *name, FILE *f, FILE *output) {
 
 	fprintf(output, "prefix;mask;device;GW;comment\n");
 
-	memset(&route, 0, sizeof(route));
         while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
+		memset(&route, 0, sizeof(route));
 		line++;
 		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
 		if (s[0] == 'C') {/* connected route */
 			res = st_sscanf(s, ".*%Q.*$%32s", &route.subnet, route.device);
 			if (res < 2) {
 				debug(PARSEROUTE, 9, "line %lu invalid connected route '%s'\n", line, buffer);
-				memset(&route, 0, sizeof(route));
 				badline++;
 				continue;
 			}
 			fprint_route(&route, output, 3);
-			memset(&route, 0, sizeof(route));
 			continue;
 		}
 		res = st_sscanf(s, ".*%Q *(via) %I.*%32[^ ,]", &route.subnet, &route.gw, route.device);
@@ -155,8 +152,6 @@ int ipso_route_to_csv(char *name, FILE *f, FILE *output) {
 			continue;
 		}
 		fprint_route(&route, output, 3);
-		memset(&route, 0, sizeof(route));
-
 	}
 	return 1;
 }
