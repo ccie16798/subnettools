@@ -17,13 +17,13 @@
 #define swap(a, b) \
 	do { typeof(a) __tmp = (a); (a) = (b); (b) = __tmp; } while (0)
 
-inline void *father(TAS t, int n) {
+static inline void *father(TAS t, int n) {
 	return t.tab[(n - 1) / 2];
 }
-inline void *leftSon(TAS t, int n) {
+static inline void *leftSon(TAS t, int n) {
 	return t.tab[2 * n + 1];
 }
-inline void *rightSon(TAS t, int n) {
+static inline void *rightSon(TAS t, int n) {
 	return t.tab[2 * n + 2];
 }
 #define SIZE_T_MAX ((size_t)0 - 1)
@@ -54,7 +54,6 @@ void addTAS(TAS *tas, void *el) {
 
 	n = tas->nr++;
 	tas->tab[n] = el; /*insert element at the end */
-
 	n2 = n;
 
 	while (n) { /* move it up */
