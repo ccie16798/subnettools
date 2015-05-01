@@ -29,6 +29,7 @@ int cisco_route_conf_to_csv(char *name, FILE *input_name, FILE *output);
 int cisco_fw_conf_to_csv(char *name, FILE *input_name, FILE *output);
 int cisco_nexus_to_csv(char *name, FILE *input_name, FILE *output);
 int ipso_route_to_csv(char *name, FILE *input_name, FILE *output);
+int palo_to_csv(char *name, FILE *input_name, FILE *output);
 void csvconverter_help(FILE *output);
 
 struct csvconverter csvconverters[] = {
@@ -38,6 +39,7 @@ struct csvconverter csvconverters[] = {
 	{ "IPSO",		&ipso_route_to_csv, 	"output of clish show route"  },
 	{ "GAIA",		&ipso_route_to_csv ,	"output of clish show route" },
 	{ "CiscoNexus",		&cisco_nexus_to_csv ,	"output of show ip route on Cisco Nexus NXOS" },
+	{ "palo",		&palo_to_csv ,	"output of show routing route on Palo Alto FW" },
 	{ NULL, NULL }
 };
 
@@ -87,6 +89,37 @@ int run_csvconverter(char *name, char *filename, FILE *output) {
 	return -2;
 }
 /*
+ * output of 'show routing route' on Palo alto
+ */
+int palo_to_csv(char *name, FILE *f, FILE *output) {
+	char buffer[1024];
+	char *s;
+	unsigned long line = 0;
+	int badline = 0;
+	struct route route;
+	int res;
+
+	fprintf(output, "prefix;mask;device;GW;comment\n");
+
+	memset(&route, 0, sizeof(route));
+        while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
+		line++;
+		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
+		res = st_sscanf(s, "%P *%I.*$%32s", &route.subnet, &route.gw, route.device);
+		if (res < 1) {
+			debug(PARSEROUTE, 9, "line %lu invalid route '%s'\n", line, buffer);
+			badline++;
+			continue;
+		}
+		/* on host route the last string is a flag; discard device in that case */
+		if (strlen(route.device) < 3)
+			route.device[0] = '\0';
+		fprint_route(&route, output, 3);
+		memset(&route, 0, sizeof(route));
+	}
+	return 1;
+}
+/*
  * output of 'show route' on IPSO or GAIA
  */
 int ipso_route_to_csv(char *name, FILE *f, FILE *output) {
@@ -107,6 +140,7 @@ int ipso_route_to_csv(char *name, FILE *f, FILE *output) {
 			res = st_sscanf(s, ".*%Q.*$%32s", &route.subnet, route.device);
 			if (res < 2) {
 				debug(PARSEROUTE, 9, "line %lu invalid connected route '%s'\n", line, buffer);
+				memset(&route, 0, sizeof(route));
 				badline++;
 				continue;
 			}
@@ -304,6 +338,7 @@ int cisco_fw_conf_to_csv(char *name, FILE *f, FILE *output) {
 		if (res < 4) {
 			debug(PARSEROUTE, 2, "Invalid line %lu\n", line);
 			badline++;
+			memset(&route, 0, sizeof(route));
 			continue;
 		}
 		fprint_route(&route, output, 3);
