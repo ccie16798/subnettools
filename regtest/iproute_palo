@@ -1,0 +1,27 @@
+>show routing route
+
+flags: A:active, ?:loose, C:connect, H:host, S:static, ~:internal, R:rip, O:ospf, B:bgp,
+      Oi:ospf intra-area, Oo:ospf inter-area, O1:ospf ext-type-1, O2:ospf ext-type-2
+
+VIRTUAL ROUTER: default (id 1)
+  ==========
+destination          nexthop           metric flags  age  interface       
+0.0.0.0/0            10.50.241.1       10     A S         ethernet1/2      
+10.50.240.0/24       10.50.240.63      0      A C         ethernet1/1     
+10.50.240.0/24       13.0.0.1          2        R         ethernet1/6   
+10.50.240.63/32      0.0.0.0           0      A H
+10.50.241.0/24       13.0.0.1          2      A R         ethernet1/6     
+10.50.241.63/32      0.0.0.0           0      A H
+10.50.242.0/24       10.50.242.63      0      A C         ethernet1/3      
+10.50.242.0/24       13.0.0.1          2        R         ethernet1/6     
+10.50.242.63/32      0.0.0.0           0      A H
+12.0.0.0/24          13.0.0.1          2      A R         ethernet1/6      
+13.0.0.0/24          0.0.0.0           1        R         ethernet1/6    
+13.0.0.0/24          13.0.0.2          0      A C         ethernet1/6      
+13.0.0.2/32          0.0.0.0           0      A H
+172.16.2.2/31        13.0.0.1          2      A R         ethernet1/6      
+172.16.2.4/31        13.0.0.1          2      A R         ethernet1/6      
+192.168.10.10/31     192.168.10.10     10     A S         tunnel.4        
+192.168.10.12/30     192.168.10.12     10     A S         tunnel.4        
+192.168.10.16/30     192.168.10.16     10     A S         tunnel.4        
+192.168.10.20/32     192.168.10.20     10     A S         tunnel.4         

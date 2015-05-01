@@ -167,6 +167,7 @@ reg_test convert IPSO iproute_nokia
 reg_test convert CiscoNexus iproute_nexus
 reg_test convert CiscoNexus iproutecisconexus_ECMP
 reg_test convert CiscoRouter ipv6route2
+reg_test convert palo iproute_palo
 reg_test grep mergeipv6 2001:db8::
 #ipinfo
 
