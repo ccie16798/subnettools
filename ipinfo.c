@@ -101,8 +101,6 @@ static void decode_ipv4_multicast(FILE *out, const struct subnet *s) {
 				found_i = i;
 			}
 		}
-
-
 	}
 	if (found_mask >= 0) {
 		fprintf(out, "%s\n", k[found_i].desc);
