@@ -233,8 +233,21 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 		/* handle a next hop printed on a next-line */
 		if (find_hop) {
 			if (strstr(s, "via ")) {
-				res = st_sscanf(s, " *(via) (%I)?.*%32[^, \n]", &route.gw, route.device);
-				if (res == 0) {
+				/* format is not the same in IPv6 or IPv4 */
+				if (ip_ver == IPV4_A) {
+				/*
+				 O E1    10.150.10.128/25
+					[110/45] via 10.138.2.131, 1w5d, TenGigabitEthernet8/1
+				*/
+					res = st_sscanf(s, ".*(via) (%I)?.*$%32[^, \n]", &route.gw, route.device);
+				} else {
+				/*
+					S   2A02:8400:0:41::2:2/128 [1/0]
+						     via FE80::253, Vlan491
+				*/
+					res = st_sscanf(s, " *(via) (%I)?.*%32[^, \n]", &route.gw, route.device);
+
+				}if (res == 0) {
 					debug(PARSEROUTE, 4, "line %lu bad GW line no subnet found\n", line);
 					badline++;
 					find_hop = 0;
