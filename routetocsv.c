@@ -213,6 +213,7 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 	int ip_ver = -1;
 	int find_mask;
 	int is_subnetted = 0;
+	int find_hop = 0;
 
 	memset(&route, 0, sizeof(route));
 	fprintf(output, "prefix;mask;device;GW;comment\n");
@@ -228,6 +229,32 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
 		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
+
+		/* handle a next hop printed on a next-line */
+		if (find_hop) {
+			if (strstr(s, "via ")) {
+				res = st_sscanf(s, " *(via) (%I)?.*%32[^, \n]", &route.gw, route.device);
+				if (res == 0) {
+					debug(PARSEROUTE, 4, "line %lu bad GW line no subnet found\n", line);
+					badline++;
+					find_hop = 0;
+					memset(&route, 0, sizeof(route));
+					continue;
+				}
+				if (res == 1)
+					strcpy(route.device, "NA");;
+				if (route.device[0] == '[')
+					strcpy(route.device, "NA");;
+				fprint_route(&route, output, 3);
+			} else {
+				debug(PARSEROUTE, 4, "line %lu should hold a next-hop/device\n", line);
+				badline++;
+			}
+			memset(&route, 0, sizeof(route));
+			find_hop = 0;
+			continue;
+		}
+		/* handle gateway of last resort line */
 		if (!strncmp(s, "Gateway ", 8)) {
 			ip_ver = IPV4_A;
 			debug(PARSEROUTE, 5, "line %lu \'is gateway of last resort, skipping'\n", line);
@@ -282,38 +309,24 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 			memset(&route, 0, sizeof(route));
 			continue;
 		}
-		res = st_sscanf(s, ".*%P.*(via) %I.*$%32s", &route.subnet, &route.gw, route.device);
+		/* a valid route begin with a non space char */
+		res = st_sscanf(s, "[^ ].*%P.*(via) %I.*$%32s", &route.subnet, &route.gw, route.device);
 		if (res == 0) {
 			badline++;
 			debug(PARSEROUTE, 1, "line %lu Invalid line '%s'\n", line, s);
 			memset(&route, 0, sizeof(route));
 			continue;
-		}
-		if (res == 2) {
+		} else if (res == 1) { /* in case next-hop appears on next line */
+			find_hop = 1;
+			continue;
+		} else  if (res == 2) {
 			debug(PARSEROUTE, 4, "line %lu no device found\n", line);
 			strcpy(route.device, "NA");
 		}
+		find_hop = 0;
 		CHECK_IP_VER
 		if (isdigit(route.device[0]))
 			strcpy(route.device, "NA");
-		if (ip_ver == IPV6_A) {
-			s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res);
-			line++;
-			if (s == NULL) {
-				debug(PARSEROUTE, 1, "line %lu Invalid line, no next hop found\n", line);
-				break;
-			}
-			res = st_sscanf(s, " *(via) (%I)?.*%32[^, \n]", &route.gw, route.device);
-			if (res == 0) {
-				debug(PARSEROUTE, 1, "line %lu Invalid line '%s', no next-hop\n", line, s);
-				continue;
-			}
-		} else {
-			if (res < 2) {
-				debug(PARSEROUTE, 1, "line %lu Invalid line '%s', no next-hop\n", line, s);
-				continue;
-			}
-		}
 		fprint_route(&route, output, 3);
 		memset(&route, 0, sizeof(route));
 	}
