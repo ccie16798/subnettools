@@ -276,6 +276,8 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 			CHECK_IP_VER
 			route.subnet.mask = find_mask;
 			is_subnetted--;
+			if (isdigit(route.device[0]))
+				strcpy(route.device, "NA");
 			fprint_route(&route, output, 3);
 			memset(&route, 0, sizeof(route));
 			continue;
@@ -287,7 +289,13 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 			memset(&route, 0, sizeof(route));
 			continue;
 		}
+		if (res == 2) {
+			debug(PARSEROUTE, 4, "line %lu no device found\n", line);
+			route.device[0] = '\0';
+		}
 		CHECK_IP_VER
+		if (isdigit(route.device[0]))
+			strcpy(route.device, "NA");
 		if (ip_ver == IPV6_A) {
 			s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res);
 			line++;
