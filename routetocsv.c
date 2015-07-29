@@ -271,7 +271,7 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 			}
 			if (res == 2) {
 				debug(PARSEROUTE, 4, "line %lu no device found\n", line);
-				route.device[0] = '\0';
+				strcpy(route.device, "NA");
 			}
 			CHECK_IP_VER
 			route.subnet.mask = find_mask;
@@ -291,7 +291,7 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 		}
 		if (res == 2) {
 			debug(PARSEROUTE, 4, "line %lu no device found\n", line);
-			route.device[0] = '\0';
+			strcpy(route.device, "NA");
 		}
 		CHECK_IP_VER
 		if (isdigit(route.device[0]))
