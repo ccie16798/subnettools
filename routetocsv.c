@@ -50,7 +50,7 @@ void csvconverter_help(FILE *output) {
 	while (1) {
 		if (csvconverters[i].name == NULL)
 			break;
-		fprintf(stderr, " %s : %s\n", csvconverters[i].name, csvconverters[i].desc);
+		fprintf(output, " %s : %s\n", csvconverters[i].name, csvconverters[i].desc);
 		i++;
 	}
 }
