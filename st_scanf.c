@@ -548,7 +548,7 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 				debug(SCANF, 1, "Invalid format '%s', found '%%' after %%s\n", fmt);
 				return n_found;
 			}
-			while (! isspace(in[j2]) && j2 - *j < max_field_length - 1) {
+			while (!isspace(in[j2]) && j2 - *j < max_field_length - 1) {
 				if (in[j2] == '\0')
 					break;
 				v_s[j2 - *j] = in[j2];
@@ -565,7 +565,6 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 					debug(SCANF, 2, "STRING '%s' at offset %d is an IP, refusing it\n", v_s, *j);
 					return n_found;
 				}
-
 			}
 			debug(SCANF, 5, "found STRING '%s' starting at offset %d \n", v_s, *j);
 			n_found++;
