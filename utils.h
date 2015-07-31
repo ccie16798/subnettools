@@ -13,6 +13,12 @@ int char2int(char c);
 /* remove all spaces from char */
 char *remove_space(char *s);
 
+/* remove ending spaces from s
+ * "etienne is a genius    " will be changed to "etienne is a genius"
+ */
+void remove_ending_space(char *s);
+
+
 /* strtok variants ; dont treat consecutive delim chars as one */
 char *simple_strtok(char *s, const char *delim);
 char *simple_strtok_r(char *s, const char *delim, char **save_ptr) ;

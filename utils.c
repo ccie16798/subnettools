@@ -76,6 +76,16 @@ char *remove_space(char *s) {
 	}
 }
 
+void remove_ending_space(char *s) {
+	int j;
+
+	for (j = strlen(s) - 1; j >= 0; j--) {
+		if (!isspace(s[j]))
+			return;
+		s[j] = '\0';
+	}
+}
+
 /* strlcpy */
 int strxcpy(char *dst, const char *src, int size) {
 	int i = 0;
