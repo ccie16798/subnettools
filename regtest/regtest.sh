@@ -39,7 +39,7 @@ reg_test_scanf() {
 	local output_file
 	local n
 
-	n=29
+	n=30
 	$PROG scanf "1.1.1.1 zob    1.1.1.2    name 25" " *%I (%S )?.*%I *(name) %d" > res/scanf1 
 	$PROG scanf "1.1.1.1   1.1.1.2    name 25" " *%I (%S )?.*%I *(name) %d" > res/scanf2 
 	$PROG scanf "1.1.1.1  1.1.1.2 2.2.2.2 toto   r" " *%I .*%S" > res/scanf3
@@ -70,7 +70,7 @@ reg_test_scanf() {
 	$PROG scanf  "1234567890  abcdabcdabcd 1234567890"  "%9s[90 ]*%5[abcd](abcdabcd).*%9S" > res/scanf19
 	# test HEX scanning
 	$PROG scanf "0xfffeabc 200 0xfff1fffe" "%x *%hx .*$%lx" > res/scanf20
-	# test OR 
+	# test OR  result is '12 1.1.1.1 1234'
 	$PROG scanf "12 1.1.1.1 aa 1234" "(bozz|ss|%d %I) aa %d " > res/scanf21
 	# %d %S doesnt matchn %d %I does
 	$PROG scanf "12 1.1.1.1 aa 1234" "(bozz|ss|%d %S|%d %I) aa %d " > res/scanf22
@@ -82,6 +82,8 @@ reg_test_scanf() {
 	$PROG scan "1234567890a" ".{3,4}%c" > res/scanf27
 	$PROG scan "1234567890a" ".{,4}%c" > res/scanf28
 	$PROG scan "1234567890a" ".{4,}%c" > res/scanf29
+	#complex end of char range returns ' local hh'
+	$PROG scan "    *via 10.24.133.5, Vlan600, [0/0], 1y7w, local hh" ".*$%[^,]" > res/scanf30
 
 
 	for i in `seq 1 $n`; do
