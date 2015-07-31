@@ -1076,7 +1076,7 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 			j++;
 		/* expression or char range */
 		} else if (c == '(' || c == '[') {
-			char c2 = (c == '(' ? ')' : ']');
+			char c2;
 			if (c == '(') {
 				c2 = ')';
 				res = strxcpy_until(expr, fmt + i, sizeof(expr), c2);
