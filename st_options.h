@@ -25,6 +25,8 @@ struct options {
 	char netcsv_comment[32];
 	char netcsv_device[32];
 	char netcsv_gw[32];
+	/* converter options */
+	int rt; /* dynamic type as a comment */
 };
 #else
 #endif
