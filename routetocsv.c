@@ -20,16 +20,16 @@
 
 struct csvconverter {
 	const char *name;
-	int (*converter)(char *name, FILE *, FILE *);
+	int (*converter)(char *name, FILE *, struct options *);
 	const char *desc;
 };
 
-int cisco_route_to_csv(char *name, FILE *input_name, FILE *output);
-int cisco_route_conf_to_csv(char *name, FILE *input_name, FILE *output);
-int cisco_fw_conf_to_csv(char *name, FILE *input_name, FILE *output);
-int cisco_nexus_to_csv(char *name, FILE *input_name, FILE *output);
-int ipso_route_to_csv(char *name, FILE *input_name, FILE *output);
-int palo_to_csv(char *name, FILE *input_name, FILE *output);
+int cisco_route_to_csv(char *name, FILE *input_name, struct options *o);
+int cisco_route_conf_to_csv(char *name, FILE *input_name, struct options *o);
+int cisco_fw_conf_to_csv(char *name, FILE *input_name, struct options *o);
+int cisco_nexus_to_csv(char *name, FILE *input_name, struct options *o);
+int ipso_route_to_csv(char *name, FILE *input_name, struct options *o);
+int palo_to_csv(char *name, FILE *input_name, struct options *o);
 void csvconverter_help(FILE *output);
 
 struct csvconverter csvconverters[] = {
@@ -58,7 +58,7 @@ void csvconverter_help(FILE *output) {
 /*
  * execute converter "name" on input file "filename"
  */
-int run_csvconverter(char *name, char *filename, FILE *output) {
+int run_csvconverter(char *name, char *filename, struct options *o) {
 	int i = 0;
 	FILE *f;
 
@@ -79,7 +79,7 @@ int run_csvconverter(char *name, char *filename, FILE *output) {
 		if (csvconverters[i].name == NULL)
 			break;
 		if (!strcasecmp(name, csvconverters[i].name)) {
-			csvconverters[i].converter(filename, f, output);
+			csvconverters[i].converter(filename, f, o);
 			return 0;
 		}
 		i++;
@@ -91,7 +91,7 @@ int run_csvconverter(char *name, char *filename, FILE *output) {
 /*
  * output of 'show routing route' on Palo alto
  */
-int palo_to_csv(char *name, FILE *f, FILE *output) {
+int palo_to_csv(char *name, FILE *f, struct options *o) {
 	char buffer[1024];
 	char *s;
 	unsigned long line = 0;
@@ -99,7 +99,7 @@ int palo_to_csv(char *name, FILE *f, FILE *output) {
 	struct route route;
 	int res;
 
-	fprintf(output, "prefix;mask;device;GW;comment\n");
+	fprintf(o->output_file, "prefix;mask;device;GW;comment\n");
 
         while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		memset(&route, 0, sizeof(route));
@@ -114,14 +114,14 @@ int palo_to_csv(char *name, FILE *f, FILE *output) {
 		/* on host route the last string is a flag; discard device in that case */
 		if (strlen(route.device) < 3)
 			route.device[0] = '\0';
-		fprint_route(&route, output, 3);
+		fprint_route(&route, o->output_file, 3);
 	}
 	return 1;
 }
 /*
  * output of 'show route' on IPSO or GAIA
  */
-int ipso_route_to_csv(char *name, FILE *f, FILE *output) {
+int ipso_route_to_csv(char *name, FILE *f, struct options *o) {
 	char buffer[1024];
 	char *s;
 	unsigned long line = 0;
@@ -129,7 +129,7 @@ int ipso_route_to_csv(char *name, FILE *f, FILE *output) {
 	struct route route;
 	int res;
 
-	fprintf(output, "prefix;mask;device;GW;comment\n");
+	fprintf(o->output_file, "prefix;mask;device;GW;comment\n");
 
         while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		memset(&route, 0, sizeof(route));
@@ -142,7 +142,7 @@ int ipso_route_to_csv(char *name, FILE *f, FILE *output) {
 				badline++;
 				continue;
 			}
-			fprint_route(&route, output, 3);
+			fprint_route(&route, o->output_file, 3);
 			continue;
 		}
 		res = st_sscanf(s, ".*%Q *(via) %I.*%32[^ ,]", &route.subnet, &route.gw, route.device);
@@ -151,12 +151,12 @@ int ipso_route_to_csv(char *name, FILE *f, FILE *output) {
 			badline++;
 			continue;
 		}
-		fprint_route(&route, output, 3);
+		fprint_route(&route, o->output_file, 3);
 	}
 	return 1;
 }
 
-int cisco_nexus_to_csv(char *name, FILE *f, FILE *output) {
+int cisco_nexus_to_csv(char *name, FILE *f, struct options *o) {
 	char buffer[1024];
 	char *s;
 	unsigned long line = 0;
@@ -165,7 +165,7 @@ int cisco_nexus_to_csv(char *name, FILE *f, FILE *output) {
 	int res;
 	int nhop = 0;
 
-	fprintf(output, "prefix;mask;device;GW;comment\n");
+	fprintf(o->output_file, "prefix;mask;device;GW;comment\n");
 
 	memset(&route, 0, sizeof(route));
         while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
@@ -183,7 +183,7 @@ int cisco_nexus_to_csv(char *name, FILE *f, FILE *output) {
 			if (route.device[0] == '[')
 				route.device[0] = '\0';
 			if (nhop == 0)
-				fprint_route(&route, output, 3);
+				fprint_route(&route, o->output_file, 3);
 			nhop++;
 		} else {
 			memset(&route, 0, sizeof(route));
@@ -202,8 +202,9 @@ int cisco_nexus_to_csv(char *name, FILE *f, FILE *output) {
 /*
  * output of show ip route or show ipv6 route
  * cisco IOS, IOS-XE
+ * please take a coffee before reading
  */
-int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
+int cisco_route_to_csv(char *name, FILE *f, struct options *o) {
         char buffer[1024];
         char *s;
         unsigned long line = 0;
@@ -216,7 +217,7 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 	int find_hop = 0;
 
 	memset(&route, 0, sizeof(route));
-	fprintf(output, "prefix;mask;device;GW;comment\n");
+	fprintf(o->output_file, "prefix;mask;device;GW;comment\n");
 #define CHECK_IP_VER  \
 	if (ip_ver == -1) { \
 		ip_ver = route.subnet.ip_ver; \
@@ -258,7 +259,7 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 					strcpy(route.device, "NA");;
 				if (route.device[0] == '[')
 					strcpy(route.device, "NA");;
-				fprint_route(&route, output, 3);
+				fprint_route(&route, o->output_file, 3);
 			} else {
 				debug(PARSEROUTE, 4, "line %lu should hold a next-hop/device\n", line);
 				badline++;
@@ -296,7 +297,7 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 				continue;
 			}
 			CHECK_IP_VER
-			fprint_route(&route, output, 3);
+			fprint_route(&route, o->output_file, 3);
 			memset(&route, 0, sizeof(route));
 			continue;
 		}
@@ -318,7 +319,7 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 			is_subnetted--;
 			if (isdigit(route.device[0]))
 				strcpy(route.device, "NA");
-			fprint_route(&route, output, 3);
+			fprint_route(&route, o->output_file, 3);
 			memset(&route, 0, sizeof(route));
 			continue;
 		}
@@ -340,7 +341,7 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 		CHECK_IP_VER
 		if (isdigit(route.device[0]))
 			strcpy(route.device, "NA");
-		fprint_route(&route, output, 3);
+		fprint_route(&route, o->output_file, 3);
 		memset(&route, 0, sizeof(route));
 	}
 	return 1;
@@ -349,7 +350,7 @@ int cisco_route_to_csv(char *name, FILE *f, FILE *output) {
 /*
  * input from ASA firewall or FWSM
  **/
-int cisco_fw_conf_to_csv(char *name, FILE *f, FILE *output) {
+int cisco_fw_conf_to_csv(char *name, FILE *f, struct options *o) {
 	char buffer[1024];
 	char *s;
 	unsigned long line = 0;
@@ -357,7 +358,7 @@ int cisco_fw_conf_to_csv(char *name, FILE *f, FILE *output) {
 	struct route route;
 	int res;
 
-	fprintf(output, "prefix;mask;device;GW;comment\n");
+	fprintf(o->output_file, "prefix;mask;device;GW;comment\n");
 
 	memset(&route, 0, sizeof(route));
         while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
@@ -370,43 +371,43 @@ int cisco_fw_conf_to_csv(char *name, FILE *f, FILE *output) {
 			memset(&route, 0, sizeof(route));
 			continue;
 		}
-		fprint_route(&route, output, 3);
+		fprint_route(&route, o->output_file, 3);
 		memset(&route, 0, sizeof(route));
 	}
 	return 1;
 }
 
-int cisco_route_conf_to_csv(char *name, FILE *f, FILE *output) {
+int cisco_route_conf_to_csv(char *name, FILE *f, struct options *o) {
 	char buffer[1024];
 	char *s;
 	unsigned long line = 0;
 	int badline = 0;
 	struct route route;
-	struct sto o[10];
+	struct sto sto[10];
 	int res;
 
-	fprintf(output, "prefix;mask;device;GW;comment\n");
+	fprintf(o->output_file, "prefix;mask;device;GW;comment\n");
 	memset(&route, 0, sizeof(route));
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
 		debug(PARSEROUTE, 9, "line %lu buffer : '%s'", line, s);
-		res = sto_sscanf(buffer, "ip(v6)? route.*%I.%M (%32S)? *%I.*(name) %128s", o, 6);
+		res = sto_sscanf(buffer, "ip(v6)? route.*%I.%M (%32S)? *%I.*(name) %128s", sto, 6);
 		if (res < 2) {
 			debug(PARSEROUTE, 2, "Invalid line %lu\n", line);
 			badline++;
 			continue;
 		}
-		copy_ipaddr(&route.subnet.ip_addr, &o[0].s_addr);
-		route.subnet.mask = o[1].s_int;
-		if (sto_is_string(&o[2]))
-			strcpy(route.device, o[2].s_char);
-		if (res >= 4 && o[3].type == 'I')
-			copy_ipaddr(&route.gw, &o[3].s_addr);
-		if (res >= 5 && o[4].type == 's')
-			strcpy(route.comment, o[4].s_char);
-		fprint_route(&route, output, 3);
+		copy_ipaddr(&route.subnet.ip_addr, &sto[0].s_addr);
+		route.subnet.mask = sto[1].s_int;
+		if (sto_is_string(&sto[2]))
+			strcpy(route.device, sto[2].s_char);
+		if (res >= 4 && sto[3].type == 'I')
+			copy_ipaddr(&route.gw, &sto[3].s_addr);
+		if (res >= 5 && sto[4].type == 's')
+			strcpy(route.comment, sto[4].s_char);
+		fprint_route(&route, o->output_file, 3);
 		memset(&route, 0, sizeof(route));
-		o[1].type = o[2].type = o[3].type = o[4].type = 0;
+		sto[1].type = sto[2].type = sto[3].type = sto[4].type = 0;
 	}
 	return 1;
 }

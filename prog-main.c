@@ -366,7 +366,7 @@ static int run_grep(int arc, char **argv, void *options) {
 static int run_convert(int arc, char **argv, void *options) {
 	struct options *nof = options;
 
-	run_csvconverter(argv[2], argv[3], nof->output_file);
+	run_csvconverter(argv[2], argv[3], nof);
 	return 0;
 }
 
