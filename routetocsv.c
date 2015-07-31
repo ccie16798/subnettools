@@ -215,6 +215,7 @@ int cisco_route_to_csv(char *name, FILE *f, struct options *o) {
 	int find_mask;
 	int is_subnetted = 0;
 	int find_hop = 0;
+	char type[5];
 
 	memset(&route, 0, sizeof(route));
 	fprintf(o->output_file, "prefix;mask;device;GW;comment\n");
@@ -225,7 +226,12 @@ int cisco_route_to_csv(char *name, FILE *f, struct options *o) {
 		debug(PARSEROUTE, 1, "line %lu Invalid '%s', inconsistent IP version\n", line, s); \
 		badline++; \
 		continue; \
-	} \
+	}
+#define SET_COMMENT \
+	if (o->rt) { \
+		remove_ending_space(type); \
+		strcpy(route.comment, type); \
+	}
 
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
@@ -290,6 +296,7 @@ int cisco_route_to_csv(char *name, FILE *f, struct options *o) {
 		} else if (strstr(s, "directly connected")) {
 			/* C       10.73.5.92/30 is directly connected, Vlan346 */
 			res = st_sscanf(s, ".*%P.*$%32s", &route.subnet, route.device);
+			strcpy(type, "C");
 			if (res < 2) {
 				badline++;
 				debug(PARSEROUTE, 1, "line %lu invalid connected route '%s'\n", line, s);
@@ -297,20 +304,22 @@ int cisco_route_to_csv(char *name, FILE *f, struct options *o) {
 				continue;
 			}
 			CHECK_IP_VER
+			SET_COMMENT
 			fprint_route(&route, o->output_file, 3);
 			memset(&route, 0, sizeof(route));
 			continue;
 		}
+		/* a route after X.X.X.X/24 is subnetted doesnt hold a mask */
 		if (is_subnetted) {
-			res = st_sscanf(s, ".*%I.*(via) %I.*$%32S", &route.subnet.ip_addr, &route.gw, route.device);
-			if (res < 2) {
+			res = st_sscanf(s, "%5s .*%I.*(via) %I.*$%32S", type, &route.subnet.ip_addr, &route.gw, route.device);
+			if (res < 3) {
 				badline++;
 				debug(PARSEROUTE, 1, "line %lu invalid 'is subnetted' '%s'\n", line, s);
 				is_subnetted = 0;
 				memset(&route, 0, sizeof(route));
 				continue;
 			}
-			if (res == 2) {
+			if (res == 3) {
 				debug(PARSEROUTE, 4, "line %lu no device found\n", line);
 				strcpy(route.device, "NA");
 			}
@@ -319,21 +328,23 @@ int cisco_route_to_csv(char *name, FILE *f, struct options *o) {
 			is_subnetted--;
 			if (isdigit(route.device[0]))
 				strcpy(route.device, "NA");
+			SET_COMMENT
 			fprint_route(&route, o->output_file, 3);
 			memset(&route, 0, sizeof(route));
 			continue;
 		}
 		/* a valid route begin with a non space char */
-		res = st_sscanf(s, "[^ ].*%P.*(via) %I.*$%32s", &route.subnet, &route.gw, route.device);
-		if (res == 0) {
+		res = st_sscanf(s, "%5s *.*%P.*(via) %I.*$%32s", type, &route.subnet, &route.gw, route.device);
+		if (res <= 1 || isspace(type[0])) {
 			badline++;
 			debug(PARSEROUTE, 1, "line %lu Invalid line '%s'\n", line, s);
 			memset(&route, 0, sizeof(route));
 			continue;
-		} else if (res == 1) { /* in case next-hop appears on next line */
+		} else if (res == 2) { /* in case next-hop appears on next line */
 			find_hop = 1;
+			SET_COMMENT
 			continue;
-		} else  if (res == 2) {
+		} else  if (res == 3) {
 			debug(PARSEROUTE, 4, "line %lu no device found\n", line);
 			strcpy(route.device, "NA");
 		}
@@ -341,6 +352,8 @@ int cisco_route_to_csv(char *name, FILE *f, struct options *o) {
 		CHECK_IP_VER
 		if (isdigit(route.device[0]))
 			strcpy(route.device, "NA");
+		SET_COMMENT
+
 		fprint_route(&route, o->output_file, 3);
 		memset(&route, 0, sizeof(route));
 	}

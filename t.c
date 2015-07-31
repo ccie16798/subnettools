@@ -39,6 +39,8 @@ int main(int argc, char **argv) {
 	int b = -1234;
 	int res;
 
+	remove_ending_space(argv[1]);
+	printf("'%s'\n", argv[1]);
 	memset(buff, 0, 28);
 	sscanf(argv[1], "%x", &a);
 	res = snprint_hexshort(buff, a, 12);
