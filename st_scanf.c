@@ -276,7 +276,7 @@ static int match_char_against_range(char c, const char *expr, int *i) {
    i   = index in fmt
    j   = index in in
 */
-static int parse_conversion_specifier(char *in, const char *fmt,
+static int parse_conversion_specifier(const char *in, const char *fmt,
 		int *i, int *j, struct sto *o) {
 	int n_found = 0;
 	int i2, j2, res;
@@ -371,7 +371,7 @@ static int parse_conversion_specifier(char *in, const char *fmt,
 			break;
 		case 'M':
 			ARG_SET(v_int, int *);
-			while ((isdigit(in[j2]) || in[j2] == '.')) {
+			while (isdigit(in[j2]) || in[j2] == '.') {
 				buffer[j2 - *j] = in[j2];
 				j2++;
 			}
@@ -1002,6 +1002,8 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 				n_match++;
 				/* to set 'last_match', we check if the previous loop had stopped or not
 				   last_match is set if current loop HAS stopped and previous has not
+				   e.has_stopped ==> expression has stopped on j
+				   e_has_stopped ==> expression has stopped on previous j
 				   scanf("abdsdfdsf t e 121.1.1.1", ".*$I") should return '121.1.1.1' not '1.1.1.1'
 				   scanf("abdsdfdsf t e STRING", ".*$s") should return 'STRING' not just 'G'
 				 */
