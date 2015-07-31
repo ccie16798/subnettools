@@ -20,16 +20,16 @@
 
 struct csvconverter {
 	const char *name;
-	int (*converter)(char *name, FILE *, struct options *);
+	int (*converter)(char *name, FILE *, struct st_options *);
 	const char *desc;
 };
 
-int cisco_route_to_csv(char *name, FILE *input_name, struct options *o);
-int cisco_route_conf_to_csv(char *name, FILE *input_name, struct options *o);
-int cisco_fw_conf_to_csv(char *name, FILE *input_name, struct options *o);
-int cisco_nexus_to_csv(char *name, FILE *input_name, struct options *o);
-int ipso_route_to_csv(char *name, FILE *input_name, struct options *o);
-int palo_to_csv(char *name, FILE *input_name, struct options *o);
+int cisco_route_to_csv(char *name, FILE *input_name, struct st_options *o);
+int cisco_route_conf_to_csv(char *name, FILE *input_name, struct st_options *o);
+int cisco_fw_conf_to_csv(char *name, FILE *input_name, struct st_options *o);
+int cisco_nexus_to_csv(char *name, FILE *input_name, struct st_options *o);
+int ipso_route_to_csv(char *name, FILE *input_name, struct st_options *o);
+int palo_to_csv(char *name, FILE *input_name, struct st_options *o);
 void csvconverter_help(FILE *output);
 
 struct csvconverter csvconverters[] = {
@@ -58,7 +58,7 @@ void csvconverter_help(FILE *output) {
 /*
  * execute converter "name" on input file "filename"
  */
-int run_csvconverter(char *name, char *filename, struct options *o) {
+int run_csvconverter(char *name, char *filename, struct st_options *o) {
 	int i = 0;
 	FILE *f;
 
@@ -91,7 +91,7 @@ int run_csvconverter(char *name, char *filename, struct options *o) {
 /*
  * output of 'show routing route' on Palo alto
  */
-int palo_to_csv(char *name, FILE *f, struct options *o) {
+int palo_to_csv(char *name, FILE *f, struct st_options *o) {
 	char buffer[1024];
 	char *s;
 	unsigned long line = 0;
@@ -121,7 +121,7 @@ int palo_to_csv(char *name, FILE *f, struct options *o) {
 /*
  * output of 'show route' on IPSO or GAIA
  */
-int ipso_route_to_csv(char *name, FILE *f, struct options *o) {
+int ipso_route_to_csv(char *name, FILE *f, struct st_options *o) {
 	char buffer[1024];
 	char *s;
 	unsigned long line = 0;
@@ -156,7 +156,7 @@ int ipso_route_to_csv(char *name, FILE *f, struct options *o) {
 	return 1;
 }
 
-int cisco_nexus_to_csv(char *name, FILE *f, struct options *o) {
+int cisco_nexus_to_csv(char *name, FILE *f, struct st_options *o) {
 	char buffer[1024];
 	char *s;
 	unsigned long line = 0;
@@ -204,7 +204,7 @@ int cisco_nexus_to_csv(char *name, FILE *f, struct options *o) {
  * cisco IOS, IOS-XE
  * please take a coffee before reading
  */
-int cisco_route_to_csv(char *name, FILE *f, struct options *o) {
+int cisco_route_to_csv(char *name, FILE *f, struct st_options *o) {
         char buffer[1024];
         char *s;
         unsigned long line = 0;
@@ -365,7 +365,7 @@ int cisco_route_to_csv(char *name, FILE *f, struct options *o) {
 /*
  * input from ASA firewall or FWSM
  **/
-int cisco_fw_conf_to_csv(char *name, FILE *f, struct options *o) {
+int cisco_fw_conf_to_csv(char *name, FILE *f, struct st_options *o) {
 	char buffer[1024];
 	char *s;
 	unsigned long line = 0;
@@ -392,7 +392,7 @@ int cisco_fw_conf_to_csv(char *name, FILE *f, struct options *o) {
 	return 1;
 }
 
-int cisco_route_conf_to_csv(char *name, FILE *f, struct options *o) {
+int cisco_route_conf_to_csv(char *name, FILE *f, struct st_options *o) {
 	char buffer[1024];
 	char *s;
 	unsigned long line = 0;

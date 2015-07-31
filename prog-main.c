@@ -25,61 +25,62 @@
 #include "ipinfo.h"
 
 const char *default_fmt = "%I;%m;%D;%G;%C";
+
 struct file_options fileoptions[] = {
-	{ FILEOPT_LINE(ipam_prefix_field, struct options, TYPE_STRING), "IPAM CSV header field describing the prefix"  },
-	{ FILEOPT_LINE(ipam_mask, struct options, TYPE_STRING), "IPAM CSV header field describing the mask" },
-	{ FILEOPT_LINE(ipam_comment1, struct options, TYPE_STRING), "IPAM CSV header field describing comment" },
-	{ FILEOPT_LINE(ipam_comment2, struct options, TYPE_STRING),  "IPAM CSV header field describing comment" },
-	{ FILEOPT_LINE(ipam_delim, struct options, TYPE_STRING),  "IPAM CSV delimitor" },
-	{ "netcsv_delim", TYPE_STRING, sizeofmember(struct options, delim), offsetof(struct options, delim), "CSV delimitor" },
-	{ FILEOPT_LINE(netcsv_prefix_field, struct options, TYPE_STRING), "Subnet CSV header field describing the prefix" },
-	{ FILEOPT_LINE(netcsv_mask, struct options, TYPE_STRING), "Subnet CSV header field describing the mask" },
-	{ FILEOPT_LINE(netcsv_comment, struct options, TYPE_STRING), "Subnet CSV header field describing the comment" },
-	{ FILEOPT_LINE(netcsv_device, struct options, TYPE_STRING), "Subnet CSV header field describing the device" },
-	{ FILEOPT_LINE(netcsv_gw, struct options, TYPE_STRING), "Subnet CSV header field describing the gateway" },
-	{ FILEOPT_LINE(output_fmt, struct options, TYPE_STRING), "Default Output Format String" },
-	{ FILEOPT_LINE(subnet_off, struct options, TYPE_INT) },
+	{ FILEOPT_LINE(ipam_prefix_field, struct st_options, TYPE_STRING), "IPAM CSV header field describing the prefix"  },
+	{ FILEOPT_LINE(ipam_mask, struct st_options, TYPE_STRING), "IPAM CSV header field describing the mask" },
+	{ FILEOPT_LINE(ipam_comment1, struct st_options, TYPE_STRING), "IPAM CSV header field describing comment" },
+	{ FILEOPT_LINE(ipam_comment2, struct st_options, TYPE_STRING),  "IPAM CSV header field describing comment" },
+	{ FILEOPT_LINE(ipam_delim, struct st_options, TYPE_STRING),  "IPAM CSV delimitor" },
+	{ "netcsv_delim", TYPE_STRING, sizeofmember(struct st_options, delim), offsetof(struct st_options, delim), "CSV delimitor" },
+	{ FILEOPT_LINE(netcsv_prefix_field, struct st_options, TYPE_STRING), "Subnet CSV header field describing the prefix" },
+	{ FILEOPT_LINE(netcsv_mask, struct st_options, TYPE_STRING), "Subnet CSV header field describing the mask" },
+	{ FILEOPT_LINE(netcsv_comment, struct st_options, TYPE_STRING), "Subnet CSV header field describing the comment" },
+	{ FILEOPT_LINE(netcsv_device, struct st_options, TYPE_STRING), "Subnet CSV header field describing the device" },
+	{ FILEOPT_LINE(netcsv_gw, struct st_options, TYPE_STRING), "Subnet CSV header field describing the gateway" },
+	{ FILEOPT_LINE(output_fmt, struct st_options, TYPE_STRING), "Default Output Format String" },
+	{ FILEOPT_LINE(subnet_off, struct st_options, TYPE_INT) },
 	{NULL,                  0, 0}
 };
 
 
-static int run_diff(int argc, char **argv, void *options);
-static int run_compare(int argc, char **argv, void *options);
-static int run_missing(int argc, char **argv, void *options);
-static int run_paip(int argc, char **argv, void *options);
-static int run_grep(int argc, char **argv, void *options);
-static int run_convert(int argc, char **argv, void *options);
-static int run_simplify1(int argc, char **argv, void *options);
-static int run_simplify2(int argc, char **argv, void *options);
-static int run_common(int argc, char **argv, void *options);
-static int run_addfiles(int argc, char **argv, void *options);
-static int run_sort(int argc, char **argv, void *options);
-static int run_sum(int argc, char **argv, void *options);
-static int run_scanf(int argc, char **argv, void *options);
-static int run_subnetagg(int argc, char **argv, void *options);
-static int run_routeagg(int argc, char **argv, void *options);
-static int run_remove(int argc, char **argv, void *options);
-static int run_split(int argc, char **argv, void *options);
-static int run_split_2(int argc, char **argv, void *options);
-static int run_help(int argc, char **argv, void *options);
-static int run_version(int argc, char **argv, void *options);
-static int run_confdesc(int argc, char **argv, void *options);
-static int run_relation(int argc, char **argv, void *options);
-static int run_ipinfo(int argc, char **argv, void *options);
-static int run_echo(int argc, char **argv, void *options);
-static int run_print(int argc, char **argv, void *options);
-static int run_test(int argc, char **argv, void *options);
-static int run_test2(int argc, char **argv, void *options);
+static int run_diff(int argc, char **argv, void *st_options);
+static int run_compare(int argc, char **argv, void *st_options);
+static int run_missing(int argc, char **argv, void *st_options);
+static int run_paip(int argc, char **argv, void *st_options);
+static int run_grep(int argc, char **argv, void *st_options);
+static int run_convert(int argc, char **argv, void *st_options);
+static int run_simplify1(int argc, char **argv, void *st_options);
+static int run_simplify2(int argc, char **argv, void *st_options);
+static int run_common(int argc, char **argv, void *st_options);
+static int run_addfiles(int argc, char **argv, void *st_options);
+static int run_sort(int argc, char **argv, void *st_options);
+static int run_sum(int argc, char **argv, void *st_options);
+static int run_scanf(int argc, char **argv, void *st_options);
+static int run_subnetagg(int argc, char **argv, void *st_options);
+static int run_routeagg(int argc, char **argv, void *st_options);
+static int run_remove(int argc, char **argv, void *st_options);
+static int run_split(int argc, char **argv, void *st_options);
+static int run_split_2(int argc, char **argv, void *st_options);
+static int run_help(int argc, char **argv, void *st_options);
+static int run_version(int argc, char **argv, void *st_options);
+static int run_confdesc(int argc, char **argv, void *st_options);
+static int run_relation(int argc, char **argv, void *st_options);
+static int run_ipinfo(int argc, char **argv, void *st_options);
+static int run_echo(int argc, char **argv, void *st_options);
+static int run_print(int argc, char **argv, void *st_options);
+static int run_test(int argc, char **argv, void *st_options);
+static int run_test2(int argc, char **argv, void *st_options);
 
-static int option_verbose(int argc, char **argv, void *options);
-static int option_delim(int argc, char **argv, void *options);
-static int option_grepfield(int argc, char **argv, void *options);
-static int option_output(int argc, char **argv, void *options);
-static int option_debug(int argc, char **argv, void *options);
-static int option_config(int argc, char **argv, void *options);
-static int option_addr_compress(int argc, char **argv, void *options);
-static int option_fmt(int argc, char **argv, void *options);
-static int option_rt(int argc, char **argv, void *options);
+static int option_verbose(int argc, char **argv, void *st_options);
+static int option_delim(int argc, char **argv, void *st_options);
+static int option_grepfield(int argc, char **argv, void *st_options);
+static int option_output(int argc, char **argv, void *st_options);
+static int option_debug(int argc, char **argv, void *st_options);
+static int option_config(int argc, char **argv, void *st_options);
+static int option_addr_compress(int argc, char **argv, void *st_options);
+static int option_fmt(int argc, char **argv, void *st_options);
+static int option_rt(int argc, char **argv, void *st_options);
 
 struct st_command commands[] = {
 	{ "echo",	&run_echo,	2},
@@ -191,7 +192,7 @@ void debug_usage() {
 /*
  * COMMAND HANDLERS
  */
-static int run_relation(int arc, char **argv, void *options) {
+static int run_relation(int arc, char **argv, void *st_options) {
 	int res;
 	struct subnet subnet1, subnet2;
 
@@ -227,7 +228,7 @@ static int run_relation(int arc, char **argv, void *options) {
 	return 0;
 }
 
-static int run_echo(int arc, char **argv, void *options) {
+static int run_echo(int arc, char **argv, void *st_options) {
 	int res;
 	struct subnet subnet;
 
@@ -246,9 +247,9 @@ static int run_echo(int arc, char **argv, void *options) {
 	return 0;
 }
 
-static int run_ipinfo(int arc, char **argv, void *options) {
+static int run_ipinfo(int arc, char **argv, void *st_options) {
 	int res;
-	struct options *nof = options;
+	struct st_options *nof = st_options;
 	struct subnet subnet;
 
 	if (!strcasecmp(argv[2], "all")) {
@@ -271,10 +272,10 @@ static int run_ipinfo(int arc, char **argv, void *options) {
 	return 0;
 }
 
-static int run_print(int arc, char **argv, void *options) {
+static int run_print(int arc, char **argv, void *st_options) {
 	int res;
 	struct subnet_file sf;
-	struct options *nof = options;
+	struct st_options *nof = st_options;
 
 	res = load_netcsv_file(argv[2], &sf, nof);
 	if (res < 0)
@@ -283,10 +284,10 @@ static int run_print(int arc, char **argv, void *options) {
 	return 0;
 }
 
-static int run_diff(int arc, char **argv, void *options) {
+static int run_diff(int arc, char **argv, void *st_options) {
 	int res;
 	struct subnet_file sf1, sf2;
-	struct options *nof = options;
+	struct st_options *nof = st_options;
 
 	res = load_netcsv_file(argv[2], &sf1, nof);
 	if (res < 0)
@@ -298,10 +299,10 @@ static int run_diff(int arc, char **argv, void *options) {
 	return 0;
 }
 
-static int run_compare(int arc, char **argv, void *options) {
+static int run_compare(int arc, char **argv, void *st_options) {
 	int res;
 	struct subnet_file sf1, sf2;
-	struct options *nof = options;
+	struct st_options *nof = st_options;
 
 	res = load_netcsv_file(argv[2], &sf1, nof);
 	if (res < 0)
@@ -313,10 +314,10 @@ static int run_compare(int arc, char **argv, void *options) {
 	return 0;
 }
 
-static int run_missing(int arc, char **argv, void *options) {
+static int run_missing(int arc, char **argv, void *st_options) {
 	int res;
 	struct subnet_file sf1, sf2, sf3;
-	struct options *nof = options;
+	struct st_options *nof = st_options;
 
 	res = load_netcsv_file(argv[2], &sf1, nof);
 	if (res < 0) {
@@ -338,10 +339,10 @@ static int run_missing(int arc, char **argv, void *options) {
 	return 0;
 }
 
-static int run_paip(int arc, char **argv, void *options) {
+static int run_paip(int arc, char **argv, void *st_options) {
 	int res;
 	struct subnet_file paip, sf;
-	struct options *nof = options;
+	struct st_options *nof = st_options;
 
 	res = load_PAIP(argv[2], &paip, nof);
 	if (res < 0) {
@@ -357,8 +358,8 @@ static int run_paip(int arc, char **argv, void *options) {
 	return 0;
 }
 
-static int run_grep(int arc, char **argv, void *options) {
-	struct options *nof = options;
+static int run_grep(int arc, char **argv, void *st_options) {
+	struct st_options *nof = st_options;
 	int res;
 	res = network_grep_file(argv[2], nof, argv[3]);
 	if (res < 0)
@@ -366,17 +367,17 @@ static int run_grep(int arc, char **argv, void *options) {
 	return 0;
 }
 
-static int run_convert(int arc, char **argv, void *options) {
-	struct options *nof = options;
+static int run_convert(int arc, char **argv, void *st_options) {
+	struct st_options *nof = st_options;
 
 	run_csvconverter(argv[2], argv[3], nof);
 	return 0;
 }
 
-static int run_simplify1(int arc, char **argv, void *options) {
+static int run_simplify1(int arc, char **argv, void *st_options) {
 	int res;
 	struct subnet_file sf;
-	struct options *nof = options;
+	struct st_options *nof = st_options;
 
 	nof->simplify_mode = 0;
 	res = load_netcsv_file(argv[2], &sf, nof);
@@ -393,10 +394,10 @@ static int run_simplify1(int arc, char **argv, void *options) {
 	return 0;
 }
 
-static int run_simplify2(int arc, char **argv, void *options) {
+static int run_simplify2(int arc, char **argv, void *st_options) {
 	int res;
 	struct subnet_file sf;
-	struct options *nof = options;
+	struct st_options *nof = st_options;
 
 	nof->simplify_mode = 1;
 	res = load_netcsv_file(argv[2], &sf, nof);
@@ -413,10 +414,10 @@ static int run_simplify2(int arc, char **argv, void *options) {
 	return 0;
 }
 
-static int run_common(int arc, char **argv, void *options) {
+static int run_common(int arc, char **argv, void *st_options) {
 	int res;
 	struct subnet_file sf1, sf2, sf3;
-	struct options *nof = options;
+	struct st_options *nof = st_options;
 
 	res = load_netcsv_file(argv[2], &sf1, nof);
 	if (res < 0)
@@ -440,11 +441,11 @@ static int run_common(int arc, char **argv, void *options) {
 	return 0;
 }
 
-static int run_addfiles(int arc, char **argv, void *options) {
+static int run_addfiles(int arc, char **argv, void *st_options) {
 	int res;
 	unsigned long i, j;
 	struct subnet_file sf1, sf2, sf3;
-	struct options *nof = options;
+	struct st_options *nof = st_options;
 
 	res = load_netcsv_file(argv[2], &sf1, nof);
 	if (res < 0)
@@ -472,10 +473,10 @@ static int run_addfiles(int arc, char **argv, void *options) {
 	return 0;
 }
 
-static int run_sort(int arc, char **argv, void *options) {
+static int run_sort(int arc, char **argv, void *st_options) {
 	int res;
 	struct subnet_file sf;
-	struct options *nof = options;
+	struct st_options *nof = st_options;
 
 	res = load_netcsv_file(argv[2], &sf, nof);
 
@@ -491,10 +492,10 @@ static int run_sort(int arc, char **argv, void *options) {
 	return 0;
 }
 
-static int run_sum(int arc, char **argv, void *options) {
+static int run_sum(int arc, char **argv, void *st_options) {
 	int res;
 	struct subnet_file sf;
-	struct options *nof = options;
+	struct st_options *nof = st_options;
 	unsigned long long sum;
 
 	res = load_netcsv_file(argv[2], &sf, nof);
@@ -506,10 +507,10 @@ static int run_sum(int arc, char **argv, void *options) {
 	return 0;
 }
 
-static int run_subnetagg(int arc, char **argv, void *options) {
+static int run_subnetagg(int arc, char **argv, void *st_options) {
 	int res;
 	struct subnet_file sf;
-	struct options *nof = options;
+	struct st_options *nof = st_options;
 
 	res = load_netcsv_file(argv[2], &sf, nof);
 	if (res < 0)
@@ -524,10 +525,10 @@ static int run_subnetagg(int arc, char **argv, void *options) {
 	return 0;
 }
 
-static int run_routeagg(int arc, char **argv, void *options) {
+static int run_routeagg(int arc, char **argv, void *st_options) {
 	int res;
 	struct subnet_file sf;
-	struct options *nof = options;
+	struct st_options *nof = st_options;
 
 	res = load_netcsv_file(argv[2], &sf, nof);
 	if (res < 0)
@@ -542,10 +543,10 @@ static int run_routeagg(int arc, char **argv, void *options) {
 	return 0;
 }
 
-static int run_remove(int arc, char **argv, void *options) {
+static int run_remove(int arc, char **argv, void *st_options) {
 	struct subnet subnet1, subnet2, *r;
 	struct subnet_file sf1, sf2;
-	struct options *nof = options;
+	struct st_options *nof = st_options;
 	int n, i, res;
 
 	if (!strcasecmp(argv[2], "subnet")) {
@@ -592,9 +593,9 @@ static int run_remove(int arc, char **argv, void *options) {
 	return 0;
 }
 
-static int run_split(int arc, char **argv, void *options) {
+static int run_split(int arc, char **argv, void *st_options) {
 	struct subnet subnet;
-	struct options *nof = options;
+	struct st_options *nof = st_options;
 	int res;
 
 	res = get_subnet_or_ip(argv[2], &subnet);
@@ -606,9 +607,9 @@ static int run_split(int arc, char **argv, void *options) {
 	return res;
 }
 
-static int run_split_2(int arc, char **argv, void *options) {
+static int run_split_2(int arc, char **argv, void *st_options) {
 	struct subnet subnet;
-	struct options *nof = options;
+	struct st_options *nof = st_options;
 	int res;
 
 	res = get_subnet_or_ip(argv[2], &subnet);
@@ -620,7 +621,7 @@ static int run_split_2(int arc, char **argv, void *options) {
 	return res;
 }
 
-static int run_scanf(int arc, char **argv, void *options) {
+static int run_scanf(int arc, char **argv, void *st_options) {
 	int res;
 	struct sto o[40];
 
@@ -630,12 +631,12 @@ static int run_scanf(int arc, char **argv, void *options) {
 	return 0;
 }
 
-static int run_help(int arc, char **argv, void *options) {
+static int run_help(int arc, char **argv, void *st_options) {
 	usage();
 	return 0;
 }
 
-static int run_version(int arc, char **argv, void *options) {
+static int run_version(int arc, char **argv, void *st_options) {
 	printf("%s version %s by Mahmoud Basset\n", PROG_NAME, PROG_VERS);
 #ifdef __DATE__
 	printf("Compiled %s\n", __DATE__);
@@ -644,7 +645,7 @@ static int run_version(int arc, char **argv, void *options) {
 	return 0;
 }
 
-static int run_confdesc(int arc, char **argv, void *options) {
+static int run_confdesc(int arc, char **argv, void *st_options) {
 	printf("-%s use 'st.conf' as the default configuration file\n", PROG_NAME);
 	printf("-It is used to describe your CSVs or your IPAM format\n");
 	printf("-format of a line file is :\n");
@@ -656,7 +657,7 @@ static int run_confdesc(int arc, char **argv, void *options) {
 	return 0;
 }
 
-static int run_test(int arc, char **argv, void *options) {
+static int run_test(int arc, char **argv, void *st_options) {
 	struct subnet subnet1, subnet2, *r;
 	int n, i;
 
@@ -668,7 +669,7 @@ static int run_test(int arc, char **argv, void *options) {
 	return 0;
 }
 
-static int run_test2(int arc, char **argv, void *options) {
+static int run_test2(int arc, char **argv, void *st_options) {
 	int res;
 	struct sto o[40];
 
@@ -681,13 +682,13 @@ static int run_test2(int arc, char **argv, void *options) {
 /*
  * OPTION HANDLERS
  */
-static int option_verbose(int arc, char **argv, void *options) {
+static int option_verbose(int arc, char **argv, void *st_options) {
 	debugs_level[__D_ALL] = 1;
 	return 0;
 }
 
-static int option_delim(int argc, char **argv, void *options) {
-	struct options *nof = options;
+static int option_delim(int argc, char **argv, void *st_options) {
+	struct st_options *nof = st_options;
 
 	debug(PARSEOPTS, 2, "changing delim to :\"%s\"\n", argv[1]);
 	if (strlen(argv[1]) > MAX_DELIM - 1 ) {
@@ -698,8 +699,8 @@ static int option_delim(int argc, char **argv, void *options) {
 	return 0;
 }
 
-static int option_grepfield(int argc, char **argv, void *options) {
-	struct options *nof = options;
+static int option_grepfield(int argc, char **argv, void *st_options) {
+	struct st_options *nof = st_options;
 
 	debug(PARSEOPTS, 2, "grepping only field %s\n", argv[1]);
 	if (!isUnsignedInt(argv[1])) {
@@ -711,8 +712,8 @@ static int option_grepfield(int argc, char **argv, void *options) {
 
 }
 
-static int option_output(int argc, char **argv, void *options) {
-	struct options *nof = options;
+static int option_output(int argc, char **argv, void *st_options) {
+	struct st_options *nof = st_options;
 
 	debug(PARSEOPTS, 2, "changing ouput file to : \"%s\"\n", argv[1]);
 	nof->output_file = fopen(argv[1], "w");
@@ -723,8 +724,8 @@ static int option_output(int argc, char **argv, void *options) {
 	return 0;
 }
 
-static int option_debug(int argc, char **argv, void *options) {
-	debug(PARSEOPTS, 3, "debug options : \"%s\"\n", argv[1]);
+static int option_debug(int argc, char **argv, void *st_options) {
+	debug(PARSEOPTS, 3, "debug st_options : \"%s\"\n", argv[1]);
 	if (!strcmp(argv[1], "help") || !strcmp(argv[1], "list")) {
 		debug_usage();
 		return -1;
@@ -733,16 +734,16 @@ static int option_debug(int argc, char **argv, void *options) {
 	return 0;
 }
 
-static int option_config(int argc, char **argv, void *options) {
-	struct options *nof = options;
+static int option_config(int argc, char **argv, void *st_options) {
+	struct st_options *nof = st_options;
 
 	debug(PARSEOPTS, 2, "Using configuration file : \"%s\"\n", argv[1]);
 	nof->config_file = argv[1];
 	return 0;
 }
 
-static int option_addr_compress(int argc, char **argv, void *options) {
-	struct options *nof = options;
+static int option_addr_compress(int argc, char **argv, void *st_options) {
+	struct st_options *nof = st_options;
 	int a;
 
 	if (!isUnsignedInt(argv[1])) {
@@ -758,15 +759,15 @@ static int option_addr_compress(int argc, char **argv, void *options) {
 	return 0;
 }
 
-static int option_fmt(int argc, char **argv, void *options) {
-	struct options *nof = options;
+static int option_fmt(int argc, char **argv, void *st_options) {
+	struct st_options *nof = st_options;
 
 	strxcpy(nof->output_fmt, argv[1], sizeof(nof->output_fmt));
 	return 0;
 }
 
-static int option_rt(int argc, char **argv, void *options) {
-	struct options *nof = options;
+static int option_rt(int argc, char **argv, void *st_options) {
+	struct st_options *nof = st_options;
 
 	nof->rt = 1;
 	return 0;
@@ -788,7 +789,7 @@ static void allow_core_dumps() {
 }
 
 int main(int argc, char **argv) {
-	struct options nof;
+	struct st_options nof;
 	int res;
 	char *s;
 	char conf_abs_path[256];

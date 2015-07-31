@@ -3,7 +3,7 @@
 
 
 #define MAX_DELIM 32
-struct options {
+struct st_options {
         int subnet_off;
         int grep_field; /** when grepping, grep only on this field **/
         int simplify_mode; /* mode == 0 means we print the simpliefied routes, == 1 print the routes we can discard */

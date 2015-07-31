@@ -154,7 +154,7 @@ static int netcsv_validate_header(struct csv_field *field) {
 	return 1;
 }
 
-int load_netcsv_file(char *name, struct subnet_file *sf, struct options *nof) {
+int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof) {
 	/* default netcsv fields */
 	struct csv_field csv_field[] = {
 		{ "prefix"	, 0, 1, 1, &netcsv_prefix_handle },
@@ -199,7 +199,7 @@ static int ipam_comment_handle(char *s, void *data, struct csv_state *state) {
 	return CSV_VALID_FIELD;
 }
 
-int load_PAIP(char  *name, struct subnet_file *sf, struct options *nof) {
+int load_PAIP(char  *name, struct subnet_file *sf, struct st_options *nof) {
 	/*
 	 * default IPAM fields (Infoblox)
   	 * obviously if you have a different IPAM please describe it in the config file
@@ -234,7 +234,7 @@ int load_PAIP(char  *name, struct subnet_file *sf, struct options *nof) {
 	return generic_load_csv(name, &cf, &state, sf);
 }
 
-void compare_files(struct subnet_file *sf1, struct subnet_file *sf2, struct options *nof) {
+void compare_files(struct subnet_file *sf1, struct subnet_file *sf2, struct st_options *nof) {
 	unsigned long i, j;
 	int res;
 	int find = 0;
@@ -293,7 +293,7 @@ int missing_routes(const struct subnet_file *sf1, const struct subnet_file *sf2,
  * if LINE1 != LINE2 we try to get a relation between the subnets
  * this func is borken
  */
-void diff_files(const struct subnet_file *sf1, const struct subnet_file *sf2, struct options *nof) {
+void diff_files(const struct subnet_file *sf1, const struct subnet_file *sf2, struct st_options *nof) {
 	unsigned long i = 0, j = 0;
 	int a, res;
 	unsigned long imax, jmax;
@@ -421,7 +421,7 @@ void diff_files(const struct subnet_file *sf1, const struct subnet_file *sf2, st
 /*
  *  loop through sf1 and match against PAIP/ IPAM
  */
-void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *paip, struct options *nof) {
+void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *paip, struct st_options *nof) {
 	u32 mask1, mask2;
 	int res;
 	unsigned long i, j;
@@ -490,7 +490,7 @@ void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *
 	debug_timing_end(2);
 }
 
-int network_grep_file(char *name, struct options *nof, char *ip) {
+int network_grep_file(char *name, struct st_options *nof, char *ip) {
 	char *s;
 	char buffer[1024];
 	char save_buffer[1024];
