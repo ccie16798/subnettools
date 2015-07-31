@@ -2,6 +2,6 @@ prefix;mask;device;GW;comment
 ::;0;NA;2a02:8400:0:3::7aa;B
 2a02:8400:0:3::7a8;126;Port-channel11.991;;C
 2a02:8400:0:3::7a9;128;Port-channel11.991;;L
-2a02:8400:0:41::2:1;128;Loopback491;;LC
+2a02:8400:0:41::2:1;128;Loopback491;;L
 2a02:8400:0:41::2:2;128;Vlan491;fe80::253;S
 ff00::;8;Null0;;L

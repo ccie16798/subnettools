@@ -215,7 +215,7 @@ int cisco_route_to_csv(char *name, FILE *f, struct options *o) {
 	int find_mask;
 	int is_subnetted = 0;
 	int find_hop = 0;
-	char type[5];
+	char type;
 
 	memset(&route, 0, sizeof(route));
 	fprintf(o->output_file, "prefix;mask;device;GW;comment\n");
@@ -229,8 +229,10 @@ int cisco_route_to_csv(char *name, FILE *f, struct options *o) {
 	}
 #define SET_COMMENT \
 	if (o->rt) { \
-		remove_ending_space(type); \
-		strcpy(route.comment, type); \
+		route.comment[0] = type; \
+		route.comment[1] = ' '; \
+		strxcpy(route.comment + 2, s + 2, 3); \
+		remove_ending_space(route.comment); \
 	}
 
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
@@ -296,7 +298,7 @@ int cisco_route_to_csv(char *name, FILE *f, struct options *o) {
 		} else if (strstr(s, "directly connected")) {
 			/* C       10.73.5.92/30 is directly connected, Vlan346 */
 			res = st_sscanf(s, ".*%P.*$%32s", &route.subnet, route.device);
-			strcpy(type, "C");
+			type = 'C';
 			if (res < 2) {
 				badline++;
 				debug(PARSEROUTE, 1, "line %lu invalid connected route '%s'\n", line, s);
@@ -311,7 +313,7 @@ int cisco_route_to_csv(char *name, FILE *f, struct options *o) {
 		}
 		/* a route after X.X.X.X/24 is subnetted doesnt hold a mask */
 		if (is_subnetted) {
-			res = st_sscanf(s, "%5s .*%I.*(via) %I.*$%32S", type, &route.subnet.ip_addr, &route.gw, route.device);
+			res = st_sscanf(s, "%c *%I.*(via) %I.*$%32S", &type, &route.subnet.ip_addr, &route.gw, route.device);
 			if (res < 3) {
 				badline++;
 				debug(PARSEROUTE, 1, "line %lu invalid 'is subnetted' '%s'\n", line, s);
@@ -333,9 +335,9 @@ int cisco_route_to_csv(char *name, FILE *f, struct options *o) {
 			memset(&route, 0, sizeof(route));
 			continue;
 		}
+		res = st_sscanf(s, "%c *.*%P.*(via) %I.*$%32s", &type, &route.subnet, &route.gw, route.device);
 		/* a valid route begin with a non space char */
-		res = st_sscanf(s, "%5s *.*%P.*(via) %I.*$%32s", type, &route.subnet, &route.gw, route.device);
-		if (res <= 1 || isspace(type[0])) {
+		if (res <= 1 || isspace(type)) {
 			badline++;
 			debug(PARSEROUTE, 1, "line %lu Invalid line '%s'\n", line, s);
 			memset(&route, 0, sizeof(route));
