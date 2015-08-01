@@ -13,7 +13,8 @@ FEATURES
 - subnet arithmetics (convert mask notation to/from CIDR, compute Network Address, Broadcast address...)
 - subnet aggregation
 - subnet splitting (multiple levels)
-- converting 'sh ip route' files to a CSV
+- converting 'sh ip route' files to a CSV (Cisco IOS, NX-OS, Palo  Alto, Gaia)
+- converting 'sh ip bgp' files to a CSV (Cisco IOS only)
 - native IPv6 & IPv4 support
 - IPv4 & IPv6 address information (known subnet membership, decoding of embedded IPs like Teredo)
 - Powerfull pattern matching engine
@@ -41,8 +42,9 @@ LIMITS
 
 it should work OK today for most functions
 
-CSV format 
-===========
+Input CSV format
+================
+When working on CSV route files, please note the following
 - Input subnet/routes files SHOULD have a CSV header describing its structure (prefix, mask,, GW, comment, etc...)
 - Input subnet/routes files without a CSV header are assumed to be : prefix;mask;GW;comment or prefix;mask;comment
 - default CSV header is "prefix;mask;device;GW;comment"
@@ -52,6 +54,8 @@ CSV format
 
 OUTPUT FMT
 ==========
+The output of subnettools command working on route files can be dynamically modified by supplying an output FMT
+Some theory first, next some examples :)
 - %I  : the prefix
 - %N  : the network address of the prefix
 - %B  : the 'broadcast' address of the prefix (last subnet IP, since IPv6 has no broadcast)
