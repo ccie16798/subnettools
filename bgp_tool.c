@@ -1,7 +1,7 @@
 /*
  * bgp_tool : tools for manipulating BGP tables
  *
- * Copyright (C) 2014,2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ * Copyright (C) 2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -123,6 +123,26 @@ static int bgpcsv_aspath_handle(char *s, void *data, struct csv_state *state) {
 	return CSV_VALID_FIELD;
 }
 
+static int bgpcsv_best_handle(char *s, void *data, struct csv_state *state) {
+	struct bgp_file *sf = data;
+
+	if (!strcmp(s, "BEST"))
+		sf->routes[sf->nr].best = 1;
+	else
+		sf->routes[sf->nr].best = 0;
+	return CSV_VALID_FIELD;
+}
+
+static int bgpcsv_valid_handle(char *s, void *data, struct csv_state *state) {
+	struct bgp_file *sf = data;
+
+	if (!strcmp(s, "1"))
+		sf->routes[sf->nr].valid = 1;
+	else
+		sf->routes[sf->nr].valid = 0;
+	return CSV_VALID_FIELD;
+}
+
 static int bgpcsv_endofline_callback(struct csv_state *state, void *data) {
 	struct bgp_file *sf = data;
 	struct bgp_route *new_r;
@@ -158,6 +178,8 @@ int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof) {
 		{ "MED"		, 0, 0, 1, &bgpcsv_med_handle },
 		{ "WEIGHT"	, 0, 0, 1, &bgpcsv_weight_handle },
 		{ "AS_PATH"	, 0, 0, 1, &bgpcsv_aspath_handle },
+		{ "BEST"	, 0, 0, 1, &bgpcsv_best_handle },
+		{ "V"		, 0, 0, 1, &bgpcsv_valid_handle },
 		{ NULL, 0,0,0, NULL }
 	};
 	struct csv_file cf;
