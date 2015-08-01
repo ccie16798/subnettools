@@ -440,7 +440,7 @@ int bgp_to_csv(char *name, FILE *f, struct st_options *o) {
 	int res;
 	int med_offset = 34, aspath_offset = 61;
 
-	fprintf(o->output_file, "V;Proto;BEST;          prefix;              GW;LOCAL_PREF;       MED;    WEIGHT;AS_PATH;\n");
+	fprintf(o->output_file, "V;Proto;BEST;          prefix;              GW;       MED;LOCAL_PREF;    WEIGHT;AS_PATH;\n");
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
 		memset(&route, 0, sizeof(route));
