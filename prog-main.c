@@ -667,7 +667,7 @@ static int run_bgpcmp(int arc, char **argv, void *st_options) {
 
 	load_bgpcsv(argv[2], &sf1, st_options);
 	load_bgpcsv(argv[3], &sf2, st_options);
-	compare_bgp_file(&sf1, &sf2);
+	compare_bgp_file(&sf1, &sf2, st_options);
 	return 0;
 }
 static int run_test(int arc, char **argv, void *st_options) {

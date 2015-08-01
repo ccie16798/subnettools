@@ -148,7 +148,7 @@ static int bgpcsv_aspath_handle(char *s, void *data, struct csv_state *state) {
 static int bgpcsv_best_handle(char *s, void *data, struct csv_state *state) {
 	struct bgp_file *sf = data;
 
-	if (!strcmp(s, "BEST"))
+	if (!strcasecmp(s, "BEST"))
 		sf->routes[sf->nr].best = 1;
 	else
 		sf->routes[sf->nr].best = 0;
@@ -216,8 +216,8 @@ int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof) {
 	struct csv_state state;
 
         cf.is_header = NULL;
-	cf.endofline_callback   = bgpcsv_endofline_callback;
 	init_csv_file(&cf, csv_field, nof->delim, &strtok_r);
+	cf.endofline_callback   = bgpcsv_endofline_callback;
 	cf.header_field_compare = bgp_field_compare;
 
 	if (alloc_bgp_file(sf, 16192) < 0)
@@ -225,12 +225,12 @@ int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof) {
 	return generic_load_csv(name, &cf, &state, sf);
 }
 
-int compare_bgp_file(const struct bgp_file *sf1, const struct bgp_file *sf2) {
+int compare_bgp_file(const struct bgp_file *sf1, const struct bgp_file *sf2, struct st_options *o) {
 	int i, j;
-	int found, changed;
+	int found, changed, changed_j;
 
+	debug(BGPCMP, 6, "file1 : %ld routes, file2 : %ld routes\n", sf1->nr, sf2->nr);
 	for (i = 0; i < sf1->nr; i++) {
-		debug(BGPCMP, 9, "test");
 		st_debug(BGPCMP, 9, "testing %P via %I\n", sf1->routes[i].subnet, 
 					sf1->routes[i].gw);
 		if (sf1->routes[i].best == 0) {
@@ -239,8 +239,9 @@ int compare_bgp_file(const struct bgp_file *sf1, const struct bgp_file *sf2) {
 			continue;
 		}
 		found   = 0;
-		changed = 0;
+		changed_j = -1;
 		for (j = 0; j < sf2->nr; j++) {
+			changed = 0;
 			if (sf2->routes[j].best == 0)
 				continue;
 			if (subnet_compare(&sf1->routes[i].subnet, &sf2->routes[j].subnet) != EQUALS)
@@ -256,21 +257,27 @@ int compare_bgp_file(const struct bgp_file *sf1, const struct bgp_file *sf2) {
 				changed++;
 			if (strcmp(sf1->routes[i].AS_PATH, sf2->routes[j].AS_PATH))
 				changed++;
-			break;
+			if (changed != 0)
+				changed_j = j;
+			else {
+				changed_j = -1;
+				break;
+			}
 		}
 		if (found == 0) {
-			st_fprintf(stdout, "WITHDRAWN;%P;%I\n", sf1->routes[i].subnet, sf1->routes[i].gw);
+			st_fprintf(o->output_file, "WITHDRAWN;"); 
+			fprint_bgp_route(o->output_file, &sf1->routes[i]);
 			continue;
 		}
-		if (changed == 0) {
-			fprintf(stdout, "UNCHANGED;");
-			fprint_bgp_route(stdout, &sf1->routes[i]);
+		if (changed_j == -1) {
+			fprintf(o->output_file, "UNCHANGED;");
+			fprint_bgp_route(o->output_file, &sf1->routes[i]);
 			continue;
 		}
-		fprintf(stdout, "CHANGED;");
-		fprint_bgp_route(stdout, &sf2->routes[j]);
-		fprintf(stdout, "WAS;");
-		fprint_bgp_route(stdout, &sf1->routes[i]);
+		fprintf(o->output_file, "CHANGED  ;");
+		fprint_bgp_route(o->output_file, &sf2->routes[changed_j]);
+		fprintf(o->output_file, "WAS      ;");
+		fprint_bgp_route(o->output_file, &sf1->routes[i]);
 	}
 	return 1;
 }
