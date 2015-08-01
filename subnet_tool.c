@@ -7,7 +7,7 @@
  *  - grepping routes in a file
  *  - aggregating routes
  *
- * Copyright (C) 2014 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ * Copyright (C) 2014,2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
@@ -89,7 +89,7 @@ static int netcsv_GW_handle(char *s, void *data, struct csv_state *state) {
 		if (strlen(s) >= sizeof(sf->routes[sf->nr].comment))
 			debug(LOAD_CSV, 1, "line %lu STRING comment '%s'  too long, truncating to '%s'\n", state->line, s, sf->routes[sf->nr].comment);
 	} else {
-		if (res == sf->routes[sf->nr].subnet.ip_ver ) {/* does the gw have same IPversion*/
+		if (res == sf->routes[sf->nr].subnet.ip_ver) {/* does the gw have same IPversion*/
 			copy_ipaddr(&sf->routes[sf->nr].gw, &addr);
 		} else {
 			memset(&sf->routes[sf->nr].gw, 0, sizeof(struct ip_addr));
@@ -233,6 +233,7 @@ int load_PAIP(char  *name, struct subnet_file *sf, struct st_options *nof) {
 		return -2;
 	return generic_load_csv(name, &cf, &state, sf);
 }
+
 
 void compare_files(struct subnet_file *sf1, struct subnet_file *sf2, struct st_options *nof) {
 	unsigned long i, j;
