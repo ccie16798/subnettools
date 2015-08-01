@@ -30,6 +30,7 @@ int cisco_fw_conf_to_csv(char *name, FILE *input_name, struct st_options *o);
 int cisco_nexus_to_csv(char *name, FILE *input_name, struct st_options *o);
 int ipso_route_to_csv(char *name, FILE *input_name, struct st_options *o);
 int palo_to_csv(char *name, FILE *input_name, struct st_options *o);
+int bgp_to_csv(char *name, FILE *input_name, struct st_options *o);
 void csvconverter_help(FILE *output);
 
 struct csvconverter csvconverters[] = {
@@ -40,6 +41,7 @@ struct csvconverter csvconverters[] = {
 	{ "GAIA",		&ipso_route_to_csv ,	"output of clish show route" },
 	{ "CiscoNexus",		&cisco_nexus_to_csv ,	"output of show ip route on Cisco Nexus NXOS" },
 	{ "palo",		&palo_to_csv ,	"output of show routing route on Palo Alto FW" },
+	{ "bgp",		&bgp_to_csv ,	"output of show ip bgp on Cisco" },
 	{ NULL, NULL }
 };
 
@@ -423,6 +425,68 @@ int cisco_route_conf_to_csv(char *name, FILE *f, struct st_options *o) {
 		fprint_route(&route, o->output_file, 3);
 		memset(&route, 0, sizeof(route));
 		sto[1].type = sto[2].type = sto[3].type = sto[4].type = 0;
+	}
+	return 1;
+}
+
+
+int bgp_to_csv(char *name, FILE *f, struct st_options *o) {
+	char buffer[1024];
+	char *s, *s2;
+	unsigned long line = 0;
+	int badline = 0;
+	struct bgp_route route;
+	struct subnet last_subnet;
+	int res;
+	int med_offset = 34, aspath_offset = 61;
+
+	fprintf(o->output_file, "V;Proto;BEST;          prefix;              GW;LOCAL_PREF;       MED;    WEIGHT;AS_PATH;\n");
+	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
+		line++;
+		memset(&route, 0, sizeof(route));
+		debug(PARSEROUTE, 9, "line %lu buffer : '%s'", line, s);
+
+		s2 = strstr(s, "Metric");
+		if (s2) {
+			med_offset = s2 - s - strlen("Metric");
+			s2 = strstr(s, "Path");
+			if (s2 == NULL) {
+				debug(PARSEROUTE, 1, "Invalid Header line, missing Path keyword %lu\n", line);
+				badline++;
+				continue;
+			}
+			aspath_offset = s2 - s;
+			debug(PARSEROUTE, 3, "med_offset %d, aspath_offset %d\n", med_offset, aspath_offset);
+		}
+		res = st_sscanf(s, ".*%P *%I", &route.subnet, &route.gw);
+		if (res == 0) {
+			debug(PARSEROUTE, 2, "Invalid line %lu\n", line);
+			badline++;
+			continue;
+		}
+		if (s[0] == '*')
+			route.valid = 1;
+		if (s[1] == '>')
+			route.best = 1;
+		if (s[2] == 'i')
+			route.type = 'i';
+		else
+			route.type = 'e';
+		if (res == 1) {/* prefix was on last line */
+			copy_ipaddr(&route.gw, &route.subnet.ip_addr);
+			copy_subnet(&route.subnet, &last_subnet);
+		} else
+			copy_subnet(&last_subnet, &route.subnet);
+		res = st_sscanf(s + med_offset, " {1,10}(%d)? {1,6}(%d)? {1,6}(%d)?", &route.MED,
+					 &route.LOCAL_PREF, &route.weight);
+		res = st_sscanf(s + aspath_offset, "%[0-9: ]", &route.AS_PATH);
+		st_fprintf(o->output_file, "%d;%s;%4d;%16P;%16I;%10d;%10d;%10d;%s\n",
+					route.valid,
+					(route.type == 'i'? " iBGP" : " eBGP"),
+					route.best,
+					route.subnet, route.gw, route.MED,
+					route.LOCAL_PREF, route.weight,
+					route.AS_PATH);
 	}
 	return 1;
 }
