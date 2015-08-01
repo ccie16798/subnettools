@@ -34,7 +34,7 @@ static int read_csv_header(char *filename, char *buffer, struct csv_file *cf) {
 			for (i = 0; ; i++) {
 				if (cf->csv_field[i].name == NULL)
 					break;
-				if (!strcmp(s, cf->csv_field[i].name)) {
+				if (!cf->header_field_compare(s, cf->csv_field[i].name)) {
 					cf->csv_field[i].pos = pos;
 					debug(CSVHEADER, 3, "found header field '%s' at pos %d\n", s, pos);
 					break;
@@ -227,6 +227,11 @@ int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state* stat
 	return res;
 }
 
+/* strcmp could be inlined so we need this */
+int generic_header_cmp(const char *s1, const char *s2) {
+	return strcmp(s1, s2);
+}
+
 void init_csv_file(struct csv_file *cf, struct csv_field *csv_field, char *delim,
 		char * (*func)(char *s, const char *delim, char **save_ptr)) {
 	if (cf == NULL)
@@ -240,6 +245,7 @@ void init_csv_file(struct csv_file *cf, struct csv_field *csv_field, char *delim
 	cf->validate_header = NULL;
 	cf->endofline_callback = NULL;
 	cf->endoffile_callback = NULL;
+	cf->header_field_compare = generic_header_cmp;
 }
 #ifdef GENERICCSV_TEST
 struct networks {

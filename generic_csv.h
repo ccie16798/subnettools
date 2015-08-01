@@ -67,6 +67,7 @@ struct csv_file {
 	int max_mandatory_pos ; /* used to track the pos of the last mandatory field */
 	int (*is_header)(char *); /* given a line, try to guess if its a header or plain data; if NULL, the file REQUIRES a header */
 	int (*validate_header)(struct csv_field *); /* once a header has been parsed, post-validate the required fields are there */
+	int (*header_field_compare)(const char *, const char *); /* use to compare header FIELD, strcmp by default */
 
 	int (*endofline_callback)(struct csv_state *state, void *data);
 	int (*endoffile_callback)(struct csv_state *state, void *data);
