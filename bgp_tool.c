@@ -247,6 +247,8 @@ int compare_bgp_file(const struct bgp_file *sf1, const struct bgp_file *sf2, str
 			if (subnet_compare(&sf1->routes[i].subnet, &sf2->routes[j].subnet) != EQUALS)
 				continue;
 			found = 1;
+			if (is_equal_ip(&sf1->routes[i].gw, &sf2->routes[j].gw) == 0)
+				changed++;
 			if (sf1->routes[i].MED != sf2->routes[j].MED)
 				changed++;
 			if (sf1->routes[i].LOCAL_PREF != sf2->routes[j].LOCAL_PREF)
