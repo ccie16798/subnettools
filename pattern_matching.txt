@@ -20,11 +20,11 @@ no further input is read, and scanf() returns. A sequence may be :
 2. A conversion specification, which commences with a '%' (percent) character.  A sequence of characters from the input is converted according to  this
 specification,  and  the result is placed in the corresponding pointer argument.  If the next item of input does not match the conversion specification
 tion, the conversion fails this is a matching failure.
-3. a sequence of chars surrounded by ( ) (an expression in st_scanf) 
-4. a sequence of chars surrounded by  [ ]  (a char range)
-5. the special char '.' that matches any input char
+3. A sequence of chars surrounded by ( ) (an expression in st_scanf)
+4. A sequence of chars surrounded by  [ ]  (a char range)
+5. The special char '.' that matches any input char
 
-1 & 2 are scanf() compliant but 3+ are ist_scanf()  additions
+1 & 2 are scanf() compliant but 3+ are st_scanf()  additions
 in st_scanf, a sequence can be followed by a special 'sequence multiplier'  (see below)
 
 conversions specifiers
@@ -33,9 +33,9 @@ st_scanf will use "conversion specifier" to fill user specified pointers with in
 
 Each conversion specification starts with the '%' char
 - followed by an optional field_length (like '%40s');
-- An optional type modifier character.  For example, the l type modifier is used with integer conversions such
+- An optional type modifier character.  For example, the 'l' type modifier is used with integer conversions such
 as %d to specify that the corresponding pointer argument refers to a long int rather than a pointer to an int
-(only 'l' and 'h' are supported )
+(only 'l' and 'h' are supported in st_scanf)
 
 if field length is provided, st_scanf will copy (field_length - 1) chars from input, and add the terminating null byte
 
@@ -94,8 +94,8 @@ st_scanf() define the 3 following additional sequences :
 expr can alse the form of '(expr_1|expr_2|...|expr_n)' ; the first expr to match will stop the pattern engine
 
 expr can contains one conversion specifier with '?' like
-st_scanf("1.1.1.0 vlan55 2.2.2.2", "%I (%s )?%I", &ip, &device, &nhop)
-st_scanf("1.1.1.0 2.2.2.2", "%I (%s )?%I", &ip, &device, &nhop)
+st_scanf("1.1.1.0 vlan55 2.2.2.2", "%I (%S )?%I", &ip, &device, &nhop)
+st_scanf("1.1.1.0 2.2.2.2",        "%I (%S )?%I", &ip, &device, &nhop)
 
 
 sequence multiplier
@@ -144,7 +144,7 @@ st_scanf("                   1.1.1.1", " *%I", string) will return "1.1.1.1"
 ==> on the first match of the char range
 "(expr)*%c"
 ==> on the first non matching char (so '.*%c' is illegal) 
-"(expr)%S"
+"(expr)*%S"
 ==> on the first string that do not represent an IP
 scanf("1.1.1.1 toto",  ".*%S", string) will set string to 'toto'; it will not set '.1.1.1', even if '.1.1.1' is not an IP; st_scanf detects that "1.1.1.1" is an IP and thus skip the whole "1.1.1.1" string in its expansion
 
@@ -158,7 +158,7 @@ etienne@debian:~/st$ ./subnet-tools -D scanf:3 scanf " a 1.1.1.1 abcd 2.2.2.2", 
 sto_sscanf : Exiting loop with expr '.' matched 1 times, found 0 objects so far
 sto_sscanf : in[2]=' ', != fmt[3]='b', exiting
 
-if you want expansion to end on 'abcd', write it :       
+if you want expansion to end on 'abcd', write it like this :
 st_scanf(" a 1.1.1.1 abcd 2.2.2.2", ".*(abcd) %I") will return 1, IP will be set to 2.2.2.2
 
 
