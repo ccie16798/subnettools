@@ -66,6 +66,15 @@ int is_equal_ipv6(ipv6 ip1, ipv6 ip2) {
 			return 0;
 	return 1;
 }
+int is_equal_ip(struct ip_addr *ip1, struct ip_addr *ip2) {
+	if (ip1->ip_ver != ip2->ip_ver)
+		return 0;
+	if (ip1->ip_ver == IPV4_A && ip1->ip == ip2->ip)
+		return 1;
+	if (ip1->ip_ver == IPV6_A && is_equal_ipv6(ip1->ip6, ip2->ip6))
+		return 1;
+	return 0;
+}
 
 int is_equal_gw(struct route *r1, struct route *r2) {
 	if (r1->gw.ip_ver != r2->gw.ip_ver)
