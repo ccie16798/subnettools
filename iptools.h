@@ -88,6 +88,18 @@ struct route {
 	char comment[128];
 };
 
+struct bgp_route {
+	struct subnet subnet;
+	struct ip_addr gw;
+	int MED;
+	int LOCAL_PREF;
+	char AS_PATH[256];
+	int type; /* eBGP or iBGP */
+	int weight;
+	int best;
+	int valid;
+};
+
 struct subnet_file {
 	struct route *routes;
 	unsigned long nr;
