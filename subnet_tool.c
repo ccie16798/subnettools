@@ -234,7 +234,6 @@ int load_PAIP(char  *name, struct subnet_file *sf, struct st_options *nof) {
 	return generic_load_csv(name, &cf, &state, sf);
 }
 
-
 void compare_files(struct subnet_file *sf1, struct subnet_file *sf2, struct st_options *nof) {
 	unsigned long i, j;
 	int res;
@@ -839,8 +838,8 @@ int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct
 				addTAS(&tas, &sf1->routes[i]);
 				break;
 			}
-		} // for j
-	} // for i
+		}
+	}
 	/* going through subnet_file2 ; adding to stack only if INCLUDED */
 	for (j = 0; j < sf2->nr; j++) {
 		can_add = 0;
