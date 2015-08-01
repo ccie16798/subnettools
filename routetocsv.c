@@ -30,7 +30,7 @@ int cisco_fw_conf_to_csv(char *name, FILE *input_name, struct st_options *o);
 int cisco_nexus_to_csv(char *name, FILE *input_name, struct st_options *o);
 int ipso_route_to_csv(char *name, FILE *input_name, struct st_options *o);
 int palo_to_csv(char *name, FILE *input_name, struct st_options *o);
-int bgp_to_csv(char *name, FILE *input_name, struct st_options *o);
+int ciscobgp_to_csv(char *name, FILE *input_name, struct st_options *o);
 void csvconverter_help(FILE *output);
 
 struct csvconverter csvconverters[] = {
@@ -40,8 +40,8 @@ struct csvconverter csvconverters[] = {
 	{ "IPSO",		&ipso_route_to_csv, 	"output of clish show route"  },
 	{ "GAIA",		&ipso_route_to_csv ,	"output of clish show route" },
 	{ "CiscoNexus",		&cisco_nexus_to_csv ,	"output of show ip route on Cisco Nexus NXOS" },
-	{ "palo",		&palo_to_csv ,	"output of show routing route on Palo Alto FW" },
-	{ "bgp",		&bgp_to_csv ,	"output of show ip bgp on Cisco" },
+	{ "palo",		&palo_to_csv ,		"output of show routing route on Palo Alto FW" },
+	{ "ciscobgp",		&ciscobgp_to_csv ,	"output of show ip bgp on Cisco IOS" },
 	{ NULL, NULL }
 };
 
@@ -430,7 +430,7 @@ int cisco_route_conf_to_csv(char *name, FILE *f, struct st_options *o) {
 }
 
 
-int bgp_to_csv(char *name, FILE *f, struct st_options *o) {
+int ciscobgp_to_csv(char *name, FILE *f, struct st_options *o) {
 	char buffer[1024];
 	char *s, *s2;
 	unsigned long line = 0;
@@ -480,10 +480,10 @@ int bgp_to_csv(char *name, FILE *f, struct st_options *o) {
 		res = st_sscanf(s + med_offset, " {1,10}(%d)? {1,6}(%d)? {1,6}(%d)?", &route.MED,
 					 &route.LOCAL_PREF, &route.weight);
 		res = st_sscanf(s + aspath_offset, "%[0-9: ]", &route.AS_PATH);
-		st_fprintf(o->output_file, "%d;%s;%4d;%16P;%16I;%10d;%10d;%10d;%s\n",
+		st_fprintf(o->output_file, "%d;%s;%s;%16P;%16I;%10d;%10d;%10d;%s\n",
 					route.valid,
-					(route.type == 'i'? " iBGP" : " eBGP"),
-					route.best,
+					(route.type == 'i' ? " iBGP" : " eBGP"),
+					(route.best == 1 ? "Best" : "  No"),
 					route.subnet, route.gw, route.MED,
 					route.LOCAL_PREF, route.weight,
 					route.AS_PATH);
