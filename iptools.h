@@ -106,6 +106,12 @@ struct subnet_file {
 	unsigned long max_nr; /* the number of routes that has been malloced */
 };
 
+struct bgp_file {
+	struct bgp_route *routes;
+	unsigned long nr;
+	unsigned long max_nr; /* the number of routes that has been malloced */
+};
+
 int is_ip_char(char c);
 void copy_ipaddr(struct ip_addr *a, const struct ip_addr *b);
 void copy_subnet(struct subnet *a, const struct subnet *b);
