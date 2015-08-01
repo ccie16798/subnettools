@@ -34,10 +34,12 @@ int alloc_bgp_file(struct bgp_file *sf, unsigned long n) {
 
 static int bgpcsv_prefix_handle(char *s, void *data, struct csv_state *state) {
 	struct bgp_file *sf = data;
-	int res;
+	int res, i = 0;
 	struct subnet subnet;
 
-	res = get_subnet_or_ip(s, &subnet);
+	while (isspace(s[i]))
+		i++;
+	res = get_subnet_or_ip(s + i, &subnet);
 	if (res > 1000) {
 		debug(LOAD_CSV, 3, "invalid IP %s line %lu\n", s, state->line);
 		return CSV_INVALID_FIELD_BREAK;
@@ -50,9 +52,11 @@ static int bgpcsv_prefix_handle(char *s, void *data, struct csv_state *state) {
 static int bgpcsv_GW_handle(char *s, void *data, struct csv_state *state) {
 	struct bgp_file *sf = data;
 	struct ip_addr addr;
-	int res;
+	int res, i = 0;
 
-	res = string2addr(s, &addr, 41);
+	while (isspace(s[i]))
+		i++;
+	res = string2addr(s + i, &addr, 41);
 	if (res == sf->routes[sf->nr].subnet.ip_ver) {/* does the gw have same IPversion*/
 		copy_ipaddr(&sf->routes[sf->nr].gw, &addr);
 	} else {
@@ -67,10 +71,12 @@ static int bgpcsv_med_handle(char *s, void *data, struct csv_state *state) {
 	int res = 0;
 	int i = 0;
 
-	while (isspace(s[i]));
+	while (isspace(s[i]))
+		i++;
 	while (isdigit(s[i])) {
 		res *= 10;
 		res += s[i];
+		i++;
 	}
 	if (s[i] != '\0') {
                 debug(LOAD_CSV, 1, "line %lu '%s' is not an INT\n", state->line, s);
@@ -85,10 +91,12 @@ static int bgpcsv_localpref_handle(char *s, void *data, struct csv_state *state)
 	int res = 0;
 	int i = 0;
 
-	while (isspace(s[i]));
+	while (isspace(s[i]))
+		i++;
 	while (isdigit(s[i])) {
 		res *= 10;
 		res += s[i];
+		i++;
 	}
 	if (s[i] != '\0') {
                 debug(LOAD_CSV, 1, "line %lu '%s' is not an INT\n", state->line, s);
@@ -103,10 +111,12 @@ static int bgpcsv_weight_handle(char *s, void *data, struct csv_state *state) {
 	int res = 0;
 	int i = 0;
 
-	while (isspace(s[i]));
+	while (isspace(s[i]))
+		i++;
 	while (isdigit(s[i])) {
 		res *= 10;
 		res += s[i];
+		i++;
 	}
 	if (s[i] != '\0') {
                 debug(LOAD_CSV, 1, "line %lu '%s' is not an INT\n", state->line, s);
@@ -170,6 +180,14 @@ static int bgpcsv_endofline_callback(struct csv_state *state, void *data) {
 	return CSV_CONTINUE;
 }
 
+static int bgp_field_compare(const char *s1, const char *s2) {
+	int i = 0;
+
+	while (isspace(s1[i]))
+		i++;
+	return strcmp(s1 + i, s2);
+}
+
 int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof) {
 	struct csv_field csv_field[] = {
 		{ "prefix"	, 0, 0, 1, &bgpcsv_prefix_handle },
@@ -177,7 +195,7 @@ int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof) {
 		{ "LOCAL_PREF"	, 0, 0, 1, &bgpcsv_localpref_handle },
 		{ "MED"		, 0, 0, 1, &bgpcsv_med_handle },
 		{ "WEIGHT"	, 0, 0, 1, &bgpcsv_weight_handle },
-		{ "AS_PATH"	, 0, 0, 1, &bgpcsv_aspath_handle },
+		{ "AS_PATH"	, 0, 0, 0, &bgpcsv_aspath_handle },
 		{ "BEST"	, 0, 0, 1, &bgpcsv_best_handle },
 		{ "V"		, 0, 0, 1, &bgpcsv_valid_handle },
 		{ NULL, 0,0,0, NULL }
@@ -186,8 +204,9 @@ int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof) {
 	struct csv_state state;
 
         cf.is_header = NULL;
-	cf.endofline_callback = bgpcsv_endofline_callback;
+	cf.endofline_callback   = bgpcsv_endofline_callback;
 	init_csv_file(&cf, csv_field, nof->delim, &strtok_r);
+	cf.header_field_compare = bgp_field_compare;
 
 	if (alloc_bgp_file(sf, 16192) < 0)
 		return -2;
