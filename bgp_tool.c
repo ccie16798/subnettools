@@ -32,7 +32,7 @@ int alloc_bgp_file(struct bgp_file *sf, unsigned long n) {
 	return 0;
 }
 
-static int bgp_prefix_handle(char *s, void *data, struct csv_state *state) {
+static int bgpcsv_prefix_handle(char *s, void *data, struct csv_state *state) {
 	struct bgp_file *sf = data;
 	int res;
 	struct subnet subnet;
@@ -76,7 +76,7 @@ static int bgpcsv_med_handle(char *s, void *data, struct csv_state *state) {
                 debug(LOAD_CSV, 1, "line %lu '%s' is not an INT\n", state->line, s);
 		return CSV_INVALID_FIELD_BREAK;
 	}
-	sf->routes[sf->br].MED = res;
+	sf->routes[sf->nr].MED = res;
 	return CSV_VALID_FIELD;
 }
 
@@ -112,14 +112,45 @@ static int bgpcsv_weight_handle(char *s, void *data, struct csv_state *state) {
                 debug(LOAD_CSV, 1, "line %lu '%s' is not an INT\n", state->line, s);
 		return CSV_INVALID_FIELD_BREAK;
 	}
+	sf->routes[sf->nr].weight = res;
 	return CSV_VALID_FIELD;
 }
 
+static int bgpcsv_aspath_handle(char *s, void *data, struct csv_state *state) {
+	struct bgp_file *sf = data;
+
+	strxcpy(sf->routes[sf->nr].AS_PATH, s, sizeof(sf->routes[sf->nr].AS_PATH));
+	return CSV_VALID_FIELD;
+}
+
+static int bgpcsv_endofline_callback(struct csv_state *state, void *data) {
+	struct bgp_file *sf = data;
+	struct bgp_route *new_r;
+
+	if (state->badline) {
+		debug(LOAD_CSV, 3, "Invalid line %lu\n", state->line);
+		return -1;
+	}
+	sf->nr++;
+	if  (sf->nr == sf->max_nr) {
+		sf->max_nr *= 2;
+		debug(MEMORY, 2, "need to reallocate %lu bytes\n", sf->max_nr * sizeof(struct bgp_route));
+		if (sf->max_nr > SIZE_T_MAX / sizeof(struct route)) {
+			debug(MEMORY, 1, "cannot allocate %llu bytes for struct route, too big\n", (unsigned long long)sf->max_nr * sizeof(struct bgp_route));
+			return CSV_CATASTROPHIC_FAILURE;
+		}
+		new_r = realloc(sf->routes,  sizeof(struct bgp_route) * sf->max_nr);
+		if (new_r == NULL) {
+			fprintf(stderr, "unable to reallocate, need to abort\n");
+			return  CSV_CATASTROPHIC_FAILURE;
+		}
+		sf->routes = new_r;
+	}
+	memset(&sf->routes[sf->nr], 0, sizeof(struct bgp_route));
+	return CSV_CONTINUE;
+}
+
 int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof) {
-	/*
-	 * default IPAM fields (Infoblox)
-  	 * obviously if you have a different IPAM please describe it in the config file
-	 */
 	struct csv_field csv_field[] = {
 		{ "prefix"	, 0, 0, 1, &bgpcsv_prefix_handle },
 		{ "GW"		, 0, 0, 1, &bgpcsv_GW_handle },
@@ -133,15 +164,12 @@ int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof) {
 	struct csv_state state;
 
         cf.is_header = NULL;
-	cf.endofline_callback = netcsv_endofline_callback;
+	cf.endofline_callback = bgpcsv_endofline_callback;
+	init_csv_file(&cf, csv_field, nof->delim, &strtok_r);
 
-	if (alloc_subnet_file(sf, 16192) < 0)
+	if (alloc_bgp_file(sf, 16192) < 0)
 		return -2;
 	return generic_load_csv(name, &cf, &state, sf);
 }
 
 
-void compare_files(struct subnet_file *sf1, struct subnet_file *sf2, struct st_options *nof) {
-	unsigned long i, j;
-	int res;
-	int find = 0;
