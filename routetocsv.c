@@ -448,7 +448,7 @@ int bgp_to_csv(char *name, FILE *f, struct st_options *o) {
 
 		s2 = strstr(s, "Metric");
 		if (s2) {
-			med_offset = s2 - s - strlen("Metric");
+			med_offset = s2 - s - strlen("Metric") + 1;
 			s2 = strstr(s, "Path");
 			if (s2 == NULL) {
 				debug(PARSEROUTE, 1, "Invalid Header line, missing Path keyword %lu\n", line);
