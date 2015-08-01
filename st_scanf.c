@@ -100,7 +100,9 @@ static inline int min_match(char c) {
 /*
  * parse a brace multiplier like {,1} or {2} or {3,4} {4,}
  * min & max are set by this helper
- * return -1 if string is invalid, number of matched char
+ * returns :
+ * 	-1 if string is invalid
+ * 	number of matched chars
  */
 static int parse_brace_multiplier(const char *s, int *min, int *max) {
 	int i = 1;
@@ -128,7 +130,7 @@ static int parse_brace_multiplier(const char *s, int *min, int *max) {
 				i++;
 			}
 			if (s[i] != '}') {
-				debug(SCANF, 1, "Invalid multiplier '%s', no closing '}'\n", s);
+				debug(SCANF, 1, "Invalid range '%s', no closing '}'\n", s);
 				return -1;
 			}
 			if (*min > *max) {
@@ -136,6 +138,9 @@ static int parse_brace_multiplier(const char *s, int *min, int *max) {
 				return -1;
 			}
 			return i;
+		} else {
+			debug(SCANF, 1, "Invalid range '%s' contains invalid char '%c'\n", s, s[i]);
+			return -1;
 		}
 	} else if (s[i] == '}') {
 		*max = *min;
@@ -270,15 +275,18 @@ static int match_char_against_range(char c, const char *expr, int *i) {
 		return res;
 }
 /* parse STRING in at index *j according to fmt at index *i
+   fmt[*i] == '%' when the function starts
    store output in o if not NULL, else put it to thrash
    fmt = FORMAT buffer
    in  = input buffer
    i   = index in fmt
    j   = index in in
+   returns the number of conversion specifier is found (0 or 1)
+   *i and *j are updated if a CS is found
 */
 static int parse_conversion_specifier(const char *in, const char *fmt,
 		int *i, int *j, struct sto *o) {
-	int n_found = 0;
+	int n_found = 0; /* number of CS found */
 	int i2, j2, res;
 	int max_field_length;
 	char buffer[128];
