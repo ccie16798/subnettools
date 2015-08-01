@@ -225,16 +225,52 @@ int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof) {
 	return generic_load_csv(name, &cf, &state, sf);
 }
 
-int compare_bgp_file(struct bgp_file *sf1, struct bgp_file *sf2) {
-	int i;
-	int j;
-
+int compare_bgp_file(const struct bgp_file *sf1, const struct bgp_file *sf2) {
+	int i, j;
+	int found, changed;
 
 	for (i = 0; i < sf1->nr; i++) {
 		debug(BGPCMP, 9, "test");
-
-
-
+		st_debug(BGPCMP, 9, "testing %P via %I\n", sf1->routes[i].subnet, 
+					sf1->routes[i].gw);
+		if (sf1->routes[i].best == 0) {
+			st_debug(BGPCMP, 5, "%P via %I is not a best route, skipping\n", sf1->routes[i].subnet, 
+					sf1->routes[i].gw);
+			continue;
+		}
+		found   = 0;
+		changed = 0;
+		for (j = 0; j < sf2->nr; j++) {
+			if (sf2->routes[j].best == 0)
+				continue;
+			if (subnet_compare(&sf1->routes[i].subnet, &sf2->routes[j].subnet) != EQUALS)
+				continue;
+			found = 1;
+			if (sf1->routes[i].MED != sf2->routes[j].MED)
+				changed++;
+			if (sf1->routes[i].LOCAL_PREF != sf2->routes[j].LOCAL_PREF)
+				changed++;
+			if (sf1->routes[i].weight != sf2->routes[j].weight)
+				changed++;
+			if (sf1->routes[i].type != sf2->routes[j].type)
+				changed++;
+			if (strcmp(sf1->routes[i].AS_PATH, sf2->routes[j].AS_PATH))
+				changed++;
+			break;
+		}
+		if (found == 0) {
+			st_fprintf(stdout, "WITHDRAWN;%P;%I\n", sf1->routes[i].subnet, sf1->routes[i].gw);
+			continue;
+		}
+		if (changed == 0) {
+			fprintf(stdout, "UNCHANGED;");
+			fprint_bgp_route(stdout, &sf1->routes[i]);
+			continue;
+		}
+		fprintf(stdout, "CHANGED;");
+		fprint_bgp_route(stdout, &sf2->routes[j]);
+		fprintf(stdout, "WAS;");
+		fprint_bgp_route(stdout, &sf1->routes[i]);
 	}
-
+	return 1;
 }
