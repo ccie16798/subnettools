@@ -38,7 +38,7 @@ sprint_unsigned(short)
 sprint_unsigned(int)
 sprint_unsigned(long)
 
-void fprint_route(const struct route *r, FILE *output, int compress_level) {
+void fprint_route(FILE *output, const struct route *r, int compress_level) {
 	char buffer[52];
 	char buffer2[52];
 
@@ -95,7 +95,7 @@ static inline int pad_buffer_out(char *out, size_t len, const char *buffer, size
 }
 /*
  * a very specialized function to print a struct route */
-int fprint_route_fmt(const struct route *r, FILE *output, const char *fmt) {
+int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt) {
 	int i, j, i2, compression_level;
 	int res, pad_left;
 	char c;
@@ -611,20 +611,20 @@ void sto_printf(const char *fmt, struct sto *o, int max_o, ...) {
 	printf("%s", buffer);
 }
 
-void fprint_subnet_file(const struct subnet_file *sf, FILE *output, int compress_level) {
+void fprint_subnet_file(FILE *output, const struct subnet_file *sf, int compress_level) {
 	unsigned long i;
 
 	for (i = 0; i < sf->nr; i++)
-		fprint_route(&sf->routes[i], output, compress_level);
+		fprint_route(output, &sf->routes[i], compress_level);
 }
 
-void fprint_subnet_file_fmt(const struct subnet_file *sf, FILE *output, const char *fmt) {
+void fprint_subnet_file_fmt(FILE *output, const struct subnet_file *sf, const char *fmt) {
 	unsigned long i;
 
 	for (i = 0; i < sf->nr; i++)
-		fprint_route_fmt(&sf->routes[i], output, fmt);
+		fprint_route_fmt(output, &sf->routes[i], fmt);
 }
 
 void print_subnet_file(const struct subnet_file *sf, int compress_level) {
-	fprint_subnet_file(sf, stdout, compress_level);
+	fprint_subnet_file(stdout, sf, compress_level);
 }

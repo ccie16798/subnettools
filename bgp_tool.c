@@ -14,8 +14,20 @@
 #include "heap.h"
 #include "subnet_tool.h"
 #include "st_printf.h"
+#include "bgp_tool.h"
 
 #define SIZE_T_MAX ((size_t)0 - 1)
+
+void fprint_bgp_route(FILE *output, struct bgp_route *route) {
+	st_fprintf(output, "%d;%s;%s;%16P;%16I;%10d;%10d;%10d;%s\n",
+			route->valid,
+			(route->type == 'i' ? " iBGP" : " eBGP"),
+			(route->best == 1 ? "Best" : "  No"),
+			route->subnet, route->gw, route->MED,
+			route->LOCAL_PREF, route->weight,
+			route->AS_PATH);
+}
+
 int alloc_bgp_file(struct bgp_file *sf, unsigned long n) {
 	if (n > SIZE_T_MAX / sizeof(struct bgp_route)) { /* being paranoid */
 		fprintf(stderr, "error: too much memory requested for struct route\n");
@@ -213,4 +225,16 @@ int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof) {
 	return generic_load_csv(name, &cf, &state, sf);
 }
 
+int compare_bgp_file(struct bgp_file *sf1, struct bgp_file *sf2) {
+	int i;
+	int j;
 
+
+	for (i = 0; i < sf1->nr; i++) {
+		debug(BGPCMP, 9, "test");
+
+
+
+	}
+
+}

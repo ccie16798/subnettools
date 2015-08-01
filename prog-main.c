@@ -1,7 +1,7 @@
 /*
  * subnet tools MAIN
  *
- * Copyright (C) 2014 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ * Copyright (C) 2014,2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
@@ -23,6 +23,7 @@
 #include "st_printf.h"
 #include "st_scanf.h"
 #include "ipinfo.h"
+#include "bgp_tool.h"
 
 const char *default_fmt = "%I;%m;%D;%G;%C";
 
@@ -280,7 +281,7 @@ static int run_print(int arc, char **argv, void *st_options) {
 	res = load_netcsv_file(argv[2], &sf, nof);
 	if (res < 0)
 		fprintf(stderr, "invalid file %s; not a CSV?\n", argv[2]);
-	fprint_subnet_file_fmt(&sf, nof->output_file, nof->output_fmt);
+	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
 	return 0;
 }
 
@@ -332,7 +333,7 @@ static int run_missing(int arc, char **argv, void *st_options) {
 	res = missing_routes(&sf1, &sf2, &sf3);
 	if (res < 0)
 		return res;
-	fprint_subnet_file_fmt(&sf3, nof->output_file, nof->output_fmt);
+	fprint_subnet_file_fmt(nof->output_file, &sf3, nof->output_fmt);
 	free(sf3.routes);
 	free(sf2.routes);
 	free(sf1.routes);
@@ -389,7 +390,7 @@ static int run_simplify1(int arc, char **argv, void *st_options) {
 		fprintf(stderr, "Couldnt simplify file %s\n", argv[2]);
 		return res;
 	}
-	fprint_subnet_file_fmt(&sf, nof->output_file, nof->output_fmt);
+	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
 	free(sf.routes);
 	return 0;
 }
@@ -409,7 +410,7 @@ static int run_simplify2(int arc, char **argv, void *st_options) {
 		fprintf(stderr, "Couldnt simplify file %s\n", argv[2]);
 		return res;
 	}
-	fprint_subnet_file_fmt(&sf, nof->output_file, nof->output_fmt);
+	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
 	free(sf.routes);
 	return 0;
 }
@@ -430,7 +431,7 @@ static int run_common(int arc, char **argv, void *st_options) {
 		return res;
 	res = subnet_file_merge_common_routes(&sf1, &sf2, &sf3);
 	if (res >= 0)
-		fprint_subnet_file_fmt(&sf3, nof->output_file, nof->output_fmt);
+		fprint_subnet_file_fmt(nof->output_file, &sf3, nof->output_fmt);
 	free(sf3.routes);
 	free(sf2.routes);
 	free(sf1.routes);
@@ -465,7 +466,7 @@ static int run_addfiles(int arc, char **argv, void *st_options) {
 	sf3.nr = i + j;
 	/* since the routes comes from different files, we wont compare the GW */
 	subnet_file_simplify(&sf3);
-	fprint_subnet_file_fmt(&sf3, nof->output_file, nof->output_fmt);
+	fprint_subnet_file_fmt(nof->output_file, &sf3, nof->output_fmt);
 	free(sf1.routes);
 	free(sf2.routes);
 	free(sf3.routes);
@@ -487,7 +488,7 @@ static int run_sort(int arc, char **argv, void *st_options) {
 		fprintf(stderr, "Couldnt sort file %s\n", argv[2]);
 		return res;
 	}
-	fprint_subnet_file_fmt(&sf, nof->output_file, nof->output_fmt);
+	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
 	free(sf.routes);
 	return 0;
 }
@@ -520,7 +521,7 @@ static int run_subnetagg(int arc, char **argv, void *st_options) {
 		fprintf(stderr, "Couldnt aggregate file %s\n", argv[2]);
 		return res;
 	}
-	fprint_subnet_file_fmt(&sf, nof->output_file, nof->output_fmt);
+	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
 	free(sf.routes);
 	return 0;
 }
@@ -538,7 +539,7 @@ static int run_routeagg(int arc, char **argv, void *st_options) {
 		fprintf(stderr, "Couldnt aggregate file %s\n", argv[2]);
 		return res;
 	}
-	fprint_subnet_file_fmt(&sf, nof->output_file, nof->output_fmt);
+	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
 	free(sf.routes);
 	return 0;
 }
@@ -581,7 +582,7 @@ static int run_remove(int arc, char **argv, void *st_options) {
 			return -1;
 		}
 		subnet_file_remove(&sf1, &sf2, &subnet2);
-		fprint_subnet_file_fmt(&sf2, nof->output_file, nof->output_fmt);
+		fprint_subnet_file_fmt(nof->output_file, &sf2, nof->output_fmt);
 		free(sf1.routes);
 		free(sf2.routes);
 		return 0;
@@ -658,14 +659,11 @@ static int run_confdesc(int arc, char **argv, void *st_options) {
 }
 
 static int run_test(int arc, char **argv, void *st_options) {
-	struct subnet subnet1, subnet2, *r;
-	int n, i;
+	struct bgp_file sf1;
+	struct bgp_file sf2;
 
-	get_subnet_or_ip(argv[2], &subnet1);
-	get_subnet_or_ip(argv[3], &subnet2);
-	r = subnet_remove(&subnet1, &subnet2, &n);
-	for (i = 0; i <n; i++)
-		st_printf("%P\n", r[i]);
+	load_bgpcsv(argv[2], &sf1, st_options);
+	load_bgpcsv(argv[3], &sf2, st_options);
 	return 0;
 }
 
