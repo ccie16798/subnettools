@@ -254,7 +254,7 @@ static int match_char_against_range(char c, const char *expr, int *i) {
 				return -1;
 		}
 		/* expr[*i + 2] != ']' means we can match a '-' only if it is right before the ending ']' */
-		if (expr[*i + 1] == '-' && expr[*i + 2] != ']' ) {
+		if (expr[*i + 1] == '-' && expr[*i + 2] != ']') {
 			high = expr[*i + 2];
 			if (high == '\0') {
 				debug(SCANF, 1, "Invalid expr '%s', incomplete range\n", expr);
@@ -1020,13 +1020,13 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 				}
 				e_has_stopped = e.has_stopped;
 				j += res;
-				if (in[j] == '\0') {
-					debug(SCANF, 3, "reached end of input scanning 'in'\n");
-					break;
-				}
 				if (j > in_length) { /* can happen only if there is a BUG in 'match_expr' and its descendant */
 					fprintf(stderr, "BUG, input buffer override in %s line %d\n", __FUNCTION__, __LINE__);
 					return n_found;
+				}
+				if (in[j] == '\0') {
+					debug(SCANF, 3, "reached end of input scanning 'in'\n");
+					break;
 				}
 			}
 			debug(SCANF, 3, "Exiting loop with expr '%s' matched %d times, found %d objects so far\n", expr, n_match, n_found);
