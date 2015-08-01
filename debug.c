@@ -28,6 +28,7 @@ struct debug debugs[] = {
 	{ "configfile",	__D_CONFIGFILE,	"debug config file parsing" },
 	{ "fmt",	__D_FMT,	"debug FMT dynamic output" },
 	{ "scanf",	__D_SCANF,	"debug st_scanf" },
+	{ "bgpcmp",	__D_BGPCMP,	"debug BGP compare functions" },
 	{0, 0}
 };
 

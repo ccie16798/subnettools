@@ -22,6 +22,7 @@
 #define __D_AGGREGATE	30
 #define __D_ADDRREMOVE	31
 #define __D_SPLIT	32
+#define __D_BGPCMP	40
 
 #define debug(__EVENT, __DEBUG_LEVEL, __FMT...) \
 	do { \
