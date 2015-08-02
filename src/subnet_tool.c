@@ -636,7 +636,7 @@ int subnet_file_simplify(struct subnet_file *sf) {
 	alloc_tas(&tas, sf->nr, __heap_subnet_is_superior);
 
 	new_r = malloc(sf->nr * sizeof(struct route));
-	if (tas.tab == NULL||new_r == NULL) {
+	if (tas.tab == NULL || new_r == NULL) {
 		fprintf(stderr, "%s : no memory \n", __FUNCTION__);
 		return -1;
 	}
