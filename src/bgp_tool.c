@@ -92,7 +92,7 @@ static int bgpcsv_med_handle(char *s, void *data, struct csv_state *state) {
 		i++;
 	}
 	if (s[i] != '\0') {
-                debug(LOAD_CSV, 1, "line %lu '%s' is not an INT\n", state->line, s);
+                debug(LOAD_CSV, 1, "line %lu MED '%s' is not an INT\n", state->line, s);
 		return CSV_INVALID_FIELD_BREAK;
 	}
 	sf->routes[sf->nr].MED = res;
@@ -112,7 +112,7 @@ static int bgpcsv_localpref_handle(char *s, void *data, struct csv_state *state)
 		i++;
 	}
 	if (s[i] != '\0') {
-                debug(LOAD_CSV, 1, "line %lu '%s' is not an INT\n", state->line, s);
+                debug(LOAD_CSV, 1, "line %lu LOCAL_PREF '%s' is not an INT\n", state->line, s);
 		return CSV_INVALID_FIELD_BREAK;
 	}
 	sf->routes[sf->nr].LOCAL_PREF = res;
@@ -132,7 +132,7 @@ static int bgpcsv_weight_handle(char *s, void *data, struct csv_state *state) {
 		i++;
 	}
 	if (s[i] != '\0') {
-                debug(LOAD_CSV, 1, "line %lu '%s' is not an INT\n", state->line, s);
+                debug(LOAD_CSV, 1, "line %lu WEIGHT '%s' is not an INT\n", state->line, s);
 		return CSV_INVALID_FIELD_BREAK;
 	}
 	sf->routes[sf->nr].weight = res;
@@ -162,8 +162,13 @@ static int bgpcsv_origin_handle(char *s, void *data, struct csv_state *state) {
 
 	while (isspace(s[i]))
 		i++;
-	sf->routes[sf->nr].origin = s[i];
-	return CSV_VALID_FIELD;
+	if (s[i] == 'e' || s[i] == 'i' || s[i] == '?') {
+		sf->routes[sf->nr].origin = s[i];
+		return CSV_VALID_FIELD;
+	} else {
+                debug(LOAD_CSV, 1, "line %lu ORIGIN CODE '%c' is invalid\n", state->line, s[i]);
+		return CSV_INVALID_FIELD_BREAK;
+	}
 }
 
 static int bgpcsv_valid_handle(char *s, void *data, struct csv_state *state) {
