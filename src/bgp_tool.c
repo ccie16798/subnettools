@@ -349,7 +349,7 @@ static int __heap_localpref_is_superior(void *v1, void *v2) {
 		return (LOCAL_PREF1 < LOCAL_PREF2);
 }
 
-static int bgp_sort_by(struct bgp_file *sf, int cmpfunc(void *v1, void *v2)) {
+static int __bgp_sort_by(struct bgp_file *sf, int cmpfunc(void *v1, void *v2)) {
 	unsigned long i;
 	TAS tas;
 	struct bgp_route *new_r, *r;
@@ -381,18 +381,28 @@ static int bgp_sort_by(struct bgp_file *sf, int cmpfunc(void *v1, void *v2)) {
 	return 0;
 }
 
-int bgp_sort_by_prefix(struct bgp_file *sf) {
-	return bgp_sort_by(sf, __heap_subnet_is_superior);
-}
+struct bgpsort {
+	char *name;
+	int (*cmpfunc)(void *v1, void *v2);
+};
 
-int bgp_sort_by_gw(struct bgp_file *sf) {
-	return bgp_sort_by(sf, __heap_gw_is_superior);
-}
+const struct bgpsort bgpsort[] = {
+	{ "prefix",	&__heap_subnet_is_superior },
+	{ "gw",		&__heap_gw_is_superior },
+	{ "med",	&__heap_med_is_superior },
+	{ "locapref",	&__heap_localpref_is_superior },
+	{NULL,		NULL}
+};
 
-int bgp_sort_by_med(struct bgp_file *sf) {
-	return bgp_sort_by(sf, __heap_med_is_superior);
-}
+int bgp_sort_by(struct bgp_file *sf, char *name) {
+	int i = 0;
 
-int bgp_sort_by_localpref(struct bgp_file *sf) {
-	return bgp_sort_by(sf, __heap_localpref_is_superior);
+	while (1) {
+		if (bgpsort[i].name == NULL)
+			break;
+		if (!strncasecmp(name, bgpsort[i].name, strlen(name)))
+			return __bgp_sort_by(sf, bgpsort[i].cmpfunc);
+		i++;
+	}
+	return -2;
 }
