@@ -386,13 +386,24 @@ struct bgpsort {
 	int (*cmpfunc)(void *v1, void *v2);
 };
 
-const struct bgpsort bgpsort[] = {
+static const struct bgpsort bgpsort[] = {
 	{ "prefix",	&__heap_subnet_is_superior },
 	{ "gw",		&__heap_gw_is_superior },
 	{ "med",	&__heap_med_is_superior },
-	{ "locapref",	&__heap_localpref_is_superior },
+	{ "localpref",	&__heap_localpref_is_superior },
 	{NULL,		NULL}
 };
+
+void bgp_available_cmpfunc(FILE *out) {
+	int i = 0;
+
+	while (1) {
+		if (bgpsort[i].name == NULL)
+			break;
+		fprintf(out, " %s\n", bgpsort[i].name);
+		i++;
+	}
+}
 
 int bgp_sort_by(struct bgp_file *sf, char *name) {
 	int i = 0;
@@ -404,5 +415,5 @@ int bgp_sort_by(struct bgp_file *sf, char *name) {
 			return __bgp_sort_by(sf, bgpsort[i].cmpfunc);
 		i++;
 	}
-	return -2;
+	return -1664;
 }
