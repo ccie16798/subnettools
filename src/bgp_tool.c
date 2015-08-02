@@ -307,10 +307,49 @@ int compare_bgp_file(const struct bgp_file *sf1, const struct bgp_file *sf2, str
 	return 1;
 }
 
+static int __heap_subnet_is_superior(void *v1, void *v2) {
+	struct subnet *s1 = &((struct bgp_route *)v1)->subnet;
+	struct subnet *s2 = &((struct bgp_route *)v2)->subnet;
+	return subnet_is_superior(s1, s2);
+}
 
+static int __heap_gw_is_superior(void *v1, void *v2) {
+	struct subnet *s1 = &((struct bgp_route *)v1)->subnet;
+	struct subnet *s2 = &((struct bgp_route *)v2)->subnet;
+	struct ip_addr *gw1 = &((struct bgp_route *)v1)->gw;
+	struct ip_addr *gw2 = &((struct bgp_route *)v2)->gw;
 
+	if (is_equal_ip(gw1, gw2))
+		return subnet_is_superior(s1, s2);
+	else
+		return addr_is_superior(gw1, gw2);
+}
 
-int bgp_sort_by(struct bgp_file *sf, int cmpfunc(void *v1, void *v2)) {
+static int __heap_med_is_superior(void *v1, void *v2) {
+	struct subnet *s1 = &((struct bgp_route *)v1)->subnet;
+	struct subnet *s2 = &((struct bgp_route *)v2)->subnet;
+	int MED1 = ((struct bgp_route *)v1)->MED;
+	int MED2 = ((struct bgp_route *)v2)->MED;
+
+	if (MED1 == MED2)
+		return subnet_is_superior(s1, s2);
+	else
+		return (MED1 < MED2);
+}
+
+static int __heap_localpref_is_superior(void *v1, void *v2) {
+	struct subnet *s1 = &((struct bgp_route *)v1)->subnet;
+	struct subnet *s2 = &((struct bgp_route *)v2)->subnet;
+	int LOCAL_PREF1 = ((struct bgp_route *)v1)->MED;
+	int LOCAL_PREF2 = ((struct bgp_route *)v2)->MED;
+
+	if (LOCAL_PREF1 == LOCAL_PREF2)
+		return subnet_is_superior(s1, s2);
+	else
+		return (LOCAL_PREF1 < LOCAL_PREF2);
+}
+
+static int bgp_sort_by(struct bgp_file *sf, int cmpfunc(void *v1, void *v2)) {
 	unsigned long i;
 	TAS tas;
 	struct bgp_route *new_r, *r;
@@ -340,4 +379,20 @@ int bgp_sort_by(struct bgp_file *sf, int cmpfunc(void *v1, void *v2)) {
 	sf->routes = new_r;
 	debug_timing_end(2);
 	return 0;
+}
+
+int bgp_sort_by_prefix(struct bgp_file *sf) {
+	return bgp_sort_by(sf, __heap_subnet_is_superior);
+}
+
+int bgp_sort_by_gw(struct bgp_file *sf) {
+	return bgp_sort_by(sf, __heap_gw_is_superior);
+}
+
+int bgp_sort_by_med(struct bgp_file *sf) {
+	return bgp_sort_by(sf, __heap_med_is_superior);
+}
+
+int bgp_sort_by_localpref(struct bgp_file *sf) {
+	return bgp_sort_by(sf, __heap_localpref_is_superior);
 }
