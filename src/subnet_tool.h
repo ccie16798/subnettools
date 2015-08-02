@@ -2,7 +2,7 @@
 #define SUBNET_TOOLS_H
 
 #define PROG_NAME "subnet_tool"
-#define PROG_VERS "0.8"
+#define PROG_VERS "1.1"
 
 #include "st_options.h"
 int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof);
