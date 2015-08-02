@@ -94,7 +94,7 @@ struct bgp_route {
 	int MED;
 	int LOCAL_PREF;
 	char AS_PATH[256];
-	int type; /* eBGP or iBGP */
+	int type; /* eBGP, iBGP, local, confed, aggregate */
 	int weight;
 	int best;
 	int valid;

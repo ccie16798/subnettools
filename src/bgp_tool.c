@@ -233,7 +233,7 @@ int compare_bgp_file(const struct bgp_file *sf1, const struct bgp_file *sf2, str
 	for (i = 0; i < sf1->nr; i++) {
 		st_debug(BGPCMP, 9, "testing %P via %I\n", sf1->routes[i].subnet, 
 					sf1->routes[i].gw);
-		if (sf1->routes[i].best == 0) {
+		if (sf1->routes[i].best == 0 || sf1->routes[i].valid != 1) {
 			st_debug(BGPCMP, 5, "%P via %I is not a best route, skipping\n", sf1->routes[i].subnet, 
 					sf1->routes[i].gw);
 			continue;
@@ -242,7 +242,7 @@ int compare_bgp_file(const struct bgp_file *sf1, const struct bgp_file *sf2, str
 		changed_j = -1;
 		for (j = 0; j < sf2->nr; j++) {
 			changed = 0;
-			if (sf2->routes[j].best == 0)
+			if (sf2->routes[j].best == 0 || sf2->routes[j].valid != 1)
 				continue;
 			if (subnet_compare(&sf1->routes[i].subnet, &sf2->routes[j].subnet) != EQUALS)
 				continue;
