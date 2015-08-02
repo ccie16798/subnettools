@@ -535,6 +535,7 @@ int ciscobgp_to_csv(char *name, FILE *f, struct st_options *o) {
 				badline++;
 				continue;
 		}
+		remove_ending_space(route.AS_PATH);
 		fprint_bgp_route(o->output_file, &route);
 	}
 	return 1;
