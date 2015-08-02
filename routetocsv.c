@@ -48,7 +48,7 @@ struct csvconverter csvconverters[] = {
 void csvconverter_help(FILE *output) {
 	int i = 0;
 
-	fprintf(output, "available converters : \n");
+	fprintf(output, "Available converters : \n");
 	while (1) {
 		if (csvconverters[i].name == NULL)
 			break;
@@ -69,12 +69,12 @@ int run_csvconverter(char *name, char *filename, struct st_options *o) {
 		return 0;
 	}
 	if (filename == NULL) {
-		fprintf(stderr, "not enough arguments\n");
+		fprintf(stderr, "Not enough arguments\n");
 		return -1;
 	}
 	f = fopen(filename, "r");
 	if (f == NULL) {
-		fprintf(stderr, "error: cannot open %s for reading\n", filename);
+		fprintf(stderr, "Error: cannot open %s for reading\n", filename);
 		return -2;
 	}
 	while (1) {
@@ -181,9 +181,9 @@ int cisco_nexus_to_csv(char *name, FILE *f, struct st_options *o) {
 				continue;
 			}
 			if (res == 1)
-				route.device[0] = '\0';
+				strcpy(route.device, "NA");
 			if (route.device[0] == '[')
-				route.device[0] = '\0';
+				strcpy(route.device, "NA");
 			if (nhop == 0)
 				fprint_route(o->output_file, &route, 3);
 			nhop++;
@@ -241,7 +241,9 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o) {
 		line++;
 		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
 
-		/* handle a next hop printed on a next-line */
+		/* handle a next hop printed on a next-line
+		 * happens in case the interface Name is long :)
+		 */
 		if (find_hop) {
 			if (strstr(s, "via ")) {
 				/* format is not the same in IPv6 or IPv4 */
@@ -257,8 +259,8 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o) {
 						     via FE80::253, Vlan491
 				*/
 					res = st_sscanf(s, " *(via) (%I)?.*%32[^, \n]", &route.gw, route.device);
-
-				}if (res == 0) {
+				}
+				if (res == 0) {
 					debug(PARSEROUTE, 4, "line %lu bad GW line no subnet found\n", line);
 					badline++;
 					find_hop = 0;
