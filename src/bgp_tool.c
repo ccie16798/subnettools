@@ -269,6 +269,8 @@ int compare_bgp_file(const struct bgp_file *sf1, const struct bgp_file *sf2, str
 				changed++;
 			if (sf1->routes[i].type != sf2->routes[j].type)
 				changed++;
+			if (sf1->routes[i].origin != sf2->routes[j].origin)
+				changed++;
 			if (strcmp(sf1->routes[i].AS_PATH, sf2->routes[j].AS_PATH))
 				changed++;
 			if (changed != 0)
