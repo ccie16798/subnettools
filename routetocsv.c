@@ -28,6 +28,7 @@ struct csvconverter {
 int cisco_route_to_csv(char *name, FILE *input_name, struct st_options *o);
 int cisco_routeconf_to_csv(char *name, FILE *input_name, struct st_options *o);
 int cisco_fw_conf_to_csv(char *name, FILE *input_name, struct st_options *o);
+int cisco_fw_to_csv(char *name, FILE *input_name, struct st_options *o);
 int cisco_nexus_to_csv(char *name, FILE *input_name, struct st_options *o);
 int ipso_route_to_csv(char *name, FILE *input_name, struct st_options *o);
 int palo_to_csv(char *name, FILE *input_name, struct st_options *o);
@@ -36,9 +37,10 @@ void csvconverter_help(FILE *output);
 
 struct csvconverter csvconverters[] = {
 	{ "CiscoRouter", 	&cisco_route_to_csv, 	"ouput of 'show ip route' or 'sh ipv6 route' on Cisco IOS, IOS-XE" },
-	{ "CiscoRouterConf", 	&cisco_routeconf_to_csv,"full configuration or ipv6/ipv4 static routes"},
-	{ "CiscoFWConf", 	&cisco_fw_conf_to_csv, 	"ouput of 'show conf'"},
-	{ "IPSO",		&ipso_route_to_csv, 	"output of clish show route"  },
+	{ "CiscoRouterConf", 	&cisco_routeconf_to_csv,"full configuration or ipv6/ipv4 static routes" },
+	{ "CiscoFWConf", 	&cisco_fw_conf_to_csv, 	"ouput of 'show conf' on ASA/PIX/FWSM"},
+	{ "CiscoFW",	 	&cisco_fw_to_csv, 	"ouput of 'show route' one ASA/PIX/FWSM"},
+	{ "IPSO",		&ipso_route_to_csv, 	"output of clish show route" },
 	{ "GAIA",		&ipso_route_to_csv ,	"output of clish show route" },
 	{ "CiscoNexus",		&cisco_nexus_to_csv ,	"output of show ip route on Cisco Nexus NXOS" },
 	{ "palo",		&palo_to_csv ,		"output of show routing route on Palo Alto FW" },
@@ -366,7 +368,34 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o) {
 	}
 	return 1;
 }
+/*
+ * input from ASA firewall or FWSM
+ **/
+int cisco_fw_to_csv(char *name, FILE *f, struct st_options *o) {
+	char buffer[1024];
+	char *s;
+	unsigned long line = 0;
+	int badline = 0;
+	struct route route;
+	int res;
 
+	fprintf(o->output_file, "prefix;mask;device;GW;comment\n");
+
+	memset(&route, 0, sizeof(route));
+        while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
+		line++;
+		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
+		res = st_sscanf(s, "(ipv6 )?route *%32S *%I.%M %I", route.device, &route.subnet.ip_addr, &route.subnet.mask, &route.gw);
+		if (res < 4) {
+			debug(PARSEROUTE, 2, "Invalid line %lu\n", line);
+			badline++;
+			memset(&route, 0, sizeof(route));
+			continue;
+		}
+
+	}
+	return 1;
+}
 /*
  * input from ASA firewall or FWSM
  **/
