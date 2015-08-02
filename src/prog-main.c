@@ -683,12 +683,14 @@ static int run_bgpsortby(int arc, char **argv, void *st_options) {
 	struct bgp_file sf1;
 	int res;
 
-	res = load_bgpcsv(argv[2], &sf1, st_options);
+	res = load_bgpcsv(argv[3], &sf1, st_options);
 	if (res < 0)
 		return res;
-	res = bgp_sort_by(&sf1, argv[3]);
+	res = bgp_sort_by(&sf1, argv[2]);
 	if (res == -1664) {
-		fprintf(stderr, "cannot sort by '%s'\n", argv[3]);
+		fprintf(stderr, "Cannot sort by '%s'\n", argv[2]);
+		fprintf(stderr, "You can sort by :\n");
+		bgp_available_cmpfunc(stderr);
 		return res;
 	}
 	return 0;
