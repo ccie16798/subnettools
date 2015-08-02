@@ -378,6 +378,7 @@ int cisco_fw_to_csv(char *name, FILE *f, struct st_options *o) {
 	int badline = 0;
 	struct route route;
 	int res;
+	char type;
 
 	fprintf(o->output_file, "prefix;mask;device;GW;comment\n");
 
@@ -385,14 +386,26 @@ int cisco_fw_to_csv(char *name, FILE *f, struct st_options *o) {
         while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
 		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
-		res = st_sscanf(s, "(ipv6 )?route *%32S *%I.%M %I", route.device, &route.subnet.ip_addr, &route.subnet.mask, &route.gw);
-		if (res < 4) {
-			debug(PARSEROUTE, 2, "Invalid line %lu\n", line);
-			badline++;
-			memset(&route, 0, sizeof(route));
-			continue;
+		if (s[0] == 'C' || s[0] == 'c') { /* connected route */
+			res = st_sscanf(s, "%c.*%I %M.*$%32s", &type, &route.subnet.ip_addr, &route.subnet.mask, route.device);
+			if (res < 4) {
+				debug(PARSEROUTE, 2, "Invalid line %lu\n", line);
+				badline++;
+				memset(&route, 0, sizeof(route));
+				continue;
+			}
+		} else {
+			res = st_sscanf(s, "%c.*%I %M.*(via )%I.*$%32s", &type, &route.subnet.ip_addr, &route.subnet.mask, &route.gw, route.device);
+			if (res < 5) {
+				debug(PARSEROUTE, 2, "Invalid line %lu\n", line);
+				badline++;
+				memset(&route, 0, sizeof(route));
+				continue;
+			}
 		}
-
+		SET_COMMENT
+		fprint_route(o->output_file, &route, 3);
+		memset(&route, 0, sizeof(route));
 	}
 	return 1;
 }
