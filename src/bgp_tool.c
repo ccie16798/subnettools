@@ -102,7 +102,7 @@ static int bgpcsv_med_handle(char *s, void *data, struct csv_state *state) {
 		i++;
 	while (isdigit(s[i])) {
 		res *= 10;
-		res += s[i];
+		res += s[i] - '0';
 		i++;
 	}
 	if (s[i] != '\0') {
@@ -122,7 +122,7 @@ static int bgpcsv_localpref_handle(char *s, void *data, struct csv_state *state)
 		i++;
 	while (isdigit(s[i])) {
 		res *= 10;
-		res += s[i];
+		res += s[i] - '0';
 		i++;
 	}
 	if (s[i] != '\0') {
@@ -142,7 +142,7 @@ static int bgpcsv_weight_handle(char *s, void *data, struct csv_state *state) {
 		i++;
 	while (isdigit(s[i])) {
 		res *= 10;
-		res += s[i];
+		res += s[i] - '0';
 		i++;
 	}
 	if (s[i] != '\0') {
