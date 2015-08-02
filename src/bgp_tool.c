@@ -350,13 +350,13 @@ static int __heap_med_is_superior(void *v1, void *v2) {
 static int __heap_localpref_is_superior(void *v1, void *v2) {
 	struct subnet *s1 = &((struct bgp_route *)v1)->subnet;
 	struct subnet *s2 = &((struct bgp_route *)v2)->subnet;
-	int LOCAL_PREF1 = ((struct bgp_route *)v1)->MED;
-	int LOCAL_PREF2 = ((struct bgp_route *)v2)->MED;
+	int LOCAL_PREF1 = ((struct bgp_route *)v1)->LOCAL_PREF;
+	int LOCAL_PREF2 = ((struct bgp_route *)v2)->LOCAL_PREF;
 
 	if (LOCAL_PREF1 == LOCAL_PREF2)
 		return subnet_is_superior(s1, s2);
 	else
-		return (LOCAL_PREF1 < LOCAL_PREF2);
+		return (LOCAL_PREF1 > LOCAL_PREF2);
 }
 
 static int __bgp_sort_by(struct bgp_file *sf, int cmpfunc(void *v1, void *v2)) {

@@ -139,7 +139,7 @@ void usage() {
 	printf("print FILE1         : just read & print FILE1; use a -fmt FMT to print CSV fields you want\n");
 	printf("relation IP1 IP2    : prints a relationship between IP1 and IP2\n");
 	printf("bgpcmp file1 file2  : show what changed in BGP file file1 & file2\n");
-	printf("bgpsortby name file : sort BGP file by (prefix|gw|MED|LOCALPREF\n");
+	printf("bgpsortby name file : sort BGP file by (prefix|gw|MED|LOCALPREF), prefix is always a tie-breaker\n");
 	printf("ipinfo IP|all|IPvX  : prints information about IP, or all known subnets (all, IPv4 or IPv6)\n");
 	printf("compare FILE1 FILE2 : compare FILE1 & FILE2, printing subnets in FILE1 INCLUDED in FILE2\n");
 	printf("missing FILE1 FILE2 : prints subnets from FILE1 that are not covered by FILE2; GW is not checked\n");
