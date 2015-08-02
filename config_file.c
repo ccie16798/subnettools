@@ -50,7 +50,7 @@ int open_config_file(char *name, void *nof) {
 			for (i = 0; ; i++) {
 				if (fileoptions[i].name == NULL)
 					break;
-				if (!strcmp(s,  fileoptions[i].name)) {
+				if (!strcmp(s, fileoptions[i].name)) {
 					found = 1;
 					break;
 				}
