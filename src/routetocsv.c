@@ -485,7 +485,7 @@ int ciscobgp_to_csv(char *name, FILE *f, struct st_options *o) {
 	int res;
 	int med_offset = 34, aspath_offset = 61;
 
-	fprintf(o->output_file, "V;Proto;BEST;          prefix;              GW;       MED;LOCAL_PREF;    WEIGHT;ORIGIN;AS_PATH;\n");
+	fprint_bgp_file_header(o->output_file);
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
 		memset(&route, 0, sizeof(route));
