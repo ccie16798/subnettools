@@ -1063,6 +1063,9 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 				}
 			}
 			i++;
+			/* multiplier went to the end of in, but without matching the end */
+			if (in[j] == '\0' && fmt[i] != '\0')
+				goto end_nomatch;
 			continue;
 		}
 		if (c == '\0' || in[j] == '\0') {
