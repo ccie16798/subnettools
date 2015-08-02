@@ -634,6 +634,10 @@ static int run_scanf(int arc, char **argv, void *st_options) {
 
 	
         res = sto_sscanf(argv[2], argv[3], o, 40);
+	if (res < 0) {
+		fprintf(stderr, "no match\n");
+		return res;
+	}
 	sto_printf("%O0 %O1 %O2 %O3 %O4 %O5 %O6 %O7\n", o, res);
 	return 0;
 }
