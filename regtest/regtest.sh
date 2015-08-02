@@ -159,16 +159,18 @@ reg_test split 10.2.0.0/16 256,4
 # scanf
 reg_test_scanf
 # converter
-reg_test convert CiscoRouterconf 	ciscorouteconf_v4
-reg_test convert CiscoRouterconf 	ciscorouteconf_v6
-reg_test convert ciscofwconf     	ciscofwconf_route_v4.txt 
-reg_test convert ciscofwconf     	ciscofwconf_route_v6.txt 
-reg_test convert CiscoRouter     	iproute_cisco
+reg_test convert CiscoRouterconf	ciscorouteconf_v4
+reg_test convert CiscoRouterconf	ciscorouteconf_v6
+reg_test convert ciscofw		iproute_ciscofw
+reg_test convert ciscofwconf		ciscofwconf_route_v4.txt 
+reg_test convert ciscofwconf		ciscofwconf_route_v6.txt 
+reg_test convert CiscoRouter		iproute_cisco
 reg_test convert CiscoRouter		iproutecisco_ECMP 
-reg_test convert CiscoRouter ipv6route2
-reg_test -rt convert CiscoRouter     	iproute_cisco
-reg_test -rt convert CiscoRouter		iproutecisco_ECMP 
-reg_test -rt convert CiscoRouter ipv6route2
+reg_test convert CiscoRouter		ipv6route2
+reg_test -rt convert CiscoRouter	iproute_cisco
+reg_test -rt convert CiscoRouter	iproutecisco_ECMP 
+reg_test -rt convert CiscoRouter	ipv6route2
+reg_test -rt convert ciscofw		iproute_ciscofw
 reg_test convert IPSO iproute_nokia
 reg_test convert CiscoNexus iproute_nexus
 reg_test convert CiscoNexus iproutecisconexus_ECMP
