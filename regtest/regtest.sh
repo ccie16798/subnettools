@@ -177,6 +177,10 @@ reg_test convert CiscoNexus iproutecisconexus_ECMP
 reg_test convert palo iproute_palo
 reg_test convert ciscobgp ciscobgp
 reg_test bgpcmp  bgp1 bgp2
+reg_test bgpsortby med bgp1
+reg_test bgpsortby prefix bgp1
+reg_test bgpsortby localpref bgp1
+reg_test bgpsortby gw bgp1
 
 reg_test grep mergeipv6 2001:db8::
 #ipinfo
