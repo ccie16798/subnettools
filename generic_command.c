@@ -16,8 +16,8 @@
 
 static void enough_args(int argc, int value, char *com, char *progname) {
 	if (argc < value ) {
-		fprintf(stderr, "Not enough args for command %s \n", com);
-		fprintf(stderr, "use '%s help' for more help\n", progname);
+		fprintf(stderr, "Not enough args for command '%s' \n", com);
+		fprintf(stderr, "Please use '%s help' for more help\n", progname);
 		exit(1);
 	}
 }
@@ -42,9 +42,9 @@ int generic_command_run(int argc, char **argv, char *progname, void *opt) {
 				debug(PARSEOPTS, 5, "found EXACT handler for %s\n", argv[1]);
 				break;
 			}
+			/* if more than one match, means the caller used an ambiguious abbreviation */
 			if (found >= 39) /* enough is enough, OK??? */
 				break;
-			/* if more than one match, means the caller used an ambiguious abbreviation */
 			if (commands[i].hidden)
 				continue;
 			founds[found++] = i; 
@@ -53,11 +53,11 @@ int generic_command_run(int argc, char **argv, char *progname, void *opt) {
 		}
 	}
 	if (found == 0) {
-		fprintf(stderr, "unknow command '%s'\n", argv[1]);
-		fprintf(stderr, "use '%s help' for more help\n", progname);
+		fprintf(stderr, "Unknow command '%s'\n", argv[1]);
+		fprintf(stderr, "Please use '%s help' for more help\n", progname);
 		res = -1;
 	} else if (found >= 2) {
-		fprintf(stderr, "ambiguous command '%s', matches : \n", argv[1]);
+		fprintf(stderr, "Ambiguous command '%s', matches : \n", argv[1]);
 		for (i = 0; i < found; i++)
 			fprintf(stderr, " %s\n", commands[founds[i]].name);
 		res = -2;
@@ -68,15 +68,17 @@ int generic_command_run(int argc, char **argv, char *progname, void *opt) {
 		res = commands[found_i].run_cmd(argc, argv, opt);
 		debug_timing_end(1);
 	} else {
-		debug(PARSEOPTS, 3, "BUG here %s\n", argv[1]);
+		debug(PARSEOPTS, 3, "BUG here '%s'\n", argv[1]);
 		res = -1000;
 	}
 	return res;
 }
 
 /* take un-modified (int argc, char **argv) as arguments
- * return an offset such as 'argv + offset' == command
- * returns negative if bad option or not enough argv
+ * returns negative if option is invalid or not enough argv
+ * return an offset such as :
+ *  new_argv = argv + offset
+ *  new_argc = argc - offset
  */
 int generic_parse_options(int argc, char **argv, char *progname, void *opt) {
 	int i, res, loop = 1;
@@ -100,7 +102,7 @@ int generic_parse_options(int argc, char **argv, char *progname, void *opt) {
 				debug(PARSEOPTS, 3, "found handler for %s\n", argv[a]);
 				debug(PARSEOPTS, 6, "argc - a = %d, options[i].required_args = %d\n", argc - a , options[i].required_args);
 				if (argc - a <= options[i].required_args) {
-					fprintf(stderr, "not enough arguments after option %s\n", argv[a]);
+					fprintf(stderr, "Not enough arguments after option '%s'\n", argv[a]);
 					return -1;
 				}
 				res = options[i].run_cmd(argc - a, argv + a, opt);

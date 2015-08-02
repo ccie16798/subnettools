@@ -15,16 +15,18 @@ struct st_command {
  *
  int run_command1(int argc, char **argv, void *options) { do_whatever1(options);}
  int run_command2(int argc, char **argv, void *options) { do_whatever2(options);}
+
  struct st_command commands[] = {
- 	{ "command1", &run_command1, required_args},
-	{ "command2", &run_command2, required_args},
-	{ NULL, NULL, 0}  ==> MUST END with this
+	{ "command1", &run_command1, num_args},
+	{ "command2", &run_command2, num_args},
+	{ NULL, NULL, 0}  ==> ARRAY MUST END with this
  };
- int option1(int argc, char **argv, void *options) { update_whatever1(options);}
- int option2(int argc, char **argv, void *options) { update_whatever2(options);}
+
+ int run_option1(int argc, char **argv, void *options) { update_whatever1(options);}
+ int run_option2(int argc, char **argv, void *options) { update_whatever2(options);}
  struct st_command options[] = {
-	{"-V", &option1, 0},
-	{"-D", &option2, 1},
+	{"-V", &run_option1, 0},
+	{"-D", &run_option2, 1},
 	{ NULL, NULL, 0}  ==> MUST END with this
  };
 
