@@ -38,11 +38,11 @@ void csvconverter_help(FILE *output);
 struct csvconverter csvconverters[] = {
 	{ "CiscoRouter", 	&cisco_route_to_csv, 	"ouput of 'show ip route' or 'sh ipv6 route' on Cisco IOS, IOS-XE" },
 	{ "CiscoRouterConf", 	&cisco_routeconf_to_csv,"full configuration or ipv6/ipv4 static routes" },
-	{ "CiscoFWConf", 	&cisco_fw_conf_to_csv, 	"ouput of 'show conf' on ASA/PIX/FWSM"},
-	{ "CiscoFW",	 	&cisco_fw_to_csv, 	"ouput of 'show route' one ASA/PIX/FWSM"},
+	{ "CiscoFWConf", 	&cisco_fw_conf_to_csv, 	"ouput of 'show conf' (IPv4/IPv6) on ASA/PIX/FWSM"},
+	{ "CiscoFW",	 	&cisco_fw_to_csv, 	"ouput of 'show route' (IPv4) one ASA/PIX/FWSM"},
 	{ "IPSO",		&ipso_route_to_csv, 	"output of clish show route" },
 	{ "GAIA",		&ipso_route_to_csv ,	"output of clish show route" },
-	{ "CiscoNexus",		&cisco_nexus_to_csv ,	"output of show ip route on Cisco Nexus NXOS" },
+	{ "CiscoNexus",		&cisco_nexus_to_csv ,	"output of show ip route/show ipv6 route on Cisco Nexus NXOS" },
 	{ "palo",		&palo_to_csv ,		"output of show routing route on Palo Alto FW" },
 	{ "ciscobgp",		&ciscobgp_to_csv ,	"output of show ip bgp on Cisco IOS" },
 	{ NULL, NULL }
