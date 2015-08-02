@@ -1,7 +1,7 @@
 /*
  * 'sh ip route' to CSV converters
  *
- * Copyright (C) 2014 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ * Copyright (C) 2014, 2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
@@ -25,7 +25,7 @@ struct csvconverter {
 };
 
 int cisco_route_to_csv(char *name, FILE *input_name, struct st_options *o);
-int cisco_route_conf_to_csv(char *name, FILE *input_name, struct st_options *o);
+int cisco_routeconf_to_csv(char *name, FILE *input_name, struct st_options *o);
 int cisco_fw_conf_to_csv(char *name, FILE *input_name, struct st_options *o);
 int cisco_nexus_to_csv(char *name, FILE *input_name, struct st_options *o);
 int ipso_route_to_csv(char *name, FILE *input_name, struct st_options *o);
@@ -35,7 +35,7 @@ void csvconverter_help(FILE *output);
 
 struct csvconverter csvconverters[] = {
 	{ "CiscoRouter", 	&cisco_route_to_csv, 	"ouput of 'show ip route' or 'sh ipv6 route' on Cisco IOS, IOS-XE" },
-	{ "CiscoRouterConf", 	&cisco_route_conf_to_csv,"full configuration or ipv6/ipv4 static routes"},
+	{ "CiscoRouterConf", 	&cisco_routeconf_to_csv,"full configuration or ipv6/ipv4 static routes"},
 	{ "CiscoFWConf", 	&cisco_fw_conf_to_csv, 	"ouput of 'show conf'"},
 	{ "IPSO",		&ipso_route_to_csv, 	"output of clish show route"  },
 	{ "GAIA",		&ipso_route_to_csv ,	"output of clish show route" },
@@ -394,7 +394,7 @@ int cisco_fw_conf_to_csv(char *name, FILE *f, struct st_options *o) {
 	return 1;
 }
 
-int cisco_route_conf_to_csv(char *name, FILE *f, struct st_options *o) {
+int cisco_routeconf_to_csv(char *name, FILE *f, struct st_options *o) {
 	char buffer[1024];
 	char *s;
 	unsigned long line = 0;
