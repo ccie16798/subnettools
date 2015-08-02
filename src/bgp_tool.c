@@ -29,6 +29,10 @@ void fprint_bgp_route(FILE *output, struct bgp_route *route) {
 			route->AS_PATH);
 }
 
+void copy_bgproute(struct bgp_route *a, const struct bgp_route *b) {
+	memcpy(a, b, sizeof(struct bgp_route));
+}
+
 int alloc_bgp_file(struct bgp_file *sf, unsigned long n) {
 	if (n > SIZE_T_MAX / sizeof(struct bgp_route)) { /* being paranoid */
 		fprintf(stderr, "error: too much memory requested for struct route\n");
@@ -301,4 +305,39 @@ int compare_bgp_file(const struct bgp_file *sf1, const struct bgp_file *sf2, str
 		fprint_bgp_route(o->output_file, &sf1->routes[i]);
 	}
 	return 1;
+}
+
+
+
+
+int bgp_sort_by(struct bgp_file *sf, int cmpfunc(void *v1, void *v2)) {
+	unsigned long i;
+	TAS tas;
+	struct bgp_route *new_r, *r;
+
+	if (sf->nr == 0)
+		return 0;
+	debug_timing_start(2);
+	alloc_tas(&tas, sf->nr, cmpfunc);
+
+	new_r = malloc(sf->max_nr * sizeof(struct bgp_route));
+
+	if (tas.tab == NULL || new_r == NULL) {
+		fprintf(stderr, "%s : no memory\n", __FUNCTION__);
+		debug_timing_end(2);
+		return -1;
+	}
+	debug(MEMORY, 2, "Allocated %lu bytes for new struct bgp_route\n", sf->max_nr * sizeof(struct bgp_route));
+	/* basic heapsort */
+	for (i = 0 ; i < sf->nr; i++)
+		addTAS(&tas, &(sf->routes[i]));
+	for (i = 0 ; i < sf->nr; i++) {
+		r = popTAS(&tas);
+		copy_bgproute(&new_r[i], r);
+	}
+	free(tas.tab);
+	free(sf->routes);
+	sf->routes = new_r;
+	debug_timing_end(2);
+	return 0;
 }
