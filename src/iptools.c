@@ -773,6 +773,39 @@ int classfull_get_subnet(const char *s, struct subnet *subnet) {
 	return IPV4_N;
 }
 
+int addr_is_superior(const struct ip_addr *s1, const struct ip_addr *s2) {
+	int i, res;
+
+	if (s1->ip_ver != s2->ip_ver) {
+		debug(ADDRCOMP, 1, "cannot compare, different IP version\n");
+		return -1;
+	}
+	res = 0;
+	if (s1->ip_ver == IPV4_A) {
+		if  (s1->ip < s2->ip)
+			res =  1;
+		else
+			res =  0;
+		st_debug(ADDRCOMP, 5, "%I %c %I\n", *s1, (res ? '>' : '<' ), *s2);
+		return res;
+	}
+	if (s1->ip_ver == IPV6_A) {
+		for (i = 0; i < 8; i++) {
+			if (block(s1->ip6, i) < block(s2->ip6, i)) {
+				res = 1;
+				break;
+			} else if (block(s1->ip6, i) > block(s2->ip6, i)) {
+				res = 0;
+				break;
+			}
+		}
+		st_debug(ADDRCOMP, 5, "%I %c %I\n", *s1, (res ? '>' : '<' ), *s2);
+		return res;
+	}
+	debug(ADDRCOMP, 1, "Invalid comparison ipver %d\n", s1->ip_ver);
+	return -1;
+}
+
 int subnet_is_superior(const struct subnet *s1, const struct subnet *s2) {
 	int i, res;
 

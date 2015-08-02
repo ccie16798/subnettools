@@ -140,6 +140,7 @@ int subnet_compare_ipv4(ipv4 ip1, u32 mask1, ipv4 ip2, u32 mask2);
 int subnet_compare_ipv6(ipv6 ip1, u32 mask1, ipv6 ip2, u32 mask2);
 
 int subnet_is_superior(const struct subnet *s1, const struct subnet *s2);
+int addr_is_superior(const struct ip_addr *s1, const struct ip_addr *s2);
 
 /* address to addr converting functions
    output buffer MUST be allocated by caller and large enough */
