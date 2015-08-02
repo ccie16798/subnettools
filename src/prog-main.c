@@ -682,6 +682,7 @@ static int run_bgpcmp(int arc, char **argv, void *st_options) {
 static int run_bgpsortby(int arc, char **argv, void *st_options) {
 	struct bgp_file sf1;
 	int res;
+	struct st_options *o = st_options;
 
 	res = load_bgpcsv(argv[3], &sf1, st_options);
 	if (res < 0)
@@ -693,6 +694,8 @@ static int run_bgpsortby(int arc, char **argv, void *st_options) {
 		bgp_available_cmpfunc(stderr);
 		return res;
 	}
+	fprint_bgp_file_header(o->output_file);
+	fprint_bgp_file(o->output_file, &sf1);
 	return 0;
 }
 
