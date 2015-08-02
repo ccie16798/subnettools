@@ -19,12 +19,13 @@
 #define SIZE_T_MAX ((size_t)0 - 1)
 
 void fprint_bgp_route(FILE *output, struct bgp_route *route) {
-	st_fprintf(output, "%d;%s;%s;%16P;%16I;%10d;%10d;%10d;%s\n",
+	st_fprintf(output, "%d;%s;%s;%16P;%16I;%10d;%10d;%10d;     %c;%s\n",
 			route->valid,
 			(route->type == 'i' ? " iBGP" : " eBGP"),
 			(route->best == 1 ? "Best" : "  No"),
 			route->subnet, route->gw, route->MED,
 			route->LOCAL_PREF, route->weight,
+			route->origin,
 			route->AS_PATH);
 }
 
@@ -155,6 +156,16 @@ static int bgpcsv_best_handle(char *s, void *data, struct csv_state *state) {
 	return CSV_VALID_FIELD;
 }
 
+static int bgpcsv_origin_handle(char *s, void *data, struct csv_state *state) {
+	struct bgp_file *sf = data;
+	int i;
+
+	while (isspace(s[i]))
+		i++;
+	sf->routes[sf->nr].origin = s[i];
+	return CSV_VALID_FIELD;
+}
+
 static int bgpcsv_valid_handle(char *s, void *data, struct csv_state *state) {
 	struct bgp_file *sf = data;
 
@@ -209,6 +220,7 @@ int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof) {
 		{ "WEIGHT"	, 0, 0, 1, &bgpcsv_weight_handle },
 		{ "AS_PATH"	, 0, 0, 0, &bgpcsv_aspath_handle },
 		{ "BEST"	, 0, 0, 1, &bgpcsv_best_handle },
+		{ "ORIGIN"	, 0, 0, 1, &bgpcsv_origin_handle },
 		{ "V"		, 0, 0, 1, &bgpcsv_valid_handle },
 		{ NULL, 0,0,0, NULL }
 	};

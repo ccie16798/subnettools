@@ -485,7 +485,7 @@ int ciscobgp_to_csv(char *name, FILE *f, struct st_options *o) {
 	int res;
 	int med_offset = 34, aspath_offset = 61;
 
-	fprintf(o->output_file, "V;Proto;BEST;          prefix;              GW;       MED;LOCAL_PREF;    WEIGHT;AS_PATH;\n");
+	fprintf(o->output_file, "V;Proto;BEST;          prefix;              GW;       MED;LOCAL_PREF;    WEIGHT;ORIGIN;AS_PATH;\n");
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
 		memset(&route, 0, sizeof(route));
@@ -496,7 +496,7 @@ int ciscobgp_to_csv(char *name, FILE *f, struct st_options *o) {
 			med_offset = s2 - s - strlen("Metric") + 1;
 			s2 = strstr(s, "Path");
 			if (s2 == NULL) {
-				debug(PARSEROUTE, 1, "Invalid Header line, missing Path keyword %lu\n", line);
+				debug(PARSEROUTE, 1, "Invalid Header line %lu, missing Path keyword\n", line);
 				badline++;
 				continue;
 			}
@@ -524,7 +524,17 @@ int ciscobgp_to_csv(char *name, FILE *f, struct st_options *o) {
 			copy_subnet(&last_subnet, &route.subnet);
 		res = st_sscanf(s + med_offset, " {1,10}(%d)? {1,6}(%d)? {1,6}(%d)?", &route.MED,
 					 &route.LOCAL_PREF, &route.weight);
-		res = st_sscanf(s + aspath_offset, "%[0-9: ]", &route.AS_PATH);
+		if (res != 3) {
+				debug(PARSEROUTE, 1, "Line %lu Invalid, no MED or WEIGHT or LOCAL_PREF\n", line);
+				badline++;
+				continue;
+		}
+		res = st_sscanf(s + aspath_offset, "(%[0-9: ])?%c", &route.AS_PATH, &route.origin);
+		if (res != 2) {
+				debug(PARSEROUTE, 1, "Line %lu Invalid, no ASP_PATH/ORIGIN\n", line);
+				badline++;
+				continue;
+		}
 		fprint_bgp_route(o->output_file, &route);
 	}
 	return 1;
