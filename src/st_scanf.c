@@ -1039,7 +1039,7 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 
 			if (n_match < min_m) {
 				debug(SCANF, 1, "found expr '%s' %d times, but required %d\n", expr, n_match, min_m);
-				return n_found;
+				goto end_nomatch;
 			}
 			/* we found conversions specifiers
 			 *  if they were found inside an expression with multiplier
@@ -1118,7 +1118,7 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 			}
 			if (res == 0) {
 				debug(SCANF, 2, "Expr'%s' didnt match in 'in' at offset %d\n", expr, j);
-				return n_found;
+				goto end_nomatch;
 			}
 			debug(SCANF, 4, "Expr'%s' matched 'in' res=%d at offset %d, found %d objects so far\n", expr, res, j, n_found);
 			j += res;
@@ -1131,7 +1131,7 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 				c = escape_char(fmt[i + 1]);
 				if (c == '\0') {
 					debug(SCANF, 1, "Invalid format string '%s', nul char after escape char\n", fmt);
-					return n_found;
+					goto end_nomatch;
 				}
 				i++;
 				if (is_multiple_char(fmt[i + 1])) {
@@ -1151,12 +1151,17 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 			if (in[j] != fmt[i]) {
 				debug(SCANF, 2, "in[%d]='%c', != fmt[%d]='%c', exiting\n",
 						j, in[j], i, fmt[i]);
-				return  n_found;
+				goto end_nomatch;
 			}
 			i++;
 			j++;
 		}
 	} /* while 1 */
+	end_nomatch:
+		if (n_found == 0)
+			return -1;
+		else
+			return n_found;
 }
 
 int st_vscanf(char *in, const char *fmt, va_list ap) {
