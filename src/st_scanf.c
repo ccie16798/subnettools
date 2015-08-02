@@ -1068,9 +1068,11 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 				goto end_nomatch;
 			continue;
 		}
-		if (c == '\0' || in[j] == '\0') {
+		if (c == '\0' && in[j] == '\0')
 			return n_found;
-		} else if (c == '%') {
+		else if (c == '\0' || in[j] == '\0')
+			goto end_nomatch;
+		else if (c == '%') {
 			if (n_found > max_o - 1) {
 				debug(SCANF, 1, "Cannot get more than %d objets, already found %d\n", max_o, n_found);
 				return n_found;
