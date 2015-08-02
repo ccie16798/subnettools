@@ -17,6 +17,7 @@
 #include "utils.h"
 #include "st_printf.h"
 #include "st_scanf.h"
+#include "bgp_tool.h"
 
 struct csvconverter {
 	const char *name;
@@ -482,13 +483,7 @@ int ciscobgp_to_csv(char *name, FILE *f, struct st_options *o) {
 		res = st_sscanf(s + med_offset, " {1,10}(%d)? {1,6}(%d)? {1,6}(%d)?", &route.MED,
 					 &route.LOCAL_PREF, &route.weight);
 		res = st_sscanf(s + aspath_offset, "%[0-9: ]", &route.AS_PATH);
-		st_fprintf(o->output_file, "%d;%s;%s;%16P;%16I;%10d;%10d;%10d;%s\n",
-					route.valid,
-					(route.type == 'i' ? " iBGP" : " eBGP"),
-					(route.best == 1 ? "Best" : "  No"),
-					route.subnet, route.gw, route.MED,
-					route.LOCAL_PREF, route.weight,
-					route.AS_PATH);
+		fprint_bgp_route(o->output_file, &route);
 	}
 	return 1;
 }
