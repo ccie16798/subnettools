@@ -13,7 +13,7 @@ FEATURES
 - subnet arithmetics (convert mask notation to/from CIDR, compute Network Address, Broadcast address...)
 - subnet aggregation
 - subnet splitting (multiple levels)
-- converting 'sh ip route' files to a CSV (Cisco IOS, NX-OS, Palo  Alto, Gaia)
+- converting 'sh ip route' files to a CSV (Cisco IOS, NX-OS, ASA, Palo  Alto, Gaia)
 - converting 'sh ip bgp' files to a CSV (Cisco IOS only)
 - comparing BGP routes (Withdrawn routes, UPDATED routes ....)
 - native IPv6 & IPv4 support
