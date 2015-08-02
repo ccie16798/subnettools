@@ -1041,16 +1041,20 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 				debug(SCANF, 1, "found expr '%s' %d times, but required %d\n", expr, n_match, min_m);
 				return n_found;
 			}
+			/* we found conversions specifiers
+			 *  if they were found inside an expression with multiplier
+			 *  st_scanf "1 1 1 1 3.3.3.3", "(%d ){1,8}%I"
+			 *  ==> this is legal only with sto_sscanf because it will fill sto objects
+			 *  st_scanf has no way to know how many times (%d ){1,8} will match
+			 */
 			if (num_cs) {
-				if (n_match > 1) {
-					// FIXME
-					//debug(SCANF, 1, "conversion specifier matching in a pattern is supported only with '?'; restoring only %d found objects\n", *num_o);
-				}
 				if (n_match) {
 					debug(SCANF, 4, "found %d CS so far\n", n_found);
 				} else {
-					/* 0 match but we had num_cs conversion specifier
-					   we must consume them */
+					/* 0 match but we found 'num_cs' conversion specifiers
+					 * we must consume them because the caller add provisionned
+					 * space for it
+					 */
 					debug(SCANF, 4, "0 match but there was %d CS so consume them\n", num_cs);
 					for (k = 0; k < num_cs; k++) {
 						o[n_found].type = 0;
