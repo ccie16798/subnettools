@@ -98,6 +98,7 @@ struct bgp_route {
 	int weight;
 	int best;
 	int valid;
+	int origin;
 };
 
 struct subnet_file {
