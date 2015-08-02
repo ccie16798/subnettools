@@ -69,6 +69,7 @@ static int run_confdesc(int argc, char **argv, void *st_options);
 static int run_relation(int argc, char **argv, void *st_options);
 static int run_ipinfo(int argc, char **argv, void *st_options);
 static int run_bgpcmp(int argc, char **argv, void *st_options);
+static int run_bgpsortby(int argc, char **argv, void *st_options);
 static int run_echo(int argc, char **argv, void *st_options);
 static int run_print(int argc, char **argv, void *st_options);
 static int run_test(int argc, char **argv, void *st_options);
@@ -89,6 +90,7 @@ struct st_command commands[] = {
 	{ "print",	&run_print,	1},
 	{ "relation",	&run_relation,	2},
 	{ "bgpcmp",	&run_bgpcmp,	2},
+	{ "bgpsortby",	&run_bgpsortby,	2},
 	{ "ipinfo",	&run_ipinfo,	1},
 	{ "diff",	&run_diff,	2},
 	{ "compare",	&run_compare,	2},
@@ -137,6 +139,7 @@ void usage() {
 	printf("print FILE1         : just read & print FILE1; use a -fmt FMT to print CSV fields you want\n");
 	printf("relation IP1 IP2    : prints a relationship between IP1 and IP2\n");
 	printf("bgpcmp file1 file2  : show what changed in BGP file file1 & file2\n");
+	printf("bgpsortby name file : sort BGP file by (prefix|gw|MED|LOCALPREF\n");
 	printf("ipinfo IP|all|IPvX  : prints information about IP, or all known subnets (all, IPv4 or IPv6)\n");
 	printf("compare FILE1 FILE2 : compare FILE1 & FILE2, printing subnets in FILE1 INCLUDED in FILE2\n");
 	printf("missing FILE1 FILE2 : prints subnets from FILE1 that are not covered by FILE2; GW is not checked\n");
@@ -664,12 +667,33 @@ static int run_confdesc(int arc, char **argv, void *st_options) {
 static int run_bgpcmp(int arc, char **argv, void *st_options) {
 	struct bgp_file sf1;
 	struct bgp_file sf2;
+	int res;
 
-	load_bgpcsv(argv[2], &sf1, st_options);
-	load_bgpcsv(argv[3], &sf2, st_options);
+	res = load_bgpcsv(argv[2], &sf1, st_options);
+	if (res < 0)
+		return res;
+	res = load_bgpcsv(argv[3], &sf2, st_options);
+	if (res < 0)
+		return res;
 	compare_bgp_file(&sf1, &sf2, st_options);
 	return 0;
 }
+
+static int run_bgpsortby(int arc, char **argv, void *st_options) {
+	struct bgp_file sf1;
+	int res;
+
+	res = load_bgpcsv(argv[2], &sf1, st_options);
+	if (res < 0)
+		return res;
+	res = bgp_sort_by(&sf1, argv[3]);
+	if (res == -1664) {
+		fprintf(stderr, "cannot sort by '%s'\n", argv[3]);
+		return res;
+	}
+	return 0;
+}
+
 static int run_test(int arc, char **argv, void *st_options) {
 	struct bgp_file sf1;
 	struct bgp_file sf2;
