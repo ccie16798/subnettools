@@ -29,6 +29,16 @@ void fprint_bgp_route(FILE *output, struct bgp_route *route) {
 			route->AS_PATH);
 }
 
+void fprint_bgp_file(FILE *output, struct bgp_file *bf) {
+	int i = 0;
+
+	for (i = 0; i < bf->nr; i++)
+		fprint_bgp_route(output, &bf->routes[i]);
+}
+void fprint_bgp_file_header(FILE *out) {
+	fprintf(out, "V;Proto;BEST;          prefix;              GW;       MED;LOCAL_PREF;    WEIGHT;ORIGIN;AS_PATH;\n");
+}
+
 void copy_bgproute(struct bgp_route *a, const struct bgp_route *b) {
 	memcpy(a, b, sizeof(struct bgp_route));
 }
