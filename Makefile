@@ -1,6 +1,6 @@
 all: subnet-tools
 
-subnet-tools:
+subnet-tools: src/*.c src/*.h
 	cd src; make
 	mv src/subnet-tools .
 
