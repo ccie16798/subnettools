@@ -488,7 +488,7 @@ int ciscobgp_to_csv(char *name, FILE *f, struct st_options *o) {
 	fprint_bgp_file_header(o->output_file);
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
-		memset(&route, 0, sizeof(route));
+		memset(&route, 0, sizeof(struct bgp_route));
 		debug(PARSEROUTE, 9, "line %lu buffer : '%s'", line, s);
 
 		s2 = strstr(s, "Metric");

@@ -19,14 +19,13 @@
 #define SIZE_T_MAX ((size_t)0 - 1)
 
 void fprint_bgp_route(FILE *output, struct bgp_route *route) {
-	st_fprintf(output, "%d;%s;%s;%16P;%16I;%10d;%10d;%10d;     %c;%s\n",
+	st_fprintf(output, "%d;%s;%s;%16P;%16I;",
 			route->valid,
 			(route->type == 'i' ? " iBGP" : " eBGP"),
 			(route->best == 1 ? "Best" : "  No"),
-			route->subnet, route->gw, route->MED,
-			route->LOCAL_PREF, route->weight,
-			route->origin,
-			route->AS_PATH);
+			route->subnet, route->gw);
+	fprintf(output, "%10d;%10d;%10d;     %c;%s\n", route->MED, route->LOCAL_PREF, route->weight, 
+				route->origin, route->AS_PATH);
 }
 
 void fprint_bgp_file(FILE *output, struct bgp_file *bf) {
