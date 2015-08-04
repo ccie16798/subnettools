@@ -19,7 +19,7 @@
 #define SIZE_T_MAX ((size_t)0 - 1)
 
 void fprint_bgp_route(FILE *output, struct bgp_route *route) {
-	st_fprintf(output, "%d;%s;%s;%16P;%16I;%10d;%10d;%10d;     %c;%s\n",
+	st_fprintf(output, "%d;%s;%s;%16P;%16a;%10d;%10d;%10d;     %c;%s\n",
 			route->valid,
 			(route->type == 'i' ? " iBGP" : " eBGP"),
 			(route->best == 1 ? "Best" : "  No"),
