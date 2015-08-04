@@ -275,7 +275,7 @@ static int match_char_against_range(char c, const char *expr, int *i) {
 	else
 		return res;
 }
-/* parse STRING in at index *j according to fmt at index *i
+/* parse STRING 'in' at index *j according to fmt at index *i
    fmt[*i] == '%' when the function starts
    store output in o if not NULL, else put it to thrash
    fmt = FORMAT buffer
@@ -294,7 +294,7 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 	char poubelle[256];
 	char c;
 	struct subnet *v_sub;
-	char expr[64];
+	char expr[128];
 	struct ip_addr *v_addr;
 	char *v_s;
 	long *v_long;
@@ -667,7 +667,7 @@ static int match_expr_single(const char *expr, char *in, struct sto *o, int *num
 
 	while (1) {
 		c = expr[i];
-		if (c == '\0' || c =='|')
+		if (c == '\0' || c == '|')
 			return j;
 		debug(SCANF, 8, "remaining in  ='%s'\n", in + j);
 		debug(SCANF, 8, "remaining expr='%s'\n", expr + i);
