@@ -862,18 +862,24 @@ static int find_expr(char *remain, struct expr *e) {
 }
 
 /*
- * in      : input buffer, *i its offset
- * fmt     : fmt buffer,   *j its offset
- * expr    : the string before the multiplier
+ * parse_multiplier starts when fmt[*i] is a st_scanf multiplier char (*, +, ?, {a,b} )
+ * it will try to consume as many bytes as possible from 'in' and put objects
+ * found in a struct sto *
+ * parse_multiplier updates offset into 'in', 'fmt', the number of objects found (n_found)
+ *
+ * in      : input buffer, *j its offset
+ * fmt     : fmt buffer,   *i its offset
+ * expr    : the string/expression  concerned by the multiplier
  * o       : objects will be stored in o (max_o)
  * n_found : num conversion specifier found so far
  *
  * returns :
+ *    positive on success
  *   -1  : format error
  *   -2  : no match
  *
  */
-int parse_multiplier(char *in, const char *fmt, int *i, int in_length, int *j, char *expr,
+static int parse_multiplier(char *in, const char *fmt, int *i, int in_length, int *j, char *expr,
 			struct sto *o, int max_o, int *n_found) {
 
 	char c;
@@ -1091,9 +1097,7 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 		debug(SCANF, 8, "Still to parse in 'in' : '%s'\n", in + j);
 		if (is_multiple_char(c)) {
 			res = parse_multiplier(in, fmt, &i, in_length, &j, expr, o, max_o, &n_found);
-			if (res == -1)
-				return n_found;
-			if (res == -2)
+			if (res < 0)
 				goto end_nomatch;
 			continue;
 		}
