@@ -623,8 +623,9 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 			debug(SCANF, 5, "CHAR '%c' found at offset %d\n", *v_s,  *j);
 			j2 = *j + 1;
 			n_found++;
+			break;
 		default:
-			debug(SCANF, 1, "Unknow conversion specifier '%c'\n", fmt[*i + 1]);
+			debug(SCANF, 1, "Unknown conversion specifier '%c'\n", fmt[*i + 1]);
 			break;
 	} /* switch */
 	*j = j2;
