@@ -884,7 +884,7 @@ int parse_multiplier(char *in, const char *fmt, int *i, int in_length, int *j, c
 	struct expr e;
 	int e_has_stopped;
 
-	c = in[*i];
+	c = fmt[*i];
 	if (c == '{') {
 		res = parse_brace_multiplier(fmt + *i, &min_m, &max_m);
 		if (res < 0)
@@ -916,7 +916,7 @@ int parse_multiplier(char *in, const char *fmt, int *i, int in_length, int *j, c
 			e.match_last = 1;
 			debug(SCANF, 4, "we will stop on the last match\n");
 		}
-		i++;
+		*i += 1;
 	}
 	/* we need to find when the expr expansion will end, in case it matches anything like '.*' */
 	if (fmt[*i + 1] == '%') {
@@ -1034,7 +1034,7 @@ int parse_multiplier(char *in, const char *fmt, int *i, int in_length, int *j, c
 	debug(SCANF, 3, "Exiting loop with expr '%s' matched %d times, found %d objects so far\n", expr, n_match, *n_found);
 	/* in case of last match, we must update position in 'in' and n_match */
 	if (e.match_last) {
-		*j       = e.last_match;
+		*j      = e.last_match;
 		n_match = e.last_nmatch;
 		debug(SCANF, 3, "but last match asked so lets rewind to '%d' matches\n",  n_match);
 	}
@@ -1093,13 +1093,12 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 		debug(SCANF, 8, "Still to parse in FMT  : '%s'\n", fmt + i);
 		debug(SCANF, 8, "Still to parse in 'in' : '%s'\n", in + j);
 		if (is_multiple_char(c)) {
-			/*
 			res = parse_multiplier(in, fmt, &i, in_length, &j, expr, o, max_o, &n_found);
 			if (res == -1)
 				return n_found;
 			if (res == -2)
 				goto end_nomatch;
-			continue; */
+			continue;
 			if (c == '{') {
 				res = parse_brace_multiplier(fmt + i, &min_m, &max_m);
 				if (res < 0)
