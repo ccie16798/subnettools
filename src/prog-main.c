@@ -90,7 +90,7 @@ struct st_command commands[] = {
 	{ "print",	&run_print,	1},
 	{ "relation",	&run_relation,	2},
 	{ "bgpcmp",	&run_bgpcmp,	2},
-	{ "bgpsortby",	&run_bgpsortby,	2},
+	{ "bgpsortby",	&run_bgpsortby,	1},
 	{ "ipinfo",	&run_ipinfo,	1},
 	{ "diff",	&run_diff,	2},
 	{ "compare",	&run_compare,	2},
@@ -688,6 +688,14 @@ static int run_bgpsortby(int arc, char **argv, void *st_options) {
 	int res;
 	struct st_options *o = st_options;
 
+	if (!strncmp(argv[2], "help", strlen(argv[2]))) {
+		bgp_available_cmpfunc(stderr);
+		return 0;
+	}
+	if (argv[3] == NULL) {
+		fprintf(stderr, "Not enough argument for bgpsortby\n");
+		return -1;
+	}
 	res = load_bgpcsv(argv[3], &sf1, st_options);
 	if (res < 0)
 		return res;
