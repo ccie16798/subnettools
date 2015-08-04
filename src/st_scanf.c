@@ -1071,12 +1071,22 @@ static int parse_multiplier(char *in, const char *fmt, int *i, int in_length, in
 		}
 	}
 	*i += 1;
-	/* multiplier went to the end of in, but without matching the end */
+	/* multiplier went to the end of 'in', but without matching the end */
 	if (in[*j] == '\0' && fmt[*i] != '\0')
 		return -2;
 	return 1;
 }
 
+/*
+ * st_scanf CORE function
+ * reads bytes from the buffer'in', tries to interpret/match againset regexp fmt
+ * if objects (corresponding to covnersion specifiers) are found,
+ * store them in struct sto_object *o table
+ *
+ * returns :
+ * 	number of objects found
+ * 	-1 if no match and no conversion specifier found
+ */
 int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 	int i, j;
 	int res;
@@ -1127,16 +1137,12 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 			j++;
 		/* expression or char range */
 		} else if (c == '(' || c == '[') {
-			char c2;
-			if (c == '(') {
-				c2 = ')';
-				res = strxcpy_until(expr, fmt + i, sizeof(expr), c2);
-			} else {
-				c = ']';
+			if (c == '(')
+				res = strxcpy_until(expr, fmt + i, sizeof(expr), ')');
+			else
 				res = fill_char_range(expr, fmt + i, sizeof(expr));
-			}
 			if (res == -1) {
-				debug(SCANF, 1, "Invalid format '%s', unmatched '%c'\n", fmt, c2);
+				debug(SCANF, 1, "Invalid format '%s', unmatched '%c'\n", fmt, c);
 				return n_found;
 			}
 			debug(SCANF, 8, "found expr '%s'\n", expr);
