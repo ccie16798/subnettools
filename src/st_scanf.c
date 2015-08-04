@@ -1093,6 +1093,13 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 		debug(SCANF, 8, "Still to parse in FMT  : '%s'\n", fmt + i);
 		debug(SCANF, 8, "Still to parse in 'in' : '%s'\n", in + j);
 		if (is_multiple_char(c)) {
+			/*
+			res = parse_multiplier(in, fmt, &i, in_length, &j, expr, o, max_o, &n_found);
+			if (res == -1)
+				return n_found;
+			if (res == -2)
+				goto end_nomatch;
+			continue; */
 			if (c == '{') {
 				res = parse_brace_multiplier(fmt + i, &min_m, &max_m);
 				if (res < 0)
