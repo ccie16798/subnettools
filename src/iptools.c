@@ -894,7 +894,7 @@ static int aggregate_subnet_ipv6(const struct subnet *s1, const struct subnet *s
 	shift_ipv6_right(b, (128 - s1->mask));
 	if (is_equal_ipv6(a, b)) {
 		st_debug(AGGREGATE, 5, "same subnet %P\n", *s1);
-		memcpy(s3, s1, sizeof(struct subnet));
+		copy_subnet(s3, s1);
 		return 1;
 	}
 	shift_ipv6_right(a, 1);
