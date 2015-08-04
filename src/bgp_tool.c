@@ -347,6 +347,16 @@ static int __heap_med_is_superior(void *v1, void *v2) {
 		return (MED1 < MED2);
 }
 
+static int __heap_mask_is_superior(void *v1, void *v2) {
+	struct subnet *s1 = &((struct bgp_route *)v1)->subnet;
+	struct subnet *s2 = &((struct bgp_route *)v2)->subnet;
+
+	if (s1->mask == s2->mask)
+		return subnet_is_superior(s1, s2);
+	else
+		return (s1->mask < s2->mask);
+}
+
 static int __heap_localpref_is_superior(void *v1, void *v2) {
 	struct subnet *s1 = &((struct bgp_route *)v1)->subnet;
 	struct subnet *s2 = &((struct bgp_route *)v2)->subnet;
@@ -400,6 +410,7 @@ static const struct bgpsort bgpsort[] = {
 	{ "prefix",	&__heap_subnet_is_superior },
 	{ "gw",		&__heap_gw_is_superior },
 	{ "med",	&__heap_med_is_superior },
+	{ "mask",	&__heap_mask_is_superior },
 	{ "localpref",	&__heap_localpref_is_superior },
 	{NULL,		NULL}
 };
