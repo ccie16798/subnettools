@@ -861,6 +861,216 @@ static int find_expr(char *remain, struct expr *e) {
 	return res;
 }
 
+/*
+ * in      : input buffer, *i its offset
+ * fmt     : fmt buffer,   *j its offset
+ * expr    : the string before the multiplier
+ * o       : objects will be stored in o (max_o)
+ * n_found : num conversion specifier found so far
+ *
+ * returns :
+ *   -1  : format error
+ *   -2  : no match
+ *
+ */
+int parse_multiplier(char *in, const char *fmt, int *i, int in_length, int *j, char *expr,
+			struct sto *o, int max_o, int *n_found) {
+
+	char c;
+	int res, k;
+	int min_m, max_m;
+	int n_match;
+	int num_cs = 0;
+	struct expr e;
+	int e_has_stopped;
+
+	c = in[*i];
+	if (c == '{') {
+		res = parse_brace_multiplier(fmt + *i, &min_m, &max_m);
+		if (res < 0)
+			return -1;
+		*i += res;
+	} else {
+		min_m = min_match(c);
+		max_m = max_match(c);
+	}
+	e.expr = expr;
+	e.end_of_expr = fmt[*i + 1]; /* if necessary */
+	e.early_stop  = NULL;
+	e.last_match  = -1;
+	e.last_nmatch = -1;
+	e.min_match   = min_m;
+	e.match_last  = 0;
+	e.skip_stop   = 0;
+	num_cs = count_cs(expr);
+	if (*n_found + num_cs > max_o) {
+		debug(SCANF, 1, "Cannot get more than %d objets, already found %d\n", max_o, *n_found);
+		return -1;
+	}
+	debug(SCANF, 5, "need to find expression '%s' %c time, with %d conversion specifiers\n", expr, c, num_cs);
+	if (fmt[*i + 1] == '$') {
+		if (max_m < 2) {
+			debug(SCANF, 1, "'$' special char is only allowed after mutiple expansion chars like '*', '+'\n");
+
+		} else {
+			e.match_last = 1;
+			debug(SCANF, 4, "we will stop on the last match\n");
+		}
+		i++;
+	}
+	/* we need to find when the expr expansion will end, in case it matches anything like '.*' */
+	if (fmt[*i + 1] == '%') {
+		c = conversion_specifier(fmt + *i + 2);
+
+		switch (c) {
+			case '\0':
+				debug(SCANF, 1, "Invalid format string '%s', ends with %%\n", fmt);
+				return -1;
+			case 'd':
+				e.early_stop = &find_int;
+				break;
+			case 'u':
+				e.early_stop = &find_uint;
+				break;
+			case 'x':
+				e.early_stop = &find_hex;
+				break;
+			case 'l':
+			case 'h':
+				if (fmt[*i + 3] == 'd')
+					e.early_stop = &find_int;
+				else if (fmt[*i + 3] == 'u')
+					e.early_stop = &find_uint;
+				else if (fmt[*i + 3] == 'x')
+					e.early_stop = &find_hex;
+				break;
+			case 'I':
+				e.early_stop = &find_ip;
+				break;
+			case 'Q':
+				e.early_stop = &find_classfull_subnet;
+				break;
+			case 'P':
+				e.early_stop = &find_ip;
+				break;
+			case 'S':
+				e.early_stop = &find_not_ip;
+				break;
+			case 'M':
+				e.early_stop = &find_mask;
+				break;
+			case 'W':
+				e.early_stop = &find_word;
+				break;
+			case 's':
+				e.early_stop = &find_string;
+				break;
+			case '[':
+				k = 0;
+				while (isdigit(fmt[*i + k + 2])) /* we must take field length into account */
+					k++;
+				res = fill_char_range(e.end_expr, fmt + *i + k + 2, sizeof(e.end_expr));
+				if (res < 0) {
+					debug(SCANF, 1, "Invalid format '%s', unmatched '['\n", expr);
+					return -1;
+				}
+				debug(SCANF, 4, "pattern matching will end on '%s'\n", e.end_expr);
+				e.early_stop = &find_expr;
+				break;
+			default:
+				break;
+		} /* switch c */
+	} else if (fmt[*i + 1] == '(') {
+		res = strxcpy_until(e.end_expr, fmt + *i + 1, sizeof(e.end_expr), ')');
+		if (res < 0) {
+			debug(SCANF, 1, "Invalid format '%s', unmatched '('\n", expr);
+			return -1;
+		}
+		debug(SCANF, 4, "pattern matching will end on '%s'\n", e.end_expr);
+		e.early_stop = &find_expr;
+	} else if (fmt[*i + 1] == '[') {
+		res = fill_char_range(e.end_expr, fmt + *i + 1, sizeof(e.end_expr));
+		if (res < 0) {
+			debug(SCANF, 1, "Invalid format '%s', unmatched '['\n", expr);
+			return -1;
+		}
+		debug(SCANF, 4, "pattern matching will end on '%s'\n", e.end_expr);
+		e.early_stop = &find_expr;
+	}
+	n_match = 0; /* number of time expression 'e' matches input*/
+	/* try to find at most max_m expr */
+	e_has_stopped = 0;
+	while (n_match < max_m) {
+		res = match_expr(&e, in + *j, o, n_found);
+		if (res < 0) {
+			debug(SCANF, 1, "Invalid format '%s'\n", expr);
+			return -1;
+		}
+		if (res == 0)
+			break;
+		n_match++;
+		/* to set 'last_match', we check if the previous loop had stopped or not
+		   last_match is set if current loop HAS stopped and previous has not
+		   e.has_stopped ==> expression has stopped on j
+		   e_has_stopped ==> expression has stopped on previous j
+		   scanf("abdsdfdsf t e 121.1.1.1", ".*$I") should return '121.1.1.1' not '1.1.1.1'
+		   scanf("abdsdfdsf t e STRING", ".*$s") should return 'STRING' not just 'G'
+		   */
+		if (e.has_stopped && e_has_stopped == 0) {
+			e.last_match  = *j;
+			e.last_nmatch = n_match;
+		}
+		e_has_stopped = e.has_stopped;
+		*j += res;
+		if (*j > in_length) { /* can happen only if there is a BUG in 'match_expr' and its descendant */
+			fprintf(stderr, "BUG, input buffer override in %s line %d\n", __FUNCTION__, __LINE__);
+			return -5;
+		}
+		if (in[*j] == '\0') {
+			debug(SCANF, 3, "reached end of input scanning 'in'\n");
+			break;
+		}
+	}
+	debug(SCANF, 3, "Exiting loop with expr '%s' matched %d times, found %d objects so far\n", expr, n_match, *n_found);
+	/* in case of last match, we must update position in 'in' and n_match */
+	if (e.match_last) {
+		*j       = e.last_match;
+		n_match = e.last_nmatch;
+		debug(SCANF, 3, "but last match asked so lets rewind to '%d' matches\n",  n_match);
+	}
+
+	if (n_match < min_m) {
+		debug(SCANF, 1, "found expr '%s' %d times, but required %d\n", expr, n_match, min_m);
+		return -2;
+	}
+	/* we found conversions specifiers
+	 *  if they were found inside an expression with multiplier
+	 *  st_scanf "1 1 1 1 3.3.3.3", "(%d ){1,8}%I"
+	 *  ==> this is legal only with sto_sscanf because it will fill sto objects
+	 *  st_scanf has no way to know how many times (%d ){1,8} will match
+	 */
+	if (num_cs) {
+		if (n_match) {
+			debug(SCANF, 4, "found %d CS so far\n", *n_found);
+		} else {
+			/* 0 match but we found 'num_cs' conversion specifiers
+			 * we must consume them because the caller add provisionned
+			 * space for it
+			 */
+			debug(SCANF, 4, "0 match but there was %d CS so consume them\n", num_cs);
+			for (k = 0; k < num_cs; k++) {
+				o[*n_found].type = 0;
+				*n_found += 1;
+			}
+		}
+	}
+	*i += 1;
+	/* multiplier went to the end of in, but without matching the end */
+	if (in[*j] == '\0' && fmt[*i] != '\0')
+		return -2;
+	return 1;
+}
+
 int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 	int i, j, k;
 	int res;
@@ -1030,7 +1240,7 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 				}
 			}
 			debug(SCANF, 3, "Exiting loop with expr '%s' matched %d times, found %d objects so far\n", expr, n_match, n_found);
-			/* in case of last match, we must update position in 'in' and n_match */ 
+			/* in case of last match, we must update position in 'in' and n_match */
 			if (e.match_last) {
 				j       = e.last_match;
 				n_match = e.last_nmatch;
