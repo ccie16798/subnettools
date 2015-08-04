@@ -43,15 +43,7 @@ int main(int argc, char **argv) {
 	printf("TEST HEX1 : %x %hx %lx\n", a2, b, l5);
 	st_printf("TEST HEX2 : '%10x' %06hx %hx '%-20lx'\n", a2, sh1, sh2, l5);
 	printf("TEST HEX2 : '%10x' %06hx %hx '%-20lx'\n", a2, sh1, sh2, l5);
-
-	st_printf("%d;%s;%s;%16P;%16I;%10d;%10d;%10d;%s\n",
-		  1,
-                        ( 'a' == 'i' ? " iBGP" : " eBGP"),
-                        ( 1 == 1 ? "Best" : "  No"),
-                        s1, s1.ip_addr, 10,
-                        20, 30,
-                        "100 100");
-
+	
 	st_printf("TEST STRING :'%s';'%10s';'%-10s'\n", string, string, string);
 	printf("TEST STRING :'%s';'%10s';'%-10s'\n", string, string, string);
 	st_printf("TEST IP1    : %I-%10I : [%-20N - %20B]\n", s1, s2, s2, s2);
