@@ -155,8 +155,9 @@ static int parse_brace_multiplier(const char *s, int *min, int *max) {
  * doesnt validate CS are valid
  */
 static int count_cs(const char *expr) {
-	int i, n;
-	n = 0;
+	int i;
+	int n = 0;
+
 	if (expr[0] == '%')
 		n++;
 	for (i = 1; ;i++) {
