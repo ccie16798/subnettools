@@ -1,7 +1,7 @@
 #! /bin/bash
 
 
-PROG=../subnet-tools
+PROG='../subnet-tools '
 n_ok=0
 n_ko=0
 
