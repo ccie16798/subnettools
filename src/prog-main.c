@@ -84,6 +84,7 @@ static int option_config(int argc, char **argv, void *st_options);
 static int option_addr_compress(int argc, char **argv, void *st_options);
 static int option_fmt(int argc, char **argv, void *st_options);
 static int option_rt(int argc, char **argv, void *st_options);
+static int option_ecmp(int argc, char **argv, void *st_options);
 
 struct st_command commands[] = {
 	{ "echo",	&run_echo,	2},
@@ -128,6 +129,7 @@ struct st_command options[] = {
 	{"-p",		&option_addr_compress,	1},
 	{"-fmt",	&option_fmt,		1},
 	{"-rt",		&option_rt,		0},
+	{"-ecmp",	&option_ecmp,		0},
 	{NULL, NULL, 0}
 };
 
@@ -169,6 +171,7 @@ void usage() {
 	printf("-c <file >      : use config file <file>  instead of st.conf\n");
 	printf("-o <file >      : write output in <file> \n");
 	printf("-rt		: when converting dynamic routing table, set route type as comment\n");
+	printf("-ecmp		: when converting routing table, print all routes in case of ECMP\n");
 	printf("-grep_field N   : grep field N only\n");
 	printf("-D <debug>      : DEBUG MODE ; use '%s -D help' for more info\n", PROG_NAME);
 	printf("-fmt            : change the output format (default :%s)\n", default_fmt);
@@ -824,6 +827,12 @@ static int option_rt(int argc, char **argv, void *st_options) {
 	return 0;
 }
 
+static int option_ecmp(int argc, char **argv, void *st_options) {
+	struct st_options *nof = st_options;
+
+	nof->rt = 1;
+	return 0;
+}
 /* ensure a core dump is generated in case of BUG
  * subnettool is bug free of course :)
  * man page says it is POSIX, let s hope so

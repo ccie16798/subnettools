@@ -27,6 +27,7 @@ struct st_options {
 	char netcsv_gw[32];
 	/* converter options */
 	int rt; /* dynamic type as a comment */
+	int ecmp; /* print 2 routes in case of ecmp */
 };
 #else
 #endif
