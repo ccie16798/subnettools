@@ -163,6 +163,7 @@ int ipso_route_to_csv(char *name, FILE *f, struct st_options *o) {
 
 int cisco_nexus_to_csv(char *name, FILE *f, struct st_options *o) {
 	char buffer[1024];
+	char poubelle[128];
 	char *s;
 	unsigned long line = 0;
 	int badline = 0;
@@ -177,7 +178,14 @@ int cisco_nexus_to_csv(char *name, FILE *f, struct st_options *o) {
 		line++;
 		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
 		if (strstr(s, "*via ")) {
-			res = st_sscanf(s, " *(*via) %I.*%32[^ ,]", &route.gw, route.device);
+/*	    *via 128.90.8.22, Vlan35, [170/512256], 2w0d, eigrp-WAN, external, tag 1387965159 */
+/*   *via 128.90.8.34, [1/0], 11w0d, static, tag 65159
+ *
+ *   THAT pattern is fun
+ */
+
+			res = st_sscanf(s, " *(*via) %I(, %[][0-9/]%s|, %[^,], %[^,],).*, %[^,]",
+					 &route.gw, route.device, poubelle, route.comment);
 			if (res == 0) {
 				debug(PARSEROUTE, 4, "line %lu bad GW line no subnet found\n", line);
 				badline++;
@@ -185,8 +193,10 @@ int cisco_nexus_to_csv(char *name, FILE *f, struct st_options *o) {
 			}
 			if (res == 1)
 				strcpy(route.device, "NA");
-			if (route.device[0] == '[')
+			if (route.device[0] == '[') /* route without a device */
 				strcpy(route.device, "NA");
+			if (o->rt == 0)
+				route.comment[0] = '\0';
 			if (nhop == 0)
 				fprint_route(o->output_file, &route, 3);
 			nhop++;
