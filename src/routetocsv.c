@@ -197,7 +197,7 @@ int cisco_nexus_to_csv(char *name, FILE *f, struct st_options *o) {
 				strcpy(route.device, "NA");
 			if (o->rt == 0)
 				route.comment[0] = '\0';
-			if (nhop == 0)
+			if (nhop == 0 || o->ecmp)
 				fprint_route(o->output_file, &route, 3);
 			nhop++;
 		} else {
