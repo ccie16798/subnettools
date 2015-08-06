@@ -257,7 +257,7 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o) {
 		/* handle a next hop printed on a next-line
 		 * happens in case the interface Name is long :)
 		 */
-		if (find_hop) {
+		if (isspace(s[0])) {
 			if (strstr(s, "via ")) {
 				/* format is not the same in IPv6 or IPv4 */
 				if (ip_ver == IPV4_A) {
@@ -284,13 +284,20 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o) {
 					strcpy(route.device, "NA");;
 				if (route.device[0] == '[')
 					strcpy(route.device, "NA");;
-				fprint_route(o->output_file, &route, 3);
+				if (is_subnetted) {
+					route.subnet.mask = find_mask;
+					is_subnetted--;
+				}
 			} else {
-				debug(PARSEROUTE, 4, "line %lu should hold a next-hop/device\n", line);
+				debug(PARSEROUTE, 4, "Invalid line %lu\n", line);
 				badline++;
+				find_hop = 0;
+				memset(&route, 0, sizeof(route));
+				continue;
 			}
-			memset(&route, 0, sizeof(route));
-			find_hop = 0;
+			if (find_hop == 1 || o->ecmp)
+				fprint_route(o->output_file, &route, 3);
+			find_hop++;
 			continue;
 		}
 		/* handle gateway of last resort line */
@@ -313,6 +320,7 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o) {
 			}
 			continue;
 		} else if (strstr(s, "directly connected")) {
+			memset(&route, 0, sizeof(route));
 			/* C       10.73.5.92/30 is directly connected, Vlan346 */
 			res = st_sscanf(s, ".*%P.*$%32s", &route.subnet, route.device);
 			type = 'C';
@@ -328,6 +336,7 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o) {
 			memset(&route, 0, sizeof(route));
 			continue;
 		}
+		memset(&route, 0, sizeof(route));
 		res = st_sscanf(s, "%c *.*%P.*(via) %I.*$%32s", &type, &route.subnet, &route.gw, route.device);
 		/* a valid route begin with a non space char */
 		if (res <= 1 || isspace(type)) {
@@ -352,9 +361,7 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o) {
 		if (isdigit(route.device[0]))
 			strcpy(route.device, "NA");
 		SET_COMMENT
-
 		fprint_route(o->output_file, &route, 3);
-		memset(&route, 0, sizeof(route));
 	}
 	return 1;
 }
