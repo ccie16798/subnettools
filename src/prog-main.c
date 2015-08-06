@@ -634,7 +634,6 @@ static int run_split_2(int arc, char **argv, void *st_options) {
 static int run_scanf(int arc, char **argv, void *st_options) {
 	int res;
 	struct sto o[40];
-
 	
         res = sto_sscanf(argv[2], argv[3], o, 40);
 	if (res < 0) {
