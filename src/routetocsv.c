@@ -398,6 +398,7 @@ int cisco_fw_to_csv(char *name, FILE *f, struct st_options *o) {
 			SET_COMMENT
 			fprint_route(o->output_file, &route, 3);
 			memset(&route, 0, sizeof(route));
+			find_hop = 0;
 			continue;
 		}
 		if (s[0] == 'C' || s[0] == 'c') { /* connected route */
