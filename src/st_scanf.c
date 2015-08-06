@@ -1048,7 +1048,7 @@ static int parse_multiplier(char *in, const char *fmt, int *i, int in_length, in
 	}
 
 	if (n_match < min_m) {
-		debug(SCANF, 1, "found expr '%s' %d times, but required %d\n", expr, n_match, min_m);
+		debug(SCANF, 2, "found expr '%s' %d times, but required %d\n", expr, n_match, min_m);
 		return -2;
 	}
 	/* we found conversions specifiers
