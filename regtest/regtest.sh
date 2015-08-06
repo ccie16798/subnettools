@@ -166,18 +166,19 @@ reg_test convert ciscofw		iproute_ASA
 reg_test convert ciscofwconf		ciscofwconf_route_v4.txt 
 reg_test convert ciscofwconf		ciscofwconf_route_v6.txt 
 reg_test convert CiscoRouter		iproute_cisco
-reg_test convert CiscoRouter		iproutecisco_ECMP 
+reg_test convert CiscoRouter		iproute_cisco_ECMP 
 reg_test convert CiscoRouter		ipv6route2
 reg_test -rt convert CiscoRouter	iproute_cisco
-reg_test -rt convert CiscoRouter	iproutecisco_ECMP 
+reg_test -rt convert CiscoRouter	iproute_cisco_ECMP 
 reg_test -rt convert CiscoRouter	ipv6route2
 reg_test -rt convert ciscofw		iproute_ASA
 reg_test -rt convert cisconexus		iproute_nexus2
 reg_test -ecmp convert cisconexus	iproute_nexus2
+reg_test -ecmp convert ciscorouter	iproute_cisco_ECMP
 reg_test convert IPSO iproute_nokia
 reg_test convert gaia iproute_gaia_R77
 reg_test convert CiscoNexus iproute_nexus
-reg_test convert CiscoNexus iproutecisconexus_ECMP
+reg_test convert CiscoNexus iproute_cisconexus_ECMP
 reg_test convert palo iproute_palo
 reg_test convert ciscobgp ciscobgp
 reg_test bgpcmp  bgp1 bgp2
