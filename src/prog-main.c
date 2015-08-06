@@ -830,7 +830,7 @@ static int option_rt(int argc, char **argv, void *st_options) {
 static int option_ecmp(int argc, char **argv, void *st_options) {
 	struct st_options *nof = st_options;
 
-	nof->rt = 1;
+	nof->ecmp = 1;
 	return 0;
 }
 /* ensure a core dump is generated in case of BUG
