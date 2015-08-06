@@ -77,6 +77,8 @@ int sto2string(char *s, const struct sto *o, size_t len, int comp_level);
 			case 'c': \
 				  *((char *)ptr) = __o[__i].s_char[0]; \
 				break; \
+			case '\0': \
+				break; \
 			default: \
 				 debug(SCANF, 1, "Unknown object type '%c'\n", __o[__i].type); \
 		} \
