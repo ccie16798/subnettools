@@ -1,6 +1,7 @@
 #ifndef ST_PRINTF_H
 #define ST_PRINTF_H
 #include "st_object.h"
+
 /* simple and dummy print a route */
 void fprint_route(FILE *output, const struct route *r, int compress_level);
 /* print a route 'r' according to format 'fmt' into output */
@@ -9,8 +10,9 @@ int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt);
 /* subnettool variants of sprintf, fprintf and printf
  * fmt understand the following types :
  *
- * %I : an IP (v4 or v6)   input variable is struct subnet *
- * %m : a subnet mask      input variable is struct subnet *
+ * %a : an IP (v4 or v6)   input variable is 'struct ip_addr'
+ * %I : an IP (v4 or v6)   input variable is 'struct subnet'
+ * %m : a subnet mask      input variable is 'struct subnet'
  * %M : a subnet mask (ddn)
  */
 int st_snprintf(char *out, size_t n, const char *fmt, ...);
