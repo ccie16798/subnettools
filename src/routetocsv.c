@@ -95,10 +95,11 @@ int run_csvconverter(char *name, char *filename, struct st_options *o) {
 }
 
 #define BAD_LINE_CONTINUE \
-	debug(PARSEROUTE, 9, "line %lu invalid route '%s'\n", line, buffer); \
+	debug(PARSEROUTE, 4, "%s line %lu invalid route : '%s'\n", name, line, buffer); \
 	memset(&route, 0, sizeof(route)); \
 	badline++; \
 	continue; \
+
 /*
  * output of 'show routing route' on Palo alto
  */
@@ -159,10 +160,7 @@ int ipso_route_to_csv(char *name, FILE *f, struct st_options *o) {
 			memset(&route, 0, sizeof(route));
 			res = st_sscanf(s, ".*%Q.*$%32s", &route.subnet, route.device);
 			if (res < 2) {
-				debug(PARSEROUTE, 9, "line %lu invalid connected route '%s'\n", line, buffer);
-				memset(&route, 0, sizeof(route));
-				badline++;
-				continue;
+				BAD_LINE_CONTINUE
 			}
 			type = 'C';
 			SET_COMMENT
@@ -173,16 +171,10 @@ int ipso_route_to_csv(char *name, FILE *f, struct st_options *o) {
 			if (strstr(s, "via ")) {
 				res = st_sscanf(s, ".*(via) %I.*%32[^ ,]", &route.gw, route.device);
 				if (res < 2) {
-					debug(PARSEROUTE, 9, "line %lu invalid line '%s'\n", line, buffer);
-					memset(&route, 0, sizeof(route));
-					badline++;
-					continue;
+					BAD_LINE_CONTINUE
 				}
 			} else {
-				debug(PARSEROUTE, 9, "line %lu invalid line '%s'\n", line, buffer);
-				memset(&route, 0, sizeof(route));
-				badline++;
-				continue;
+				BAD_LINE_CONTINUE
 			}
 			if (nhop == 0 || o->ecmp)
 				fprint_route(o->output_file, &route, 3);
@@ -194,10 +186,7 @@ int ipso_route_to_csv(char *name, FILE *f, struct st_options *o) {
 		res = st_sscanf(s, ".*%Q *(via) %I.*%32[^ ,]", &route.subnet, &route.gw, route.device);
 		type = s[0];
 		if (res < 3) {
-			debug(PARSEROUTE, 9, "line %lu invalid line '%s'\n", line, buffer);
-			memset(&route, 0, sizeof(route));
-			badline++;
-			continue;
+			BAD_LINE_CONTINUE
 		}
 		SET_COMMENT
 		fprint_route(o->output_file, &route, 3);
@@ -231,9 +220,7 @@ int cisco_nexus_to_csv(char *name, FILE *f, struct st_options *o) {
 			res = st_sscanf(s, " *(*via) %I(, %[][0-9/]%s|, %[^,], %[^,],).*, %[^,]",
 					 &route.gw, route.device, poubelle, route.comment);
 			if (res == 0) {
-				debug(PARSEROUTE, 4, "line %lu bad GW line no subnet found\n", line);
-				badline++;
-				continue;
+				BAD_LINE_CONTINUE
 			}
 			if (res == 1)
 				strcpy(route.device, "NA");
@@ -248,9 +235,7 @@ int cisco_nexus_to_csv(char *name, FILE *f, struct st_options *o) {
 			memset(&route, 0, sizeof(route));
 			res = st_sscanf(s, "%P", &route.subnet);
 			if (res == 0) {
-				debug(PARSEROUTE, 4, "line %lu bad IP no subnet found\n", line);
-				badline++;
-				continue;
+				BAD_LINE_CONTINUE
 			}
 			nhop = 0;
 		}
@@ -311,11 +296,8 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o) {
 					res = st_sscanf(s, " *(via) (%I)?.*%32[^, \n]", &route.gw, route.device);
 				}
 				if (res == 0) {
-					debug(PARSEROUTE, 4, "line %lu bad GW line no subnet found\n", line);
-					badline++;
 					find_hop = 0;
-					memset(&route, 0, sizeof(route));
-					continue;
+					BAD_LINE_CONTINUE
 				}
 				if (res == 1)
 					strcpy(route.device, "NA");;
@@ -326,11 +308,8 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o) {
 					is_subnetted--;
 				}
 			} else {
-				debug(PARSEROUTE, 4, "Invalid line %lu\n", line);
-				badline++;
 				find_hop = 0;
-				memset(&route, 0, sizeof(route));
-				continue;
+				BAD_LINE_CONTINUE
 			}
 			if (find_hop == 1 || o->ecmp)
 				fprint_route(o->output_file, &route, 3);
@@ -362,10 +341,7 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o) {
 			res = st_sscanf(s, ".*%P.*$%32s", &route.subnet, route.device);
 			type = 'C';
 			if (res < 2) {
-				badline++;
-				debug(PARSEROUTE, 1, "line %lu invalid connected route '%s'\n", line, s);
-				memset(&route, 0, sizeof(route));
-				continue;
+				BAD_LINE_CONTINUE
 			}
 			CHECK_IP_VER
 			SET_COMMENT
@@ -377,10 +353,7 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o) {
 		res = st_sscanf(s, "%c *.*%P.*(via) %I.*$%32s", &type, &route.subnet, &route.gw, route.device);
 		/* a valid route begin with a non space char */
 		if (res <= 1 || isspace(type)) {
-			badline++;
-			debug(PARSEROUTE, 1, "line %lu Invalid line '%s'\n", line, s);
-			memset(&route, 0, sizeof(route));
-			continue;
+			BAD_LINE_CONTINUE
 		} else if (res == 2) { /* in case next-hop appears on next line */
 			find_hop = 1;
 			SET_COMMENT
