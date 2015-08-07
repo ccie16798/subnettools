@@ -317,6 +317,51 @@ int compare_bgp_file(const struct bgp_file *sf1, const struct bgp_file *sf2, str
 	return 1;
 }
 
+int as_path_length(const char *s) {
+	int i = 0;
+	int num = 0;
+	int in_confed = 0;
+	int in_asset = 0;
+	char c;
+
+	while (isspace(s[i]))
+		i++;
+	if (s[i] == '\0')
+		return 0;
+	for ( ; i < strlen(s); i++) {
+		c = s[i];
+		if (in_confed && (c == '{' || c == '}' || c == '(')) {
+			st_debug(BGPCMP, 2, "BAD AS_PATH '%s'\n", s);
+			return -1;
+		}
+		if (in_asset && (c == '(' || c == ')' || c == '{')) {
+			st_debug(BGPCMP, 2, "BAD AS_PATH '%s'\n", s);
+			return -1;
+		}
+		if (c == '(')
+			in_confed = 1;
+		if (c == '{')
+			in_asset = 1;
+		if (c == ')' && in_confed) {
+			in_confed = 0;
+			continue;
+		}
+		if (c == '}' && in_asset) {
+			in_asset = 0;
+			continue;
+		}
+		if (in_asset || in_confed)
+			continue;
+		if  (isdigit(s[i]) && (isspace(s[i + 1]) || s[i + 1] == '\0'))
+			num++;
+	}
+	if (in_asset || in_confed) {
+		st_debug(BGPCMP, 2, "BAD AS_PATH '%s'\n", s);
+		return -1;
+	}
+	return num;
+}
+
 static int __heap_subnet_is_superior(void *v1, void *v2) {
 	struct subnet *s1 = &((struct bgp_route *)v1)->subnet;
 	struct subnet *s2 = &((struct bgp_route *)v2)->subnet;
