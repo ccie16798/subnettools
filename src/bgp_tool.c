@@ -408,11 +408,30 @@ static int __heap_localpref_is_superior(void *v1, void *v2) {
 	int LOCAL_PREF1 = ((struct bgp_route *)v1)->LOCAL_PREF;
 	int LOCAL_PREF2 = ((struct bgp_route *)v2)->LOCAL_PREF;
 
-	if (LOCAL_PREF1 == LOCAL_PREF2)
+	if (LOCAL_PREF1 == LOCAL_PREF2) {
 		return subnet_is_superior(s1, s2);
-	else
+	} else
 		return (LOCAL_PREF1 > LOCAL_PREF2);
 }
+
+static int __heap_aspath_is_superior(void *v1, void *v2) {
+	char *s1 = ((struct bgp_route *)v1)->AS_PATH;
+	char *s2 = ((struct bgp_route *)v2)->AS_PATH;
+	int l1, l2;
+
+	l1 = as_path_length(s1);
+	l2 = as_path_length(s2);
+	if (l1 == l2) {
+		if (!strcmp(s1,s2)) {
+			struct subnet *sub1 = &((struct bgp_route *)v1)->subnet;
+			struct subnet *sub2 = &((struct bgp_route *)v2)->subnet;
+			return subnet_is_superior(sub1, sub2);
+		}
+		return strcmp(s1, s2);
+	}
+	return (l1 < l2);
+}
+
 
 static int __bgp_sort_by(struct bgp_file *sf, int cmpfunc(void *v1, void *v2)) {
 	unsigned long i;
@@ -457,6 +476,7 @@ static const struct bgpsort bgpsort[] = {
 	{ "med",	&__heap_med_is_superior },
 	{ "mask",	&__heap_mask_is_superior },
 	{ "localpref",	&__heap_localpref_is_superior },
+	{ "aspath",	&__heap_aspath_is_superior },
 	{NULL,		NULL}
 };
 
