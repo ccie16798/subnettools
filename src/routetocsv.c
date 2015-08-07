@@ -123,6 +123,14 @@ int palo_to_csv(char *name, FILE *f, struct st_options *o) {
 	}
 	return 1;
 }
+
+#define SET_COMMENT \
+	if (o->rt) { \
+		route.comment[0] = type; \
+		route.comment[1] = ' '; \
+		strxcpy(route.comment + 2, s + 2, 3); \
+		remove_ending_space(route.comment); \
+	}
 /*
  * output of 'show route' on IPSO or GAIA
  */
@@ -133,29 +141,61 @@ int ipso_route_to_csv(char *name, FILE *f, struct st_options *o) {
 	int badline = 0;
 	struct route route;
 	int res;
+	int nhop = 0;
+	char type;
 
 	fprintf(o->output_file, "prefix;mask;device;GW;comment\n");
 
         while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
-		memset(&route, 0, sizeof(route));
 		line++;
 		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
+		if (isspace(s[0])) /* strangely some lines are prepended with a space ....*/
+			s++;
 		if (s[0] == 'C') {/* connected route */
+			memset(&route, 0, sizeof(route));
 			res = st_sscanf(s, ".*%Q.*$%32s", &route.subnet, route.device);
 			if (res < 2) {
 				debug(PARSEROUTE, 9, "line %lu invalid connected route '%s'\n", line, buffer);
+				memset(&route, 0, sizeof(route));
 				badline++;
 				continue;
 			}
+			type = 'C';
+			SET_COMMENT
 			fprint_route(o->output_file, &route, 3);
 			continue;
 		}
+		if (isspace(s[0])) {
+			if (strstr(s, "via ")) {
+				res = st_sscanf(s, ".*(via) %I.*%32[^ ,]", &route.gw, route.device);
+				if (res < 2) {
+					debug(PARSEROUTE, 9, "line %lu invalid line '%s'\n", line, buffer);
+					memset(&route, 0, sizeof(route));
+					badline++;
+					continue;
+				}
+			} else {
+				debug(PARSEROUTE, 9, "line %lu invalid line '%s'\n", line, buffer);
+				memset(&route, 0, sizeof(route));
+				badline++;
+				continue;
+			}
+			if (nhop == 0 || o->ecmp)
+				fprint_route(o->output_file, &route, 3);
+			nhop++;
+			continue;
+		}
+		nhop = 1;
+		memset(&route, 0, sizeof(route));
 		res = st_sscanf(s, ".*%Q *(via) %I.*%32[^ ,]", &route.subnet, &route.gw, route.device);
+		type = s[0];
 		if (res < 3) {
-			debug(PARSEROUTE, 9, "line %lu invalid connected route '%s'\n", line, buffer);
+			debug(PARSEROUTE, 9, "line %lu invalid line '%s'\n", line, buffer);
+			memset(&route, 0, sizeof(route));
 			badline++;
 			continue;
 		}
+		SET_COMMENT
 		fprint_route(o->output_file, &route, 3);
 	}
 	return 1;
@@ -241,13 +281,6 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o) {
 		debug(PARSEROUTE, 1, "line %lu Invalid '%s', inconsistent IP version\n", line, s); \
 		badline++; \
 		continue; \
-	}
-#define SET_COMMENT \
-	if (o->rt) { \
-		route.comment[0] = type; \
-		route.comment[1] = ' '; \
-		strxcpy(route.comment + 2, s + 2, 3); \
-		remove_ending_space(route.comment); \
 	}
 
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
