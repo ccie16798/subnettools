@@ -1,7 +1,7 @@
 /*
  * IPv4, IPv6 subnet/routes printing functions
  *
- * Copyright (C) 2014 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ * Copyright (C) 2014i, 2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
@@ -272,7 +272,7 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 	int i, j, i2, compression_level;
 	int res;
 	char c;
-	char buffer[128];
+	char buffer[256];
 	int field_width;
 	int pad_left, pad_value;
 	int o_num;
