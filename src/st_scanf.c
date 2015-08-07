@@ -350,7 +350,7 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 				res = get_subnet_or_ip(buffer, v_sub);
 			else
 				res = classfull_get_subnet(buffer, v_sub);
-			if (res < 1000) {
+			if (res > 0) {
 				debug(SCANF, 5, "'%s' is a valid IP\n", buffer);
 				n_found++;
 			} else {
@@ -370,7 +370,7 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 				return n_found;
 			}
 			res = string2addr(in + *j, v_addr, j2 -*j);
-			if (res < 1000) {
+			if (res > 0) {
 				debug(SCANF, 5, "'%s' is a valid IP\n", buffer);
 				n_found++;
 			} else {
@@ -570,7 +570,7 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 			v_s[j2 - *j] = '\0';
 			if (fmt[*i + 1] == 'S') {
 				res = get_subnet_or_ip(v_s, (struct subnet *)&poubelle);
-				if (res < 1000) {
+				if (res > 0) {
 					debug(SCANF, 2, "STRING '%s' at offset %d is an IP, refusing it\n", v_s, *j);
 					return n_found;
 				}
@@ -793,7 +793,7 @@ static int find_not_ip(char *remain, struct expr *e) {
 	if (i <= 2)
 		return 1;
 	buffer[i] = '\0';
-	if (get_subnet_or_ip(buffer, &s)  < 1000) {
+	if (get_subnet_or_ip(buffer, &s) > 0) {
 		e->skip_stop = i; /* remain[0...i] represents an IP, so dont try stop checking in that range */
 		return 0;
 	} else
@@ -812,7 +812,7 @@ static int find_ip(char *remain, struct expr *e) {
 	if (i <= 1)
 		return 0;
 	buffer[i] = '\0';
-	if (get_subnet_or_ip(buffer, &s)  < 1000) {
+	if (get_subnet_or_ip(buffer, &s) > 0) {
 		e->skip_stop = i; /* useful for .$* matching */
 		return 1;
 	}
@@ -832,7 +832,7 @@ static int find_classfull_subnet(char *remain, struct expr *e) {
 	if (i <= 2)
 		return 0;
 	buffer[i] = '\0';
-	if (classfull_get_subnet(buffer, &s)  < 1000) {
+	if (classfull_get_subnet(buffer, &s) > 0) {
 		e->skip_stop = i; /* useful for .$* matching */
 		return 1;
 	}

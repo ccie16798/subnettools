@@ -207,12 +207,12 @@ static int run_relation(int arc, char **argv, void *st_options) {
 	struct subnet subnet1, subnet2;
 
 	res = get_subnet_or_ip(argv[2], &subnet1);
-	if (res == BAD_IP) {
+	if (res < 0) {
 		printf("%s is not an IP\n", argv[2]);
 		return 0;
 	}
 	res = get_subnet_or_ip(argv[3], &subnet2);
-	if (res == BAD_IP) {
+	if (res < 0) {
 		printf("%s is not an IP\n", argv[3]);
 		return 0;
 	}
@@ -274,7 +274,7 @@ static int run_ipinfo(int arc, char **argv, void *st_options) {
 		return 0;
 	}
 	res = get_subnet_or_ip(argv[2], &subnet);
-	if (res > 1000) {
+	if (res < 0) {
 		fprintf(stderr, "Invalid IP %s\n", argv[2]);
 		return -1;
 	}
@@ -561,12 +561,12 @@ static int run_remove(int arc, char **argv, void *st_options) {
 
 	if (!strcasecmp(argv[2], "subnet")) {
 		res = get_subnet_or_ip(argv[3], &subnet1);
-		if (res == BAD_IP) {
+		if (res < 0) {
 			printf("Invalid IP %s\n", argv[3]);
 			return -1;
 		}
 		res = get_subnet_or_ip(argv[4], &subnet2);
-		if (res == BAD_IP) {
+		if (res < 0) {
 			printf("Invalid IP %s\n", argv[4]);
 			return -1;
 		}
@@ -586,7 +586,7 @@ static int run_remove(int arc, char **argv, void *st_options) {
 			return res;
 		}
 		res = get_subnet_or_ip(argv[4], &subnet2);
-		if (res == BAD_IP) {
+		if (res < 0) {
 			printf("Invalid IP %s\n", argv[4]);
 			return -1;
 		}

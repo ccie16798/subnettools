@@ -67,7 +67,7 @@ static int bgpcsv_prefix_handle(char *s, void *data, struct csv_state *state) {
 	while (isspace(s[i]))
 		i++;
 	res = get_subnet_or_ip(s + i, &subnet);
-	if (res > 1000) {
+	if (res < 0) {
 		debug(LOAD_CSV, 3, "invalid IP %s line %lu\n", s, state->line);
 		return CSV_INVALID_FIELD_BREAK;
 	}

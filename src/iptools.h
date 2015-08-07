@@ -8,8 +8,8 @@
 #define NOMATCH -1
 
 /* str2ipaddr, get_subnet_or_ip return values */
-#define BAD_MASK 4012
-#define BAD_IP 4012
+#define BAD_MASK -2
+#define BAD_IP -1
 #define IPV4_A 4
 #define IPV6_A 6
 #define IPV4_N 14 /*  IPV4_N must be IPV4_A + 10 */

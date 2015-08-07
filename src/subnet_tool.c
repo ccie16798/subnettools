@@ -49,7 +49,7 @@ static int netcsv_prefix_handle(char *s, void *data, struct csv_state *state) {
 	struct subnet subnet;
 
 	res = get_subnet_or_ip(s, &subnet);
-	if (res > 1000) {
+	if (res < 0) {
 		debug(LOAD_CSV, 3, "invalid IP %s line %lu\n", s, state->line);
 		return CSV_INVALID_FIELD_BREAK;
 	}
@@ -507,7 +507,7 @@ int network_grep_file(char *name, struct st_options *nof, char *ip) {
 		return -2;
 	}
 	res = get_subnet_or_ip(ip, &subnet1);
-	if (res > 1000) {
+	if (res < 0) {
 		fprintf(stderr, "WTF? \"%s\"  IS  a prefix/mask ?? really?\n", ip);
 		return -3;
 	}
@@ -555,7 +555,7 @@ int network_grep_file(char *name, struct st_options *nof, char *ip) {
 					reevaluate = 1; /* we need to reeavulate s, it could be an IP */
 			} else {
 				res = get_subnet_or_ip(s, &subnet);
-				if (res > 1000 && nof->grep_field)  {
+				if (res < 0 && nof->grep_field)  {
 					debug(GREP, 2, "field %s line %lu not an IP, bad grep_offset value???\n",  s, line);
 					break;
 				} else if (res > 1000) {/* c pas une IP */
