@@ -397,10 +397,7 @@ int cisco_fw_to_csv(char *name, FILE *f, struct st_options *o) {
 		if (find_hop) {
 			res = st_sscanf(s, ".*(via )%I.*$%32s", &route.gw, route.device);
 			if (res < 2) {
-				debug(PARSEROUTE, 2, "Invalid line %lu\n", line);
-				badline++;
-				memset(&route, 0, sizeof(route));
-				continue;
+				BAD_LINE_CONTINUE
 			}
 			SET_COMMENT
 			fprint_route(o->output_file, &route, 3);
@@ -411,10 +408,7 @@ int cisco_fw_to_csv(char *name, FILE *f, struct st_options *o) {
 		if (s[0] == 'C' || s[0] == 'c') { /* connected route */
 			res = st_sscanf(s, "%c.*%I %M.*$%32s", &type, &route.subnet.ip_addr, &route.subnet.mask, route.device);
 			if (res < 4) {
-				debug(PARSEROUTE, 2, "Invalid line %lu\n", line);
-				badline++;
-				memset(&route, 0, sizeof(route));
-				continue;
+				BAD_LINE_CONTINUE
 			}
 		} else {
 			res = st_sscanf(s, "%c.*%I %M.*(via )%I.*$%32s", &type, &route.subnet.ip_addr, &route.subnet.mask, &route.gw, route.device);
@@ -423,10 +417,7 @@ int cisco_fw_to_csv(char *name, FILE *f, struct st_options *o) {
 				continue;
 			}
 			if (res < 5) {
-				debug(PARSEROUTE, 2, "Invalid line %lu\n", line);
-				badline++;
-				memset(&route, 0, sizeof(route));
-				continue;
+				BAD_LINE_CONTINUE
 			}
 		}
 		SET_COMMENT
@@ -454,10 +445,7 @@ int cisco_fw_conf_to_csv(char *name, FILE *f, struct st_options *o) {
 		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
 		res = st_sscanf(s, "(ipv6 )?route *%32S *%I.%M %I", route.device, &route.subnet.ip_addr, &route.subnet.mask, &route.gw);
 		if (res < 4) {
-			debug(PARSEROUTE, 2, "Invalid line %lu\n", line);
-			badline++;
-			memset(&route, 0, sizeof(route));
-			continue;
+			BAD_LINE_CONTINUE
 		}
 		fprint_route(o->output_file, &route, 3);
 		memset(&route, 0, sizeof(route));
@@ -481,9 +469,7 @@ int cisco_routeconf_to_csv(char *name, FILE *f, struct st_options *o) {
 		debug(PARSEROUTE, 9, "line %lu buffer : '%s'", line, s);
 		res = sto_sscanf(buffer, "ip(v6)? route.*%I.%M (%32S)? *%I.*(name) %128s", sto, 6);
 		if (res < 2) {
-			debug(PARSEROUTE, 2, "Invalid line %lu\n", line);
-			badline++;
-			continue;
+			BAD_LINE_CONTINUE
 		}
 		copy_ipaddr(&route.subnet.ip_addr, &sto[0].s_addr);
 		route.subnet.mask = sto[1].s_int;
