@@ -1,11 +1,13 @@
 #ifndef IPTOOLS_H
 #define IPTOOLS_H
 
+/* subnet_compare return values */
 #define EQUALS 1
 #define INCLUDED 2
 #define INCLUDES 3
 #define NOMATCH -1
 
+/* str2ipaddr, get_subnet_or_ip return values */
 #define BAD_MASK 4012
 #define BAD_IP 4012
 #define IPV4_A 4
