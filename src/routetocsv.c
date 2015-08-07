@@ -93,6 +93,12 @@ int run_csvconverter(char *name, char *filename, struct st_options *o) {
 	csvconverter_help(stderr);
 	return -2;
 }
+
+#define BAD_LINE_CONTINUE \
+	debug(PARSEROUTE, 9, "line %lu invalid route '%s'\n", line, buffer); \
+	memset(&route, 0, sizeof(route)); \
+	badline++; \
+	continue; \
 /*
  * output of 'show routing route' on Palo alto
  */
@@ -112,9 +118,7 @@ int palo_to_csv(char *name, FILE *f, struct st_options *o) {
 		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
 		res = st_sscanf(s, "%P *%I.*$%32s", &route.subnet, &route.gw, route.device);
 		if (res < 1) {
-			debug(PARSEROUTE, 9, "line %lu invalid route '%s'\n", line, buffer);
-			badline++;
-			continue;
+			BAD_LINE_CONTINUE
 		}
 		/* on host route the last string is a flag; discard device in that case */
 		if (strlen(route.device) < 3)
