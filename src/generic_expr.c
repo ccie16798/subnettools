@@ -124,6 +124,10 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 				return -1;
 			return res1 & res2;
 		}
+		if (pattern[i] == '(' || pattern[i] == ')') {
+			debug(GEXPR, 1, "Invalid pattern '%s', lonely parenthesis found\n", pattern);
+			return -1;
+		}
 		i++;
 	}
 	return simple_expr(pattern, i, e);
