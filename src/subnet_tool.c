@@ -896,7 +896,7 @@ unsigned long long sum_subnet_file(struct subnet_file *sf) {
 	return sum;
 }
 
-int subnet_sort_ascending(struct subnet_file *sf) {
+int subnet_sort_ascending2(struct subnet_file *sf) {
 	unsigned long i;
 	TAS tas;
 	struct route *new_r, *r;
@@ -1177,4 +1177,98 @@ int subnet_split_2(FILE *out, const struct subnet *s, char *string_levels) {
 		i++;
 	}
 	return 1;
+}
+
+static int __heap_gw_is_superior(void *v1, void *v2) {
+	struct subnet *s1 = &((struct route *)v1)->subnet;
+	struct subnet *s2 = &((struct route *)v2)->subnet;
+	struct ip_addr *gw1 = &((struct route *)v1)->gw;
+	struct ip_addr *gw2 = &((struct route *)v2)->gw;
+
+	if (is_equal_ip(gw1, gw2))
+		return subnet_is_superior(s1, s2);
+	else
+		return addr_is_superior(gw1, gw2);
+}
+
+static int __heap_mask_is_superior(void *v1, void *v2) {
+	struct subnet *s1 = &((struct route *)v1)->subnet;
+	struct subnet *s2 = &((struct route *)v2)->subnet;
+
+	if (s1->mask == s2->mask)
+		return subnet_is_superior(s1, s2);
+	else
+		return (s1->mask < s2->mask);
+}
+
+static int __subnet_sort_by(struct subnet_file *sf, int cmpfunc(void *v1, void *v2)) {
+	unsigned long i;
+	TAS tas;
+	struct route *new_r, *r;
+
+	if (sf->nr == 0)
+		return 0;
+	debug_timing_start(2);
+	alloc_tas(&tas, sf->nr, cmpfunc);
+
+	new_r = malloc(sf->max_nr * sizeof(struct route));
+
+	if (tas.tab == NULL || new_r == NULL) {
+		fprintf(stderr, "%s : no memory\n", __FUNCTION__);
+		debug_timing_end(2);
+		return -1;
+	}
+	debug(MEMORY, 2, "Allocated %lu bytes for new struct route\n", sf->max_nr * sizeof(struct route));
+	/* basic heapsort */
+	for (i = 0 ; i < sf->nr; i++)
+		addTAS(&tas, &(sf->routes[i]));
+	for (i = 0 ; i < sf->nr; i++) {
+		r = popTAS(&tas);
+		copy_route(&new_r[i], r);
+	}
+	free(tas.tab);
+	free(sf->routes);
+	sf->routes = new_r;
+	debug_timing_end(2);
+	return 0;
+}
+
+struct subnetsort {
+	char *name;
+	int (*cmpfunc)(void *v1, void *v2);
+};
+
+static const struct subnetsort subnetsort[] = {
+	{ "prefix",	&__heap_subnet_is_superior },
+	{ "gw",		&__heap_gw_is_superior },
+	{ "mask",	&__heap_mask_is_superior },
+	{NULL,		NULL}
+};
+
+void subnet_available_cmpfunc(FILE *out) {
+	int i = 0;
+
+	while (1) {
+		if (subnetsort[i].name == NULL)
+			break;
+		fprintf(out, " %s\n", subnetsort[i].name);
+		i++;
+	}
+}
+
+int subnet_sort_by(struct subnet_file *sf, char *name) {
+	int i = 0;
+
+	while (1) {
+		if (subnetsort[i].name == NULL)
+			break;
+		if (!strncasecmp(name, subnetsort[i].name, strlen(name)))
+			return __subnet_sort_by(sf, subnetsort[i].cmpfunc);
+		i++;
+	}
+	return -1664;
+}
+
+int subnet_sort_ascending(struct subnet_file *sf) {
+	return __subnet_sort_by(sf, __heap_subnet_is_superior);
 }
