@@ -1186,6 +1186,7 @@ static int __subnet_sort_by(struct subnet_file *sf, int cmpfunc(void *v1, void *
 		debug_timing_end(2);
 		return -1;
 	}
+	tas.print = __heap_print_subnet;
 	debug(MEMORY, 2, "Allocated %lu bytes for new struct route\n", sf->max_nr * sizeof(struct route));
 	/* basic heapsort */
 	for (i = 0 ; i < sf->nr; i++)
