@@ -517,7 +517,7 @@ static int run_sort(int arc, char **argv, void *st_options) {
 
 	if (res < 0)
 		return res;
-	res = subnet_sort_ascending(&sf);
+	res = subnet_sort_by(&sf, "prefix");
 	if (res < 0) {
 		fprintf(stderr, "Couldnt sort file %s\n", argv[2]);
 		return res;

@@ -14,6 +14,7 @@ void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *
 int network_grep_file(char *name, struct st_options *nof, char *ip);
 
 int subnet_sort_ascending(struct subnet_file *sf);
+int subnet_sort_by(struct subnet_file *sf, char *name);
 
 /* remove duplicate/included entries, and sort */
 int subnet_file_simplify(struct subnet_file *sf);

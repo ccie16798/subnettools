@@ -1237,7 +1237,3 @@ int subnet_sort_by(struct subnet_file *sf, char *name) {
 	}
 	return -1664;
 }
-
-int subnet_sort_ascending(struct subnet_file *sf) {
-	return __subnet_sort_by(sf, __heap_subnet_is_superior);
-}
