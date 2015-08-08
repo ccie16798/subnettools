@@ -8,6 +8,7 @@ struct tas {
 	int (*compare)(void *, void *);
 	void (*print)(void *);
 };
+
 typedef struct tas TAS;
 
 int alloc_tas(TAS *tas, unsigned long n, int (*compare)(void *v1, void *v2));

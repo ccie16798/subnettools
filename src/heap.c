@@ -156,6 +156,7 @@ static int compare_int(void *a, void *b) {
 static void printint(void *i) {
 	printf("%d", *((int *)i));
 }
+
 int main(int argc, char **argv) {
 	TAS t;
 	int i;
