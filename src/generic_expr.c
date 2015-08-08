@@ -63,34 +63,51 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 	int i;
 	char buffer[128];
 	int res1, res2;
-	strxcpy(buffer, pattern, len);
+	int parenthese = 0;
 
-	debug(GEXPR, 9, "Pattern : '%s'\n", buffer);
+	strxcpy(buffer, pattern, len + 1);
+	debug(GEXPR, 9, "Pattern : '%s', len=%d\n", buffer, len);
 	
 	if (pattern[0] == '(') {
 		debug(GEXPR, 3, "Found a '(', trying to split expr\n");
 		i = 1;
+		parenthese++;
 		while (1) {
 			if (pattern[i] == '\0' || i == len) {
 				debug(GEXPR, 1, "Invalid pattern '%s'\n", pattern);
 				return -1;
 			}
-			if (pattern[i] == ')') {
-				strxcpy(buffer, pattern + i, len - i);
+			if (pattern[i] == '(')
+				parenthese++;
+			if (pattern[i] == ')' && parenthese == 1) {
 				debug(GEXPR, 3, "Found closing '(', creating new expri '%s'\n", buffer);
-				res1 = run_generic_expr(pattern + i, len - i, e);
-				break;
-			}
+				res1 = run_generic_expr(pattern + 1,  i - 1, e);
+				res2 = run_generic_expr(pattern + i + 2,  len - i - 2, e);
+				if (pattern[i + 1] == '|')
+					return res1 | res2;
+				else if (pattern[i + 1] == '&')
+					return res1 & res2;
+				debug(GEXPR, 3, "A comparator is required after ) '%s'\n", buffer);
+				return -1;
+			} else if (pattern[i] == ')')
+				parenthese--;
 			i++;
 		}
 	}
 	i = 0;
 	while (1) {
-		if (is_and_or(pattern[i])) {
-
-		}
 		if (i == len || pattern[i] == '\0')
 			break;
+		if (pattern[i] == '|') {
+			res1 = run_generic_expr(pattern, i, e);
+			res2 = run_generic_expr(pattern + i + 1, len - i - 1, e);
+			return res1 | res2;
+		}
+		if (pattern[i] == '&') {
+			res1 = run_generic_expr(pattern, i, e);
+			res2 = run_generic_expr(pattern + i + 1, len - i - 1, e);
+			return res1 & res2;
+		}
 		i++;
 	}
 	return simple_expr(pattern, i, e);
@@ -106,6 +123,7 @@ int int_compare(char *s1, char *s2, char o) {
 		return (l1 < l2);
 	if (o == '>')
 		return (l1 > l2);
+	return 0;
 }
 
 #ifdef TEST

@@ -742,7 +742,7 @@ static int run_test(int arc, char **argv, void *st_options) {
 	int res;
 
 	e.compare = int_compare;
-	res = simple_expr(argv[2], strlen(argv[2]), &e);
+	res = run_generic_expr(argv[2], strlen(argv[2]), &e);
 	printf("res=%d\n", res);
 	return 0;
 	load_bgpcsv(argv[2], &sf1, st_options);
