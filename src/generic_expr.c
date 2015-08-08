@@ -34,6 +34,10 @@ int simple_expr(char *pattern, int len, struct generic_expr *e) {
 			debug(GEXPR, 1, "Invalid expr '%s', no comparator\n", pattern);
 			return -1;
 		}
+		if (i == strlen(string)) {
+			debug(GEXPR, 1, "expr '%s' is too long, max len=%d\n", pattern, (int)strlen(string));
+			return -1;
+		}
 		if (is_comp(pattern[i]))
 			break;
 		string[i] = pattern[i];	
@@ -46,6 +50,10 @@ int simple_expr(char *pattern, int len, struct generic_expr *e) {
 	while (1) {
 		if (pattern[i] == '\0' || i == len)
 			break;
+		if (i - j == strlen(value)) {
+			debug(GEXPR, 1, "expr '%s' is too long, max len=%d\n", pattern, (int)strlen(value));
+			return -1;
+		}
 		if (is_comp(pattern[i])) {
 			debug(GEXPR, 1, "Invalid expr '%s', 2 x comparators\n", pattern);
 			return -1;
@@ -133,15 +141,3 @@ int int_compare(char *s1, char *s2, char o) {
 		return (l1 > l2);
 	return 0;
 }
-
-#ifdef TEST
-int main(int argc, char **argv) {
-	struct generic_expr e;
-	int res;	
-	e.compare = int_compare;
-	
-	res = simple_expr(argv[1], strlen(argv[1]), &e);
-	printf("result = %d\n", res);
-}
-
-#endif
