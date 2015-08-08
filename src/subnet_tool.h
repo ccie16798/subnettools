@@ -15,6 +15,7 @@ int network_grep_file(char *name, struct st_options *nof, char *ip);
 
 int subnet_sort_ascending(struct subnet_file *sf);
 int subnet_sort_by(struct subnet_file *sf, char *name);
+void subnet_available_cmpfunc(FILE *out);
 
 /* remove duplicate/included entries, and sort */
 int subnet_file_simplify(struct subnet_file *sf);

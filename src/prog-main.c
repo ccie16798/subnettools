@@ -58,6 +58,7 @@ static int run_simplify2(int argc, char **argv, void *st_options);
 static int run_common(int argc, char **argv, void *st_options);
 static int run_addfiles(int argc, char **argv, void *st_options);
 static int run_sort(int argc, char **argv, void *st_options);
+static int run_sortby(int argc, char **argv, void *st_options);
 static int run_sum(int argc, char **argv, void *st_options);
 static int run_scanf(int argc, char **argv, void *st_options);
 static int run_subnetagg(int argc, char **argv, void *st_options);
@@ -107,6 +108,7 @@ struct st_command commands[] = {
 	{ "common",	&run_common,	2},
 	{ "addfiles",	&run_addfiles,	2},
 	{ "sort",	&run_sort,	1},
+	{ "sortby",	&run_sortby,	1},
 	{ "sum",	&run_sum,	1},
 	{ "subnetagg",	&run_subnetagg,	1},
 	{ "routeagg",	&run_routeagg,	1},
@@ -152,6 +154,8 @@ void usage() {
 	printf("Route file simplification\n");
 	printf("-------------------------\n");
 	printf("sort FILE1          : sort CSV FILE1\n");
+	printf("sortby name file    : sort CSV file by (prefix|gw|mask), prefix is always a tie-breaker\n");
+	printf("sortby help	    : print available sort options\n");
 	printf("subnetagg FILE1     : sort and aggregate subnets in CSV FILE1; GW is not checked\n");
 	printf("routeagg  FILE1     : sort and aggregate subnets in CSV FILE1; GW is checked\n");
 	printf("simplify1 FILE1     : simplify CSV subnet file FILE1; duplicate or included networks are removed; GW is checked\n");
@@ -524,6 +528,33 @@ static int run_sort(int arc, char **argv, void *st_options) {
 	}
 	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
 	free(sf.routes);
+	return 0;
+}
+
+static int run_sortby(int arc, char **argv, void *st_options) {
+	struct subnet_file sf1;
+	int res;
+	struct st_options *o = st_options;
+
+	if (!strncmp(argv[2], "help", strlen(argv[2]))) {
+		subnet_available_cmpfunc(stderr);
+		return 0;
+	}
+	if (argv[3] == NULL) {
+		fprintf(stderr, "Not enough argument for subnetsortby\n");
+		return -1;
+	}
+	res = load_netcsv_file(argv[3], &sf1, st_options);
+	if (res < 0)
+		return res;
+	res = subnet_sort_by(&sf1, argv[2]);
+	if (res == -1664) {
+		fprintf(stderr, "Cannot sort by '%s'\n", argv[2]);
+		fprintf(stderr, "You can sort by :\n");
+		subnet_available_cmpfunc(stderr);
+		return res;
+	}
+	fprint_subnet_file(o->output_file, &sf1, 3);
 	return 0;
 }
 
