@@ -750,7 +750,7 @@ static int run_gen_expr(int arc, char **argv, void *st_options) {
 	struct generic_expr e;
 	int res;
 
-	e.compare = int_compare;
+	init_generic_expr(&e, argv[2], int_compare);
 	res = run_generic_expr(argv[2], strlen(argv[2]), &e);
 	printf("res=%d\n", res);
 	return 0;
