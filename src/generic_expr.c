@@ -41,6 +41,7 @@ int simple_expr(char *pattern, int len, struct generic_expr *e) {
 	}
 	operator = pattern[i];
 	string[i] = '\0';
+	i++;
 	j = i;
 	while (1) {
 		if (pattern[i] == '\0' || i == len)
@@ -95,8 +96,6 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 	return simple_expr(pattern, i, e);
 }
 
-#ifdef TEST
-
 int int_compare(char *s1, char *s2, char o) {
 	int l1 = atoi(s1);
 	int l2 = atoi(s2);
@@ -109,6 +108,7 @@ int int_compare(char *s1, char *s2, char o) {
 		return (l1 > l2);
 }
 
+#ifdef TEST
 int main(int argc, char **argv) {
 	struct generic_expr e;
 	int res;	

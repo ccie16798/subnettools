@@ -8,6 +8,8 @@ struct generic_expr {
 };
 
 
+int simple_expr(char *pattern, int len, struct generic_expr *e);
+int int_compare(char *, char *, char);
 
 #else
 #endif

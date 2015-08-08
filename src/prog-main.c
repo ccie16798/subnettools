@@ -24,6 +24,7 @@
 #include "st_scanf.h"
 #include "ipinfo.h"
 #include "bgp_tool.h"
+#include "generic_expr.h"
 
 const char *default_fmt = "%I;%m;%D;%G;%C";
 
@@ -737,7 +738,13 @@ static int run_bgpsortby(int arc, char **argv, void *st_options) {
 static int run_test(int arc, char **argv, void *st_options) {
 	struct bgp_file sf1;
 	struct bgp_file sf2;
+	struct generic_expr e;
+	int res;
 
+	e.compare = int_compare;
+	res = simple_expr(argv[2], strlen(argv[2]), &e);
+	printf("res=%d\n", res);
+	return 0;
 	load_bgpcsv(argv[2], &sf1, st_options);
 	load_bgpcsv(argv[3], &sf2, st_options);
 	return 0;
