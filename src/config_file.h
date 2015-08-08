@@ -21,6 +21,7 @@ struct file_options {
 		(type *)( (char *)__mptr - offsetof(type,member) );})
 
 #define  FILEOPT_LINE(__truc, __STRUCT, __TYPE)  #__truc, __TYPE, sizeof(((__STRUCT *)0)->__truc), offsetof(__STRUCT, __truc)
+/* This struct must be set in the *.c file using it*/
 extern struct file_options fileoptions[];
 
 int open_config_file(char *name, void *nof);
