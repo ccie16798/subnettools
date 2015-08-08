@@ -41,6 +41,8 @@ int main(int argc, char **argv) {
 
 	remove_ending_space(argv[1]);
 	printf("'%s'\n", argv[1]);
+	strxcpy(buff, argv[1], 4);
+	printf("'%s'\n", buff);
 	memset(buff, 0, 28);
 	sscanf(argv[1], "%x", &a);
 	res = snprint_hexshort(buff, a, 12);
