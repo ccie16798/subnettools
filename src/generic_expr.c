@@ -1,0 +1,121 @@
+/*
+ * Generic expression matching
+ *
+ * Copyright (C) 2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of version 2 of the GNU General Public License
+ * as published by the Free Software Foundation.
+ */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "debug.h"
+#include "generic_expr.h"
+#include "utils.h"
+
+
+static inline int is_and_or(char c) {
+	return (c == '|') | (c == '&');
+}
+
+static inline int is_comp(char c) {
+	return (c == '=') | (c == '<') | (c == '>') ;
+}
+
+int simple_expr(char *pattern, int len, struct generic_expr *e) {
+	int i = 0, j;
+	char string[256];
+	char value[256];
+	char operator;
+
+	while (1) {
+		if (pattern[i] == '\0' || i == len) {
+			debug(GEXPR, 1, "Invalid expr '%s', no comparator\n", pattern);
+			return -1;
+		}
+		if (is_comp(pattern[i]))
+			break;
+		string[i] = pattern[i];	
+		i++;
+	}
+	operator = pattern[i];
+	string[i] = '\0';
+	j = i;
+	while (1) {
+		if (pattern[i] == '\0' || i == len)
+			break;
+		if (is_comp(pattern[i])) {
+			debug(GEXPR, 1, "Invalid expr '%s', 2 x comparators\n", pattern);
+			return -1;
+		}
+		value[i - j] = pattern[i];
+		i++;
+	}
+	value[i - j] = '\0';
+	debug(GEXPR, 5, "comparing '%s' against '%s'\n", string, value);
+	return e->compare(string, value, operator);	
+}
+
+
+int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
+	int i;
+	char buffer[128];
+	int res1, res2;
+	strxcpy(buffer, pattern, len);
+
+	debug(GEXPR, 9, "Pattern : '%s'\n", buffer);
+	
+	if (pattern[0] == '(') {
+		debug(GEXPR, 3, "Found a '(', trying to split expr\n");
+		i = 1;
+		while (1) {
+			if (pattern[i] == '\0' || i == len) {
+				debug(GEXPR, 1, "Invalid pattern '%s'\n", pattern);
+				return -1;
+			}
+			if (pattern[i] == ')') {
+				strxcpy(buffer, pattern + i, len - i);
+				debug(GEXPR, 3, "Found closing '(', creating new expri '%s'\n", buffer);
+				res1 = run_generic_expr(pattern + i, len - i, e);
+				break;
+			}
+			i++;
+		}
+	}
+	i = 0;
+	while (1) {
+		if (is_and_or(pattern[i])) {
+
+		}
+		if (i == len || pattern[i] == '\0')
+			break;
+		i++;
+	}
+	return simple_expr(pattern, i, e);
+}
+
+#ifdef TEST
+
+int int_compare(char *s1, char *s2, char o) {
+	int l1 = atoi(s1);
+	int l2 = atoi(s2);
+
+	if (o == '=')
+		return (l1 == l2);
+	if (o == '<')
+		return (l1 < l2);
+	if (o == '>')
+		return (l1 > l2);
+}
+
+int main(int argc, char **argv) {
+	struct generic_expr e;
+	int res;	
+	e.compare = int_compare;
+	
+	res = simple_expr(argv[1], strlen(argv[1]), &e);
+	printf("result = %d\n", res);
+}
+
+#endif
