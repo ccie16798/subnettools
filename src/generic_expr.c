@@ -38,6 +38,12 @@ int simple_expr(char *pattern, int len, struct generic_expr *e) {
 	char value[256];
 	char operator;
 
+	e->recursion_level++;
+	if (e->recursion_level >= GENERIC_ST_MAX_RECURSION) {
+		debug(GEXPR, 1, "Invalid expr '%s', too many recursion level\n", e->pattern);
+		return -1;
+	}
+
 	while (1) {
 		if (pattern[i] == '\0' || i == len) {
 			debug(GEXPR, 1, "Invalid expr '%s', no comparator\n", pattern);
@@ -82,6 +88,11 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 	int res1, res2;
 	int parenthese = 0;
 
+	e->recursion_level++;
+	if (e->recursion_level >= GENERIC_ST_MAX_RECURSION) {
+		debug(GEXPR, 1, "Invalid expr '%s', too many recursion level\n", e->pattern);
+		return -1;
+	}
 	strxcpy(buffer, pattern, len + 1);
 	debug(GEXPR, 9, "Pattern : '%s', len=%d\n", buffer, len);
 	
@@ -99,9 +110,11 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 			if (pattern[i] == ')' && parenthese == 1) {
 				debug(GEXPR, 3, "Found closing (expr)', recursion\n");
 				res1 = run_generic_expr(pattern + 1,  i - 1, e);
+				e->recursion_level--;
 				if (pattern[i + 1] == '\0' || len == i + 1)
 					return res1;
 				res2 = run_generic_expr(pattern + i + 2,  len - i - 2, e);
+				e->recursion_level--;
 				if (res1 == -1 || res2 == -1)
 					return -1;
 				if (pattern[i + 1] == '|')
@@ -121,14 +134,18 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 			break;
 		if (pattern[i] == '|') {
 			res1 = run_generic_expr(pattern, i, e);
+			e->recursion_level--;
 			res2 = run_generic_expr(pattern + i + 1, len - i - 1, e);
+			e->recursion_level--;
 			if (res1 == -1 || res2 == -1)
 				return -1;
 			return res1 | res2;
 		}
 		if (pattern[i] == '&') {
 			res1 = run_generic_expr(pattern, i, e);
+			e->recursion_level--;
 			res2 = run_generic_expr(pattern + i + 1, len - i - 1, e);
+			e->recursion_level--;
 			if (res1 == -1 || res2 == -1)
 				return -1;
 			return res1 & res2;
@@ -139,7 +156,9 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 		}
 		i++;
 	}
-	return simple_expr(pattern, i, e);
+	res1 = simple_expr(pattern, i, e);
+	e->recursion_level--;
+	return res1;
 }
 
 int int_compare(char *s1, char *s2, char o) {
