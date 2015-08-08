@@ -896,38 +896,6 @@ unsigned long long sum_subnet_file(struct subnet_file *sf) {
 	return sum;
 }
 
-int subnet_sort_ascending2(struct subnet_file *sf) {
-	unsigned long i;
-	TAS tas;
-	struct route *new_r, *r;
-
-	if (sf->nr == 0)
-		return 0;
-	debug_timing_start(2);
-	alloc_tas(&tas, sf->nr, __heap_subnet_is_superior);
-	tas.print = &__heap_print_subnet;
-
-	new_r = malloc(sf->max_nr * sizeof(struct route));
-
-	if (tas.tab == NULL||new_r == NULL) {
-		fprintf(stderr, "%s : no memory\n", __FUNCTION__);
-		debug_timing_end(2);
-		return -1;
-	}
-	debug(MEMORY, 2, "Allocated %lu bytes for new struct route\n", sf->max_nr * sizeof(struct route));
-	/* basic heapsort */
-	for (i = 0 ; i < sf->nr; i++)
-		addTAS(&tas, &(sf->routes[i]));
-	for (i = 0 ; i < sf->nr; i++) {
-		r = popTAS(&tas);
-		copy_route(&new_r[i], r);
-	}
-	free(tas.tab);
-	free(sf->routes);
-	sf->routes = new_r;
-	debug_timing_end(2);
-	return 0;
-}
 /*
  * result is stored in *sf2
  */
