@@ -74,6 +74,7 @@ static int run_bgpsortby(int argc, char **argv, void *st_options);
 static int run_echo(int argc, char **argv, void *st_options);
 static int run_print(int argc, char **argv, void *st_options);
 static int run_test(int argc, char **argv, void *st_options);
+static int run_gen_expr(int argc, char **argv, void *st_options);
 static int run_test2(int argc, char **argv, void *st_options);
 
 static int option_verbose(int argc, char **argv, void *st_options);
@@ -115,6 +116,7 @@ struct st_command commands[] = {
 	{ "help",	&run_help,	0},
 	{ "version",	&run_version,	0},
 	{ "confdesc",	&run_confdesc,	0},
+	{ "exprtest",	&run_gen_expr,	1, 1},
 	{ "test",	&run_test,	1, 1},
 	{ "test2",	&run_test2,	2, 1},
 	{NULL, 		NULL,		0}
@@ -738,15 +740,19 @@ static int run_bgpsortby(int arc, char **argv, void *st_options) {
 static int run_test(int arc, char **argv, void *st_options) {
 	struct bgp_file sf1;
 	struct bgp_file sf2;
+
+	load_bgpcsv(argv[2], &sf1, st_options);
+	load_bgpcsv(argv[3], &sf2, st_options);
+	return 0;
+}
+
+static int run_gen_expr(int arc, char **argv, void *st_options) {
 	struct generic_expr e;
 	int res;
 
 	e.compare = int_compare;
 	res = run_generic_expr(argv[2], strlen(argv[2]), &e);
 	printf("res=%d\n", res);
-	return 0;
-	load_bgpcsv(argv[2], &sf1, st_options);
-	load_bgpcsv(argv[3], &sf2, st_options);
 	return 0;
 }
 
