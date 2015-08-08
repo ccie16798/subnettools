@@ -85,6 +85,8 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 				if (pattern[i + 1] == '\0' || len == i + 1)
 					return res1;
 				res2 = run_generic_expr(pattern + i + 2,  len - i - 2, e);
+				if (res1 == -1 || res2 == -1)
+					return -1;
 				if (pattern[i + 1] == '|')
 					return res1 | res2;
 				else if (pattern[i + 1] == '&')
@@ -103,11 +105,15 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 		if (pattern[i] == '|') {
 			res1 = run_generic_expr(pattern, i, e);
 			res2 = run_generic_expr(pattern + i + 1, len - i - 1, e);
+			if (res1 == -1 || res2 == -1)
+				return -1;
 			return res1 | res2;
 		}
 		if (pattern[i] == '&') {
 			res1 = run_generic_expr(pattern, i, e);
 			res2 = run_generic_expr(pattern + i + 1, len - i - 1, e);
+			if (res1 == -1 || res2 == -1)
+				return -1;
 			return res1 & res2;
 		}
 		i++;
