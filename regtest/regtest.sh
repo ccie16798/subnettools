@@ -107,10 +107,9 @@ reg_test_scanf() {
 }
 
 result() {
-	echo -n "Summary : "
-	echo -ne "\033[32m $n_ok OK\033[0m"
-	echo -n ","
-	echo -e "\033[31m $n_ko KO\033[0m"
+	echo "Summary : "
+	echo -e "\033[32m$n_ok OK\033[0m"
+	echo -e "\033[31m$n_ko KO\033[0m"
 }
 
 

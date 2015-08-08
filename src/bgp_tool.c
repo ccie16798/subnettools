@@ -172,7 +172,7 @@ static int bgpcsv_best_handle(char *s, void *data, struct csv_state *state) {
 
 static int bgpcsv_origin_handle(char *s, void *data, struct csv_state *state) {
 	struct bgp_file *sf = data;
-	int i;
+	int i = 0;
 
 	while (isspace(s[i]))
 		i++;
