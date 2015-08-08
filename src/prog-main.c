@@ -12,6 +12,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "debug.h"
+#include <sys/types.h>
 #include <sys/resource.h>
 #include "iptools.h"
 #include "routetocsv.h"
