@@ -80,8 +80,10 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 			if (pattern[i] == '(')
 				parenthese++;
 			if (pattern[i] == ')' && parenthese == 1) {
-				debug(GEXPR, 3, "Found closing '(', creating new expri '%s'\n", buffer);
+				debug(GEXPR, 3, "Found closing (expr)', recursion\n");
 				res1 = run_generic_expr(pattern + 1,  i - 1, e);
+				if (pattern[i + 1] == '\0' || len == i + 1)
+					return res1;
 				res2 = run_generic_expr(pattern + i + 2,  len - i - 2, e);
 				if (pattern[i + 1] == '|')
 					return res1 | res2;
