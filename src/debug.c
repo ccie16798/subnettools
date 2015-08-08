@@ -31,6 +31,7 @@ struct debug debugs[] = {
 	{ "fmt",	__D_FMT,	"debug FMT dynamic output" },
 	{ "scanf",	__D_SCANF,	"debug st_scanf" },
 	{ "bgpcmp",	__D_BGPCMP,	"debug BGP compare functions" },
+	{ "expr",	__D_GEXPR,	"debug generic expression matching" },
 	{0, 0}
 };
 

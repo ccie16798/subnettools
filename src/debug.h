@@ -4,7 +4,7 @@
 #define __D_ALL		0
 #define __D_TIMING	1
 #define __D_MEMORY   	2
-#define __D_LOADFILE 	3  // UNUSED
+#define __D_LOADFILE 	3  /* UNUSED */
 #define __D_PARSEIPV6	4
 #define __D_PARSEOPTS	5
 #define __D_PAIP	6
@@ -23,6 +23,7 @@
 #define __D_ADDRREMOVE	31
 #define __D_SPLIT	32
 #define __D_BGPCMP	40
+#define __D_GEXPR	50
 
 #define debug(__EVENT, __DEBUG_LEVEL, __FMT...) \
 	do { \
@@ -45,8 +46,6 @@ void parse_debug (char *string);
 void debug_timing_start();
 void __debug_timing_end();
 #define debug_timing_end(__level) __debug_timing_end(__FUNCTION__, __level)
-
-
 
 #else
 #endif
