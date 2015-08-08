@@ -136,6 +136,9 @@ reg_test simplify2 BURP
 reg_test simplify1 simple
 reg_test simplify2 simple
 reg_test sort aggipv4
+reg_test sortby prefix	sortme
+reg_test sortby mask	sortme
+reg_test sortby gw	sortme
 reg_test simplify1 simplify1
 reg_test simplify2 simplify1
 reg_test sort aggipv6
