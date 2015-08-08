@@ -23,6 +23,15 @@ static inline int is_comp(char c) {
 	return (c == '=') | (c == '<') | (c == '>') ;
 }
 
+void init_generic_expr(struct generic_expr *e, const char *s, int (*compare)(char *, char *, char)) {
+	e->pattern = s;
+	if (s == NULL)
+		return;
+	e->pattern_len = strlen(s);
+	e->recursion_level = 0;
+	e->compare = compare;
+}
+
 int simple_expr(char *pattern, int len, struct generic_expr *e) {
 	int i = 0, j;
 	char string[256];
@@ -34,8 +43,8 @@ int simple_expr(char *pattern, int len, struct generic_expr *e) {
 			debug(GEXPR, 1, "Invalid expr '%s', no comparator\n", pattern);
 			return -1;
 		}
-		if (i == strlen(string)) {
-			debug(GEXPR, 1, "expr '%s' is too long, max len=%d\n", pattern, (int)strlen(string));
+		if (i == sizeof(string)) {
+			debug(GEXPR, 1, "expr '%s' is too long, max len=%d\n", pattern, (int)sizeof(string));
 			return -1;
 		}
 		if (is_comp(pattern[i]))
@@ -50,8 +59,8 @@ int simple_expr(char *pattern, int len, struct generic_expr *e) {
 	while (1) {
 		if (pattern[i] == '\0' || i == len)
 			break;
-		if (i - j == strlen(value)) {
-			debug(GEXPR, 1, "expr '%s' is too long, max len=%d\n", pattern, (int)strlen(value));
+		if (i - j == sizeof(value)) {
+			debug(GEXPR, 1, "expr '%s' is too long, max len=%d\n", pattern, (int)sizeof(value));
 			return -1;
 		}
 		if (is_comp(pattern[i])) {
