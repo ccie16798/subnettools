@@ -232,6 +232,7 @@ int load_PAIP(char  *name, struct subnet_file *sf, struct st_options *nof) {
 
 	if (alloc_subnet_file(sf, 16192) < 0)
 		return -2;
+	memset(&sf->routes[0], 0, sizeof(struct route));
 	return generic_load_csv(name, &cf, &state, sf);
 }
 
