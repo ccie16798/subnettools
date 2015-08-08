@@ -69,19 +69,20 @@ static void decode_6to4(FILE *out, const struct subnet *s) {
 static void decode_teredo(FILE *out, const struct subnet *s) {
 	fprintf(out, "Teredo server : %d.%d.%d.%d\n", block(s->ip6, 2) >> 8, block(s->ip6, 2) & 0xFF,
 			block(s->ip6, 3) >> 8, block(s->ip6, 3) & 0xFF);
-	fprintf(out, "Client IP     : %d.%d.%d.%d\n", (block(s->ip6, 6) >> 8) ^ 0xFF , (block(s->ip6, 6) & 0xFF) ^ 0xFF,
+	fprintf(out, "Client IP     : %d.%d.%d.%d\n", (block(s->ip6, 6) >> 8) ^ 0xFF,
+			(block(s->ip6, 6) & 0xFF) ^ 0xFF,
 			(block(s->ip6, 7) >> 8) ^ 0xFF, (block(s->ip6, 7) & 0xFF) ^ 0xFF);
 	fprintf(out, "UDP port      : %d\n", block(s->ip6, 5) ^ 0xFFFF);
 }
 
 static void decode_rfc6052(FILE *out, const struct subnet *s) {
-	fprintf(out, "IPv4-Embedded IPv6 address : 64:ff9b::%d.%d.%d.%d\n", block(s->ip6, 6) >> 8, block(s->ip6, 6) & 0xFF,
-			block(s->ip6, 7) >> 8, block(s->ip6, 7) & 0xFF);
+	fprintf(out, "IPv4-Embedded IPv6 address : 64:ff9b::%d.%d.%d.%d\n", block(s->ip6, 6) >> 8,
+			block(s->ip6, 6) & 0xFF, block(s->ip6, 7) >> 8, block(s->ip6, 7) & 0xFF);
 }
 
 static void decode_isatap_ll(FILE *out, const struct subnet *s) {
-	fprintf(out, "ISATAP IPv4 destination address : %d.%d.%d.%d\n", block(s->ip6, 6) >> 8, block(s->ip6, 6) & 0xFF,
-			block(s->ip6, 7) >> 8, block(s->ip6, 7) & 0xFF);
+	fprintf(out, "ISATAP IPv4 destination address : %d.%d.%d.%d\n", block(s->ip6, 6) >> 8,
+			block(s->ip6, 6) & 0xFF, block(s->ip6, 7) >> 8, block(s->ip6, 7) & 0xFF);
 }
 
 static void decode_ipv4_multicast(FILE *out, const struct subnet *s) {

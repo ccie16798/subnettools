@@ -4,9 +4,9 @@
 struct known_subnet_desc {
 	const struct subnet *s;
 	char *desc; /* string description of the subnet */
-	int always_print; /*-1 : print on EQUALS only, 
-			    0 :print on any match,
-			    1 : print even if it is not the longest match */
+	int always_print; /* -1 : print on EQUALS only,
+			   *  0 : print on any match,
+			   *  1 : print even if it is not the longest match */
 	void (*decode_more)(FILE *out, const struct subnet *s);
 };
 
