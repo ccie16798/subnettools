@@ -506,6 +506,27 @@ int bgp_sort_by(struct bgp_file *sf, char *name) {
 	return -1664;
 }
 
+#define BLOCK_INT(__VAR) \
+		if (res < 0) \
+			return 0; \
+		switch (op) { \
+		case '=': \
+			return route->__VAR == res; \
+			break; \
+		case '#': \
+			return route->__VAR != res; \
+			break; \
+		case '<': \
+			return route->__VAR < res; \
+			break; \
+		case '>': \
+			return route->__VAR > res; \
+			break; \
+		default: \
+			debug(FILTER, 2, "Unsupported op '%c' for %s\n", op, #__VAR); \
+			return 0; \
+		} \
+
 static int bgp_route_filter(char *s, char *value, char op, void *object) {
 	struct bgp_route *route = object;
 	struct subnet subnet;
@@ -537,7 +558,7 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 			return (res == INCLUDES || res == EQUALS);
 			break;
 		default:
-			debug(FILTER, 8, "Unsupported op '%c' for prefix\n", op);
+			debug(FILTER, 2, "Unsupported op '%c' for prefix\n", op);
 			return 0;
 		}
 	}
@@ -562,7 +583,7 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 					!is_equal_ip(&route->gw, &subnet.ip_addr));
 			break;
 		default:
-			debug(FILTER, 8, "Unsupported op '%c' for prefix\n", op);
+			debug(FILTER, 2, "Unsupported op '%c' for prefix\n", op);
 			return 0;
 		}
 	}
@@ -584,7 +605,33 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 			return route->subnet.mask > res;
 			break;
 		default:
-			debug(FILTER, 8, "Unsupported op '%c' for mask\n", op);
+			debug(FILTER, 2, "Unsupported op '%c' for mask\n", op);
+			return 0;
+		}
+	}
+	else if (!strcasecmp(s, "med")) {
+		res =  atoi(value); /* FIXME */
+		BLOCK_INT(MED);
+	}
+	else if (!strcasecmp(s, "LOCALPREF") || !strcasecmp(s, "local_pref")) {
+		res =  atoi(value); /* FIXME */
+		if (res < 0)
+			return 0;
+		switch (op) {
+		case '=':
+			return route->LOCAL_PREF == res;
+			break;
+		case '#':
+			return route->LOCAL_PREF != res;
+			break;
+		case '<':
+			return route->LOCAL_PREF < res;
+			break;
+		case '>':
+			return route->LOCAL_PREF > res;
+			break;
+		default:
+			debug(FILTER, 2, "Unsupported op '%c' for LOCAL_PREF\n", op);
 			return 0;
 		}
 	}
