@@ -17,6 +17,9 @@
 #define swap(a, b) \
 	do { typeof(a) __tmp = (a); (a) = (b); (b) = __tmp; } while (0)
 
+/* 3 not used functions, commented to silence warnings
+ * But i prefer to let them here
+ *x/
 static inline void *father(TAS t, int n) {
 	return t.tab[(n - 1) / 2];
 }
@@ -26,6 +29,8 @@ static inline void *leftSon(TAS t, int n) {
 static inline void *rightSon(TAS t, int n) {
 	return t.tab[2 * n + 2];
 }
+*/
+
 #define SIZE_T_MAX ((size_t)0 - 1)
 int alloc_tas(TAS *tas, unsigned long n, int (*compare)(void *v1, void *v2)) {
 	if (n > (SIZE_T_MAX / sizeof(void *) - 1)) {
