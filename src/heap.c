@@ -30,8 +30,9 @@ static inline void *rightSon(TAS t, int n) {
 	return t.tab[2 * n + 2];
 }
 */
-
+#ifndef SIZE_T_MAX
 #define SIZE_T_MAX ((size_t)0 - 1)
+#endif
 int alloc_tas(TAS *tas, unsigned long n, int (*compare)(void *v1, void *v2)) {
 	if (n > (SIZE_T_MAX / sizeof(void *) - 1)) {
 		debug(MEMORY, 1, "cannot allocate %llu bytes for heap, too big\n", (unsigned long long)n * sizeof(void *));
