@@ -118,8 +118,13 @@ reg_test_logic() {
 	$PROG exprtest "1=1&(21=20|3<4&(4>3))" > res/logic6
 	$PROG exprtest '!1=1' > res/logic7
 	$PROG exprtest '!1=2' > res/logic8
+	$PROG exprtest '!(1=1&1=0)' > res/logic9
+	$PROG exprtest '!(1=0&1=0)' > res/logic10
+	$PROG exprtest '!(1=1|1=0)' > res/logic11
+	$PROG exprtest '!(1=0|1=0)' > res/logic12
+	$PROG exprtest '!(1=1&1=1)' > res/logic13
 
-	n=8
+	n=13
 	for i in `seq 1 $n`; do
 		output_file=logic$i
 		if [ ! -f ref/$output_file ]; then
