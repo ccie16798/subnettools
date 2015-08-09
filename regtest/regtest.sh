@@ -144,6 +144,62 @@ reg_test_logic() {
 	done
 }
 
+reg_test_filter() {
+	local output_file
+	local n
+
+	$PROG filter filter_ipv6 "prefix#2001:db8::/32"  > res/filter1
+	$PROG filter filter_ipv6 "prefix=2001:db8::/32"  > res/filter2
+	$PROG filter filter_ipv6 "prefix>2001:db8::/32"  > res/filter3
+	$PROG filter filter_ipv6 "prefix{2001:db8::/32"  > res/filter4
+	$PROG filter filter_ipv6 "prefix}2001:db8::/128" > res/filter5
+	$PROG filter filter_ipv6 "gw=2001::1" > res/filter6
+	$PROG filter filter_ipv6 "gw>2001::1" > res/filter7
+	$PROG filter filter_ipv6 "gw<2001::3" > res/filter8
+	$PROG filter filter_ipv6 "gw#2001::3" > res/filter8
+
+	n=8
+	for i in `seq 1 $n`; do
+		output_file=filter$i
+		if [ ! -f ref/$output_file ]; then
+			echo "No ref file found for this test, creating it 'ref/$output_file'"
+			cp res/$output_file ref/$output_file
+		else
+			echo -n "reg test [filter #$i] :"
+			diff res/$output_file ref/$output_file > /dev/null
+			if [ $? -eq 0 ]; then
+				echo -e "\033[32mOK\033[0m"
+				n_ok=$((n_ok + 1))
+			else
+				n_ko=$((n_ko + 1))
+				echo -e "\033[31mKO\033[0m"
+			fi
+		fi
+	done
+}
+
+result() {
+	echo "Summary : "
+	echo -e "\033[32m$n_ok OK\033[0m"
+	echo -e "\033[31m$n_ko KO\033[0m"
+}
+
+
+#test for IPv4/IPv6 handling
+reg_test print invalid_ips_masks.txt
+#basic print to test fmt
+reg_test -c st-fmt.conf print route_aggipv6-2
+reg_test -c st-fmt.conf print route_aggipv4
+# a CSV with strange fields names :)
+reg_test -c st-bizarr.conf sort bizar.csv
+# a CSV with strange fields names, output more strange
+result() {
+	echo "Summary : "
+	echo -e "\033[32m$n_ok OK\033[0m"
+	echo -e "\033[31m$n_ko KO\033[0m"
+}
+
+
 result() {
 	echo "Summary : "
 	echo -e "\033[32m$n_ok OK\033[0m"

@@ -1,0 +1,10 @@
+prefix;mask;device;GW;comment
+2001:db8::0;64;Ethernet1/0;2001::1;test1
+2001:db8::0;128;Lo0;;test1
+2001:db8:1::0;64;Ethernet1/0;2001::1;test1
+2001:db8:2::0;64;Ethernet1/0;2001::2;test2
+2001:db8:8::0;64;Ethernet1/0;2001::3;test3
+2001:db8:a::0;64;Ethernet1/0;2001::3;test3
+2001:db8:e::0;64;Ethernet1/0;2001::2;test2
+2001:db8::0;32;Ethernet1/1;2001:1::1;test100
+2001:db8:1::;48;Ethernet1/1;2001:1::1;test100
