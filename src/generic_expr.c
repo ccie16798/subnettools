@@ -45,10 +45,12 @@ int simple_expr(char *pattern, int len, struct generic_expr *e) {
 	while (1) {
 		if (pattern[i] == '\0' || i == len) {
 			debug(GEXPR, 1, "Invalid expr '%s', no comparator\n", pattern);
+			e->recursion_level--;
 			return -1;
 		}
 		if (i == sizeof(string)) {
 			debug(GEXPR, 1, "expr '%s' is too long, max len=%d\n", pattern, (int)sizeof(string));
+			e->recursion_level--;
 			return -1;
 		}
 		if (is_comp(pattern[i]))
@@ -65,10 +67,12 @@ int simple_expr(char *pattern, int len, struct generic_expr *e) {
 			break;
 		if (i - j == sizeof(value)) {
 			debug(GEXPR, 1, "expr '%s' is too long, max len=%d\n", pattern, (int)sizeof(value));
+			e->recursion_level--;
 			return -1;
 		}
 		if (is_comp(pattern[i])) {
 			debug(GEXPR, 1, "Invalid expr '%s', 2 x comparators\n", pattern);
+			e->recursion_level--;
 			return -1;
 		}
 		value[i - j] = pattern[i];
@@ -77,6 +81,7 @@ int simple_expr(char *pattern, int len, struct generic_expr *e) {
 	value[i - j] = '\0';
 	res = e->compare(string, value, operator, e->object);
 	debug(GEXPR, 5, "comparing '%s' against '%s', return=%d\n", string, value, res);
+	e->recursion_level--;
 	return res;
 }
 
@@ -117,6 +122,7 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 			else if (pattern[i] == ')' && parenthese == 1) {
 				debug(GEXPR, 3, "Found closing (expr)', recursion\n");
 				res1 = run_generic_expr(pattern + 1,  i - 1, e);
+				e->recursion_level--;
 				if (res1 < 0)
 					return res1;
 				/*
@@ -124,7 +130,6 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 				 * is stronger than '&' and '|'
 				 */
 				res1 = (negate ? !res1 : res1);
-				e->recursion_level--;
 				while (isspace(pattern[i + 1]))
 					i++;
 				/* we reached end of string, just return */
