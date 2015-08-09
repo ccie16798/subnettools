@@ -33,6 +33,27 @@ int isInt(const char *s) {
 	return 1;
 }
 
+int my_atoi(const char *s, int *res) {
+	int i = 0, a = 0;
+	int sign = 1;
+
+	if (*s == '-') {
+		sign = -1;
+		i++;
+	}
+	while (s[i] != '\0') {
+		if (!isdigit(s[i])) {
+			*res = -1;
+			return 0;
+		}
+		a *= 10;
+		a += s[i] - '0';
+		i++;
+	}
+	*res = 0;
+	return a * sign;
+}
+
 inline int char2int(char c) {
 	if (c >= 'A' && c <= 'F') return (10 + c - 'A');
 	if (c >= 'a' && c <= 'f') return (10 + c - 'a');
