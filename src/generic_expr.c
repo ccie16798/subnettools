@@ -119,8 +119,8 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 			else if (pattern[i] == ')' && parenthese == 1) {
 				debug(GEXPR, 3, "Found closing (expr)', recursion\n");
 				res1 = run_generic_expr(pattern + 1,  i - 1, e);
-				if (res1 == -1)
-					return -1;
+				if (res1 < 0)
+					return res1;
 				/*
 				 * negate applies only to the first pattern found, its precedence
 				 * is stronger than '&' and '|'
@@ -134,8 +134,8 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 					return res1;
 				res2 = run_generic_expr(pattern + i + 2,  len - i - 2, e);
 				e->recursion_level--;
-				if (res2 == -1)
-					return -1;
+				if (res2 < 0)
+					return res2;
 				if (pattern[i + 1] == '|')
 					return res1 | res2;
 				else if (pattern[i + 1] == '&')
@@ -153,8 +153,8 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 		if (pattern[i] == '|') {
 			res1 = run_generic_expr(pattern, i, e);
 			e->recursion_level--;
-			if (res1 == -1)
-				return -1;
+			if (res1 < 0)
+				return res1;
 			/*
 			 * negate applies only to the first pattern found, its precedence
 			 * is stronger than '&' and '|'
@@ -164,22 +164,22 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 				return 1;
 			res2 = run_generic_expr(pattern + i + 1, len - i - 1, e);
 			e->recursion_level--;
-			if (res2 == -1)
-				return -1;
+			if (res2 < 0)
+				return res2;
 			return res1 | res2;
 		}
 		if (pattern[i] == '&') {
 			res1 = run_generic_expr(pattern, i, e);
 			e->recursion_level--;
-			if (res1 == -1)
-				return -1;
+			if (res1 < 0)
+				return res1;
 			res1 = (negate ? !res1 : res1);
 			if (res1 == 0)
 				return 0;
 			res2 = run_generic_expr(pattern + i + 1, len - i - 1, e);
 			e->recursion_level--;
-			if (res2 == -1)
-				return -1;
+			if (res2 < 0)
+				return res2;
 			return res1 & res2;
 		}
 		if (pattern[i] == '(' || pattern[i] == ')') {
