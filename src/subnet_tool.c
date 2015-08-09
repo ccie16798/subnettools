@@ -1264,10 +1264,10 @@ static int route_filter(char *s, char *value, char op, void *object) {
 			return !__heap_subnet_is_superior(&route->subnet, &subnet) && res != EQUALS;
 			break;
 		case '{':
-			return (res == INCLUDED);
+			return (res == INCLUDED || res == EQUALS);
 			break;
 		case '}':
-			return (res == INCLUDES);
+			return (res == INCLUDES || res == EQUALS);
 			break;
 		default:
 			debug(FILTER, 8, "Unsupported op '%c' for prefix\n", op);
