@@ -536,6 +536,7 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 	struct bgp_route *route = object;
 	struct subnet subnet;
 	int res;
+	int err;
 
 	debug(FILTER, 8, "Filtering '%s' %c '%s'\n", s, op, value);
 	if (!strcmp(s, "prefix")) {
@@ -597,15 +598,21 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 		BLOCK_INT(subnet.mask);
 	}
 	else if (!strcasecmp(s, "med")) {
-		res =  atoi(value); /* FIXME */
+		res =  my_atoi(value, &err);
+		if (err < 0)
+			return 0;
 		BLOCK_INT(MED);
 	}
 	else if (!strcasecmp(s, "weight")) {
-		res =  atoi(value); /* FIXME */
+		res =  my_atoi(value, &err);
+		if (err < 0)
+			return 0;
 		BLOCK_INT(weight);
 	}
 	else if (!strcasecmp(s, "LOCALPREF") || !strcasecmp(s, "local_pref")) {
-		res =  atoi(value); /* FIXME */
+		res =  my_atoi(value, &err);
+		if (err < 0)
+			return 0;
 		BLOCK_INT(LOCAL_PREF);
 	}
 	return 0;
