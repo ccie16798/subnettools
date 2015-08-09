@@ -26,6 +26,7 @@
 #include "subnet_tool.h"
 #include "st_printf.h"
 #include "generic_expr.h"
+#include "st_scanf.h"
 
 #define SIZE_T_MAX ((size_t)0 - 1)
 int alloc_subnet_file(struct subnet_file *sf, unsigned long n) {
@@ -1306,6 +1307,11 @@ static int route_filter(char *s, char *value, char op, void *object) {
 		case '#':
 			return !!strcmp(route->device, value);
 			break;
+		case '~':
+			res = st_sscanf(route->device, value);
+			if (res == -1)
+				return 0;
+			return 1;
 		default:
 			debug(FILTER, 8, "Unsupported op '%c' for device\n", op);
 			return 0;
