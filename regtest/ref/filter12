@@ -1,4 +1,6 @@
 2001:db8::;64;Ethernet1/0;2001::1;test1
 2001:db8:1::;64;Ethernet1/0;2001::1;test1
 2001:db8:2::;64;Ethernet1/0;2001::2;test2
+2001:db8:8::;64;Ethernet1/0;2001::3;test3
+2001:db8:a::;64;Ethernet1/0;2001::3;test3
 2001:db8:e::;64;Ethernet1/0;2001::2;test2
