@@ -26,6 +26,7 @@
 #include "ipinfo.h"
 #include "bgp_tool.h"
 #include "generic_expr.h"
+#include "prog-main.h"
 
 const char *default_fmt = "%I;%m;%D;%G;%C";
 
