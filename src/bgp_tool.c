@@ -352,6 +352,7 @@ int as_path_length(const char *s) {
 			in_asset = 0;
 			continue;
 		}
+		/* AS in AS_CONFED or AS_SET doesnt count int the AS_PATH length */
 		if (in_asset || in_confed)
 			continue;
 		if  (isdigit(s[i]) && (isspace(s[i + 1]) || s[i + 1] == '\0'))
@@ -421,6 +422,10 @@ static int __heap_aspath_is_superior(void *v1, void *v2) {
 	char *s2 = ((struct bgp_route *)v2)->AS_PATH;
 	int l1, l2;
 
+	/* if AS_PATH length is the same
+	 * we compare char by char the strings
+	 * if AS_PATh is the same, we sort by prefix
+	 */
 	l1 = as_path_length(s1);
 	l2 = as_path_length(s2);
 	if (l1 == l2) {
@@ -523,7 +528,7 @@ int bgp_sort_by(struct bgp_file *sf, char *name) {
 			return route->__VAR > res; \
 			break; \
 		default: \
-			debug(FILTER, 2, "Unsupported op '%c' for %s\n", op, #__VAR); \
+			debug(FILTER, 1, "Unsupported op '%c' for %s\n", op, #__VAR); \
 			return 0; \
 		} \
 
@@ -558,7 +563,7 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 			return (res == INCLUDES || res == EQUALS);
 			break;
 		default:
-			debug(FILTER, 2, "Unsupported op '%c' for prefix\n", op);
+			debug(FILTER, 1, "Unsupported op '%c' for prefix\n", op);
 			return 0;
 		}
 	}
@@ -583,7 +588,7 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 					!is_equal_ip(&route->gw, &subnet.ip_addr));
 			break;
 		default:
-			debug(FILTER, 2, "Unsupported op '%c' for prefix\n", op);
+			debug(FILTER, 1, "Unsupported op '%c' for prefix\n", op);
 			return 0;
 		}
 	}
@@ -630,6 +635,7 @@ int bgp_filter(struct bgp_file *sf, char *expr) {
 		res = run_generic_expr(expr, len, &e);
 		if (res < 0) {
 			free(new_r);
+			debug_timing_end(2);
 			return -1;
 		}
 		if (res) {
