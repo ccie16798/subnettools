@@ -30,18 +30,17 @@ void init_generic_expr(struct generic_expr *e, const char *s, int (*compare)(cha
 }
 
 int simple_expr(char *pattern, int len, struct generic_expr *e) {
-	int i = 0, j;
+	int i = 0, j = 0;
 	char string[256];
 	char value[256];
 	char operator;
-	int res;
+	int res, skip = 0;
 
 	e->recursion_level++;
 	if (e->recursion_level >= GENERIC_ST_MAX_RECURSION) {
 		debug(GEXPR, 1, "Invalid expr '%s', too many recursion level\n", e->pattern);
 		return -1;
 	}
-
 	while (1) {
 		if (pattern[i] == '\0' || i == len) {
 			debug(GEXPR, 1, "Invalid expr '%s', no comparator\n", pattern);
@@ -55,13 +54,26 @@ int simple_expr(char *pattern, int len, struct generic_expr *e) {
 		}
 		if (is_comp(pattern[i]))
 			break;
-		string[i] = pattern[i];	
+		if (skip)
+			skip = 0;
+		else if (pattern[i] == '\\') {/* escape char */
+			i++;
+			skip = 1;
+			continue;
+		} else if (pattern[i] == '(' || pattern[i] == ')') {
+			debug(GEXPR, 1, "Invalid pattern '%s', lonely parenthesis found\n", pattern);
+			e->recursion_level--;
+			return -1;
+		}
+		string[j] = pattern[i];
 		i++;
+		j++;
 	}
 	operator = pattern[i];
-	string[i] = '\0';
+	string[j] = '\0';
 	i++;
 	j = i;
+	skip = 0;
 	while (1) {
 		if (pattern[i] == '\0' || i == len)
 			break;
@@ -72,6 +84,18 @@ int simple_expr(char *pattern, int len, struct generic_expr *e) {
 		}
 		if (is_comp(pattern[i])) {
 			debug(GEXPR, 1, "Invalid expr '%s', 2 x comparators\n", pattern);
+			e->recursion_level--;
+			return -1;
+		}
+		if (skip)
+			skip = 0;
+		else if (pattern[i] == '\\') {/* escape char */
+			i++;
+			j++;
+			skip = 1;
+			continue;
+		} else if ((pattern[i] == '(' || pattern[i] == ')')) {
+			debug(GEXPR, 1, "Invalid pattern '%s', lonely parenthesis found\n", pattern);
 			e->recursion_level--;
 			return -1;
 		}
@@ -181,11 +205,6 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 			if (res2 < 0)
 				return res2;
 			return (negate ? !(res1 & res2) : res1 & res2);
-		}
-		if (pattern[i] == '(' || pattern[i] == ')') {
-			debug(GEXPR, 1, "Invalid pattern '%s', lonely parenthesis found\n", pattern);
-			e->recursion_level--;
-			return -1;
 		}
 		i++;
 	}
