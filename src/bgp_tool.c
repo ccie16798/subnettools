@@ -589,51 +589,19 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 	}
 	else if (!strcmp(s, "mask")) {
 		res =  string2mask(value, 42);
-		if (res < 0)
-			return 0;
-		switch (op) {
-		case '=':
-			return route->subnet.mask == res;
-			break;
-		case '#':
-			return route->subnet.mask != res;
-			break;
-		case '<':
-			return route->subnet.mask < res;
-			break;
-		case '>':
-			return route->subnet.mask > res;
-			break;
-		default:
-			debug(FILTER, 2, "Unsupported op '%c' for mask\n", op);
-			return 0;
-		}
+		BLOCK_INT(subnet.mask);
 	}
 	else if (!strcasecmp(s, "med")) {
 		res =  atoi(value); /* FIXME */
 		BLOCK_INT(MED);
 	}
+	else if (!strcasecmp(s, "weight")) {
+		res =  atoi(value); /* FIXME */
+		BLOCK_INT(weight);
+	}
 	else if (!strcasecmp(s, "LOCALPREF") || !strcasecmp(s, "local_pref")) {
 		res =  atoi(value); /* FIXME */
-		if (res < 0)
-			return 0;
-		switch (op) {
-		case '=':
-			return route->LOCAL_PREF == res;
-			break;
-		case '#':
-			return route->LOCAL_PREF != res;
-			break;
-		case '<':
-			return route->LOCAL_PREF < res;
-			break;
-		case '>':
-			return route->LOCAL_PREF > res;
-			break;
-		default:
-			debug(FILTER, 2, "Unsupported op '%c' for LOCAL_PREF\n", op);
-			return 0;
-		}
+		BLOCK_INT(LOCAL_PREF);
 	}
 	return 0;
 }
