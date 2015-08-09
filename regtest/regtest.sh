@@ -123,8 +123,11 @@ reg_test_logic() {
 	$PROG exprtest '!(1=1|1=0)' > res/logic11
 	$PROG exprtest '!(1=0|1=0)' > res/logic12
 	$PROG exprtest '!(1=1&1=1)' > res/logic13
+	$PROG exprtest '(12=\(2\))' > res/logic14
+	$PROG exprtest '(12=(2\))' > res/logic15
+	$PROG exprtest '(12)=2)' > res/logic16
 
-	n=13
+	n=16
 	for i in `seq 1 $n`; do
 		output_file=logic$i
 		if [ ! -f ref/$output_file ]; then
@@ -156,9 +159,9 @@ reg_test_filter() {
 	$PROG filter filter_ipv6 "gw=2001::1" > res/filter6
 	$PROG filter filter_ipv6 "gw>2001::1" > res/filter7
 	$PROG filter filter_ipv6 "gw<2001::3" > res/filter8
-	$PROG filter filter_ipv6 "gw#2001::3" > res/filter8
+	$PROG filter filter_ipv6 "gw#2001::3" > res/filter9
 
-	n=8
+	n=9
 	for i in `seq 1 $n`; do
 		output_file=filter$i
 		if [ ! -f ref/$output_file ]; then
@@ -269,9 +272,10 @@ reg_test split 10.2.0.0/16 256,4
 
 # scanf
 reg_test_scanf
-#logic test
+# logic test
 reg_test_logic
-
+# filter
+reg_test_filter
 # converter
 reg_test convert CiscoRouterconf	ciscorouteconf_v4
 reg_test convert CiscoRouterconf	ciscorouteconf_v6
