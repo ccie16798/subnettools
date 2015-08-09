@@ -1244,10 +1244,11 @@ static int route_filter(char *s, char *value, char op, void *object) {
 	struct subnet subnet;
 	int res;
 
+	debug(FILTER, 8, "Filtering '%s' %c '%s'\n", s, op, value);
 	if (!strcmp(s, "prefix")) {
 		res = get_subnet_or_ip(value, &subnet);
 		if (res < 0)
-			return res;
+			return 0;
 		res = subnet_compare(&route->subnet, &subnet);
 		if (res == EQUALS)
 			return 1;
@@ -1283,6 +1284,7 @@ int subnet_filter(struct subnet_file *sf, char *expr) {
 			return -1;
 		}
 		if (res) {
+			st_debug(FILTER, 5, "Match on %P\n", sf->routes[i].subnet);
 			copy_route(&new_r[j], &sf->routes[i]);
 			j++;
 		}
