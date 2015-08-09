@@ -1271,7 +1271,7 @@ static int route_filter(char *s, char *value, char op, void *object) {
 			return (res == INCLUDES || res == EQUALS);
 			break;
 		default:
-			debug(FILTER, 8, "Unsupported op '%c' for prefix\n", op);
+			debug(FILTER, 1, "Unsupported op '%c' for prefix\n", op);
 			return 0;
 		}
 	}
@@ -1296,7 +1296,7 @@ static int route_filter(char *s, char *value, char op, void *object) {
 					!is_equal_ip(&route->gw, &subnet.ip_addr));
 			break;
 		default:
-			debug(FILTER, 8, "Unsupported op '%c' for prefix\n", op);
+			debug(FILTER, 1, "Unsupported op '%c' for prefix\n", op);
 			return 0;
 		}
 	}
@@ -1318,7 +1318,7 @@ static int route_filter(char *s, char *value, char op, void *object) {
 			return route->subnet.mask > res;
 			break;
 		default:
-			debug(FILTER, 8, "Unsupported op '%c' for mask\n", op);
+			debug(FILTER, 1, "Unsupported op '%c' for mask\n", op);
 			return 0;
 		}
 	}
@@ -1336,7 +1336,7 @@ static int route_filter(char *s, char *value, char op, void *object) {
 				return 0;
 			return 1;
 		default:
-			debug(FILTER, 8, "Unsupported op '%c' for device\n", op);
+			debug(FILTER, 1, "Unsupported op '%c' for device\n", op);
 			return 0;
 		}
 	}
@@ -1354,7 +1354,7 @@ static int route_filter(char *s, char *value, char op, void *object) {
 				return 0;
 			return 1;
 		default:
-			debug(FILTER, 8, "Unsupported op '%c' for comment\n", op);
+			debug(FILTER, 1, "Unsupported op '%c' for comment\n", op);
 			return 0;
 		}
 	}
@@ -1385,6 +1385,7 @@ int subnet_filter(struct subnet_file *sf, char *expr) {
 		res = run_generic_expr(expr, len, &e);
 		if (res < 0) {
 			free(new_r);
+			debug_timing_end(2);
 			return -1;
 		}
 		if (res) {
