@@ -185,6 +185,7 @@ operator are :
 - '>' (numerically superior)
 - '{' (is included (for prefixes))
 - '}' (includes (for prefixes))
+- '~' (st_scanf regular expression)
 
 the format ot the filter is :
 - (A|B) : A or  B
@@ -194,12 +195,38 @@ escape char for special chars is '\\'
 
 some examples :
 ---------------
+	Find any subnet included in 2001:db8::/48
+	
 	[etienne@ARODEF subnet_tools]$ ./subnet-tools   filter filter1 "prefix{2001:db8::0/48"
-	
 	2001:db8::;64;Ethernet1/0;2001::1;test1
-	
 	2001:db8::;128;Lo0;::;test1
 
+	Find anything routed through Ethernet1/0
+	etienne@ARODEF subnet_tools]$ ./subnet-tools   filter filter1 "device=Ethernet1/0"
+	2001:db8::;64;Ethernet1/0;2001::1;test1
+	2001:db8:1::;64;Ethernet1/0;2001::1;test1
+	2001:db8:2::;64;Ethernet1/0;2001::2;test2
+	2001:db8:8::;64;Ethernet1/0;2001::3;test3
+	2001:db8:a::;64;Ethernet1/0;2001::3;test3
+	2001:db8:e::;64;Ethernet1/0;2001::2;test2
+
+	combine the two previous examples 
+	OR
+	[etienne@ARODEF subnet_tools]$ ./subnet-tools   filter filter1 "device=Ethernet1/0|prefix{2001:db8::0/48"
+	2001:db8::;64;Ethernet1/0;2001::1;test1
+	2001:db8::;128;Lo0;::;test1
+	2001:db8:1::;64;Ethernet1/0;2001::1;test1
+	2001:db8:2::;64;Ethernet1/0;2001::2;test2
+	2001:db8:8::;64;Ethernet1/0;2001::3;test3
+	2001:db8:a::;64;Ethernet1/0;2001::3;test3
+	2001:db8:e::;64;Ethernet1/0;2001::2;test2
+
+	AND
+	[etienne@ARODEF subnet_tools]$ ./subnet-tools   filter filter1 "device=Ethernet1/0&prefix{2001:db8::0/48"
+	2001:db8::;64;Ethernet1/0;2001::1;test1
+	
+	
+	
 
 CODING
 ======
