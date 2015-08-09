@@ -99,7 +99,7 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 		return -1;
 	}
 	strxcpy(buffer, pattern, len + 1);
-	debug(GEXPR, 9, "Pattern : '%s', len=%d\n", buffer, len);
+	debug(GEXPR, 9, "Pattern : '%s', len=%d, recursion=%d\n", buffer, len, e->recursion_level);
 
 	while (isspace(pattern[i]))
 		pattern++;
@@ -184,6 +184,7 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 		}
 		if (pattern[i] == '(' || pattern[i] == ')') {
 			debug(GEXPR, 1, "Invalid pattern '%s', lonely parenthesis found\n", pattern);
+			e->recursion_level--;
 			return -1;
 		}
 		i++;
