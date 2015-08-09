@@ -141,9 +141,9 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 				debug(GEXPR, 1, "Invalid pattern '%s', no closing ')'\n", pattern);
 				return -1;
 			}
-			if (pattern[i] == '(')
+			if (pattern[i] == '(' && pattern[i - 1] != '\\' )
 				parenthese++;
-			else if (pattern[i] == ')' && parenthese == 1) {
+			else if (pattern[i] == ')' && parenthese == 1 && pattern[i - 1] != '\\') {
 				debug(GEXPR, 3, "Found closing (expr)', recursion\n");
 				res1 = run_generic_expr(pattern + 1,  i - 1, e);
 				e->recursion_level--;
@@ -169,7 +169,7 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 					return res1 & res2;
 				debug(GEXPR, 3, "A comparator is required after ) '%s'\n", buffer);
 				return -1;
-			} else if (pattern[i] == ')')
+			} else if (pattern[i] == ')' && pattern[i - 1] != '\\')
 				parenthese--;
 			i++;
 		}
