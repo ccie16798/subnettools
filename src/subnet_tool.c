@@ -25,6 +25,7 @@
 #include "heap.h"
 #include "subnet_tool.h"
 #include "st_printf.h"
+#include "generic_expr.h"
 
 #define SIZE_T_MAX ((size_t)0 - 1)
 int alloc_subnet_file(struct subnet_file *sf, unsigned long n) {
@@ -1236,4 +1237,37 @@ int subnet_sort_by(struct subnet_file *sf, char *name) {
 		i++;
 	}
 	return -1664;
+}
+
+static int route_filter(char *s, char *value, char op, void *object) {
+	struct route *route = object;
+
+	return 1;
+}
+
+int subnet_filter(struct subnet_file *sf, char *expr) {
+	int i;
+	struct generic_expr e;
+	struct route *new_r;
+
+	init_generic_expr(&e, expr, route_filter);
+	if (sf->nr == 0)
+		return 0;
+	debug_timing_start(2);
+
+	new_r = malloc(sf->max_nr * sizeof(struct route));
+
+	if (new_r == NULL) {
+		fprintf(stderr, "%s : no memory\n", __FUNCTION__);
+		debug_timing_end(2);
+		return -1;
+	}
+	for (i = 0; i < sf->nr; i++) {
+
+
+	}
+	free(sf->routes);
+	sf->routes = new_r;
+	debug_timing_end(2);
+	return 0;
 }
