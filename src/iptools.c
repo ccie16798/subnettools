@@ -777,7 +777,7 @@ int addr_is_superior(const struct ip_addr *ip1, const struct ip_addr *ip2) {
 	int i, res;
 
 	if (ip1->ip_ver != ip2->ip_ver) {
-		debug(ADDRCOMP, 1, "cannot compare, different IP version\n");
+		debug(ADDRCOMP, 1, "cannot compare, different IP version %d != %d\n", ip1->ip_ver, ip2->ip_ver);
 		return -1;
 	}
 	res = 0;
