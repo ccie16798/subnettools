@@ -84,7 +84,7 @@ int simple_expr(char *pattern, int len, struct generic_expr *e) {
 
 
 int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
-	int i;
+	int i = 0;
 	char buffer[128];
 	int res1, res2;
 	int parenthese = 0;
@@ -96,10 +96,12 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 	}
 	strxcpy(buffer, pattern, len + 1);
 	debug(GEXPR, 9, "Pattern : '%s', len=%d\n", buffer, len);
-	
-	if (pattern[0] == '(') {
+
+	while (isspace(pattern[i]))
+		i++;
+	if (pattern[i] == '(') {
 		debug(GEXPR, 3, "Found a '(', trying to split expr\n");
-		i = 1;
+		i += 1;
 		parenthese++;
 		while (1) {
 			if (pattern[i] == '\0' || i == len) {
@@ -131,7 +133,6 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 			i++;
 		}
 	}
-	i = 0;
 	while (1) {
 		if (i == len || pattern[i] == '\0')
 			break;
