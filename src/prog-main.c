@@ -60,6 +60,7 @@ static int run_common(int argc, char **argv, void *st_options);
 static int run_addfiles(int argc, char **argv, void *st_options);
 static int run_sort(int argc, char **argv, void *st_options);
 static int run_sortby(int argc, char **argv, void *st_options);
+static int run_filter(int argc, char **argv, void *st_options);
 static int run_sum(int argc, char **argv, void *st_options);
 static int run_scanf(int argc, char **argv, void *st_options);
 static int run_subnetagg(int argc, char **argv, void *st_options);
@@ -110,6 +111,7 @@ struct st_command commands[] = {
 	{ "addfiles",	&run_addfiles,	2},
 	{ "sort",	&run_sort,	1},
 	{ "sortby",	&run_sortby,	1},
+	{ "filter",	&run_filter,	2},
 	{ "sum",	&run_sum,	1},
 	{ "subnetagg",	&run_subnetagg,	1},
 	{ "routeagg",	&run_routeagg,	1},
@@ -171,6 +173,7 @@ void usage() {
 	printf("common FILE1 FILE2  : merge CSV subnet files FILE1 & FILE2; prints common routes only; GW isn't checked\n");
 	printf("addfiles FILE1 FILE2: merge CSV subnet files FILE1 & FILE2; prints the sum of both files (EXPERIMENTAL)\n");
 	printf("grep FILE prefix    : grep FILE for prefix/mask\n");
+	printf("filter FILE EXPR    : grep FILE using regexp EXPR\n");
 	printf("\n");
 	printf("Miscellaneous route file tools\n");
 	printf("------------------------------\n");
@@ -404,6 +407,25 @@ static int run_grep(int arc, char **argv, void *st_options) {
 	res = network_grep_file(argv[2], nof, argv[3]);
 	if (res < 0)
 		return res;
+	return 0;
+}
+
+static int run_filter(int arc, char **argv, void *st_options) {
+	int res;
+	struct subnet_file sf;
+	struct st_options *nof = st_options;
+
+	res = load_netcsv_file(argv[2], &sf, nof);
+	if (res < 0)
+		return res;
+	res = subnet_filter(&sf, argv[3]);
+	if (res < 0) {
+		free(sf.routes);
+		fprintf(stderr, "Couldnt filter file %s\n", argv[2]);
+		return res;
+	}
+	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
+	free(sf.routes);
 	return 0;
 }
 
