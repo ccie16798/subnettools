@@ -15,6 +15,7 @@
 #include "subnet_tool.h"
 #include "st_printf.h"
 #include "bgp_tool.h"
+#include "generic_expr.h"
 
 #define SIZE_T_MAX ((size_t)0 - 1)
 
@@ -503,4 +504,128 @@ int bgp_sort_by(struct bgp_file *sf, char *name) {
 		i++;
 	}
 	return -1664;
+}
+
+static int bgp_route_filter(char *s, char *value, char op, void *object) {
+	struct bgp_route *route = object;
+	struct subnet subnet;
+	int res;
+
+	debug(FILTER, 8, "Filtering '%s' %c '%s'\n", s, op, value);
+	if (!strcmp(s, "prefix")) {
+		res = get_subnet_or_ip(value, &subnet);
+		if (res < 0)
+			return 0;
+		res = subnet_compare(&route->subnet, &subnet);
+		switch (op) {
+		case '=':
+			return (res == EQUALS);
+			break;
+		case '#':
+			return !(res == EQUALS);
+			break;
+		case '<':
+			return __heap_subnet_is_superior(&route->subnet, &subnet);
+			break;
+		case '>':
+			return !__heap_subnet_is_superior(&route->subnet, &subnet) && res != EQUALS;
+			break;
+		case '{':
+			return (res == INCLUDED || res == EQUALS);
+			break;
+		case '}':
+			return (res == INCLUDES || res == EQUALS);
+			break;
+		default:
+			debug(FILTER, 8, "Unsupported op '%c' for prefix\n", op);
+			return 0;
+		}
+	}
+	else if (!strcmp(s, "gw")) {
+		if (route->gw.ip_ver == 0)
+			return 0;
+		res = get_subnet_or_ip(value, &subnet);
+		if (res < 0)
+			return 0;
+		switch (op) {
+		case '=':
+			return is_equal_ip(&route->gw, &subnet.ip_addr);
+			break;
+		case '#':
+			return !is_equal_ip(&route->gw, &subnet.ip_addr);
+			break;
+		case '<':
+			return addr_is_superior(&route->gw, &subnet.ip_addr);
+			break;
+		case '>':
+			return (!addr_is_superior(&route->gw, &subnet.ip_addr) &&
+					!is_equal_ip(&route->gw, &subnet.ip_addr));
+			break;
+		default:
+			debug(FILTER, 8, "Unsupported op '%c' for prefix\n", op);
+			return 0;
+		}
+	}
+	else if (!strcmp(s, "mask")) {
+		res =  string2mask(value, 42);
+		if (res < 0)
+			return 0;
+		switch (op) {
+		case '=':
+			return route->subnet.mask == res;
+			break;
+		case '#':
+			return route->subnet.mask != res;
+			break;
+		case '<':
+			return route->subnet.mask < res;
+			break;
+		case '>':
+			return route->subnet.mask > res;
+			break;
+		default:
+			debug(FILTER, 8, "Unsupported op '%c' for mask\n", op);
+			return 0;
+		}
+	}
+	return 0;
+}
+
+int bgp_filter(struct bgp_file *sf, char *expr) {
+	int i, j, res, len;
+	struct generic_expr e;
+	struct bgp_route *new_r;
+
+	if (sf->nr == 0)
+		return 0;
+	init_generic_expr(&e, expr, bgp_route_filter);
+	debug_timing_start(2);
+
+	new_r = malloc(sf->max_nr * sizeof(struct bgp_route));
+	if (new_r == NULL) {
+		fprintf(stderr, "%s : no memory\n", __FUNCTION__);
+		debug_timing_end(2);
+		return -1;
+	}
+	j = 0;
+	len = strlen(expr);
+
+	for (i = 0; i < sf->nr; i++) {
+		e.object = &sf->routes[i];
+		res = run_generic_expr(expr, len, &e);
+		if (res < 0) {
+			free(new_r);
+			return -1;
+		}
+		if (res) {
+			st_debug(FILTER, 5, "Match on %P\n", sf->routes[i].subnet);
+			copy_bgproute(&new_r[j], &sf->routes[i]);
+			j++;
+		}
+	}
+	free(sf->routes);
+	sf->routes = new_r;
+	sf->nr = j;
+	debug_timing_end(2);
+	return 0;
 }

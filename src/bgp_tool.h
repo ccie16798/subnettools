@@ -9,5 +9,8 @@ int compare_bgp_file(const struct bgp_file *sf1, const struct bgp_file *sf2, str
 int bgp_sort_by(struct bgp_file *sf, char *name);
 void bgp_available_cmpfunc(FILE *out);
 
+/* filter BGP CSV files with a regular expression */
+int bgp_filter(struct bgp_file *sf, char *expr);
+
 #else
 #endif
