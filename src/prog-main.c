@@ -61,6 +61,7 @@ static int run_addfiles(int argc, char **argv, void *st_options);
 static int run_sort(int argc, char **argv, void *st_options);
 static int run_sortby(int argc, char **argv, void *st_options);
 static int run_filter(int argc, char **argv, void *st_options);
+static int run_bgp_filter(int argc, char **argv, void *st_options);
 static int run_sum(int argc, char **argv, void *st_options);
 static int run_scanf(int argc, char **argv, void *st_options);
 static int run_subnetagg(int argc, char **argv, void *st_options);
@@ -112,6 +113,7 @@ struct st_command commands[] = {
 	{ "sort",	&run_sort,	1},
 	{ "sortby",	&run_sortby,	1},
 	{ "filter",	&run_filter,	2},
+	{ "bgpfilter",	&run_bgp_filter,2},
 	{ "sum",	&run_sum,	1},
 	{ "subnetagg",	&run_subnetagg,	1},
 	{ "routeagg",	&run_routeagg,	1},
@@ -425,6 +427,25 @@ static int run_filter(int arc, char **argv, void *st_options) {
 		return res;
 	}
 	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
+	free(sf.routes);
+	return 0;
+}
+
+static int run_bgp_filter(int arc, char **argv, void *st_options) {
+	int res;
+	struct bgp_file sf;
+	struct st_options *nof = st_options;
+
+	res = load_bgpcsv(argv[2], &sf, nof);
+	if (res < 0)
+		return res;
+	res = bgp_filter(&sf, argv[3]);
+	if (res < 0) {
+		free(sf.routes);
+		fprintf(stderr, "Couldnt filter file %s\n", argv[2]);
+		return res;
+	}
+	fprint_bgp_file(nof->output_file, &sf);
 	free(sf.routes);
 	return 0;
 }
