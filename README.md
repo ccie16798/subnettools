@@ -191,6 +191,7 @@ the format ot the filter is :
 - (A|B) : A or  B
 - (A&B) : A and B
 - !(A)  : not A
+
 escape char for special chars is '\\'
 
 some examples :

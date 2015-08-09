@@ -164,8 +164,12 @@ reg_test_filter() {
 	$PROG filter filter_ipv6 "comment~.*test." > res/filter11
 	$PROG filter filter_ipv6 "device~.*1/0" > res/filter12
 	$PROG filter filter_ipv6 "device#Ethernet1/0" > res/filter13
+	$PROG filter filter_ipv6 "mask=64" > res/filter14
+	$PROG filter filter_ipv6 "mask<64" > res/filter15
+	$PROG filter filter_ipv6 "mask>64" > res/filter16
+	$PROG filter filter_ipv6 "mask#64" > res/filter17
 
-	n=13
+	n=17
 	for i in `seq 1 $n`; do
 		output_file=filter$i
 		if [ ! -f ref/$output_file ]; then
