@@ -1250,9 +1250,66 @@ static int route_filter(char *s, char *value, char op, void *object) {
 		if (res < 0)
 			return 0;
 		res = subnet_compare(&route->subnet, &subnet);
-		if (res == EQUALS)
-			return 1;
-		return 0;
+		switch (op) {
+		case '=':
+			return (res == EQUALS);
+			break;
+		case '#':
+			return !(res == EQUALS);
+			break;
+		case '<':
+			return __heap_subnet_is_superior(&route->subnet, &subnet);
+			break;
+		case '>':
+			return !__heap_subnet_is_superior(&route->subnet, &subnet) && res != EQUALS;
+			break;
+		case '{':
+			return (res == INCLUDED);
+			break;
+		case '}':
+			return (res == INCLUDES);
+			break;
+		default:
+			debug(FILTER, 8, "Unsupported op '%c' for prefix\n", op);
+			return 0;
+		}
+	}
+	else if (!strcmp(s, "gw")) {
+		if (route->gw.ip_ver == 0)
+			return 0;
+		res = get_subnet_or_ip(value, &subnet);
+		if (res < 0)
+			return 0;
+		switch (op) {
+		case '=':
+			return is_equal_ip(&route->gw, &subnet.ip_addr);
+			break;
+		case '#':
+			return !is_equal_ip(&route->gw, &subnet.ip_addr);
+			break;
+		case '<':
+			return addr_is_superior(&route->gw, &subnet.ip_addr);
+			break;
+		case '>':
+			return (!addr_is_superior(&route->gw, &subnet.ip_addr) &&
+					!is_equal_ip(&route->gw, &subnet.ip_addr));
+			break;
+		default:
+			debug(FILTER, 8, "Unsupported op '%c' for prefix\n", op);
+			return 0;
+		}
+	} else if (!strcmp(s, "device")) {
+		switch (op) {
+		case '=':
+			return !strcmp(route->device, value);
+			break;
+		case '#':
+			return !!strcmp(route->device, value);
+			break;
+		default:
+			debug(FILTER, 8, "Unsupported op '%c' for device\n", op);
+			return 0;
+		}
 	}
 	return 0;
 }
