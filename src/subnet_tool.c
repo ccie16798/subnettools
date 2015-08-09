@@ -1299,7 +1299,8 @@ static int route_filter(char *s, char *value, char op, void *object) {
 			debug(FILTER, 8, "Unsupported op '%c' for prefix\n", op);
 			return 0;
 		}
-	} else if (!strcmp(s, "device")) {
+	}
+	else if (!strcmp(s, "device")) {
 		switch (op) {
 		case '=':
 			return !strcmp(route->device, value);
@@ -1314,6 +1315,24 @@ static int route_filter(char *s, char *value, char op, void *object) {
 			return 1;
 		default:
 			debug(FILTER, 8, "Unsupported op '%c' for device\n", op);
+			return 0;
+		}
+	}
+	else if (!strcmp(s, "comment")) {
+		switch (op) {
+		case '=':
+			return !strcmp(route->comment, value);
+			break;
+		case '#':
+			return !!strcmp(route->comment, value);
+			break;
+		case '~':
+			res = st_sscanf(route->comment, value);
+			if (res == -1)
+				return 0;
+			return 1;
+		default:
+			debug(FILTER, 8, "Unsupported op '%c' for comment\n", op);
 			return 0;
 		}
 	}
