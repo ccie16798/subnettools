@@ -20,7 +20,7 @@ static inline int is_comp(char c) {
 	return (c == '=') | (c == '<') | (c == '>') | (c == '~') | (c == '{') | (c == '}') | (c == '#')  ;
 }
 
-void init_generic_expr(struct generic_expr *e, const char *s, int (*compare)(char *, char *, char)) {
+void init_generic_expr(struct generic_expr *e, const char *s, int (*compare)(char *, char *, char, void *)) {
 	e->pattern = s;
 	if (s == NULL)
 		return;
@@ -75,7 +75,7 @@ int simple_expr(char *pattern, int len, struct generic_expr *e) {
 		i++;
 	}
 	value[i - j] = '\0';
-	res = e->compare(string, value, operator);
+	res = e->compare(string, value, operator, e->object);
 	debug(GEXPR, 5, "comparing '%s' against '%s', return=%d\n", string, value, res);
 	return res;
 }
@@ -190,7 +190,7 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 	return (negate ? !res1 : res1);
 }
 
-int int_compare(char *s1, char *s2, char o) {
+int int_compare(char *s1, char *s2, char o, void *object) {
 	int l1 = atoi(s1);
 	int l2 = atoi(s2);
 
