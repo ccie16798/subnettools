@@ -39,6 +39,7 @@ int main(int argc, char **argv) {
 	int b = -1234;
 	int res;
 
+	printf("%d\n", my_atoi(argv[1], &b));
 	remove_ending_space(argv[1]);
 	printf("'%s'\n", argv[1]);
 	strxcpy(buff, argv[1], 4);
