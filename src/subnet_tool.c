@@ -1300,6 +1300,28 @@ static int route_filter(char *s, char *value, char op, void *object) {
 			return 0;
 		}
 	}
+	else if (!strcmp(s, "mask")) {
+		res =  string2mask(value, 42);
+		if (res < 0)
+			return 0;
+		switch (op) {
+		case '=':
+			return route->subnet.mask == res;
+			break;
+		case '#':
+			return route->subnet.mask != res;
+			break;
+		case '<':
+			return route->subnet.mask < res;
+			break;
+		case '>':
+			return route->subnet.mask > res;
+			break;
+		default:
+			debug(FILTER, 8, "Unsupported op '%c' for mask\n", op);
+			return 0;
+		}
+	}
 	else if (!strcmp(s, "device")) {
 		switch (op) {
 		case '=':
