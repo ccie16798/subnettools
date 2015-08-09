@@ -1241,33 +1241,55 @@ int subnet_sort_by(struct subnet_file *sf, char *name) {
 
 static int route_filter(char *s, char *value, char op, void *object) {
 	struct route *route = object;
+	struct subnet subnet;
+	int res;
 
-	return 1;
+	if (!strcmp(s, "prefix")) {
+		res = get_subnet_or_ip(value, &subnet);
+		if (res < 0)
+			return res;
+		res = subnet_compare(&route->subnet, &subnet);
+		if (res == EQUALS)
+			return 1;
+		return 0;
+	}
+	return 0;
 }
 
 int subnet_filter(struct subnet_file *sf, char *expr) {
-	int i;
+	int i, j, res, len;
 	struct generic_expr e;
 	struct route *new_r;
 
-	init_generic_expr(&e, expr, route_filter);
 	if (sf->nr == 0)
 		return 0;
+	init_generic_expr(&e, expr, route_filter);
 	debug_timing_start(2);
 
 	new_r = malloc(sf->max_nr * sizeof(struct route));
-
 	if (new_r == NULL) {
 		fprintf(stderr, "%s : no memory\n", __FUNCTION__);
 		debug_timing_end(2);
 		return -1;
 	}
+	j = 0;
+	len = strlen(expr);
+
 	for (i = 0; i < sf->nr; i++) {
-
-
+		e.object = &sf->routes[i];
+		res = run_generic_expr(expr, len, &e);
+		if (res < 0) {
+			free(new_r);
+			return -1;
+		}
+		if (res) {
+			copy_route(&new_r[j], &sf->routes[i]);
+			j++;
+		}
 	}
 	free(sf->routes);
 	sf->routes = new_r;
+	sf->nr = j;
 	debug_timing_end(2);
 	return 0;
 }
