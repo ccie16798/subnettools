@@ -98,19 +98,19 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 	debug(GEXPR, 9, "Pattern : '%s', len=%d\n", buffer, len);
 
 	while (isspace(pattern[i]))
-		i++;
+		pattern++;
 	if (pattern[i] == '(') {
 		debug(GEXPR, 3, "Found a '(', trying to split expr\n");
 		i += 1;
 		parenthese++;
 		while (1) {
 			if (pattern[i] == '\0' || i == len) {
-				debug(GEXPR, 1, "Invalid pattern '%s'\n", pattern);
+				debug(GEXPR, 1, "Invalid pattern '%s', no closing ')'\n", pattern);
 				return -1;
 			}
 			if (pattern[i] == '(')
 				parenthese++;
-			if (pattern[i] == ')' && parenthese == 1) {
+			else if (pattern[i] == ')' && parenthese == 1) {
 				debug(GEXPR, 3, "Found closing (expr)', recursion\n");
 				res1 = run_generic_expr(pattern + 1,  i - 1, e);
 				e->recursion_level--;
