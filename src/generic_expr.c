@@ -38,6 +38,7 @@ int simple_expr(char *pattern, int len, struct generic_expr *e) {
 	char string[256];
 	char value[256];
 	char operator;
+	int res;
 
 	e->recursion_level++;
 	if (e->recursion_level >= GENERIC_ST_MAX_RECURSION) {
@@ -78,8 +79,9 @@ int simple_expr(char *pattern, int len, struct generic_expr *e) {
 		i++;
 	}
 	value[i - j] = '\0';
-	debug(GEXPR, 5, "comparing '%s' against '%s'\n", string, value);
-	return e->compare(string, value, operator);	
+	res = e->compare(string, value, operator);
+	debug(GEXPR, 5, "comparing '%s' against '%s', return=%d\n", string, value, res);
+	return res;
 }
 
 
