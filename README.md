@@ -167,6 +167,39 @@ Example :
 	Embedded RP Address : 2001:db8:beef:feed::3
 	32-bit group id 0x32 [50]
 
+ROUTE FILTERING
+===============
+
+Subnettool is able to filter routes from a CSV files with complex expressions.
+It can filter on :
+- prefix
+- mask
+- gw
+- device
+- comment
+
+operator are :
+- '=' (EQUALS)
+- '#' (DIFFERENT)
+- '<' (numerically inferior)
+- '>' (numerically superior)
+- '{' (is included (for prefixes))
+- '}' (includes (for prefixes))
+
+the format ot the filter is :
+- (A|B) : A or  B
+- (A&B) : A and B
+- !(A)  : not A
+escape char for special chars is '\\'
+
+some examples :
+---------------
+	[etienne@ARODEF subnet_tools]$ ./subnet-tools   filter filter1 "prefix{2001:db8::0/48"
+	
+	2001:db8::;64;Ethernet1/0;2001::1;test1
+	
+	2001:db8::;128;Lo0;::;test1
+
 
 CODING
 ======
