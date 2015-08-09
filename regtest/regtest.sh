@@ -89,7 +89,7 @@ reg_test_scanf() {
 	for i in `seq 1 $n`; do
 		output_file=scanf$i
 		if [ ! -f ref/$output_file ]; then
-			echo "No ref file found for this test, creating it 'ref/$output_file'"	
+			echo "No ref file found for this test, creating it 'ref/$output_file'"
 			cp res/$output_file ref/$output_file
 		else
 			echo -n "reg test [scanf #$i] :"
@@ -106,6 +106,51 @@ reg_test_scanf() {
 	
 }
 
+reg_test_logic() {
+	local output_file
+	local n
+
+	$PROG exprtest "1=1&3>2" > res/logic1
+	$PROG exprtest "1=0&3>2" > res/logic2
+	$PROG exprtest "1=0&((3>2)&(4=4))" > res/logic3
+	$PROG exprtest "1=1&(21=20|3<4&(4>5))" > res/logic4
+	$PROG exprtest "1=0|(21=20|3<4&(4>5))" > res/logic5
+	$PROG exprtest "1=1&(21=20|3<4&(4>3))" > res/logic6
+	n=6
+	for i in `seq 1 $n`; do
+		output_file=logic$i
+		if [ ! -f ref/$output_file ]; then
+			echo "No ref file found for this test, creating it 'ref/$output_file'"
+			cp res/$output_file ref/$output_file
+		else
+			echo -n "reg test [logic #$i] :"
+			diff res/$output_file ref/$output_file > /dev/null
+			if [ $? -eq 0 ]; then
+				echo -e "\033[32mOK\033[0m"
+				n_ok=$((n_ok + 1))
+			else
+				n_ko=$((n_ko + 1))
+				echo -e "\033[31mKO\033[0m"
+			fi
+		fi
+	done
+}
+
+result() {
+	echo "Summary : "
+	echo -e "\033[32m$n_ok OK\033[0m"
+	echo -e "\033[31m$n_ko KO\033[0m"
+}
+
+
+#test for IPv4/IPv6 handling
+reg_test print invalid_ips_masks.txt
+#basic print to test fmt
+reg_test -c st-fmt.conf print route_aggipv6-2
+reg_test -c st-fmt.conf print route_aggipv4
+# a CSV with strange fields names :)
+reg_test -c st-bizarr.conf sort bizar.csv
+# a CSV with strange fields names, output more strange
 result() {
 	echo "Summary : "
 	echo -e "\033[32m$n_ok OK\033[0m"
@@ -160,6 +205,9 @@ reg_test split 10.2.0.0/16 256,4
 
 # scanf
 reg_test_scanf
+#logic test
+reg_test_logic
+
 # converter
 reg_test convert CiscoRouterconf	ciscorouteconf_v4
 reg_test convert CiscoRouterconf	ciscorouteconf_v6
