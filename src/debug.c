@@ -32,6 +32,7 @@ struct debug debugs[] = {
 	{ "scanf",	__D_SCANF,	"debug st_scanf" },
 	{ "bgpcmp",	__D_BGPCMP,	"debug BGP compare functions" },
 	{ "expr",	__D_GEXPR,	"debug generic expression matching" },
+	{ "filter",	__D_FILTER,	"debug route/BGP route filtering" },
 	{0, 0}
 };
 
