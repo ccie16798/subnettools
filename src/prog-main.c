@@ -443,13 +443,20 @@ static int run_bgp_filter(int arc, char **argv, void *st_options) {
 	struct bgp_file sf;
 	struct st_options *nof = st_options;
 
-	res = load_bgpcsv(argv[2], &sf, nof);
-	if (res < 0)
-		return res;
-	res = bgp_filter(&sf, argv[3]);
+	if (argv[3] == NULL) { /* read from stdin */
+		res = load_bgpcsv(NULL, &sf, nof);
+		if (res < 0)
+			return res;
+		res = bgp_filter(&sf, argv[2]);
+	} else {
+		res = load_bgpcsv(argv[2], &sf, nof);
+		if (res < 0)
+			return res;
+		res = bgp_filter(&sf, argv[3]);
+	}
 	if (res < 0) {
 		free(sf.routes);
-		fprintf(stderr, "Couldnt filter file %s\n", argv[2]);
+		fprintf(stderr, "Couldnt filter file %s\n", argv[3] ? argv[2] : "<tsdin>");
 		return res;
 	}
 	fprint_bgp_file(nof->output_file, &sf);
