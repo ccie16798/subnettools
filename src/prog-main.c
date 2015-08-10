@@ -103,7 +103,8 @@ struct st_command commands[] = {
 	{ "diff",	&run_diff,	2},
 	{ "compare",	&run_compare,	2},
 	{ "missing",	&run_missing,	2},
-	{ "paip",	&run_paip,	2},
+	{ "paip",	&run_paip,	1},
+	{ "ipam",	&run_paip,	1},
 	{ "grep",	&run_grep,	2},
 	{ "convert",	&run_convert,	1},
 	{ "simplify1",	&run_simplify1,	1},
@@ -170,10 +171,10 @@ void usage() {
 	printf("---------------------\n");
 	printf("compare FILE1 FILE2 : compare FILE1 & FILE2, printing subnets in FILE1 INCLUDED in FILE2\n");
 	printf("missing FILE1 FILE2 : prints subnets from FILE1 that are not covered by FILE2; GW is not checked\n");
-	printf("paip PAIP FILE1     : load IPAM, and print FILE1 subnet with comment extracted from IPAM\n");
+	printf("ipam <IPAM> FILE1   : load IPAM, and print FILE1 subnets with comment extracted from IPAM\n");
 	printf("diff FILE1 FILE2    : diff FILE1 & FILE2 (EXPERIMENTAL)\n");
 	printf("common FILE1 FILE2  : merge CSV subnet files FILE1 & FILE2; prints common routes only; GW isn't checked\n");
-	printf("addfiles FILE1 FILE2: merge CSV subnet files FILE1 & FILE2; prints the sum of both files (EXPERIMENTAL)\n");
+	printf("addfiles FILE1 FILE2: merge CSV subnet files FILE1 & FILE2; prints the sum of both files\n");
 	printf("grep FILE prefix    : grep FILE for prefix/mask\n");
 	printf("filter FILE EXPR    : grep FILE using regexp EXPR\n");
 	printf("\n");
