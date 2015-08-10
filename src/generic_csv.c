@@ -112,7 +112,17 @@ static int read_csv_body(FILE *f, char *name, struct csv_file *cf,
 	unsigned long badlines = 0;
 
 	debug_timing_start(2);
-	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res)) != NULL) {
+	if (init_buffer) {
+		s = init_buffer;
+		res = 0;
+	} else {
+		s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res);
+		if (s == NULL) {
+			debug(LOAD_CSV, 1, "File %s doesnt have any content\n", name);
+			return  CSV_EMPTY_FILE;
+		}
+	}
+	do {
 		if (state->line == ULONG_MAX) { /* paranoid check */
 			debug(LOAD_CSV, 1, "File %s is too big, we reached ULONG_MAX (%lu)\n", name, ULONG_MAX);
 			return CSV_FILE_MAX_SIZE;
@@ -180,7 +190,8 @@ static int read_csv_body(FILE *f, char *name, struct csv_file *cf,
 		}
 		if (state->badline)
 			badlines++;
-	} /* while fgets */
+	} while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res)) != NULL);
+
 	/* end of file */
 	if (cf->endoffile_callback)
 		res = cf->endoffile_callback(state, data);
@@ -195,7 +206,7 @@ int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state* stat
 	FILE *f;
 	char buffer[1024];
 	char *s;
-	int res;
+	int res, res2;
 
 	if (cf->csv_strtok_r == NULL) {
 		fprintf(stderr, "coding error:  no strtok function provided\n");
@@ -226,24 +237,19 @@ int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state* stat
 		fclose(f);
 		return res;
 	}
-	if (res == CSV_HEADER_FOUND) {
-		state->line = 1;
-	} else if (res == CSV_NO_HEADER) {
-		rewind(f);
-		state->line = 0;
-	}
 	if (cf->validate_header)
-		res = cf->validate_header(cf->csv_field);
-	if (res < 0) {
+		res2 = cf->validate_header(cf->csv_field);
+	if (res2 < 0) {
 		fclose(f);
 		return res;
 	}
-	if (state->line == 1) /* first line was a header, no need to put initial_buff */
-		res = read_csv_body(f, filename, cf, state, data, NULL);
-	else if (state->line == 0) /* we need to pass initial buff */
+	state->line = 0;
+	if (res == CSV_HEADER_FOUND) /* first line was a header, no need to put initial_buff */
+		 res = read_csv_body(f, filename, cf, state, data, NULL);
+	else if (res == CSV_NO_HEADER) /* we need to pass initial buff */
 		res = read_csv_body(f, filename, cf, state, data, buffer);
 	else {
-		fprintf(stderr, "BUG at %s line %d\n", __FILE__, __LINE__);
+		fprintf(stderr, "BUG at %s line %d, invalid resi=%d\n", __FILE__, __LINE__, res);
 		fclose(f);
 		return -3;
 	}
