@@ -15,15 +15,17 @@
 #include "generic_csv.h"
 #include "utils.h"
 
-static int read_csv_header(char *filename, char *buffer, struct csv_file *cf) {
+static int read_csv_header(char *filename, const char *buffer, struct csv_file *cf) {
 	int i, j;
 	char *s, *save_s;
 	int pos = 1;
 	int bad_header = 0;
 	int max_mandatory_pos = 1;
 	int no_header = 0;
+	char buffer2[1024];
 
-	s = buffer;
+	strxcpy(buffer2, buffer, sizeof(buffer2));
+	s = buffer2;
 	debug(CSVHEADER, 3, "Trying to parse header in %s\n", filename);
 	debug(CSVHEADER, 4, "CSV header : '%s'\n", s);
 
@@ -97,9 +99,11 @@ static int read_csv_header(char *filename, char *buffer, struct csv_file *cf) {
 /*
  * the CSV Body engine
  * it is a private function
+ * init_buffer can be the first line read from
  */
 static int read_csv_body(FILE *f, char *name, struct csv_file *cf,
-		struct csv_state *state, void *data) {
+		struct csv_state *state, void *data,
+		char *init_buffer) {
 	char buffer[1024];
 	struct csv_field *csv_field;
 	int i, res;
@@ -209,15 +213,19 @@ int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state* stat
 	s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res);
 	if (s == NULL) {
 		fprintf(stderr, "empty file %s\n", filename ? filename : "<stdin>");
+		fclose(f);
 		return CSV_EMPTY_FILE;
         } else if (res) {
 		fprintf(stderr, "%s CSV header is longer than the allowed size %d\n",
 			 (filename ? filename : "<stdin>"), (int)sizeof(buffer));
+		fclose(f);
 		return CSV_HEADER_TOOLONG;
 	}
 	res = read_csv_header((filename ? filename : "<stdin>"), buffer, cf);
-	if (res < 0)
+	if (res < 0) {
+		fclose(f);
 		return res;
+	}
 	if (res == CSV_HEADER_FOUND) {
 		state->line = 1;
 	} else if (res == CSV_NO_HEADER) {
@@ -226,9 +234,19 @@ int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state* stat
 	}
 	if (cf->validate_header)
 		res = cf->validate_header(cf->csv_field);
-	if (res < 0)
+	if (res < 0) {
+		fclose(f);
 		return res;
-	res = read_csv_body(f, filename, cf, state, data);
+	}
+	if (state->line == 1) /* first line was a header, no need to put initial_buff */
+		res = read_csv_body(f, filename, cf, state, data, NULL);
+	else if (state->line == 0) /* we need to pass initial buff */
+		res = read_csv_body(f, filename, cf, state, data, buffer);
+	else {
+		fprintf(stderr, "BUG at %s line %d\n", __FILE__, __LINE__);
+		fclose(f);
+		return -3;
+	}
 	fclose(f);
 	return res;
 }
