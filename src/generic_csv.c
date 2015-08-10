@@ -95,10 +95,11 @@ static int read_csv_header(char *filename, char *buffer, struct csv_file *cf) {
 }
 
 /*
- * the engine
- *
+ * the CSV Body engine
+ * it is a private function
  */
-static int read_csv_body(FILE *f, char *name, struct csv_file *cf, struct csv_state *state, void *data) {
+static int read_csv_body(FILE *f, char *name, struct csv_file *cf,
+		struct csv_state *state, void *data) {
 	char buffer[1024];
 	struct csv_field *csv_field;
 	int i, res;
@@ -214,7 +215,7 @@ int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state* stat
 			 (filename ? filename : "<stdin>"), (int)sizeof(buffer));
 		return CSV_HEADER_TOOLONG;
 	}
-	res = read_csv_header(filename, buffer, cf);
+	res = read_csv_header((filename ? filename : "<stdin>"), buffer, cf);
 	if (res < 0)
 		return res;
 	if (res == CSV_HEADER_FOUND) {
