@@ -95,7 +95,7 @@ static int option_ecmp(int argc, char **argv, void *st_options);
 
 struct st_command commands[] = {
 	{ "echo",	&run_echo,	2},
-	{ "print",	&run_print,	1},
+	{ "print",	&run_print,	0},
 	{ "relation",	&run_relation,	2},
 	{ "bgpcmp",	&run_bgpcmp,	2},
 	{ "bgpsortby",	&run_bgpsortby,	1},
@@ -324,7 +324,7 @@ static int run_print(int arc, char **argv, void *st_options) {
 
 	res = load_netcsv_file(argv[2], &sf, nof);
 	if (res < 0)
-		fprintf(stderr, "invalid file %s; not a CSV?\n", argv[2]);
+		return res;
 	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
 	return 0;
 }
