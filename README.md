@@ -53,6 +53,7 @@ When working on CSV route files, please note the following
 - Input IPAM CSV MUST have a CSV header; there is a defaut header, but it is derived from my company's one
 - So IPAM CSV header MUST be described in the configuration file
 
+- some commands can take <stdin> as input : sort, sortby, bgpsortby, print, ipam, filter, bgpfilter
 OUTPUT FMT
 ==========
 The output of subnettools command working on route files can be dynamically modified by supplying an output FMT
