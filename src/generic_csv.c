@@ -196,17 +196,22 @@ int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state* stat
 		fprintf(stderr, "coding error:  no strtok function provided\n");
 		return -2;
 	}
-	f = fopen(filename, "r");
-	if (f == NULL) {
-		fprintf(stderr, "cannot open %s for reading\n", filename);
-		return CSV_CANNOT_OPEN_FILE;
+	if (filename == NULL)
+		f = stdin;
+	else {
+		f = fopen(filename, "r");
+		if (f == NULL) {
+			fprintf(stderr, "cannot open %s for reading\n", filename);
+			return CSV_CANNOT_OPEN_FILE;
+		}
 	}
 	s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res);
 	if (s == NULL) {
-		fprintf(stderr, "empty file %s\n", filename);
+		fprintf(stderr, "empty file %s\n", filename ? filename : "<stdin>");
 		return CSV_EMPTY_FILE;
         } else if (res) {
-		fprintf(stderr, "%s CSV header is longer than the allowed size %d\n", filename, (int)sizeof(buffer));
+		fprintf(stderr, "%s CSV header is longer than the allowed size %d\n",
+			 (filename ? filename : "<stdin>"), (int)sizeof(buffer));
 		return CSV_HEADER_TOOLONG;
 	}
 	res = read_csv_header(filename, buffer, cf);
