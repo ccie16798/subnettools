@@ -110,7 +110,7 @@ struct st_command commands[] = {
 	{ "simplify2",	&run_simplify2,	1},
 	{ "common",	&run_common,	2},
 	{ "addfiles",	&run_addfiles,	2},
-	{ "sort",	&run_sort,	1},
+	{ "sort",	&run_sort,	0},
 	{ "sortby",	&run_sortby,	1},
 	{ "filter",	&run_filter,	2},
 	{ "bgpfilter",	&run_bgp_filter,2},
@@ -583,10 +583,6 @@ static int run_sortby(int arc, char **argv, void *st_options) {
 	if (!strncmp(argv[2], "help", strlen(argv[2]))) {
 		subnet_available_cmpfunc(stderr);
 		return 0;
-	}
-	if (argv[3] == NULL) {
-		fprintf(stderr, "Not enough argument for subnetsortby\n");
-		return -1;
 	}
 	res = load_netcsv_file(argv[3], &sf1, st_options);
 	if (res < 0)
