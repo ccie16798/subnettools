@@ -65,20 +65,33 @@ struct csv_file {
 	struct csv_field *csv_field;
 	char *delim; /** delimiteur */
 	int max_mandatory_pos ; /* used to track the pos of the last mandatory field */
-	int (*is_header)(char *); /* given a line, try to guess if its a header or plain data; if NULL, the file REQUIRES a header */
-	int (*validate_header)(struct csv_field *); /* once a header has been parsed, post-validate the required fields are there */
-	int (*header_field_compare)(const char *, const char *); /* use to compare header FIELD, strcmp by default */
-
+	/* given a line, try to guess if its a header or plain data; if NULL, the file REQUIRES a header */
+	int (*is_header)(char *);
+	/* once a header has been parsed, post-validate the required fields are there */
+	int (*validate_header)(struct csv_field *);
+	/* use to compare CSV header FIELDS name, strcmp by default */
+	int (*header_field_compare)(const char *, const char *);
 	int (*endofline_callback)(struct csv_state *state, void *data);
 	int (*endoffile_callback)(struct csv_state *state, void *data);
 	char * (*csv_strtok_r)(char *s, const char *delim, char **save_ptr);
 };
 
-/* will only set the mandatory things (field, delim, and strtok_r function */
+/* will only set the mandatory things (field, delim, and strtok_r function
+ * strtok_r possible values are :
+ * - simple_strtok_r : doesnt treat consecutive delims as one
+ * - strtok_r        : treat consecutives delims as one
+ * */
 void init_csv_file(struct csv_file *cf, struct csv_field *csv_field, char *delim,
 		char * (*strtok_r)(char *s, const char *delim, char **save_ptr));
-/* this func will open the 'filename' FILE, parse it according to 'cf' and 'state', and usually you'll want to
- * feed a  pointer to a struct  whatever in *data */
+
+/* this func will open the 'filename' FILE, parse it according to 'cf' and 'state'
+ * and usually you'll want to feed a  pointer to a struct  whatever in *data
+ *
+ * filename : name of the file, stdin is used if filename == NULL
+ * cf       : struct csv_file, must have been init before
+ * state    : a generic state object used by run_body, to store data between callbacks
+ * data     : this will point to a struct you want to fill with data read from the file
+ * */
 int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state *state, void *data);
 
 #else
