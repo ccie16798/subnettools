@@ -147,8 +147,7 @@ static inline int pad_buffer_out(char *out, size_t len, const char *buffer, size
 	}
 	return res;
 }
-/*
- * a very specialized function to print a struct route */
+ /* a very specialized function to print a struct route */
 int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt) {
 	int i, j, i2, compression_level;
 	int res, pad_left;
@@ -236,6 +235,151 @@ int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt) {
 						previous_subnet(&v_sub);
 					else if (fmt[i2] == 'U')
 						next_subnet(&v_sub);
+					res = subnet2str(&v_sub, buffer, sizeof(buffer), compression_level);
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+							res, field_width, pad_left, ' ');
+					j += res;
+					break;
+				case 'P': /* Prefix */
+					SET_IP_COMPRESSION_LEVEL(fmt[i2 + 1]);
+					copy_subnet(&v_sub, &r->subnet);
+					subnet2str(&v_sub, buffer2, sizeof(buffer2), compression_level);
+					res = sprintf(buffer, "%s/%d", buffer2, (int)v_sub.mask);
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+							res, field_width, pad_left, ' ');
+					j += res;
+					break;
+				case 'G':
+					SET_IP_COMPRESSION_LEVEL(fmt[i2 + 1]);
+					copy_ipaddr(&sub.ip_addr, &r->gw);
+					sub.ip_ver = r->subnet.ip_ver;
+					res = subnet2str(&sub, buffer, sizeof(buffer), compression_level);
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+							res, field_width, pad_left, ' ');
+					j += res;
+					break;
+				default:
+					debug(FMT, 2, "%c is not a valid char after a %c\n", fmt[i2], '%');
+					outbuf[j] = '%';
+					outbuf[j + 1] = fmt[i2];
+					j += 2;
+			} //switch
+			i += 2;
+		} else if (c == '\\') {
+			BLOCK_ESCAPE_CHAR
+		} else {
+			outbuf[j++] = c;
+			i++;
+		}
+	}
+	outbuf[j++] = '\n';
+	outbuf[j] = '\0';
+	return fputs(outbuf, output);
+}
+/*
+ * a very specialized function to print a struct bgp_route */
+int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt) {
+	int i, j, i2, compression_level;
+	int res, pad_left;
+	char c;
+	char outbuf[512 + 140];
+	char buffer[128], buffer2[128];
+	struct subnet sub;
+	int field_width;
+	struct subnet v_sub;
+	char pad_value;
+	/* %P for prefix
+	 * %I for IP
+	 * %m for mask
+	 * %g for gateway
+	 * %M for MED
+	 * %L for LOCAL_PREF
+	 * %A for AS_PATH
+	 * %w for weight
+	 * %o for origin
+	 * %T for TYPE ('e' for eBGP, 'i' for iBGP)
+	 * %B for "Best/No"
+	 * %v for valid
+	 */
+	i = 0;
+	j = 0; /* index in outbuf */
+	while (1) {
+		c = fmt[i];
+		debug(FMT, 5, "Still to parse : '%s'\n", fmt + i);
+		if (j >= sizeof(outbuf)) {
+			fprintf(stderr, "BUG in %s, buffer overrun, j=%d len=%d\n", __FUNCTION__, j,
+					 (int)sizeof(outbuf));
+			break;
+		} else if (j == sizeof(outbuf) - 1) {
+			debug(FMT, 2, "Output buffer is full, stopping\n");
+			break;
+		}
+		if (c == '\0')
+			break;
+		if (c == '%') {
+			BLOCK_FIELD_WIDTH
+			pad_value = ' '; /*in fprint_bgp_route, pad value is alwys a space */
+			switch (fmt[i2]) {
+				case '\0':
+					outbuf[j] = '%';
+					debug(FMT, 2, "End of String after a %c\n", '%');
+					j++;
+					i--;
+					break;
+				case 'w':
+					res = sprint_uint(buffer, r->weight);
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+							res, field_width, pad_left, pad_value);
+					j += res;
+					break;
+				case 'L':
+					res = sprint_uint(buffer, r->LOCAL_PREF);
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+							res, field_width, pad_left, pad_value);
+					j += res;
+					break;
+				case 'A':
+					res = strlen(r->AS_PATH);
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, r->AS_PATH,
+							res, field_width, pad_left, ' ');
+					j += res;
+					break;
+				case 'M':
+					res = sprint_uint(buffer, r->MED);
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+							res, field_width, pad_left, pad_value);
+					j += res;
+					break;
+				case 'o':
+					outbuf[j] = r->origin;
+					j++;
+					break;
+				case 'b':
+					outbuf[j] = (r->best ? '1' : '0');
+					j++;
+					break;
+				case 'v':
+					outbuf[j] = (r->valid ? '1' : '0');
+					j++;
+					break;
+				case 'T':
+					outbuf[j] = r->type;
+					j++;
+					break;
+				case 'm':
+					if (r->subnet.ip_ver == IPV4_A || r->subnet.ip_ver == IPV6_A)
+						res = sprint_uint(buffer, r->subnet.mask);
+					else {
+						strcpy(buffer,"<Invalid mask>");
+						res = strlen(buffer);
+					}
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+							res, field_width, pad_left, ' ');
+					j += res;
+					break;
+				case 'I': /* IP address */
+					SET_IP_COMPRESSION_LEVEL(fmt[i2 + 1]);
+					copy_subnet(&v_sub, &r->subnet);
 					res = subnet2str(&v_sub, buffer, sizeof(buffer), compression_level);
 					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
 							res, field_width, pad_left, ' ');
