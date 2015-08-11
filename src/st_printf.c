@@ -288,6 +288,7 @@ int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt
 	int field_width;
 	struct subnet v_sub;
 	char pad_value;
+	char *truc;
 	/* %P for prefix
 	 * %I for IP
 	 * %m for mask
@@ -357,6 +358,13 @@ int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt
 				case 'b':
 					outbuf[j] = (r->best ? '1' : '0');
 					j++;
+					break;
+				case 'B':
+					truc = (r->best ? "Best" : "No");
+					res = strlen(truc);
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, truc,
+							res, field_width, pad_left, ' ');
+					j += res;
 					break;
 				case 'v':
 					outbuf[j] = (r->valid ? '1' : '0');
