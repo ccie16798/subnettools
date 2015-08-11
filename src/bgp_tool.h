@@ -1,7 +1,7 @@
 #ifndef BGPTOOL_H
 #define BGPTOOL_H
 
-void fprint_bgp_route(FILE *, struct bgp_route *r);
+int fprint_bgp_route(FILE *, struct bgp_route *r);
 void fprint_bgp_file_header(FILE *out);
 void fprint_bgp_file(FILE *output, struct bgp_file *bf);
 int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof);
