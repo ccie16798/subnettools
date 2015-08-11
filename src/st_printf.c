@@ -761,5 +761,5 @@ void fprint_bgp_file_fmt(FILE *output, const struct bgp_file *sf, const char *fm
 }
 
 void print_bgp_file_fmt(const struct bgp_file *sf, const char *fmt) {
-	fprint_bgp_file_fmt(stdout, st, fmt);
+	fprint_bgp_file_fmt(stdout, sf, fmt);
 }
