@@ -95,7 +95,7 @@ int run_csvconverter(char *name, char *filename, struct st_options *o) {
 }
 
 #define BAD_LINE_CONTINUE \
-	debug(PARSEROUTE, 4, "%s line %lu invalid route : '%s'\n", name, line, buffer); \
+	debug(PARSEROUTE, 4, "%s line %lu invalid route : '%s'", name, line, buffer); \
 	memset(&route, 0, sizeof(route)); \
 	badline++; \
 	continue; \
@@ -276,6 +276,39 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o) {
 		line++;
 		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
 
+		/* handle gateway of last resort line */
+		if (!strncmp(s, "Gateway ", 8)) {
+			ip_ver = IPV4_A;
+			debug(PARSEROUTE, 5, "line %lu \'is gateway of last resort, skipping'\n", line);
+			continue;
+		} else if (strstr(s, "variably subnetted")) {
+			debug(PARSEROUTE, 5, "line %lu \'is variably subnetted, skipping'\n", line);
+			continue;
+		} else if (strstr(s, "is subnetted")) {
+			debug(PARSEROUTE, 5, "line %lu \'is subnetted'\n", line);
+			find_mask = route.subnet.mask;
+			/*      194.51.71.0/32 is subnetted, 1 subnets */
+			res = st_sscanf(s, " *%I/%d is subnetted, %d subnets", &route.subnet.ip_addr, &find_mask, &is_subnetted);
+			if (res < 3) {
+				badline++;
+				debug(PARSEROUTE, 1, "line %lu invalid 'is subnetted' '%s'\n", line, s);
+				continue;
+			}
+			continue;
+		} else if (strstr(s, "is directly connected")) {
+			memset(&route, 0, sizeof(route));
+			/* C       10.73.5.92/30 is directly connected, Vlan346 */
+			res = st_sscanf(s, ".*%P.*$%32s", &route.subnet, route.device);
+			type = 'C';
+			if (res < 2) {
+				BAD_LINE_CONTINUE
+			}
+			CHECK_IP_VER
+			SET_COMMENT
+			fprint_route(o->output_file, &route, 3);
+			memset(&route, 0, sizeof(route));
+			continue;
+		}
 		/* handle a next hop printed on a next-line
 		 * happens in case the interface Name is long :)
 		 */
@@ -314,39 +347,6 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o) {
 			if (find_hop == 1 || o->ecmp)
 				fprint_route(o->output_file, &route, 3);
 			find_hop++;
-			continue;
-		}
-		/* handle gateway of last resort line */
-		if (!strncmp(s, "Gateway ", 8)) {
-			ip_ver = IPV4_A;
-			debug(PARSEROUTE, 5, "line %lu \'is gateway of last resort, skipping'\n", line);
-			continue;
-		} else if (strstr(s, "variably subnetted")) {
-			debug(PARSEROUTE, 5, "line %lu \'is variably subnetted, skipping'\n", line);
-			continue;
-		} else if (strstr(s, "is subnetted")) {
-			debug(PARSEROUTE, 5, "line %lu \'is subnetted'\n", line);
-			find_mask = route.subnet.mask;
-			/*      194.51.71.0/32 is subnetted, 1 subnets */
-			res = st_sscanf(s, " *%I/%d is subnetted, %d subnets", &route.subnet.ip_addr, &find_mask, &is_subnetted);
-			if (res < 3) {
-				badline++;
-				debug(PARSEROUTE, 1, "line %lu invalid 'is subnetted' '%s'\n", line, s);
-				continue;
-			}
-			continue;
-		} else if (strstr(s, "directly connected")) {
-			memset(&route, 0, sizeof(route));
-			/* C       10.73.5.92/30 is directly connected, Vlan346 */
-			res = st_sscanf(s, ".*%P.*$%32s", &route.subnet, route.device);
-			type = 'C';
-			if (res < 2) {
-				BAD_LINE_CONTINUE
-			}
-			CHECK_IP_VER
-			SET_COMMENT
-			fprint_route(o->output_file, &route, 3);
-			memset(&route, 0, sizeof(route));
 			continue;
 		}
 		memset(&route, 0, sizeof(route));
