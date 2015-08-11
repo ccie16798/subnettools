@@ -20,14 +20,6 @@
 
 #define ST_VSPRINTF_BUFFER_SIZE 2048
 
-#define SET_IP_COMPRESSION_LEVEL(__c) do { \
-	if (__c >= '0' && __c <= '3') { \
-		compression_level = __c - '0'; \
-		i++; \
-	} else \
-		compression_level = 3; \
-	} while (0);
-
 sprint_signed(short)
 sprint_signed(int)
 sprint_signed(long)
@@ -37,6 +29,68 @@ sprint_hex(long)
 sprint_unsigned(short)
 sprint_unsigned(int)
 sprint_unsigned(long)
+
+/* we define a few MACRO to lessen the code duplication between :
+ *  fprint_route_fmt
+ *  fprint_bgproute_fmt
+ *  st_vsprintf
+ */
+#define SET_IP_COMPRESSION_LEVEL(__c) do { \
+	if (__c >= '0' && __c <= '3') { \
+		compression_level = __c - '0'; \
+		i++; \
+	} else \
+		compression_level = 3; \
+	} while (0);
+
+
+#define BLOCK_ESCAPE_CHAR \
+	switch (fmt[i + 1]) { \
+		case '\0': \
+			outbuf[j++] = '\\'; \
+			debug(FMT, 2, "End of String after a %c\n", '\\'); \
+			i--; \
+			break; \
+		case 'n': \
+			outbuf[j++] = '\n'; \
+			break; \
+		case 't': \
+			outbuf[j++] = '\t'; \
+			break; \
+		case ' ': \
+			outbuf[j++] = ' '; \
+			break; \
+		default: \
+			debug(FMT, 2, "%c is not a valid char after a %c\n", fmt[i + 1], '\\'); \
+			outbuf[j++] = fmt[i + 1]; \
+	} \
+	i += 2;
+
+#define BLOCK_FIELD_WIDTH \
+	i2 = i + 1; \
+	pad_left = 0; \
+	field_width = 0; \
+	/* try to get a field width (if any) */ \
+	if (fmt[i2] == '\0') { \
+		debug(FMT, 2, "End of String after a '%c'\n", '%'); \
+		outbuf[j++] = '%'; \
+		break; \
+	} else if (fmt[i2] == '-') { \
+		pad_left = 1; \
+		i2++; \
+	} \
+	if (fmt[i2] == '0') { \
+		pad_value = '0'; \
+		i2++; \
+	} \
+	while (isdigit(fmt[i2])) { \
+		field_width *= 10; \
+		field_width += fmt[i2] - '0'; \
+		i2++; \
+	} \
+	debug(FMT, 6, "Field width Int is '%d', padding is %s\n", field_width, \
+			(pad_left ? "left": "right") ); \
+	i = i2 - 1;
 
 void fprint_route(FILE *output, const struct route *r, int compress_level) {
 	char buffer[52];
@@ -104,6 +158,7 @@ int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt) {
 	struct subnet sub;
 	int field_width;
 	struct subnet v_sub;
+	char pad_value;
 	/* %I for IP */
 	/* %m for mask */
 	/* %D for device */
@@ -121,30 +176,8 @@ int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt) {
 		if (c == '\0')
 			break;
 		if (c == '%') {
-			i2 = i + 1;
-			pad_left = 0;
-			field_width = 0;
-			/* try to get a field width (if any) */
-			if (fmt[i2] == '\0') {
-				debug(FMT, 2, "End of String after a '%c'\n", '%');
-				outbuf[j++] = '%';
-				break;
-			} else if (fmt[i2] == '-') {
-				pad_left = 1;
-				i2++;
-			}
-			if (fmt[i2] == '0') {
-				/* pad_value = '0'; pad value not used */
-				i2++;
-			}
-			while (isdigit(fmt[i2])) {
-				field_width *= 10;
-				field_width += fmt[i2] - '0';
-				i2++;
-			}
-			debug(FMT, 6, "Field width Int is '%d', padding is %s\n", field_width, 
-					(pad_left ? "left": "right") );
-			i = i2 - 1;
+			BLOCK_FIELD_WIDTH
+			pad_value = ' '; /*in fprint_route, pad value is alwys a space */
 			switch (fmt[i2]) {
 				case '\0':
 					outbuf[j] = '%';
@@ -162,7 +195,7 @@ int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt) {
 						res = strlen(buffer);
 					}
 					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
-							res, field_width, pad_left, ' ');
+							res, field_width, pad_left, pad_value);
 					j += res;
 					break;
 				case 'm':
@@ -234,26 +267,7 @@ int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt) {
 			} //switch
 			i += 2;
 		} else if (c == '\\') {
-			switch (fmt[i + 1]) {
-				case '\0':
-					outbuf[j++] = '\\';
-					debug(FMT, 2, "End of String after a %c\n", '\\');
-					i--;
-					break;
-				case 'n':
-					outbuf[j++] = '\n';
-					break;
-				case 't':
-					outbuf[j++] = '\t';
-					break;
-				case ' ':
-					outbuf[j++] = ' ';
-					break;
-				default:
-					debug(FMT, 2, "%c is not a valid char after a %c\n", fmt[i + 1], '\\');
-					outbuf[j++] = fmt[i + 1];
-			}
-			i += 2;
+			BLOCK_ESCAPE_CHAR
 		} else {
 			outbuf[j++] = c;
 			i++;
@@ -303,31 +317,8 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 		if (c == '\0')
 			break;
 		if (c == '%') {
-			i2 = i + 1;
-			pad_left = 0;
 			pad_value = ' ';
-			field_width = 0;
-			/* try to get a field width (if any) */
-			if (fmt[i2] == '\0') {
-				debug(FMT, 2, "End of String after a '%c'\n", '%');
-				outbuf[j++] = '%';
-				break;
-			} else if (fmt[i2] == '-') {
-				pad_left = 1;
-				i2++;
-			}
-			if (fmt[i2] == '0') {
-				pad_value = '0';
-				i2++;
-			}
-			while (isdigit(fmt[i2])) {
-				field_width *= 10;
-				field_width += fmt[i2] - '0';
-				i2++;
-			}
-			debug(FMT, 6, "Field width Int is '%d', padding is %s\n", field_width, 
-					(pad_left ? "left": "right") );
-			i = i2 - 1;
+			BLOCK_FIELD_WIDTH
 			switch (fmt[i2]) {
 				case '\0':
 					outbuf[j] = '%';
@@ -522,26 +513,7 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 			} //switch
 			i += 2;
 		} else if (c == '\\') {
-			switch (fmt[i + 1]) {
-				case '\0':
-					outbuf[j++] = '\\';
-					debug(FMT, 2, "End of String after a %c\n", '\\');
-					i--;
-					break;
-				case 'n':
-					outbuf[j++] = '\n';
-					break;
-				case 't':
-					outbuf[j++] = '\t';
-					break;
-				case ' ':
-					outbuf[j++] = ' ';
-					break;
-				default:
-					debug(FMT, 2, "%c is not a valid char after a %c\n", fmt[i + 1], '\\');
-					outbuf[j++] = fmt[i + 1];
-			}
-			i += 2;
+			BLOCK_ESCAPE_CHAR
 		} else {
 			outbuf[j++] = c;
 			i++;
