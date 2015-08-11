@@ -752,3 +752,14 @@ void fprint_subnet_file_fmt(FILE *output, const struct subnet_file *sf, const ch
 void print_subnet_file(const struct subnet_file *sf, int compress_level) {
 	fprint_subnet_file(stdout, sf, compress_level);
 }
+
+void fprint_bgp_file_fmt(FILE *output, const struct bgp_file *sf, const char *fmt) {
+	unsigned long i;
+
+	for (i = 0; i < sf->nr; i++)
+		fprint_bgproute_fmt(output, &sf->routes[i], fmt);
+}
+
+void print_bgp_file_fmt(const struct bgp_file *sf, const char *fmt) {
+	fprint_bgp_file_fmt(stdout, st, fmt);
+}
