@@ -292,6 +292,7 @@ reg_test convert ciscofw		iproute_ASA
 reg_test convert ciscofwconf		ciscofwconf_route_v4.txt 
 reg_test convert ciscofwconf		ciscofwconf_route_v6.txt 
 reg_test convert CiscoRouter		iproute_cisco
+reg_test convert CiscoRouter		iproute_ce1
 reg_test convert CiscoRouter		iproute_cisco_ECMP 
 reg_test convert CiscoRouter		ipv6route2
 reg_test -rt convert CiscoRouter	iproute_cisco
