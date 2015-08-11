@@ -568,7 +568,7 @@ int st_fprintf(FILE *f, const char *fmt, ...) {
 	va_start(ap, fmt);
 	st_vsnprintf(buffer, sizeof(buffer), fmt, ap, NULL, 0);
 	va_end(ap);
-	return fprintf(f, "%s", buffer);
+	return fputs(buffer, f);
 }
 
 int st_printf(const char *fmt, ...) {
@@ -578,7 +578,7 @@ int st_printf(const char *fmt, ...) {
 	va_start(ap, fmt);
 	st_vsnprintf(buffer, sizeof(buffer), fmt, ap, NULL, 0);
 	va_end(ap);
-	return printf("%s", buffer);
+	return fputs(buffer, stdout);
 }
 
 int sto_snprintf(char *out, size_t len, const char *fmt, struct sto *o, int max_o, ...) {
