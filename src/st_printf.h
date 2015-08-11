@@ -7,6 +7,9 @@ void fprint_route(FILE *output, const struct route *r, int compress_level);
 /* print a route 'r' according to format 'fmt' into output */
 int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt);
 
+int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt);
+
+
 /* subnettool variants of sprintf, fprintf and printf
  * fmt understand the following types :
  *
