@@ -181,7 +181,13 @@ u32 string2mask(const char *s, int len) ;
  */
 int get_subnet_or_ip(const char *s, struct subnet *subnet);
 
-/* variant of get_subnet_or_ip that allows IPv4 address to not print 'useless 0' like 10/8, 172.20/16, 192.168.1/24 */
+/* variant of get_subnet_or_ip that allows IPv4 address to not print :
+ * 'useless 0' like 10/8, 172.20/16, 192.168.1/24
+ * or that, if not mask is present, will use the classfull mask :
+ * 192.168.1.0 will translate in 192.168.1.0/24
+ * Classfull_get_subnet always creates subnet+mask, while get_subnet_or_ip create IPv4/32 or IPv6/128
+ * in case no mask is found
+ **/
 int classfull_get_subnet(const char *string, struct subnet *subnet);
 
 /* try to aggregate s1 & s2, putting the result 'in aggregated_subnet' if possible
