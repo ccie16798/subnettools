@@ -691,7 +691,28 @@ int get_subnet_or_ip(const char *s, struct subnet *subnet) {
 	debug(PARSEIP, 2, "bad prefix '%s'\n", s);
 	return BAD_IP;
 }
-/* some platforms will print IPv4 classfull subnet and remove 0 like 10/8, 172.30/16 etc... */
+
+
+int ipv4_get_classfull_mask(const struct subnet *s) {
+	if (s->ip == 0)
+		return 0;
+	if ((s->ip >> 31) == 0)
+		return 8;
+	if ((s->ip >> 30) == 2)
+		return 16;
+	if ((s->ip >> 29) == 6)
+		return 24;
+	if ((s->ip >> 28) == 14) /* MULTICAST is /32 but hum ... */
+		return 32;
+	if ((s->ip >> 28) == 15)
+		return -1;
+	return -1;
+}
+
+/* some platforms will print IPv4 classfull subnet and remove 0 like 10/8, 172.30/16 etc
+ * or sh ip bgp will not print the mask in case of a classfull subnet
+ * thanks CISCO for keeping that 1980's crap into our memories ...
+ * ... */
 int classfull_get_subnet(const char *s, struct subnet *subnet) {
 	int truc[4];
 	int i;
@@ -743,6 +764,12 @@ int classfull_get_subnet(const char *s, struct subnet *subnet) {
 			debug(PARSEIP, 2, "Invalid IP '%s',  contains '%c'\n", s, s[i]);
 			return BAD_IP;
 		}
+	}
+	if (s[i] == '\0') {
+		subnet->ip = (truc[0] << 24) + (truc[1] << 16) + (truc[2] << 8) + truc[3];
+		subnet->ip_ver = IPV4_A;
+		subnet->mask = ipv4_get_classfull_mask(subnet);
+		return IPV4_N;
 	}
 	if (s[i] != '/') {
 		debug(PARSEIP,2, "Invalid classfull prefix '%s', no mask\n", s);
