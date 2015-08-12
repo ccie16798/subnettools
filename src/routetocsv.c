@@ -514,7 +514,7 @@ int ciscobgp_to_csv(char *name, FILE *f, struct st_options *o) {
 			aspath_offset = s2 - s;
 			debug(PARSEROUTE, 3, "med_offset %d, aspath_offset %d\n", med_offset, aspath_offset);
 		}
-		res = st_sscanf(s, ".*%P *%I", &route.subnet, &route.gw);
+		res = st_sscanf(s, ".*%Q *%I", &route.subnet, &route.gw);
 		if (res == 0) {
 			debug(PARSEROUTE, 2, "Invalid line %lu\n", line);
 			badline++;
