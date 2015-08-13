@@ -100,6 +100,23 @@ int run_csvconverter(char *name, char *filename, struct st_options *o) {
 	badline++; \
 	continue; \
 
+#define CHECK_IP_VER  \
+	if (ip_ver == -1) { \
+		ip_ver = route.subnet.ip_ver; \
+	} else if (route.subnet.ip_ver != ip_ver) { \
+		debug(PARSEROUTE, 1, "line %lu Invalid '%s', inconsistent IP version\n", line, s); \
+		badline++; \
+		continue; \
+	}
+
+#define SET_COMMENT \
+	if (o->rt) { \
+		route.comment[0] = type; \
+		route.comment[1] = ' '; \
+		strxcpy(route.comment + 2, s + 2, 3); \
+		remove_ending_space(route.comment); \
+	}
+
 /*
  * output of 'show routing route' on Palo alto
  */
@@ -129,13 +146,6 @@ int palo_to_csv(char *name, FILE *f, struct st_options *o) {
 	return 1;
 }
 
-#define SET_COMMENT \
-	if (o->rt) { \
-		route.comment[0] = type; \
-		route.comment[1] = ' '; \
-		strxcpy(route.comment + 2, s + 2, 3); \
-		remove_ending_space(route.comment); \
-	}
 /*
  * output of 'show route' on IPSO or GAIA
  */
@@ -203,6 +213,7 @@ int cisco_nexus_to_csv(char *name, FILE *f, struct st_options *o) {
 	struct route route;
 	int res;
 	int nhop = 0;
+	int ip_ver = -1;
 
 	fprintf(o->output_file, "prefix;mask;device;GW;comment\n");
 
@@ -263,14 +274,6 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o) {
 
 	memset(&route, 0, sizeof(route));
 	fprintf(o->output_file, "prefix;mask;device;GW;comment\n");
-#define CHECK_IP_VER  \
-	if (ip_ver == -1) { \
-		ip_ver = route.subnet.ip_ver; \
-	} else if (route.subnet.ip_ver != ip_ver) { \
-		debug(PARSEROUTE, 1, "line %lu Invalid '%s', inconsistent IP version\n", line, s); \
-		badline++; \
-		continue; \
-	}
 
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
