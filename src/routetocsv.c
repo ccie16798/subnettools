@@ -555,7 +555,7 @@ int ciscobgp_to_csv(char *name, FILE *f, struct st_options *o) {
 				badline++;
 				continue;
 		}
-		res = st_sscanf(s + aspath_offset, "(%[0-9: ])?%c", &route.AS_PATH, &route.origin);
+		res = st_sscanf(s + aspath_offset, "(%256[0-9: ])?%c", &route.AS_PATH, &route.origin);
 		if (res != 2) {
 				debug(PARSEROUTE, 1, "Line %lu Invalid, no ASP_PATH/ORIGIN\n", line);
 				badline++;
