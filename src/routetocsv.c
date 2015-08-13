@@ -109,6 +109,13 @@ int run_csvconverter(char *name, char *filename, struct st_options *o) {
 		continue; \
 	}
 
+#define CHECK_GW_IP_VER  \
+	if (route.subnet.ip_ver != route.gw.ip_ver) { \
+		debug(PARSEROUTE, 1, "line %lu Invalid '%s', inconsistent IP version\n", line, s); \
+		badline++; \
+		continue; \
+	}
+
 #define SET_COMMENT \
 	if (o->rt) { \
 		route.comment[0] = type; \
@@ -140,6 +147,7 @@ int palo_to_csv(char *name, FILE *f, struct st_options *o) {
 			BAD_LINE_CONTINUE
 		}
 		CHECK_IP_VER
+		CHECK_GW_IP_VER
 		/* on host route the last string is a flag; discard device in that case */
 		if (strlen(route.device) < 3)
 			route.device[0] = '\0';
