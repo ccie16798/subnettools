@@ -233,7 +233,7 @@ int cisco_nexus_to_csv(char *name, FILE *f, struct st_options *o) {
  *   THAT pattern is fun
  */
 
-			res = st_sscanf(s, " *(*via) %I(, %[][0-9/]%s|, %[^,], %[^,],).*, %[^,]",
+			res = st_sscanf(s, " *(*via) %I(, %32[][0-9/]%32s|, %32[^,], %32[^,],).*, %128[^,]",
 					 &route.gw, route.device, poubelle, route.comment);
 			if (res == 0) {
 				BAD_LINE_CONTINUE
