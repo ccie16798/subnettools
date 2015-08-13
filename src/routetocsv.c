@@ -126,6 +126,7 @@ int palo_to_csv(char *name, FILE *f, struct st_options *o) {
 	unsigned long line = 0;
 	int badline = 0;
 	struct route route;
+	int ip_ver = -1;
 	int res;
 
 	fprintf(o->output_file, "prefix;mask;device;GW;comment\n");
@@ -138,6 +139,7 @@ int palo_to_csv(char *name, FILE *f, struct st_options *o) {
 		if (res < 1) {
 			BAD_LINE_CONTINUE
 		}
+		CHECK_IP_VER
 		/* on host route the last string is a flag; discard device in that case */
 		if (strlen(route.device) < 3)
 			route.device[0] = '\0';
@@ -157,6 +159,7 @@ int ipso_route_to_csv(char *name, FILE *f, struct st_options *o) {
 	struct route route;
 	int res;
 	int nhop = 0;
+	int ip_ver = -1;
 	char type;
 
 	fprintf(o->output_file, "prefix;mask;device;GW;comment\n");
@@ -172,6 +175,7 @@ int ipso_route_to_csv(char *name, FILE *f, struct st_options *o) {
 			if (res < 2) {
 				BAD_LINE_CONTINUE
 			}
+			CHECK_IP_VER
 			type = 'C';
 			SET_COMMENT
 			fprint_route(o->output_file, &route, 3);
@@ -198,6 +202,7 @@ int ipso_route_to_csv(char *name, FILE *f, struct st_options *o) {
 		if (res < 3) {
 			BAD_LINE_CONTINUE
 		}
+		CHECK_IP_VER
 		SET_COMMENT
 		fprint_route(o->output_file, &route, 3);
 	}
@@ -241,6 +246,7 @@ int cisco_nexus_to_csv(char *name, FILE *f, struct st_options *o) {
 				route.comment[0] = '\0';
 			if (nhop == 0 || o->ecmp)
 				fprint_route(o->output_file, &route, 3);
+			CHECK_IP_VER
 			nhop++;
 		} else {
 			memset(&route, 0, sizeof(route));
@@ -390,6 +396,7 @@ int cisco_fw_to_csv(char *name, FILE *f, struct st_options *o) {
 	int res;
 	char type;
 	int find_hop = 0;
+	int ip_ver = -1;
 
 	fprintf(o->output_file, "prefix;mask;device;GW;comment\n");
 
@@ -423,6 +430,7 @@ int cisco_fw_to_csv(char *name, FILE *f, struct st_options *o) {
 				BAD_LINE_CONTINUE
 			}
 		}
+		CHECK_IP_VER
 		SET_COMMENT
 		fprint_route(o->output_file, &route, 3);
 		memset(&route, 0, sizeof(route));
@@ -439,6 +447,7 @@ int cisco_fw_conf_to_csv(char *name, FILE *f, struct st_options *o) {
 	int badline = 0;
 	struct route route;
 	int res;
+	int ip_ver = -1;
 
 	fprintf(o->output_file, "prefix;mask;device;GW;comment\n");
 
@@ -450,6 +459,7 @@ int cisco_fw_conf_to_csv(char *name, FILE *f, struct st_options *o) {
 		if (res < 4) {
 			BAD_LINE_CONTINUE
 		}
+		CHECK_IP_VER
 		fprint_route(o->output_file, &route, 3);
 		memset(&route, 0, sizeof(route));
 	}
@@ -464,6 +474,7 @@ int cisco_routeconf_to_csv(char *name, FILE *f, struct st_options *o) {
 	struct route route;
 	struct sto sto[10];
 	int res;
+	int ip_ver = -1;
 
 	fprintf(o->output_file, "prefix;mask;device;GW;comment\n");
 	memset(&route, 0, sizeof(route));
@@ -476,6 +487,7 @@ int cisco_routeconf_to_csv(char *name, FILE *f, struct st_options *o) {
 		}
 		copy_ipaddr(&route.subnet.ip_addr, &sto[0].s_addr);
 		route.subnet.mask = sto[1].s_int;
+		CHECK_IP_VER
 		if (sto_is_string(&sto[2]))
 			strcpy(route.device, sto[2].s_char);
 		if (res >= 4 && sto[3].type == 'I')
