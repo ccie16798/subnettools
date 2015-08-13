@@ -110,7 +110,7 @@ int run_csvconverter(char *name, char *filename, struct st_options *o) {
 	}
 
 #define CHECK_GW_IP_VER  \
-	if (route.subnet.ip_ver != route.gw.ip_ver) { \
+	if (route.gw.ip_ver && (route.subnet.ip_ver != route.gw.ip_ver)) { \
 		debug(PARSEROUTE, 1, "line %lu Invalid '%s', inconsistent IP version\n", line, s); \
 		badline++; \
 		continue; \
