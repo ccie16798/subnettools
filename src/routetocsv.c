@@ -198,6 +198,7 @@ int ipso_route_to_csv(char *name, FILE *f, struct st_options *o) {
 			} else {
 				BAD_LINE_CONTINUE
 			}
+			CHECK_GW_IP_VER
 			if (nhop == 0 || o->ecmp)
 				fprint_route(o->output_file, &route, 3);
 			nhop++;
@@ -252,6 +253,7 @@ int cisco_nexus_to_csv(char *name, FILE *f, struct st_options *o) {
 				strcpy(route.device, "NA");
 			if (o->rt == 0)
 				route.comment[0] = '\0';
+			CHECK_GW_IP_VER
 			if (nhop == 0 || o->ecmp)
 				fprint_route(o->output_file, &route, 3);
 			CHECK_IP_VER
@@ -361,6 +363,9 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o) {
 				find_hop = 0;
 				BAD_LINE_CONTINUE
 			}
+			if (route.gw.ip_ver != 0) {
+				CHECK_GW_IP_VER
+			}
 			if (find_hop == 1 || o->ecmp)
 				fprint_route(o->output_file, &route, 3);
 			find_hop++;
@@ -381,6 +386,7 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o) {
 		}
 		find_hop = 0;
 		CHECK_IP_VER
+		CHECK_GW_IP_VER
 		if (is_subnetted) {
 			route.subnet.mask = find_mask;
 			is_subnetted--;
@@ -417,6 +423,7 @@ int cisco_fw_to_csv(char *name, FILE *f, struct st_options *o) {
 			if (res < 2) {
 				BAD_LINE_CONTINUE
 			}
+			CHECK_GW_IP_VER
 			SET_COMMENT
 			fprint_route(o->output_file, &route, 3);
 			memset(&route, 0, sizeof(route));
@@ -428,6 +435,11 @@ int cisco_fw_to_csv(char *name, FILE *f, struct st_options *o) {
 			if (res < 4) {
 				BAD_LINE_CONTINUE
 			}
+			CHECK_IP_VER
+			SET_COMMENT
+			fprint_route(o->output_file, &route, 3);
+			memset(&route, 0, sizeof(route));
+			continue;
 		} else {
 			res = st_sscanf(s, "%c.*%I %M.*(via )%I.*$%32s", &type, &route.subnet.ip_addr, &route.subnet.mask, &route.gw, route.device);
 			if (res == 3) {
@@ -439,6 +451,7 @@ int cisco_fw_to_csv(char *name, FILE *f, struct st_options *o) {
 			}
 		}
 		CHECK_IP_VER
+		CHECK_GW_IP_VER
 		SET_COMMENT
 		fprint_route(o->output_file, &route, 3);
 		memset(&route, 0, sizeof(route));
@@ -460,7 +473,7 @@ int cisco_fw_conf_to_csv(char *name, FILE *f, struct st_options *o) {
 	fprintf(o->output_file, "prefix;mask;device;GW;comment\n");
 
 	memset(&route, 0, sizeof(route));
-        while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
+	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
 		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
 		res = st_sscanf(s, "(ipv6 )?route *%32S *%I.%M %I", route.device, &route.subnet.ip_addr, &route.subnet.mask, &route.gw);
@@ -468,6 +481,7 @@ int cisco_fw_conf_to_csv(char *name, FILE *f, struct st_options *o) {
 			BAD_LINE_CONTINUE
 		}
 		CHECK_IP_VER
+		CHECK_GW_IP_VER
 		fprint_route(o->output_file, &route, 3);
 		memset(&route, 0, sizeof(route));
 	}
@@ -498,8 +512,10 @@ int cisco_routeconf_to_csv(char *name, FILE *f, struct st_options *o) {
 		CHECK_IP_VER
 		if (sto_is_string(&sto[2]))
 			strcpy(route.device, sto[2].s_char);
-		if (res >= 4 && sto[3].type == 'I')
+		if (res >= 4 && sto[3].type == 'I') {
 			copy_ipaddr(&route.gw, &sto[3].s_addr);
+			CHECK_GW_IP_VER
+		}
 		if (res >= 5 && sto[4].type == 's')
 			strcpy(route.comment, sto[4].s_char);
 		fprint_route(o->output_file, &route, 3);
