@@ -235,7 +235,7 @@ int cisco_nexus_to_csv(char *name, FILE *f, struct st_options *o) {
 
 			res = st_sscanf(s, " *(*via) %I(, %32[][0-9/]%32s|, %32[^,], %32[^,],).*, %128[^,]",
 					 &route.gw, route.device, poubelle, route.comment);
-			if (res == 0) {
+			if (res <= 0) {
 				BAD_LINE_CONTINUE
 			}
 			if (res == 1)
@@ -251,7 +251,7 @@ int cisco_nexus_to_csv(char *name, FILE *f, struct st_options *o) {
 		} else {
 			memset(&route, 0, sizeof(route));
 			res = st_sscanf(s, "%P", &route.subnet);
-			if (res == 0) {
+			if (res <= 0) {
 				BAD_LINE_CONTINUE
 			}
 			nhop = 0;
@@ -337,7 +337,7 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o) {
 				*/
 					res = st_sscanf(s, " *(via) (%I)?.*%32[^, \n]", &route.gw, route.device);
 				}
-				if (res == 0) {
+				if (res <= 0) {
 					find_hop = 0;
 					BAD_LINE_CONTINUE
 				}
@@ -509,6 +509,7 @@ int ciscobgp_to_csv(char *name, FILE *f, struct st_options *o) {
 	struct bgp_route route;
 	struct subnet last_subnet;
 	int res;
+	int ip_ver = -1;
 	int med_offset = 34, aspath_offset = 61;
 
 	fprint_bgp_file_header(o->output_file);
@@ -530,7 +531,7 @@ int ciscobgp_to_csv(char *name, FILE *f, struct st_options *o) {
 			debug(PARSEROUTE, 3, "med_offset %d, aspath_offset %d\n", med_offset, aspath_offset);
 		}
 		res = st_sscanf(s, ".*%Q *%I", &route.subnet, &route.gw);
-		if (res == 0) {
+		if (res <= 0) {
 			debug(PARSEROUTE, 2, "Invalid line %lu\n", line);
 			badline++;
 			continue;
@@ -546,8 +547,10 @@ int ciscobgp_to_csv(char *name, FILE *f, struct st_options *o) {
 		if (res == 1) {/* prefix was on last line */
 			copy_ipaddr(&route.gw, &route.subnet.ip_addr);
 			copy_subnet(&route.subnet, &last_subnet);
-		} else
+		} else {
+			CHECK_IP_VER
 			copy_subnet(&last_subnet, &route.subnet);
+		}
 		res = st_sscanf(s + med_offset, " {1,10}(%d)? {1,6}(%d)? {1,6}(%d)?", &route.MED,
 					 &route.LOCAL_PREF, &route.weight);
 		if (res != 3) {
