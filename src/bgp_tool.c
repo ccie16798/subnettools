@@ -616,33 +616,33 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 			return 0;
 		BLOCK_INT(LOCAL_PREF);
 	}
+	/* we compare AS_PATH length, except with ~ compator
+	 * that comparator uses pattern matching */
 	else if (!strcasecmp(s, "aspath") || !strcasecmp(s, "as_path")) {
-		switch (op) {
-		case '=':
-			return !strcmp(route->AS_PATH, value);
-			break;
-		case '#':
-			return !!strcmp(route->AS_PATH, value);
-			break;
-		case '~':
+		if (op == '~') {
 			res = st_sscanf(route->AS_PATH, value);
 			return (res < 0 ? 0 : 1);
+		}
+		res =  my_atoi(value, &err);
+		if (err < 0)
+			return 0;
+		switch (op) {
+		case '=':
+			return (as_path_length(route->AS_PATH) == res);
+			break;
+		case '#':
+			return (as_path_length(route->AS_PATH) != res);
 			break;
 		case '<':
-			res =  my_atoi(value, &err);
-			if (err < 0)
-				return 0;
 			return (as_path_length(route->AS_PATH) < res);
 			break;
 		case '>':
-			res =  my_atoi(value, &err);
-			if (err < 0)
-				return 0;
 			return (as_path_length(route->AS_PATH) > res);
 			break;
 		default:
 			debug(FILTER, 1, "Unsupported op '%c' for AS_PATH\n", op);
 			return 0;
+			break;
 		}
 	}
 	return 0;
