@@ -645,6 +645,49 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 			break;
 		}
 	}
+	else if (!strcasecmp(s, "best")) {
+		res =  my_atoi(value, &err);
+		if (err < 0)
+			return 0;
+		switch (op) {
+		case '=':
+			return route->best == res;
+			break;
+		case '#':
+			return route->best != res;
+			break;
+		default:
+			debug(FILTER, 1, "Unsupported op '%c' for best\n", op);
+			return 0;
+			break;
+		}
+	}
+	else if (!strcasecmp(s, "type")) {
+		switch (op) {
+		case '=':
+			return route->type == *value;
+			break;
+		case '#':
+			return route->type != *value;
+			break;
+		default:
+			debug(FILTER, 1, "Unsupported op '%c' for type\n", op);
+			return 0;
+		}
+	}
+	else if (!strcasecmp(s, "origin")) {
+		switch (op) {
+		case '=':
+			return route->origin == *value;
+			break;
+		case '#':
+			return route->origin != *value;
+			break;
+		default:
+			debug(FILTER, 1, "Unsupported op '%c' for origin\n", op);
+			return 0;
+		}
+	}
 	return 0;
 }
 
