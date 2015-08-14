@@ -147,6 +147,42 @@ reg_test_logic() {
 	done
 }
 
+reg_test_bgpfilter() {
+	local output_file
+	local n
+
+	$PROG bgpfilter bgp1 "prefix{10.0.0.0/10" > res/bgpfilter1
+	$PROG bgpfilter bgp1 "mask<24" > res/bgpfilter2
+	$PROG bgpfilter bgp1 "mask>24" > res/bgpfilter3
+	$PROG bgpfilter bgp1 "LOCAL_PREF>5000" > res/bgpfilter4
+	$PROG bgpfilter bgp1 "MED<500" > res/bgpfilter5
+	$PROG bgpfilter bgp1 "weight=0" > res/bgpfilter6
+	$PROG bgpfilter bgp1 "as_path=0" > res/bgpfilter7
+	$PROG bgpfilter bgp1 "as_path<3" > res/bgpfilter8
+	$PROG bgpfilter bgp1 "as_path>4" > res/bgpfilter9
+	$PROG bgpfilter bgp1 "as_path~100" > res/bgpfilter10
+
+	n=10
+	for i in `seq 1 $n`; do
+		output_file=bgpfilter$i
+		if [ ! -f ref/$output_file ]; then
+			echo "No ref file found for this test, creating it 'ref/$output_file'"
+			cp res/$output_file ref/$output_file
+		else
+			echo -n "reg test [bgpfilter #$i] :"
+			diff res/$output_file ref/$output_file > /dev/null
+			if [ $? -eq 0 ]; then
+				echo -e "\033[32mOK\033[0m"
+				n_ok=$((n_ok + 1))
+			else
+				n_ko=$((n_ko + 1))
+				echo -e "\033[31mKO\033[0m"
+			fi
+		fi
+	done
+}
+
+
 reg_test_filter() {
 	local output_file
 	local n
