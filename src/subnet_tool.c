@@ -1350,9 +1350,7 @@ static int route_filter(char *s, char *value, char op, void *object) {
 			break;
 		case '~':
 			res = st_sscanf(route->comment, value);
-			if (res == -1)
-				return 0;
-			return 1;
+			return (res < 0 ? 0 : 1);
 		default:
 			debug(FILTER, 1, "Unsupported op '%c' for comment\n", op);
 			return 0;
