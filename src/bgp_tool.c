@@ -617,10 +617,6 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 		BLOCK_INT(LOCAL_PREF);
 	}
 	else if (!strcasecmp(s, "aspath") || !strcasecmp(s, "as_path")) {
-		res =  my_atoi(value, &err);
-		if (err < 0)
-			return 0;
-		BLOCK_INT(LOCAL_PREF);
 		switch (op) {
 		case '=':
 			return !strcmp(route->AS_PATH, value);
