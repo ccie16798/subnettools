@@ -14,6 +14,7 @@
 #include "heap.h"
 #include "subnet_tool.h"
 #include "st_printf.h"
+#include "st_scanf.h"
 #include "bgp_tool.h"
 #include "generic_expr.h"
 
@@ -614,6 +615,39 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 		if (err < 0)
 			return 0;
 		BLOCK_INT(LOCAL_PREF);
+	}
+	else if (!strcasecmp(s, "aspath") || !strcasecmp(s, "as_path")) {
+		res =  my_atoi(value, &err);
+		if (err < 0)
+			return 0;
+		BLOCK_INT(LOCAL_PREF);
+		switch (op) {
+		case '=':
+			return !strcmp(route->AS_PATH, value);
+			break;
+		case '#':
+			return !!strcmp(route->AS_PATH, value);
+			break;
+		case '~':
+			res = st_sscanf(route->AS_PATH, value);
+			return (res < 0 ? 0 : 1);
+			break;
+		case '<':
+			res =  my_atoi(value, &err);
+			if (err < 0)
+				return 0;
+			return (as_path_length(route->AS_PATH) < res);
+			break;
+		case '>':
+			res =  my_atoi(value, &err);
+			if (err < 0)
+				return 0;
+			return (as_path_length(route->AS_PATH) > res);
+			break;
+		default:
+			debug(FILTER, 1, "Unsupported op '%c' for AS_PATH\n", op);
+			return 0;
+		}
 	}
 	return 0;
 }
