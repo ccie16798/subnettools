@@ -1120,22 +1120,32 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 		else if (in[j] == '\0') { /* expr[i .... ] can match void, like '.*' */
 			int min_m = -1, max_m;
 			if (c == '(' || c == '[') {
+				if (c == '(')
+					res = strxcpy_until(expr, fmt + i, sizeof(expr), ')');
+				else
+					res = fill_char_range(expr, fmt + i, sizeof(expr));
+				if (res == -1) {
+					debug(SCANF, 1, "Invalid format '%s', unmatched '%c'\n", fmt, c);
+					goto end_nomatch;
+				}
+				i += res;
 			} else {
 				if (c == '\\')
 					i++;
-				if (is_multiple_char(fmt[i + 1])) {
-					if (fmt[i + 1] == '{') {
-						res = parse_brace_multiplier(fmt + i + 1, &min_m, &max_m);
-						if (res < 0)
-							goto end_nomatch;
-					} else {
-						min_m = min_match(fmt[i + 1]);
-					}
-				}
-				if (min_m == 0)
-					return n_found;
+				i++;
 			}
-			goto end_nomatch;
+			if (is_multiple_char(fmt[i])) {
+				if (fmt[i] == '{') {
+					res = parse_brace_multiplier(fmt + i, &min_m, &max_m);
+					if (res < 0)
+						goto end_nomatch;
+				} else
+					min_m = min_match(fmt[i]);
+			}
+			if (min_m == 0) /* if the expr can match zero time, the match was perfect */
+				return n_found;
+			else
+				goto end_nomatch;
 		} else if (c == '%') {
 			if (n_found > max_o - 1) {
 				debug(SCANF, 1, "Cannot get more than %d objets, already found %d\n", max_o, n_found);
@@ -1145,7 +1155,7 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 			if (res == 0)
 				return n_found;
 			n_found += res;
-		/* any char */
+			/* any char */
 		} else if (c == '.') {
 			if (is_multiple_char(fmt[i + 1])) {
 				expr[0] = c;
@@ -1156,7 +1166,7 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 			debug(SCANF, 8, "fmt[%d]='.', match any char\n", i);
 			i++;
 			j++;
-		/* expression or char range */
+			/* expression or char range */
 		} else if (c == '(' || c == '[') {
 			if (c == '(')
 				res = strxcpy_until(expr, fmt + i, sizeof(expr), ')');
@@ -1222,11 +1232,11 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 			j++;
 		}
 	} /* while 1 */
-	end_nomatch:
-		if (n_found == 0)
-			return -1;
-		else
-			return n_found;
+end_nomatch:
+	if (n_found == 0)
+		return -1;
+	else
+		return n_found;
 }
 
 int st_vscanf(char *in, const char *fmt, va_list ap) {
