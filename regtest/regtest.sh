@@ -320,6 +320,7 @@ reg_test_scanf
 reg_test_logic
 # filter
 reg_test_filter
+reg_test_bgpfilter
 # converter
 reg_test convert CiscoRouterconf	ciscorouteconf_v4
 reg_test convert CiscoRouterconf	ciscorouteconf_v6
