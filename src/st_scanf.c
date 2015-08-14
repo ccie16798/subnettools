@@ -1118,7 +1118,23 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 		else if (c == '\0')
 			goto end_nomatch;
 		else if (in[j] == '\0') { /* expr[i .... ] can match void, like '.*' */
-			//FIXME
+			int min_m = -1, max_m;
+			if (c == '(' || c == '[') {
+			} else {
+				if (c == '\\')
+					i++;
+				if (is_multiple_char(fmt[i + 1])) {
+					if (fmt[i + 1] == '{') {
+						res = parse_brace_multiplier(fmt + i + 1, &min_m, &max_m);
+						if (res < 0)
+							goto end_nomatch;
+					} else {
+						min_m = min_match(fmt[i + 1]);
+					}
+				}
+				if (min_m == 0)
+					return n_found;
+			}
 			goto end_nomatch;
 		} else if (c == '%') {
 			if (n_found > max_o - 1) {
