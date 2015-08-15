@@ -172,6 +172,18 @@ static int bgpcsv_best_handle(char *s, void *data, struct csv_state *state) {
 	return CSV_VALID_FIELD;
 }
 
+static int bgpcsv_type_handle(char *s, void *data, struct csv_state *state) {
+	struct bgp_file *sf = data;
+
+	while (isspace(*s))
+		s++;
+	if (!strcasecmp(s, "ebgp"))
+		sf->routes[sf->nr].type = 'e';
+	else if (!strcasecmp(s, "ibgp"))
+		sf->routes[sf->nr].type = 'i';
+	return CSV_VALID_FIELD;
+}
+
 static int bgpcsv_origin_handle(char *s, void *data, struct csv_state *state) {
 	struct bgp_file *sf = data;
 	int i = 0;
@@ -243,6 +255,7 @@ int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof) {
 		{ "BEST"	, 0, 0, 1, &bgpcsv_best_handle },
 		{ "ORIGIN"	, 0, 0, 1, &bgpcsv_origin_handle },
 		{ "V"		, 0, 0, 1, &bgpcsv_valid_handle },
+		{ "Proto"	, 0, 0, 1, &bgpcsv_type_handle },
 		{ NULL, 0,0,0, NULL }
 	};
 	struct csv_file cf;
