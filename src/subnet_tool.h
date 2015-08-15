@@ -2,8 +2,6 @@
 #define SUBNET_TOOLS_H
 
 #include "st_options.h"
-int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof);
-int load_PAIP(char  *name, struct subnet_file *sf, struct st_options *nof);
 void compare_files(struct subnet_file *sf1, struct subnet_file *sf2, struct st_options *nof);
 int missing_routes(const struct subnet_file *sf1, const struct subnet_file *sf2, struct subnet_file *sf3);
 void diff_files(const struct subnet_file *sf1, const struct subnet_file *sf2, struct st_options *nof);
