@@ -79,6 +79,7 @@ static int run_bgpcmp(int argc, char **argv, void *st_options);
 static int run_bgpsortby(int argc, char **argv, void *st_options);
 static int run_echo(int argc, char **argv, void *st_options);
 static int run_print(int argc, char **argv, void *st_options);
+static int run_bgpprint(int argc, char **argv, void *st_options);
 static int run_test(int argc, char **argv, void *st_options);
 static int run_gen_expr(int argc, char **argv, void *st_options);
 static int run_test2(int argc, char **argv, void *st_options);
@@ -97,6 +98,7 @@ static int option_ecmp(int argc, char **argv, void *st_options);
 struct st_command commands[] = {
 	{ "echo",	&run_echo,	2},
 	{ "print",	&run_print,	0},
+	{ "bgpprint",	&run_bgpprint,	0},
 	{ "relation",	&run_relation,	2},
 	{ "bgpcmp",	&run_bgpcmp,	2},
 	{ "bgpsortby",	&run_bgpsortby,	1},
@@ -182,6 +184,7 @@ void usage() {
 	printf("Miscellaneous route file tools\n");
 	printf("------------------------------\n");
 	printf("print FILE1         : just read & print FILE1; use a -fmt FMT to print CSV fields you want\n");
+	printf("bgpprint FILE1      : just read & print BGP FILE1; use a -fmt FMT to print CSV fields you want\n");
 	printf("sum IPv4FILE        : get total number of hosts included in the list of subnets\n");
 	printf("sum IPv6FILE        : get total number of /64 subnets included\n");
 	printf("\n");
@@ -328,6 +331,18 @@ static int run_print(int arc, char **argv, void *st_options) {
 	if (res < 0)
 		return res;
 	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
+	return 0;
+}
+
+static int run_bgpprint(int arc, char **argv, void *st_options) {
+	int res;
+	struct bgp_file sf;
+	struct st_options *nof = st_options;
+
+	res = load_bgpcsv(argv[2], &sf, nof);
+	if (res < 0)
+		return res;
+	fprint_bgp_file_fmt(nof->output_file, &sf, nof->output_fmt);
 	return 0;
 }
 
