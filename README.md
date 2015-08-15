@@ -179,6 +179,15 @@ It can filter on :
 - device
 - comment
 
+For BGP, it can filter on :
+- prefix
+- mask
+- gw
+- LOCAL_PREF, MED, weight
+- Valid, Best
+- AS_PATH (=, <, > and # compare AS_PATH length; to compare actual AS_PATH, use '~')
+
+
 operator are :
 - '=' (EQUALS)
 - '#' (DIFFERENT)
