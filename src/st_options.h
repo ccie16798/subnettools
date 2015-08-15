@@ -12,6 +12,7 @@ struct st_options {
         FILE *output_file;
 	int ip_compress_mode; /* ==0 means no adress compression, 1 we remove leading 0, 2 means full compression */
 	char output_fmt[128];
+	char bgp_output_fmt[128];
 	/* set from config file only */
 	/* IPAM FILE description */
 	char ipam_prefix_field[32];
