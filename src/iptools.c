@@ -37,6 +37,10 @@ inline void copy_route(struct route *a, const struct route *b) {
 	memcpy(a, b, sizeof(struct route));
 }
 
+inline void zero_route(struct route *a) {
+	memset(a, 0, sizeof(struct route));
+}
+
 /*
  * compare sub1 & sub2 for inclusion
  * returns :

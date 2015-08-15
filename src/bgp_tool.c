@@ -45,6 +45,9 @@ void copy_bgproute(struct bgp_route *a, const struct bgp_route *b) {
 	memcpy(a, b, sizeof(struct bgp_route));
 }
 
+void zero_bgproute(struct bgp_route *a) {
+	memset(a, 0, sizeof(struct bgp_route));
+}
 
 int compare_bgp_file(const struct bgp_file *sf1, const struct bgp_file *sf2, struct st_options *o) {
 	int i, j;

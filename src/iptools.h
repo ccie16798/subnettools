@@ -107,6 +107,7 @@ int is_ip_char(char c);
 void copy_ipaddr(struct ip_addr *a, const struct ip_addr *b);
 void copy_subnet(struct subnet *a, const struct subnet *b);
 void copy_route(struct route *a, const struct route *b);
+void zero_route(struct route *a);
 int is_equal_ipv6(ipv6 ip1, ipv6 ip2);
 int is_equal_ip(struct ip_addr *ip1, struct ip_addr *p2);
 int is_equal_gw(struct route *r1, struct route *r2);
