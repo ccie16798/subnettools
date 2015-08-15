@@ -548,26 +548,21 @@ int bgp_sort_by(struct bgp_file *sf, char *name) {
 
 int fprint_bgpfilter_help(FILE *out) {
 
-	return fprintf(out, "BGP routes can be filtered on :"
-"- prefix"
-"- mask"
-"- gw"
-"- LOCAL_PREF, MED, weight"
-"- Valid, Best"
-"- AS_PATH (=, <, > and # compare AS_PATH length; to compare actual AS_PATH, use '~')"
-
-
-"operator are :"
-"- '=' (EQUALS)"
-"- '#' (DIFFERENT)"
-"- '<' (numerically inferior)"
-"- '>' (numerically superior)"
-"- '{' (is included (for prefixes))"
-"- '}' (includes (for prefixes))"
-"- '~' (st_scanf regular expression)\n");
-
-
-
+	return fprintf(out, "BGP routes can be filtered on :\n"
+			" -prefix\n"
+			" -mask\n"
+			" -gw\n"
+			" -LOCAL_PREF, MED, weight\n"
+			" -Valid, Best\n"
+			" -AS_PATH (=, <, > and # compare AS_PATH length; to compare actual AS_PATH, use '~')\n\n"
+			"operator are :\n"
+			"- '=' (EQUALS)\n"
+			"- '#' (DIFFERENT)\n"
+			"- '<' (numerically inferior)\n"
+			"- '>' (numerically superior)\n"
+			"- '{' (is included (for prefixes))\n"
+			"- '}' (includes (for prefixes))\n"
+			"- '~' (st_scanf regular expression)\n");
 }
 
 
