@@ -292,7 +292,7 @@ int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt
 	/* %P for prefix
 	 * %I for IP
 	 * %m for mask
-	 * %g for gateway
+	 * %G for gateway
 	 * %M for MED
 	 * %L for LOCAL_PREF
 	 * %A for AS_PATH
@@ -371,8 +371,11 @@ int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt
 					j++;
 					break;
 				case 'T':
-					outbuf[j] = r->type;
-					j++;
+					truc = (r->type == 'i'? "iBGP" : "eBGP");
+					res = strlen(truc);
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, truc,
+							res, field_width, pad_left, ' ');
+					j += res;
 					break;
 				case 'm':
 					if (r->subnet.ip_ver == IPV4_A || r->subnet.ip_ver == IPV6_A)
