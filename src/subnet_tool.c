@@ -23,10 +23,11 @@
 #include "utils.h"
 #include "generic_csv.h"
 #include "heap.h"
-#include "subnet_tool.h"
 #include "st_printf.h"
 #include "generic_expr.h"
 #include "st_scanf.h"
+#include "st_handle_csv_files.h"
+#include "subnet_tool.h"
 
 void compare_files(struct subnet_file *sf1, struct subnet_file *sf2, struct st_options *nof) {
 	unsigned long i, j;

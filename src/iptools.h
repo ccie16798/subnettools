@@ -103,18 +103,6 @@ struct bgp_route {
 	int origin;
 };
 
-struct subnet_file {
-	struct route *routes;
-	unsigned long nr;
-	unsigned long max_nr; /* the number of routes that has been malloced */
-};
-
-struct bgp_file {
-	struct bgp_route *routes;
-	unsigned long nr;
-	unsigned long max_nr; /* the number of routes that has been malloced */
-};
-
 int is_ip_char(char c);
 void copy_ipaddr(struct ip_addr *a, const struct ip_addr *b);
 void copy_subnet(struct subnet *a, const struct subnet *b);
@@ -128,7 +116,6 @@ int ipv6_is_global(ipv6 a);
 int ipv6_is_ula(ipv6 a);
 int ipv6_is_multicast(ipv6 a);
 
-int alloc_subnet_file(struct subnet_file *sf, unsigned long n) ;
 /*
  * compare sub1 & sub2 for inclusion
  * returns :

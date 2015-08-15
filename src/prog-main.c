@@ -18,15 +18,15 @@
 #include "routetocsv.h"
 #include "utils.h"
 #include "generic_csv.h"
-#include "subnet_tool.h"
 #include "generic_command.h"
 #include "config_file.h"
 #include "st_printf.h"
 #include "st_scanf.h"
 #include "ipinfo.h"
-#include "bgp_tool.h"
 #include "generic_expr.h"
 #include "st_handle_csv_files.h"
+#include "subnet_tool.h"
+#include "bgp_tool.h"
 #include "prog-main.h"
 
 const char *default_fmt     = "%I;%m;%D;%G;%C";

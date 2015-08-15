@@ -17,6 +17,7 @@
 #include "bitmap.h"
 #include "utils.h"
 #include "st_object.h"
+#include "st_handle_csv_files.h"
 
 #define ST_VSPRINTF_BUFFER_SIZE 2048
 

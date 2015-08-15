@@ -1,6 +1,7 @@
 #ifndef BGPTOOL_H
 #define BGPTOOL_H
 
+#include "st_handle_csv_files.h"
 int fprint_bgp_route(FILE *, struct bgp_route *r);
 void fprint_bgp_file_header(FILE *out);
 void fprint_bgp_file(FILE *output, struct bgp_file *bf);

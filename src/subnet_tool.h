@@ -2,6 +2,7 @@
 #define SUBNET_TOOLS_H
 
 #include "st_options.h"
+#include "st_handle_csv_files.h"
 void compare_files(struct subnet_file *sf1, struct subnet_file *sf2, struct st_options *nof);
 int missing_routes(const struct subnet_file *sf1, const struct subnet_file *sf2, struct subnet_file *sf3);
 void diff_files(const struct subnet_file *sf1, const struct subnet_file *sf2, struct st_options *nof);
