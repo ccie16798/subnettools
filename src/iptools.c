@@ -41,6 +41,9 @@ inline void zero_route(struct route *a) {
 	memset(a, 0, sizeof(struct route));
 }
 
+inline void zero_ipaddr(struct ip_addr *a) {
+	memset(a, 0, sizeof(struct ip_addr));
+}
 /*
  * compare sub1 & sub2 for inclusion
  * returns :
