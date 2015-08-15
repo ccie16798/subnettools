@@ -421,12 +421,15 @@ static int run_paip(int arc, char **argv, void *st_options) {
 		return res;
 	}
 	print_file_against_paip(&sf, &paip, nof);
+	free(sf.routes);
+	free(paip.routes);
 	return 0;
 }
 
 static int run_grep(int arc, char **argv, void *st_options) {
 	struct st_options *nof = st_options;
 	int res;
+
 	res = network_grep_file(argv[2], nof, argv[3]);
 	if (res < 0)
 		return res;
