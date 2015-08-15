@@ -1010,7 +1010,8 @@ static int sum_log_to(int *level, int n, int max_n) {
 	return res;
 }
 
-/* split n,m means split 's' n times, and each resulting subnet m times */
+/* split subnet 's' 'string_levels' times
+ * split n,m means split 's' n times, and each resulting subnet m times */
 int subnet_split(FILE *out, const struct subnet *s, char *string_levels) {
 	int k, res;
 	int levels[12];
@@ -1171,6 +1172,9 @@ static int __heap_mask_is_superior(void *v1, void *v2) {
 		return (s1->mask < s2->mask);
 }
 
+/* sort a subnet file 'sf' with a custom cmp function
+ *
+ */
 static int __subnet_sort_by(struct subnet_file *sf, int cmpfunc(void *v1, void *v2)) {
 	unsigned long i;
 	TAS tas;
@@ -1242,7 +1246,7 @@ int subnet_sort_by(struct subnet_file *sf, char *name) {
 
 int fprint_routefilter_help(FILE *out) {
 
-	return fprintf(out, "outes can be filtered on :\n"
+	return fprintf(out, "Routes can be filtered on :\n"
 			" -prefix\n"
 			" -mask\n"
 			" -gw\n"
@@ -1259,6 +1263,13 @@ int fprint_routefilter_help(FILE *out) {
 			"- '~' (st_scanf regular expression)\n");
 }
 
+/* filter a route 'object' against 'value' with operator 'op'
+ *
+ * s      : string to interpret
+ * value  : its value
+ * op     : the operator
+ * object : a struct route; input string 's' will tell which field to test
+ */
 static int route_filter(char *s, char *value, char op, void *object) {
 	struct route *route = object;
 	struct subnet subnet;
@@ -1378,6 +1389,14 @@ static int route_filter(char *s, char *value, char op, void *object) {
 	return 0;
 }
 
+/*
+ * filter a file with a regexp
+ * sf   : the subnet file
+ * expr : the pattern
+ * returns :
+ * 0  on SUCCESS
+ * -1 on ERROR
+ */
 int subnet_filter(struct subnet_file *sf, char *expr) {
 	int i, j, res, len;
 	struct generic_expr e;
