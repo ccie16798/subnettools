@@ -461,6 +461,10 @@ static int run_bgp_filter(int arc, char **argv, void *st_options) {
 	struct bgp_file sf;
 	struct st_options *nof = st_options;
 
+	if (!strcmp(argv[2], "help")) {
+		fprint_bgpfilter_help(stdout);
+		return 0;
+	}
 	if (argv[3] == NULL) { /* read from stdin */
 		res = load_bgpcsv(NULL, &sf, nof);
 		if (res < 0)
