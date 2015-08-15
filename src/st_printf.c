@@ -1,7 +1,7 @@
 /*
  * IPv4, IPv6 subnet/routes printing functions
  *
- * Copyright (C) 2014i, 2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ * Copyright (C) 2014, 2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
@@ -123,19 +123,20 @@ static inline int pad_buffer_out(char *out, size_t len, const char *buffer, size
 		debug(FMT, 2, "Cannot pad an Invalid buffer\n");
 		return 0;
 	}
+	/* if buffer size is larger than field width, no need to pad */
 	if (buff_size > field_width) {
 		res = min(len - 1, buff_size);
 		memcpy(out, buffer, res);
 	} else if (pad_left) {
-		if (len - 1 <= buff_size) {
+		if (len - 1 <= buff_size) { /* no more room in 'out' */
 			res = len - 1;
 			memcpy(out, buffer, res);
 		} else {
-			res = min(field_width, (int)len - 1);
+			res = min(field_width, (int)len - 1); /* buf_len < len, but field_with can be > len */
 			strcpy(out, buffer);
 			pad_n(out + buff_size, res - buff_size, c);
 		}
-	} else {
+	} else { /* pad right */
 		if (len - 1 <= field_width - buff_size) {
 			pad_n(out, len, c);
 			res = len - 1;
