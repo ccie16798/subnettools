@@ -96,7 +96,7 @@ int run_csvconverter(char *name, char *filename, struct st_options *o) {
 
 #define BAD_LINE_CONTINUE \
 	debug(PARSEROUTE, 4, "%s line %lu invalid route : '%s'", name, line, buffer); \
-	memset(&route, 0, sizeof(route)); \
+	zero_route(&route); \
 	badline++; \
 	continue; \
 
@@ -139,7 +139,7 @@ int palo_to_csv(char *name, FILE *f, struct st_options *o) {
 	fprintf(o->output_file, "prefix;mask;device;GW;comment\n");
 
         while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
-		memset(&route, 0, sizeof(route));
+		zero_route(&route);
 		line++;
 		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
 		res = st_sscanf(s, "%P *%I.*$%32s", &route.subnet, &route.gw, route.device);
@@ -178,7 +178,7 @@ int ipso_route_to_csv(char *name, FILE *f, struct st_options *o) {
 		if (isspace(s[0])) /* strangely some lines are prepended with a space ....*/
 			s++;
 		if (s[0] == 'C') {/* connected route */
-			memset(&route, 0, sizeof(route));
+			zero_route(&route);
 			res = st_sscanf(s, ".*%Q.*$%32s", &route.subnet, route.device);
 			if (res < 2) {
 				BAD_LINE_CONTINUE
@@ -205,7 +205,7 @@ int ipso_route_to_csv(char *name, FILE *f, struct st_options *o) {
 			continue;
 		}
 		nhop = 1;
-		memset(&route, 0, sizeof(route));
+		zero_route(&route);
 		res = st_sscanf(s, ".*%Q *(via) %I.*%32[^ ,]", &route.subnet, &route.gw, route.device);
 		type = s[0];
 		if (res < 3) {
@@ -231,7 +231,7 @@ int cisco_nexus_to_csv(char *name, FILE *f, struct st_options *o) {
 
 	fprintf(o->output_file, "prefix;mask;device;GW;comment\n");
 
-	memset(&route, 0, sizeof(route));
+	zero_route(&route);
         while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
 		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
@@ -259,7 +259,7 @@ int cisco_nexus_to_csv(char *name, FILE *f, struct st_options *o) {
 			CHECK_IP_VER
 			nhop++;
 		} else {
-			memset(&route, 0, sizeof(route));
+			zero_route(&route);
 			res = st_sscanf(s, "%P", &route.subnet);
 			if (res <= 0) {
 				BAD_LINE_CONTINUE
@@ -288,7 +288,7 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o) {
 	int find_hop = 0;
 	char type;
 
-	memset(&route, 0, sizeof(route));
+	zero_route(&route);
 	fprintf(o->output_file, "prefix;mask;device;GW;comment\n");
 
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
@@ -315,7 +315,7 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o) {
 			}
 			continue;
 		} else if (strstr(s, "is directly connected")) { /* happens only with IPv4 */
-			memset(&route, 0, sizeof(route));
+			zero_route(&route);
 			/* C       10.73.5.92/30 is directly connected, Vlan346 */
 			res = st_sscanf(s, ".*%P.*$%32s", &route.subnet, route.device);
 			type = 'C';
@@ -325,7 +325,7 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o) {
 			CHECK_IP_VER
 			SET_COMMENT
 			fprint_route(o->output_file, &route, 3);
-			memset(&route, 0, sizeof(route));
+			zero_route(&route);
 			continue;
 		}
 		/* handle a next hop printed on a next-line
@@ -371,7 +371,7 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o) {
 			find_hop++;
 			continue;
 		}
-		memset(&route, 0, sizeof(route));
+		zero_route(&route);
 		res = st_sscanf(s, "%c *.*%P.*(via) %I.*$%32s", &type, &route.subnet, &route.gw, route.device);
 		/* a valid route begin with a non space char */
 		if (res <= 1 || isspace(type)) {
@@ -414,7 +414,7 @@ int cisco_fw_to_csv(char *name, FILE *f, struct st_options *o) {
 
 	fprintf(o->output_file, "prefix;mask;device;GW;comment\n");
 
-	memset(&route, 0, sizeof(route));
+	zero_route(&route);
         while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
 		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
@@ -426,7 +426,7 @@ int cisco_fw_to_csv(char *name, FILE *f, struct st_options *o) {
 			CHECK_GW_IP_VER
 			SET_COMMENT
 			fprint_route(o->output_file, &route, 3);
-			memset(&route, 0, sizeof(route));
+			zero_route(&route);
 			find_hop = 0;
 			continue;
 		}
@@ -438,7 +438,7 @@ int cisco_fw_to_csv(char *name, FILE *f, struct st_options *o) {
 			CHECK_IP_VER
 			SET_COMMENT
 			fprint_route(o->output_file, &route, 3);
-			memset(&route, 0, sizeof(route));
+			zero_route(&route);
 			continue;
 		} else {
 			res = st_sscanf(s, "%c.*%I %M.*(via )%I.*$%32s", &type, &route.subnet.ip_addr, &route.subnet.mask, &route.gw, route.device);
@@ -454,7 +454,7 @@ int cisco_fw_to_csv(char *name, FILE *f, struct st_options *o) {
 		CHECK_GW_IP_VER
 		SET_COMMENT
 		fprint_route(o->output_file, &route, 3);
-		memset(&route, 0, sizeof(route));
+		zero_route(&route);
 	}
 	return 1;
 }
@@ -472,7 +472,7 @@ int cisco_fw_conf_to_csv(char *name, FILE *f, struct st_options *o) {
 
 	fprintf(o->output_file, "prefix;mask;device;GW;comment\n");
 
-	memset(&route, 0, sizeof(route));
+	zero_route(&route);
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
 		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
@@ -483,7 +483,7 @@ int cisco_fw_conf_to_csv(char *name, FILE *f, struct st_options *o) {
 		CHECK_IP_VER
 		CHECK_GW_IP_VER
 		fprint_route(o->output_file, &route, 3);
-		memset(&route, 0, sizeof(route));
+		zero_route(&route);
 	}
 	return 1;
 }
@@ -499,7 +499,7 @@ int cisco_routeconf_to_csv(char *name, FILE *f, struct st_options *o) {
 	int ip_ver = -1;
 
 	fprintf(o->output_file, "prefix;mask;device;GW;comment\n");
-	memset(&route, 0, sizeof(route));
+	zero_route(&route);
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
 		debug(PARSEROUTE, 9, "line %lu buffer : '%s'", line, s);
@@ -519,7 +519,7 @@ int cisco_routeconf_to_csv(char *name, FILE *f, struct st_options *o) {
 		if (res >= 5 && sto[4].type == 's')
 			strcpy(route.comment, sto[4].s_char);
 		fprint_route(o->output_file, &route, 3);
-		memset(&route, 0, sizeof(route));
+		zero_route(&route);
 		sto[1].type = sto[2].type = sto[3].type = sto[4].type = 0;
 	}
 	return 1;
@@ -539,7 +539,7 @@ int ciscobgp_to_csv(char *name, FILE *f, struct st_options *o) {
 	fprint_bgp_file_header(o->output_file);
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
-		memset(&route, 0, sizeof(route));
+		zero_bgproute(&route);
 		debug(PARSEROUTE, 9, "line %lu buffer : '%s'", line, s);
 
 		s2 = strstr(s, "Metric");
