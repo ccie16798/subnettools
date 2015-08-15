@@ -28,7 +28,8 @@
 #include "generic_expr.h"
 #include "prog-main.h"
 
-const char *default_fmt = "%I;%m;%D;%G;%C";
+const char *default_fmt     = "%I;%m;%D;%G;%C";
+const char *bgp_default_fmt = "%v;%B;%T;%16P;%16g;%10M;%10L;%10w;     %o;%A";
 
 struct file_options fileoptions[] = {
 	{ FILEOPT_LINE(ipam_prefix_field, struct st_options, TYPE_STRING), "IPAM CSV header field describing the prefix"  },
