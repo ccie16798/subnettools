@@ -168,7 +168,7 @@ int string2addr(const char *s, struct ip_addr *addr, int len);
  *    'mask length' is 's' is a valid mask
  *     BAD_MASK otherwise
 */
-u32 string2mask(const char *s, int len) ;
+int string2mask(const char *s, int len) ;
 
 
 /* fills struct subnet from a string

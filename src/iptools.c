@@ -325,7 +325,7 @@ int mask2ddn(u32 mask, char *out, size_t len) {
 	return  sprintf(out, "%d.%d.%d.%d", s[0], s[1], s[2], s[3]);
 }
 
-u32 string2mask(const char *s, int len) {
+int string2mask(const char *s, int len) {
 	int i = 0;
 	u32 a;
 	int count_dot = 0;
