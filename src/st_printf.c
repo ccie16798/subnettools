@@ -341,38 +341,48 @@ int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt
 					i--;
 					break;
 				case 'w':
+					PRINT_FILE_HEADER(WEIGHT)
 					res = sprint_uint(buffer, r->weight);
 					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
 							res, field_width, pad_left, pad_value);
 					j += res;
 					break;
 				case 'L':
+					PRINT_FILE_HEADER(LOCAL_PREF)
 					res = sprint_uint(buffer, r->LOCAL_PREF);
 					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
 							res, field_width, pad_left, pad_value);
 					j += res;
 					break;
 				case 'A':
+					PRINT_FILE_HEADER(AS_PATH)
 					res = strlen(r->AS_PATH);
 					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, r->AS_PATH,
 							res, field_width, pad_left, ' ');
 					j += res;
 					break;
 				case 'M':
+					PRINT_FILE_HEADER(MED)
 					res = sprint_uint(buffer, r->MED);
 					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
 							res, field_width, pad_left, pad_value);
 					j += res;
 					break;
 				case 'o':
+					PRINT_FILE_HEADER(ORIGIN)
 					outbuf[j] = r->origin;
 					j++;
 					break;
 				case 'b':
-					outbuf[j] = (r->best ? '1' : '0');
-					j++;
+					PRINT_FILE_HEADER(BEST)
+					truc = (r->best ? "1" : "0");
+					res = strlen(truc);
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, truc,
+							res, field_width, pad_left, ' ');
+					j += res;
 					break;
 				case 'B':
+					PRINT_FILE_HEADER(BEST)
 					truc = (r->best ? "Best" : "No");
 					res = strlen(truc);
 					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, truc,
@@ -380,10 +390,12 @@ int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt
 					j += res;
 					break;
 				case 'v':
+					PRINT_FILE_HEADER(V)
 					outbuf[j] = (r->valid ? '1' : '0');
 					j++;
 					break;
 				case 'T':
+					PRINT_FILE_HEADER(Proto)
 					truc = (r->type == 'i'? "iBGP" : "eBGP");
 					res = strlen(truc);
 					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, truc,
@@ -391,6 +403,7 @@ int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt
 					j += res;
 					break;
 				case 'm':
+					PRINT_FILE_HEADER(Mask)
 					if (r->subnet.ip_ver == IPV4_A || r->subnet.ip_ver == IPV6_A)
 						res = sprint_uint(buffer, r->subnet.mask);
 					else {
@@ -402,6 +415,7 @@ int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt
 					j += res;
 					break;
 				case 'I': /* IP address */
+					PRINT_FILE_HEADER(IP)
 					SET_IP_COMPRESSION_LEVEL(fmt[i2 + 1]);
 					copy_subnet(&v_sub, &r->subnet);
 					res = subnet2str(&v_sub, buffer, sizeof(buffer), compression_level);
@@ -410,6 +424,7 @@ int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt
 					j += res;
 					break;
 				case 'P': /* Prefix */
+					PRINT_FILE_HEADER(Prefix)
 					SET_IP_COMPRESSION_LEVEL(fmt[i2 + 1]);
 					copy_subnet(&v_sub, &r->subnet);
 					subnet2str(&v_sub, buffer2, sizeof(buffer2), compression_level);
@@ -419,6 +434,7 @@ int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt
 					j += res;
 					break;
 				case 'G':
+					PRINT_FILE_HEADER(GW)
 					SET_IP_COMPRESSION_LEVEL(fmt[i2 + 1]);
 					copy_ipaddr(&sub.ip_addr, &r->gw);
 					sub.ip_ver = r->subnet.ip_ver;
