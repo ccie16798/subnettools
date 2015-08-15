@@ -86,7 +86,7 @@ static int netcsv_GW_handle(char *s, void *data, struct csv_state *state) {
 		if (res == sf->routes[sf->nr].subnet.ip_ver) {/* does the gw have same IPversion*/
 			copy_ipaddr(&sf->routes[sf->nr].gw, &addr);
 		} else {
-			memset(&sf->routes[sf->nr].gw, 0, sizeof(struct ip_addr));
+			zero_ipaddr(&sf->routes[sf->nr].gw);
 			debug(LOAD_CSV, 3, "invalid GW %s line %lu\n", s, state->line);
 		}
 	}
@@ -274,7 +274,7 @@ static int bgpcsv_GW_handle(char *s, void *data, struct csv_state *state) {
 	if (res == sf->routes[sf->nr].subnet.ip_ver) {/* does the gw have same IPversion*/
 		copy_ipaddr(&sf->routes[sf->nr].gw, &addr);
 	} else {
-		memset(&sf->routes[sf->nr].gw, 0, sizeof(struct ip_addr));
+		zero_ipaddr(&sf->routes[sf->nr].gw);
 		debug(LOAD_CSV, 3, "invalid GW %s line %lu\n", s, state->line);
 	}
 	return CSV_VALID_FIELD;

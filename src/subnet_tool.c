@@ -581,7 +581,7 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 		if (mode == 1)
 			copy_ipaddr(&new_r[j].gw, &sf->routes[i].gw);
 		else
-			memset(&new_r[j].gw, 0, sizeof(struct ip_addr)); /* the aggregate route has null gateway */
+			zero_ipaddr(&new_r[j].gw); /* the aggregate route has null gateway */
 		strcpy(new_r[j].comment, "AGGREGATE");
 		/* rewinding and aggregating backwards as much as we can; the aggregate we just created may aggregate with j - 1 */
 		while (j > 0) {
@@ -595,7 +595,7 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 				if (mode == 1)
 					copy_ipaddr(&new_r[j].gw, &sf->routes[i].gw);
 				else
-					memset(&new_r[j].gw, 0, sizeof(struct ip_addr)); /* the aggregate route has null gateway */
+					zero_ipaddr(&new_r[j].gw); /* the aggregate route has null gateway */
 				strcpy(new_r[j].comment, "AGGREGATE");
 			} else
 				break;
