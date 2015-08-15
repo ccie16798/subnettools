@@ -179,7 +179,10 @@ void usage() {
 	printf("common FILE1 FILE2  : merge CSV subnet files FILE1 & FILE2; prints common routes only; GW isn't checked\n");
 	printf("addfiles FILE1 FILE2: merge CSV subnet files FILE1 & FILE2; prints the sum of both files\n");
 	printf("grep FILE prefix    : grep FILE for prefix/mask\n");
-	printf("filter FILE EXPR    : grep FILE using regexp EXPR\n");
+	printf("filter FILE EXPR    : grep netcsv   FILE using regexp EXPR\n");
+	printf("filter help         : prints help about bgp filters\n");
+	printf("bgpfilter FILE EXPR : grep bgp_file FILE using regexp EXPR\n");
+	printf("bgpfilter help      : prints help about bgp filters\n");
 	printf("\n");
 	printf("Miscellaneous route file tools\n");
 	printf("------------------------------\n");
