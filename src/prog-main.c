@@ -342,7 +342,7 @@ static int run_bgpprint(int arc, char **argv, void *st_options) {
 	res = load_bgpcsv(argv[2], &sf, nof);
 	if (res < 0)
 		return res;
-	fprint_bgp_file_fmt(nof->output_file, &sf, nof->output_fmt);
+	fprint_bgp_file_fmt(nof->output_file, &sf, nof->bgp_output_fmt);
 	return 0;
 }
 
@@ -1024,6 +1024,8 @@ int main(int argc, char **argv) {
 	/* if the default output format has not been set */
 	if (strlen(nof.output_fmt) < 2)
 		strcpy(nof.output_fmt, default_fmt);
+	if (strlen(nof.bgp_output_fmt) < 2)
+		strcpy(nof.bgp_output_fmt, bgp_default_fmt);
 
 	res = generic_command_run(argc, argv, PROG_NAME, &nof);
 	fclose(nof.output_file);
