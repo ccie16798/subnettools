@@ -1240,6 +1240,25 @@ int subnet_sort_by(struct subnet_file *sf, char *name) {
 	return -1664;
 }
 
+int fprint_routefilter_help(FILE *out) {
+
+	return fprintf(out, "outes can be filtered on :\n"
+			" -prefix\n"
+			" -mask\n"
+			" -gw\n"
+			" -device\n"
+			" -comment\n"
+			"\n"
+			"operator are :\n"
+			"- '=' (EQUALS)\n"
+			"- '#' (DIFFERENT)\n"
+			"- '<' (numerically inferior)\n"
+			"- '>' (numerically superior)\n"
+			"- '{' (is included (for prefixes))\n"
+			"- '}' (includes (for prefixes))\n"
+			"- '~' (st_scanf regular expression)\n");
+}
+
 static int route_filter(char *s, char *value, char op, void *object) {
 	struct route *route = object;
 	struct subnet subnet;
