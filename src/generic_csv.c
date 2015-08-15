@@ -206,7 +206,7 @@ int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state* stat
 	FILE *f;
 	char buffer[1024];
 	char *s;
-	int res, res2;
+	int res, res2 = 0;
 
 	if (cf->csv_strtok_r == NULL) {
 		fprintf(stderr, "coding error:  no strtok function provided\n");
