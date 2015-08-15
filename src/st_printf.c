@@ -31,9 +31,9 @@ sprint_unsigned(int)
 sprint_unsigned(long)
 
 /* we define a few MACRO to lessen the code duplication between :
- *  fprint_route_fmt
- *  fprint_bgproute_fmt
- *  st_vsprintf
+ *  - fprint_route_fmt
+ *  - fprint_bgproute_fmt
+ *  - st_vsprintf
  */
 #define SET_IP_COMPRESSION_LEVEL(__c) do { \
 	if (__c >= '0' && __c <= '3') { \
@@ -65,7 +65,7 @@ sprint_unsigned(long)
 			outbuf[j++] = fmt[i + 1]; \
 	} \
 	i += 2;
-
+/* this block computes field field between '%' and conversion specifier */
 #define BLOCK_FIELD_WIDTH \
 	i2 = i + 1; \
 	pad_left = 0; \
@@ -91,6 +91,18 @@ sprint_unsigned(long)
 	debug(FMT, 6, "Field width Int is '%d', padding is %s\n", field_width, \
 			(pad_left ? "left": "right") ); \
 	i = i2 - 1;
+
+/* if fprint_route_fmt or fprint_bgp_route_fmt are called with route == NULL
+ * it will print a subnet_file or bgp_file HEADER */
+#define PRINT_FILE_HEADER(__val) \
+	if (r == NULL) { \
+		strcpy(buffer, #__val); \
+		res = strlen(buffer); \
+		res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer, \
+				res, field_width, pad_left, pad_value); \
+		j += res; \
+		break; \
+	}
 
 void fprint_route(FILE *output, const struct route *r, int compress_level) {
 	char buffer[52];
