@@ -198,6 +198,7 @@ int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt) {
 					i--;
 					break;
 				case 'M':
+					PRINT_FILE_HEADER(mask)
 					if (r->subnet.ip_ver == IPV4_A)
 						res = mask2ddn(r->subnet.mask, buffer, sizeof(buffer));
 					else if (r->subnet.ip_ver == IPV6_A)
@@ -211,6 +212,7 @@ int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt) {
 					j += res;
 					break;
 				case 'm':
+					PRINT_FILE_HEADER(mask)
 					if (r->subnet.ip_ver == IPV4_A || r->subnet.ip_ver == IPV6_A)
 						res = sprint_uint(buffer, r->subnet.mask);
 					else {
@@ -222,12 +224,14 @@ int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt) {
 					j += res;
 					break;
 				case 'D':
+					PRINT_FILE_HEADER(device)
 					res = strlen(r->device);
 					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, r->device,
 							res, field_width, pad_left, ' ');
 					j += res;
 					break;
 				case 'C':
+					PRINT_FILE_HEADER(comment)
 					res = strlen(r->comment);
 					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, r->comment,
 							res, field_width, pad_left, ' ');
@@ -238,6 +242,7 @@ int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt) {
 				case 'I': /* IP address */
 				case 'B': /* last IP Address of the subnet */
 				case 'N': /* network adress of the subnet */
+					PRINT_FILE_HEADER(prefix)
 					SET_IP_COMPRESSION_LEVEL(fmt[i2 + 1]);
 					copy_subnet(&v_sub, &r->subnet);
 					if (fmt[i2] == 'B')
@@ -254,6 +259,7 @@ int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt) {
 					j += res;
 					break;
 				case 'P': /* Prefix */
+					PRINT_FILE_HEADER(prefix)
 					SET_IP_COMPRESSION_LEVEL(fmt[i2 + 1]);
 					copy_subnet(&v_sub, &r->subnet);
 					subnet2str(&v_sub, buffer2, sizeof(buffer2), compression_level);
@@ -263,6 +269,7 @@ int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt) {
 					j += res;
 					break;
 				case 'G':
+					PRINT_FILE_HEADER(GW)
 					SET_IP_COMPRESSION_LEVEL(fmt[i2 + 1]);
 					copy_ipaddr(&sub.ip_addr, &r->gw);
 					sub.ip_ver = r->subnet.ip_ver;

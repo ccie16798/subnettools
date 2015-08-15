@@ -4,7 +4,10 @@
 
 /* simple and dummy print a route */
 void fprint_route(FILE *output, const struct route *r, int compress_level);
-/* print a route 'r' according to format 'fmt' into output */
+/*
+ * print struct route 'r' with format 'fmt' to 'output'
+ * if route == NULL, it will prints subnet_file HEADER
+ */
 int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt);
 
 /*
