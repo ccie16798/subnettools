@@ -268,7 +268,7 @@ int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof) {
 
 	if (alloc_bgp_file(sf, 16192) < 0)
 		return -2;
-	memset(&sf->routes[0], 0, sizeof(struct route));
+	memset(&sf->routes[0], 0, sizeof(struct bgp_route));
 	return generic_load_csv(name, &cf, &state, sf);
 }
 
