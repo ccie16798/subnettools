@@ -29,7 +29,7 @@
 #include "prog-main.h"
 
 const char *default_fmt     = "%I;%m;%D;%G;%C";
-const char *bgp_default_fmt = "%v;%5T;%4B;%16P;%16G;%10M;%10L;%10w;     %o;%A";
+const char *bgp_default_fmt = "%v;%5T;%4B;%16P;%16G;%10M;%10L;%10w;%6o;%A";
 
 struct file_options fileoptions[] = {
 	{ FILEOPT_LINE(ipam_prefix_field, struct st_options, TYPE_STRING), "IPAM CSV header field describing the prefix"  },
@@ -342,6 +342,7 @@ static int run_bgpprint(int arc, char **argv, void *st_options) {
 	res = load_bgpcsv(argv[2], &sf, nof);
 	if (res < 0)
 		return res;
+	fprint_bgproute_fmt(nof->output_file, NULL, nof->bgp_output_fmt);
 	fprint_bgp_file_fmt(nof->output_file, &sf, nof->bgp_output_fmt);
 	return 0;
 }
