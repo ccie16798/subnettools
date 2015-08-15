@@ -441,6 +441,10 @@ static int run_filter(int arc, char **argv, void *st_options) {
 	struct subnet_file sf;
 	struct st_options *nof = st_options;
 
+	if (!strcmp(argv[2], "help")) {
+		fprint_routefilter_help(stdout);
+		return 0;
+	}
 	if (argv[3] == NULL) { /* read from stdin */
 		res = load_netcsv_file(NULL, &sf, nof);
 		if (res < 0)
