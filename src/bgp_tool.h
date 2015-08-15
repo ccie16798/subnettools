@@ -12,5 +12,6 @@ void bgp_available_cmpfunc(FILE *out);
 /* filter BGP CSV files with a regular expression */
 int bgp_filter(struct bgp_file *sf, char *expr);
 
+int fprint_bgpfilter_help(FILE *out);
 #else
 #endif
