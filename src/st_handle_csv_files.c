@@ -17,6 +17,7 @@
 #include "utils.h"
 #include "generic_csv.h"
 #include "st_printf.h"
+#include "bgp_tool.h"
 #include "st_handle_csv_files.h"
 
 #define SIZE_T_MAX ((size_t)0 - 1)
@@ -131,7 +132,7 @@ static int netcsv_endofline_callback(struct csv_state *state, void *data) {
 		}
 		sf->routes = new_r;
 	}
-	memset(&sf->routes[sf->nr], 0, sizeof(struct route));
+	zero_route(&sf->routes[sf->nr]);
 	return CSV_CONTINUE;
 }
 
@@ -179,7 +180,7 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 
 	if (alloc_subnet_file(sf, 4096) < 0)
 		return -2;
-	memset(&sf->routes[0], 0, sizeof(struct route));
+	zero_route(&sf->routes[0]);
 	return generic_load_csv(name, &cf, &state, sf);
 }
 
@@ -225,7 +226,7 @@ int load_PAIP(char  *name, struct subnet_file *sf, struct st_options *nof) {
 
 	if (alloc_subnet_file(sf, 16192) < 0)
 		return -2;
-	memset(&sf->routes[0], 0, sizeof(struct route));
+	zero_route(&sf->routes[0]);
 	return generic_load_csv(name, &cf, &state, sf);
 }
 
@@ -416,7 +417,7 @@ static int bgpcsv_endofline_callback(struct csv_state *state, void *data) {
 		}
 		sf->routes = new_r;
 	}
-	memset(&sf->routes[sf->nr], 0, sizeof(struct bgp_route));
+	zero_bgproute(&sf->routes[sf->nr]);
 	return CSV_CONTINUE;
 }
 
@@ -452,6 +453,6 @@ int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof) {
 
 	if (alloc_bgp_file(sf, 16192) < 0)
 		return -2;
-	memset(&sf->routes[0], 0, sizeof(struct bgp_route));
+	zero_bgproute(&sf->routes[0]);
 	return generic_load_csv(name, &cf, &state, sf);
 }
