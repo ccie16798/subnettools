@@ -305,16 +305,16 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o) {
 			continue;
 		} else if (strstr(s, "is subnetted")) {
 			debug(PARSEROUTE, 5, "line %lu \'is subnetted'\n", line);
-			find_mask = route.subnet.mask;
 			/*      194.51.71.0/32 is subnetted, 1 subnets */
 			res = st_sscanf(s, " *%I/%d is subnetted, %d subnets", &route.subnet.ip_addr, &find_mask, &is_subnetted);
 			if (res < 3) {
 				badline++;
 				debug(PARSEROUTE, 1, "line %lu invalid 'is subnetted' '%s'\n", line, s);
+				is_subnetted = 0;
 				continue;
 			}
 			continue;
-		} else if (strstr(s, "is directly connected")) {
+		} else if (strstr(s, "is directly connected")) { /* happens only with IPv4 */
 			memset(&route, 0, sizeof(route));
 			/* C       10.73.5.92/30 is directly connected, Vlan346 */
 			res = st_sscanf(s, ".*%P.*$%32s", &route.subnet, route.device);
