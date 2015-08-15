@@ -370,8 +370,11 @@ int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt
 					break;
 				case 'o':
 					PRINT_FILE_HEADER(ORIGIN)
-					outbuf[j] = r->origin;
-					j++;
+					buffer[0] = r->origin;
+					buffer[1] = '\0';
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+							1, field_width, pad_left, pad_value);
+					j += res;
 					break;
 				case 'b':
 					PRINT_FILE_HEADER(BEST)
