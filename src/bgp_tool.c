@@ -356,13 +356,13 @@ int as_path_length(const char *s) {
 		}
 		if (c == '(')
 			in_confed = 1;
-		if (c == '{')
+		else if (c == '{')
 			in_asset = 1;
-		if (c == ')' && in_confed) {
+		else if (c == ')' && in_confed) {
 			in_confed = 0;
 			continue;
 		}
-		if (c == '}' && in_asset) {
+		else if (c == '}' && in_asset) {
 			in_asset = 0;
 			continue;
 		}
