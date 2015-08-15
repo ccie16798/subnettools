@@ -805,10 +805,6 @@ static int run_bgpsortby(int arc, char **argv, void *st_options) {
 		bgp_available_cmpfunc(stderr);
 		return 0;
 	}
-	if (argv[3] == NULL) {
-		fprintf(stderr, "Not enough argument for bgpsortby\n");
-		return -1;
-	}
 	res = load_bgpcsv(argv[3], &sf1, st_options);
 	if (res < 0)
 		return res;
