@@ -48,6 +48,7 @@
  */
 struct csv_state {
 	unsigned long line; /* current line */
+	char *file_name;
 	int  badline;
 	int skip; /* tell the engine to skip fields without increasing the pos counter */
 	int state[13]; /* generic states table, csv_field->handle can use it as its wants */
@@ -84,7 +85,7 @@ struct csv_file {
  * */
 void init_csv_file(struct csv_file *cf, char *file_name, struct csv_field *csv_field, char *delim,
 		char * (*strtok_r)(char *s, const char *delim, char **save_ptr));
-
+void init_csv_state(struct csv_state *cs, char *file_name);
 /* this func will open the 'filename' FILE, parse it according to 'cf' and 'state'
  * and usually you'll want to feed a  pointer to a struct  whatever in *data
  *
