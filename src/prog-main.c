@@ -415,9 +415,9 @@ static int run_uniq(int arc, char **argv, void *st_options) {
 	if (res < 0)
 		return res;
 	fprint_subnet_file_fmt(nof->output_file, &sf3, nof->output_fmt);
-	free(sf3.routes);
-	free(sf2.routes);
 	free(sf1.routes);
+	free(sf2.routes);
+	free(sf3.routes);
 	return 0;
 }
 

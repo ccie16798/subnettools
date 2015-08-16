@@ -80,7 +80,7 @@ int uniq_routes(const struct subnet_file *sf1, const struct subnet_file *sf2, st
 	res = alloc_subnet_file(sf3, sf2->nr + sf1->nr);
 	if (res < 0)
 		return -1;
-	alloc_tas(&tas, sf3->nr, __heap_subnet_is_superior);
+	alloc_tas(&tas, sf3->max_nr, __heap_subnet_is_superior);
 
 	if (tas.tab == NULL) {
 		fprintf(stderr, "%s : no memory \n", __FUNCTION__);
@@ -121,6 +121,7 @@ int uniq_routes(const struct subnet_file *sf1, const struct subnet_file *sf2, st
 		copy_route(&sf3->routes[i], r);
 	}
 	sf3->nr = i;
+	free(tas.tab);
 	return 0;
 }
 
