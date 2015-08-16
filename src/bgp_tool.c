@@ -518,7 +518,7 @@ int bgp_filter(struct bgp_file *sf, char *expr) {
 		debug_timing_end(2);
 		return -1;
 	}
-	debug(MEMORY, 3, "Allocated %d bytes for struct bgp_route\n", sf->max_nr * sizeof(struct bgp_route));
+	debug(MEMORY, 3, "Allocated %lu bytes for struct bgp_route\n", sf->max_nr * sizeof(struct bgp_route));
 	j = 0;
 	len = strlen(expr);
 
