@@ -297,6 +297,3 @@ work TODO
 =========
 - fixing file diff (semantics is difficult, what do we want)
 - adding more converters (and fixing IPv6 converters)
-- bitmap printing
-- implement progress bar (what is your 1M line aggregation doing??)
-- code precision in st_printf.c
