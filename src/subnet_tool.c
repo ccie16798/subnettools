@@ -674,58 +674,27 @@ int subnet_file_remove_subnet(const struct subnet_file *sf1, struct subnet_file 
 
 /*
  * subnets from sf3 are removed from sf1
- * result is stored in *sf2
+ * result is stored in *sf2 BUGGED
  */
-int subnet_file_remove_file(const struct subnet_file *sf1, struct subnet_file *sf2, const struct subnet_file *sf3) {
-	unsigned long i, j, k;
-	int res, n;
-	struct subnet *r;
-	struct route *new_r;
-	struct subnet *subnet;
+int subnet_file_remove_file(struct subnet_file *sf1, struct subnet_file *sf2, const struct subnet_file *sf3) {
+	unsigned long i;
+	int res;
+	struct subnet_file sf;
 
-	j = 0;
-	res = alloc_subnet_file(sf2, sf1->max_nr);
-	if (res < 0)
-		return res;
-	for (i = 0; i < sf1->nr; i++) {
+	memcpy(&sf, sf1, sizeof(struct subnet_file));
 
-		for (k = 0; k < sf2->nr; k++) {
-			subnet = &sf2->routes[k].subnet;
-			res = subnet_compare(&sf1->routes[i].subnet, subnet);
-			if (res == NOMATCH || res == INCLUDED) {
-				copy_route(&sf2->routes[j],  &sf1->routes[i]);
-				j++;
-				st_debug(ADDRREMOVE, 4, "%P is not included in %P\n", *subnet, sf1->routes[i]);
-				continue;
-			} else if (res == EQUALS) {
-				st_debug(ADDRREMOVE, 4, "removing entire subnet %P\n", *subnet);
-				continue;
-			}
-			r = subnet_remove(&sf1->routes[i].subnet, subnet, &n);
-			if (n == -1) {
-				fprintf(stderr, "%s : no memory\n", __FUNCTION__);
-				return n;
-			}
-			/* realloc memory if necessary */
-			if (n + sf2->nr >= sf2->max_nr) {
-				sf2->max_nr *= 2;
-				new_r = realloc(sf2->routes,  sizeof(struct route) * sf2->max_nr);
-				debug(MEMORY, 3, "reallocating %lu bytes for new_r\n", sizeof(struct route) * sf2->max_nr);
-				if (new_r == NULL) {
-					fprintf(stderr, "unable to reallocate, need to abort\n");
-					return -3;
-				}
-				sf2->routes = new_r;
-			} /* realloc */
-			for (res = 0; res < n; res++) {
-				copy_route(&sf2->routes[j],  &sf1->routes[i]); /* copy comment, device ... */
-				copy_subnet(&sf2->routes[j].subnet, &r[res]);
-				j++;
-			}
-			free(r);
-		} /* for k */
+	for (i = 0; i < sf3->nr; i++) {
+		st_debug(ADDRREMOVE, 4, "Loop %d, Removing %P\n", i, sf3->routes[i].subnet);
+		res = subnet_file_remove_subnet(&sf, sf2, &sf3->routes[i].subnet);
+		if (res < 0) {
+			debug_timing_end(2);
+			return res;
+		}
+		free(sf.routes);
+		memcpy(&sf, sf2, sizeof(struct subnet_file));
 	}
-	sf2->nr = j;
+	subnet_file_simplify(sf2);
+	debug_timing_end(2);
 	return 1;
 }
 
