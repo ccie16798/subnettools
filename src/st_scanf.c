@@ -326,7 +326,7 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 		*i -= 1;
 		if (max_field_length > sizeof(buffer) - 2)
 			max_field_length = sizeof(buffer) - 2;
-		debug(SCANF, 4, "Found max field length %d\n", max_field_length);
+		debug(SCANF, 5, "Found max field length %d\n", max_field_length);
 	} else
 		max_field_length = sizeof(buffer) - 2;
 
@@ -343,7 +343,7 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 			}
 			buffer[j2 - *j] = '\0';
 			if (j2 - *j <= 2) {
-				debug(SCANF, 2, "no IP found at offset %d\n", *j);
+				debug(SCANF, 3, "no IP found at offset %d\n", *j);
 				return n_found;
 			}
 			if (fmt[*i + 1] == 'P')
@@ -354,7 +354,7 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 				debug(SCANF, 5, "'%s' is a valid IP\n", buffer);
 				n_found++;
 			} else {
-				debug(SCANF, 2, "'%s' is an invalid IP\n", buffer);
+				debug(SCANF, 3, "'%s' is an invalid IP\n", buffer);
 				return n_found;
 			}
 			break;
@@ -366,7 +366,7 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 			}
 			buffer[j2 - *j] = '\0';
 			if (j2 - *j <= 1) {
-				debug(SCANF, 2, "no IP found at offset %d\n", *j);
+				debug(SCANF, 3, "no IP found at offset %d\n", *j);
 				return n_found;
 			}
 			res = string2addr(in + *j, v_addr, j2 -*j);
@@ -374,7 +374,7 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 				debug(SCANF, 5, "'%s' is a valid IP\n", buffer);
 				n_found++;
 			} else {
-				debug(SCANF, 2, "'%s' is an invalid IP\n", buffer);
+				debug(SCANF, 3, "'%s' is an invalid IP\n", buffer);
 				return n_found;
 			}
 			break;
@@ -386,7 +386,7 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 			}
 			buffer[j2 - *j] = '\0';
 			if (j2 - *j == 0) {
-				debug(SCANF, 2, "no MASK found at offset %d\n", *j);
+				debug(SCANF, 3, "no MASK found at offset %d\n", *j);
 				return n_found;
 			}
 			res = string2mask(buffer, 21);
@@ -394,7 +394,7 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 				debug(SCANF, 5, "'%s' is a valid MASK\n", buffer);
 				n_found++;
 			} else {
-				debug(SCANF, 2, "'%s' is an invalid MASK\n", buffer);
+				debug(SCANF, 3, "'%s' is an invalid MASK\n", buffer);
 				return n_found;
 			}
 			*v_int = res;
@@ -413,7 +413,7 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 				if (in[j2] == '0' && in[j2 + 1] == 'x')
 					j2 += 2;
 				if (!isxdigit(in[j2])) {
-					debug(SCANF, 2, "no HEX found at offset %d \n", *j);
+					debug(SCANF, 3, "no HEX found at offset %d \n", *j);
 					return n_found;
 				}
 				while (isxdigit(in[j2])) {
@@ -429,7 +429,7 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 				} else
 					sign = 1;
 				if (!isdigit(in[j2])) {
-					debug(SCANF, 2, "no SHORT found at offset %d \n", *j);
+					debug(SCANF, 3, "no SHORT found at offset %d \n", *j);
 					return n_found;
 				}
 				while (isdigit(in[j2])) {
@@ -460,7 +460,7 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 				if (in[j2] == '0' && in[j2 + 1] == 'x')
 					j2 += 2;
 				if (!isxdigit(in[j2])) {
-					debug(SCANF, 2, "no HEX found at offset %d \n", *j);
+					debug(SCANF, 3, "no HEX found at offset %d \n", *j);
 					return n_found;
 				}
 				while (isxdigit(in[j2])) {
@@ -476,7 +476,7 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 				} else
 					sign = 1;
 				if (!isdigit(in[j2])) {
-					debug(SCANF, 2, "no LONG found at offset %d \n", *j);
+					debug(SCANF, 3, "no LONG found at offset %d \n", *j);
 					return n_found;
 				}
 				while (isdigit(in[j2]) && j2 - *j < max_field_length) {
@@ -502,7 +502,7 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 			} else
 				sign = 1;
 			if (!isdigit(in[j2])) {
-				debug(SCANF, 2, "no INT found at offset %d \n", *j);
+				debug(SCANF, 3, "no INT found at offset %d \n", *j);
 				return n_found;
 			}
 			while (isdigit(in[j2])) {
@@ -518,7 +518,7 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 			ARG_SET(v_uint, unsigned int *);
 			*v_uint = 0;
 			if (!isdigit(in[j2])) {
-				debug(SCANF, 2, "no UINT found at offset %d \n", *j);
+				debug(SCANF, 3, "no UINT found at offset %d \n", *j);
 				return n_found;
 			}
 			while (isdigit(in[j2])) {
@@ -535,7 +535,7 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 			if (in[j2] == '0' && in[j2 + 1] == 'x')
 				j2 += 2;
 			if (!isxdigit(in[j2])) {
-				debug(SCANF, 2, "no HEX found at offset %d \n", *j);
+				debug(SCANF, 3, "no HEX found at offset %d \n", *j);
 				return n_found;
 			}
 			while (isxdigit(in[j2])) {
@@ -564,14 +564,14 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 				j2++;
 			}
 			if (j2 == *j) {
-				debug(SCANF, 2, "no STRING found at offset %d \n", *j);
+				debug(SCANF, 3, "no STRING found at offset %d \n", *j);
 				return n_found;
 			}
 			v_s[j2 - *j] = '\0';
 			if (fmt[*i + 1] == 'S') {
 				res = get_subnet_or_ip(v_s, (struct subnet *)&poubelle);
 				if (res > 0) {
-					debug(SCANF, 2, "STRING '%s' at offset %d is an IP, refusing it\n", v_s, *j);
+					debug(SCANF, 3, "STRING '%s' at offset %d is an IP, refusing it\n", v_s, *j);
 					return n_found;
 				}
 			}
@@ -585,7 +585,7 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 				j2++;
 			}
 			if (j2 == *j) {
-				debug(SCANF, 2, "no WORD found at offset %d\n", *j);
+				debug(SCANF, 3, "no WORD found at offset %d\n", *j);
 				return 0;
 			}
 			v_s[j2 - *j] = '\0';
