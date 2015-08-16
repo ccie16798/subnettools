@@ -92,14 +92,14 @@ int generic_parse_options(int argc, char **argv, char *progname, void *opt) {
 				fprintf(stderr, "Missing command, use '%s help' for more help\n", progname);
 			return -1;
 		}
-		debug(PARSEOPTS, 2, "parsing option : %s\n", argv[a]);
+		debug(PARSEOPTS, 3, "parsing option : %s\n", argv[a]);
 		for (i = 0; ;i++) {
 			if (options[i].name == NULL) {
 				loop = 0;
 				break;
 			}
 			if (!strcmp(options[i].name, argv[a])) {
-				debug(PARSEOPTS, 3, "found handler for %s\n", argv[a]);
+				debug(PARSEOPTS, 4, "found handler for %s\n", argv[a]);
 				debug(PARSEOPTS, 6, "argc - a = %d, options[i].required_args = %d\n", argc - a , options[i].required_args);
 				if (argc - a <= options[i].required_args) {
 					fprintf(stderr, "Not enough arguments after option '%s'\n", argv[a]);

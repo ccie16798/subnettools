@@ -610,7 +610,7 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 				j2++;
 			}
 			if (j2 == *j) {
-				debug(SCANF, 2, "no CHAR RANGE found at offset %d\n", *j);
+				debug(SCANF, 3, "no CHAR RANGE found at offset %d\n", *j);
 				return 0;
 			}
 			v_s[j2 - *j] = '\0';

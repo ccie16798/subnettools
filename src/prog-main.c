@@ -223,6 +223,7 @@ void usage() {
 	printf("-D <debug>      : DEBUG MODE ; use '%s -D help' for more info\n", PROG_NAME);
 	printf("-fmt            : change the output format (default :%s)\n", default_fmt);
 	printf("-V              : verbose mode; same as '-D all:1'\n\n");
+	printf("-VV             : more verbose mode; same as '-D all:1'\n\n");
 	printf("INPUT CSV format :=\n");
 	printf("- Input subnet/routes files SHOULD have a CSV header describing its structure (prefix, mask,, GW, comment, etc...)\n");
 	printf("- Input subnet/routes files without a CSV header are assumed to be : prefix;mask;GW;comment or prefix;mask;comment\n");
@@ -900,7 +901,7 @@ static int option_verbose2(int arc, char **argv, void *st_options) {
 static int option_delim(int argc, char **argv, void *st_options) {
 	struct st_options *nof = st_options;
 
-	debug(PARSEOPTS, 2, "changing delim to :\"%s\"\n", argv[1]);
+	debug(PARSEOPTS, 3, "changing delim to :\"%s\"\n", argv[1]);
 	if (strlen(argv[1]) > MAX_DELIM - 1 ) {
 		fprintf(stderr, "too many delimiters, MAX %d\n", MAX_DELIM-1);
 		return -1;
@@ -912,7 +913,7 @@ static int option_delim(int argc, char **argv, void *st_options) {
 static int option_grepfield(int argc, char **argv, void *st_options) {
 	struct st_options *nof = st_options;
 
-	debug(PARSEOPTS, 2, "grepping only field %s\n", argv[1]);
+	debug(PARSEOPTS, 3, "grepping only field %s\n", argv[1]);
 	if (!isUnsignedInt(argv[1])) {
 		fprintf(stderr, "invalid grep_field %s\n", argv[1]);
 	} else {
@@ -925,7 +926,7 @@ static int option_grepfield(int argc, char **argv, void *st_options) {
 static int option_output(int argc, char **argv, void *st_options) {
 	struct st_options *nof = st_options;
 
-	debug(PARSEOPTS, 2, "changing ouput file to : \"%s\"\n", argv[1]);
+	debug(PARSEOPTS, 3, "changing ouput file to : \"%s\"\n", argv[1]);
 	nof->output_file = fopen(argv[1], "w");
 	if (nof->output_file == NULL) {
 		fprintf(stderr, "cannot open %s for writing, redirecting to standard output\n", argv[1]);
@@ -947,7 +948,7 @@ static int option_debug(int argc, char **argv, void *st_options) {
 static int option_config(int argc, char **argv, void *st_options) {
 	struct st_options *nof = st_options;
 
-	debug(PARSEOPTS, 2, "Using configuration file : \"%s\"\n", argv[1]);
+	debug(PARSEOPTS, 3, "Using configuration file : \"%s\"\n", argv[1]);
 	nof->config_file = argv[1];
 	return 0;
 }

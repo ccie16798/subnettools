@@ -131,7 +131,9 @@ static inline int pad_buffer_out(char *out, size_t len, const char *buffer, size
 	int res;
 
 	debug(FMT, 7, "Padding : len=%d, buff_size=%d, field_width=%d\n", (int)len, (int)buff_size, field_width);
-	if (buff_size <= 0) {
+	if (buff_size == 0)
+		return 0;
+	if (buff_size < 0) {
 		debug(FMT, 1, "Cannot pad an Invalid buffer\n");
 		return 0;
 	}

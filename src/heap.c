@@ -47,7 +47,7 @@ int alloc_tas(TAS *tas, unsigned long n, int (*compare)(void *v1, void *v2)) {
 		tas->nr = 0;
 		return -1;
 	}
-	debug(MEMORY, 2, "allocated %lu bytes for heap\n", n * sizeof(void *));
+	debug(MEMORY, 3, "allocated %lu bytes for heap\n", n * sizeof(void *));
 	tas->nr      = 0;
 	tas->max_nr  = n;
 	tas->compare = compare;
@@ -89,7 +89,7 @@ int addTAS_may_fail(TAS *tas, void *el) {
 			return -1;
 		}
 		tas->tab = truc;
-		debug(MEMORY, 1, "reallocated %lu bytes for heap\n", tas->max_nr * sizeof(void *));
+		debug(MEMORY, 3, "reallocated %lu bytes for heap\n", tas->max_nr * sizeof(void *));
 	}
 	addTAS(tas, el);
 	return 0;
