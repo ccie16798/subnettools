@@ -34,7 +34,7 @@ static int simple_expr(char *pattern, int len, struct generic_expr *e) {
 	char string[256];
 	char value[256];
 	char operator;
-	int res, skip = 0;
+	int res;
 
 	e->recursion_level++;
 	if (e->recursion_level >= GENERIC_ST_MAX_RECURSION) {
@@ -54,13 +54,6 @@ static int simple_expr(char *pattern, int len, struct generic_expr *e) {
 		}
 		if (is_comp(pattern[i]))
 			break;
-		if (skip)
-			skip = 0;
-		else if (pattern[i] == '\\') {/* escape char */
-			i++;
-			skip = 1;
-			continue;
-		}
 		string[j] = pattern[i];
 		i++;
 		j++;
@@ -69,7 +62,6 @@ static int simple_expr(char *pattern, int len, struct generic_expr *e) {
 	string[j] = '\0';
 	i++;
 	j = i;
-	skip = 0;
 	while (1) {
 		if (pattern[i] == '\0' || i == len)
 			break;
@@ -82,14 +74,6 @@ static int simple_expr(char *pattern, int len, struct generic_expr *e) {
 			debug(GEXPR, 1, "Invalid expr '%s', 2 x comparators\n", pattern);
 			e->recursion_level--;
 			return -1;
-		}
-		if (skip)
-			skip = 0;
-		else if (pattern[i] == '\\') {/* escape char */
-			i++;
-			j++;
-			skip = 1;
-			continue;
 		}
 		value[i - j] = pattern[i];
 		i++;
