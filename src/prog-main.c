@@ -45,6 +45,7 @@ struct file_options fileoptions[] = {
 	{ FILEOPT_LINE(netcsv_device, struct st_options, TYPE_STRING), "Subnet CSV header field describing the device" },
 	{ FILEOPT_LINE(netcsv_gw, struct st_options, TYPE_STRING), "Subnet CSV header field describing the gateway" },
 	{ FILEOPT_LINE(output_fmt, struct st_options, TYPE_STRING), "Default Output Format String" },
+	{ FILEOPT_LINE(bgp_output_fmt, struct st_options, TYPE_STRING), "Default BGP Output Format String" },
 	{ FILEOPT_LINE(subnet_off, struct st_options, TYPE_INT) },
 	{NULL,                  0, 0}
 };
