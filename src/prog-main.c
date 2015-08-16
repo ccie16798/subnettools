@@ -51,7 +51,6 @@ struct file_options fileoptions[] = {
 };
 
 
-static int run_diff(int argc, char **argv, void *st_options);
 static int run_compare(int argc, char **argv, void *st_options);
 static int run_missing(int argc, char **argv, void *st_options);
 static int run_paip(int argc, char **argv, void *st_options);
@@ -106,7 +105,6 @@ struct st_command commands[] = {
 	{ "bgpcmp",	&run_bgpcmp,	2},
 	{ "bgpsortby",	&run_bgpsortby,	1},
 	{ "ipinfo",	&run_ipinfo,	1},
-	{ "diff",	&run_diff,	2},
 	{ "compare",	&run_compare,	2},
 	{ "missing",	&run_missing,	2},
 	{ "paip",	&run_paip,	1},
@@ -179,7 +177,6 @@ void usage() {
 	printf("compare FILE1 FILE2 : compare FILE1 & FILE2, printing subnets in FILE1 INCLUDED in FILE2\n");
 	printf("missing FILE1 FILE2 : prints subnets from FILE1 that are not covered by FILE2; GW is not checked\n");
 	printf("ipam <IPAM> FILE1   : load IPAM, and print FILE1 subnets with comment extracted from IPAM\n");
-	printf("diff FILE1 FILE2    : diff FILE1 & FILE2 (EXPERIMENTAL)\n");
 	printf("common FILE1 FILE2  : merge CSV subnet files FILE1 & FILE2; prints common routes only; GW isn't checked\n");
 	printf("addfiles FILE1 FILE2: merge CSV subnet files FILE1 & FILE2; prints the sum of both files\n");
 	printf("grep FILE prefix    : grep FILE for prefix/mask\n");
@@ -352,21 +349,6 @@ static int run_bgpprint(int arc, char **argv, void *st_options) {
 		return res;
 	fprint_bgproute_fmt(nof->output_file, NULL, nof->bgp_output_fmt);
 	fprint_bgp_file_fmt(nof->output_file, &sf, nof->bgp_output_fmt);
-	return 0;
-}
-
-static int run_diff(int arc, char **argv, void *st_options) {
-	int res;
-	struct subnet_file sf1, sf2;
-	struct st_options *nof = st_options;
-
-	res = load_netcsv_file(argv[2], &sf1, nof);
-	if (res < 0)
-		fprintf(stderr, "invalid file %s; not a CSV?\n", argv[2]);
-	res = load_netcsv_file(argv[3], &sf2, nof);
-	if (res < 0)
-		fprintf(stderr, "invalid file %s; not a CSV?\n", argv[3]);
-	diff_files(&sf1, &sf2, nof);
 	return 0;
 }
 
