@@ -1139,9 +1139,12 @@ int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
 					res = parse_brace_multiplier(fmt + i, &min_m, &max_m);
 					if (res < 0)
 						goto end_nomatch;
+					i += res;
 				} else
 					min_m = min_match(fmt[i]);
 			}
+			if (fmt[i + 1] != '\0') /* the multiplier wasnt the last char */
+				goto end_nomatch;
 			if (min_m == 0) /* if the expr can match zero time, the match was perfect */
 				return n_found;
 			else
