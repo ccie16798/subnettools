@@ -27,7 +27,7 @@ static int read_csv_header(char *filename, const char *buffer, struct csv_file *
 	strxcpy(buffer2, buffer, sizeof(buffer2));
 	s = buffer2;
 	debug(CSVHEADER, 3, "Trying to parse header in %s\n", filename);
-	debug(CSVHEADER, 4, "CSV header : '%s'\n", s);
+	debug(CSVHEADER, 5, "CSV header : '%s'\n", s);
 
 	if (cf->is_header == NULL || cf->is_header(s)) { /* check if valid header */
 		s = cf->csv_strtok_r(s, cf->delim, &save_s);
@@ -54,7 +54,7 @@ static int read_csv_header(char *filename, const char *buffer, struct csv_file *
 			if (cf->csv_field[i].name == NULL)
 				break;
 			cf->csv_field[i].pos = cf->csv_field[i].default_pos;
-			debug(CSVHEADER, 2, "Using default pos %d for field '%s'\n",  cf->csv_field[i].pos, cf->csv_field[i].name);
+			debug(CSVHEADER, 3, "Using default pos %d for field '%s'\n",  cf->csv_field[i].pos, cf->csv_field[i].name);
 		}
 	}
 
@@ -197,7 +197,7 @@ static int read_csv_body(FILE *f, char *name, struct csv_file *cf,
 		res = cf->endoffile_callback(state, data);
 	else
 		res = CSV_VALID_FILE;
-	debug(LOAD_CSV, 2, "Parsed %lu lines, %lu good, %lu bad\n", state->line, state->line - badlines, badlines);
+	debug(LOAD_CSV, 3, "Parsed %lu lines, %lu good, %lu bad\n", state->line, state->line - badlines, badlines);
 	debug_timing_end(2);
 	return res;
 }
