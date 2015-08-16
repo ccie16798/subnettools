@@ -60,10 +60,6 @@ static int simple_expr(char *pattern, int len, struct generic_expr *e) {
 			i++;
 			skip = 1;
 			continue;
-		} else if (pattern[i] == '(' || pattern[i] == ')') {
-			debug(GEXPR, 1, "Invalid pattern '%s', lonely parenthesis found\n", pattern);
-			e->recursion_level--;
-			return -1;
 		}
 		string[j] = pattern[i];
 		i++;
@@ -94,10 +90,6 @@ static int simple_expr(char *pattern, int len, struct generic_expr *e) {
 			j++;
 			skip = 1;
 			continue;
-		} else if ((pattern[i] == '(' || pattern[i] == ')')) {
-			debug(GEXPR, 1, "Invalid pattern '%s', lonely parenthesis found\n", pattern);
-			e->recursion_level--;
-			return -1;
 		}
 		value[i - j] = pattern[i];
 		i++;
