@@ -965,6 +965,7 @@ static int option_fmt(int argc, char **argv, void *st_options) {
 	struct st_options *nof = st_options;
 
 	strxcpy(nof->output_fmt, argv[1], sizeof(nof->output_fmt));
+	strxcpy(nof->bgp_output_fmt, argv[1], sizeof(nof->bgp_output_fmt));
 	return 0;
 }
 
