@@ -87,6 +87,7 @@ static int run_gen_expr(int argc, char **argv, void *st_options);
 static int run_test2(int argc, char **argv, void *st_options);
 
 static int option_verbose(int argc, char **argv, void *st_options);
+static int option_verbose2(int argc, char **argv, void *st_options);
 static int option_delim(int argc, char **argv, void *st_options);
 static int option_grepfield(int argc, char **argv, void *st_options);
 static int option_output(int argc, char **argv, void *st_options);
@@ -138,6 +139,7 @@ struct st_command commands[] = {
 
 struct st_command options[] = {
 	{"-V",		&option_verbose,	0},
+	{"-VV",		&option_verbose2,	0},
 	{"-d",		&option_delim,		1},
 	{"-grep_field",	&option_grepfield,	1},
 	{"-o",		&option_output,		1},
@@ -887,6 +889,11 @@ static int run_test2(int arc, char **argv, void *st_options) {
  */
 static int option_verbose(int arc, char **argv, void *st_options) {
 	debugs_level[__D_ALL] = 1;
+	return 0;
+}
+
+static int option_verbose2(int arc, char **argv, void *st_options) {
+	debugs_level[__D_ALL] = 2;
 	return 0;
 }
 
