@@ -25,11 +25,11 @@ int open_config_file(char *name, void *nof) {
 
 	f = fopen(name, "r");
 	if (f == NULL) {
-		debug(CONFIGFILE, 1, "Cannot open config file '%s'\n", name);
+		debug(CONFIGFILE, 2, "Cannot open config file '%s'\n", name);
 		return -1;
 	}
 	object = nof;
-	debug(CONFIGFILE, 2, "Opening config file '%s'\n", name);
+	debug(CONFIGFILE, 3, "Opening config file '%s'\n", name);
 
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &i))) {
 			line++;
@@ -56,13 +56,13 @@ int open_config_file(char *name, void *nof) {
 				}
 			}
 			if (found == 0) {
-				debug(CONFIGFILE, 3, "%s line %lu invalid config option : %s\n", name, line, s);
+				debug(CONFIGFILE, 2, "%s line %lu invalid config option : %s\n", name, line, s);
 				continue;
 			}
 			debug(CONFIGFILE, 5, "%s line %lu valid config option found : %s\n", name, line, s);
 			s = strtok(NULL, "\n");
 			if (s == NULL) {
-				debug(CONFIGFILE, 5, "%s line %lu no value found\n", name, line);
+				debug(CONFIGFILE, 2, "%s line %lu no value found\n", name, line);
 				continue;
 			}
 
@@ -72,7 +72,7 @@ int open_config_file(char *name, void *nof) {
 					debug(CONFIGFILE, 5, "line %lu copying STRING '%s' at offset %d, size %d\n", line, s, (int)offset, (int)fileoptions[i].size);
 					strxcpy(object + offset, s,  fileoptions[i].size);
 					if (strlen(s) >= fileoptions[i].size) {
-						debug(CONFIGFILE, 1, "%s line %lu STRING '%s' is too long,  truncated to '%s'\n", name, line, s, object + offset);
+						debug(CONFIGFILE, 2, "%s line %lu STRING '%s' is too long,  truncated to '%s'\n", name, line, s, object + offset);
 					}
 					break;
 				case TYPE_INT:
@@ -86,7 +86,7 @@ int open_config_file(char *name, void *nof) {
 					memcpy(object + offset, &found, fileoptions[i].size);
 					break;
 				default:
-					debug(CONFIGFILE, 5, "%s line %lu unsupported type '%u'\n", name, line, fileoptions[i].type);
+					debug(CONFIGFILE, 2, "%s line %lu unsupported type '%u'\n", name, line, fileoptions[i].type);
 					break;
 			}
 	}
