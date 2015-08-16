@@ -159,6 +159,7 @@ int as_path_length(const char *s) {
 static int __heap_subnet_is_superior(void *v1, void *v2) {
 	struct subnet *s1 = &((struct bgp_route *)v1)->subnet;
 	struct subnet *s2 = &((struct bgp_route *)v2)->subnet;
+
 	return subnet_is_superior(s1, s2);
 }
 
@@ -238,14 +239,11 @@ static int __bgp_sort_by(struct bgp_file *sf, int cmpfunc(void *v1, void *v2)) {
 
 	if (sf->nr == 0)
 		return 0;
-	debug_timing_start(2);
 	alloc_tas(&tas, sf->nr, cmpfunc);
-
 	new_r = malloc(sf->max_nr * sizeof(struct bgp_route));
 
 	if (tas.tab == NULL || new_r == NULL) {
 		fprintf(stderr, "%s : no memory\n", __FUNCTION__);
-		debug_timing_end(2);
 		return -1;
 	}
 	debug(MEMORY, 2, "Allocated %lu bytes for new struct bgp_route\n", sf->max_nr * sizeof(struct bgp_route));
@@ -259,7 +257,6 @@ static int __bgp_sort_by(struct bgp_file *sf, int cmpfunc(void *v1, void *v2)) {
 	free(tas.tab);
 	free(sf->routes);
 	sf->routes = new_r;
-	debug_timing_end(2);
 	return 0;
 }
 
@@ -290,13 +287,16 @@ void bgp_available_cmpfunc(FILE *out) {
 }
 
 int bgp_sort_by(struct bgp_file *sf, char *name) {
-	int i = 0;
+	int i = 0, res;
 
 	while (1) {
 		if (bgpsort[i].name == NULL)
 			break;
 		if (!strncasecmp(name, bgpsort[i].name, strlen(name)))
-			return __bgp_sort_by(sf, bgpsort[i].cmpfunc);
+			debug_timing_start(2);
+			res = __bgp_sort_by(sf, bgpsort[i].cmpfunc);
+			debug_timing_end(2);
+			return res;
 		i++;
 	}
 	return -1664;
