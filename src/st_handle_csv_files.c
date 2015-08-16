@@ -114,7 +114,7 @@ static int netcsv_endofline_callback(struct csv_state *state, void *data) {
 	struct route *new_r;
 
 	if (state->badline) {
-		debug(LOAD_CSV, 1, "Invalid line %lu\n", state->line);
+		debug(LOAD_CSV, 1, "%s : invalid line %lu\n", state->file_name, state->line);
 		return -1;
 	}
 	sf->nr++;
@@ -177,6 +177,7 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 	cf.is_header = &netcsv_is_header;
 	cf.endofline_callback = &netcsv_endofline_callback;
 	cf.validate_header = &netcsv_validate_header;
+	init_csv_state(&state, name);
 
 	if (alloc_subnet_file(sf, 4096) < 0)
 		return -2;
@@ -223,6 +224,7 @@ int load_PAIP(char  *name, struct subnet_file *sf, struct st_options *nof) {
 	init_csv_file(&cf, name, csv_field, nof->ipam_delim, &simple_strtok_r);
         cf.is_header = netcsv_is_header;
 	cf.endofline_callback = netcsv_endofline_callback;
+	init_csv_state(&state, name);
 
 	if (alloc_subnet_file(sf, 16192) < 0)
 		return -2;
@@ -399,7 +401,7 @@ static int bgpcsv_endofline_callback(struct csv_state *state, void *data) {
 	struct bgp_route *new_r;
 
 	if (state->badline) {
-		debug(LOAD_CSV, 1, "Invalid line %lu\n", state->line);
+		debug(LOAD_CSV, 1, "%s : invalid line %lu\n", state->file_name, state->line);
 		return -1;
 	}
 	sf->nr++;
@@ -450,6 +452,7 @@ int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof) {
 	init_csv_file(&cf, name, csv_field, nof->delim, &strtok_r);
 	cf.endofline_callback   = bgpcsv_endofline_callback;
 	cf.header_field_compare = bgp_field_compare;
+	init_csv_state(&state, name);
 
 	if (alloc_bgp_file(sf, 16192) < 0)
 		return -2;
