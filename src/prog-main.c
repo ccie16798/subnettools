@@ -732,7 +732,9 @@ static int run_remove_file(int arc, char **argv, void *st_options) {
 	subnet_file_remove_file(&sf1, &sf2, &sf3);
 	if (res <0)
 		return res;
-	fprint_subnet_file_fmt(nof->output_file, &sf1, nof->output_fmt);
+	fprint_subnet_file_fmt(nof->output_file, &sf2, nof->output_fmt);
+	free(sf2.routes);
+	free(sf3.routes);
 	return 0;
 }
 
