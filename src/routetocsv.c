@@ -95,7 +95,7 @@ int run_csvconverter(char *name, char *filename, struct st_options *o) {
 }
 
 #define BAD_LINE_CONTINUE \
-	debug(PARSEROUTE, 4, "%s line %lu invalid route : '%s'", name, line, buffer); \
+	debug(PARSEROUTE, 1, "%s line %lu invalid : '%s'", name, line, buffer); \
 	zero_route(&route); \
 	badline++; \
 	continue; \
@@ -556,7 +556,7 @@ int ciscobgp_to_csv(char *name, FILE *f, struct st_options *o) {
 		}
 		res = st_sscanf(s, ".*%Q *%I", &route.subnet, &route.gw);
 		if (res <= 0) {
-			debug(PARSEROUTE, 2, "Invalid line %lu\n", line);
+			debug(PARSEROUTE, 1, "Invalid line %lu\n", line);
 			badline++;
 			continue;
 		}
