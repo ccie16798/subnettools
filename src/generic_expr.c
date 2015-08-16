@@ -29,7 +29,7 @@ void init_generic_expr(struct generic_expr *e, const char *s, int (*compare)(cha
 	e->compare = compare;
 }
 
-int simple_expr(char *pattern, int len, struct generic_expr *e) {
+static int simple_expr(char *pattern, int len, struct generic_expr *e) {
 	int i = 0, j = 0;
 	char string[256];
 	char value[256];

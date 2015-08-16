@@ -18,7 +18,6 @@ struct generic_expr {
 #define GENERIC_ST_MAX_RECURSION 10
 
 void init_generic_expr(struct generic_expr *e, const char *s, int (*compare)(char *, char *, char, void *));
-int simple_expr(char *pattern, int len, struct generic_expr *e);
 int run_generic_expr(char *pattern, int len, struct generic_expr *e);
 int int_compare(char *, char *, char, void *);
 
