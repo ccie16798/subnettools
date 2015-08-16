@@ -1045,6 +1045,10 @@ static int parse_multiplier(char *in, const char *fmt, int *i, int in_length, in
 		*j      = e.last_match;
 		n_match = e.last_nmatch;
 		debug(SCANF, 3, "but last match asked so lets rewind to '%d' matches\n",  n_match);
+		if (e.last_nmatch == -1) {
+			debug(SCANF, 3, "last match never matched\n");
+			return -2;
+		}
 	}
 
 	if (n_match < min_m) {
