@@ -307,14 +307,14 @@ reg_test sort aggipv6
 reg_test sort sort1
 reg_test sort sort1-ipv6
 # removal
-reg_test remove subnet 10.1.1.2/16  10.1.2.0/24
-reg_test remove subnet 10.1.0.0/16  10.1.0.0/28
-reg_test remove subnet 10.1.0.0/16  10.1.255.240/28
-reg_test remove subnet 2001:db8::/32 2001:db8::/64
-reg_test remove subnet 2001:db8::/32 2001:db8:a::/64
-reg_test remove subnet 2001:db8::/32 2001:db8:ffff:ffff::/64
-reg_test remove file route_aggipv6-2 2001:dbb::/64
-reg_test remove file route_aggipv4 10.1.4.0/32
+reg_test removesubnet subnet 10.1.1.2/16  10.1.2.0/24
+reg_test removesubnet subnet 10.1.0.0/16  10.1.0.0/28
+reg_test removesubnet subnet 10.1.0.0/16  10.1.255.240/28
+reg_test removesubnet subnet 2001:db8::/32 2001:db8::/64
+reg_test removesubnet subnet 2001:db8::/32 2001:db8:a::/64
+reg_test removesubnet 2001:db8::/32 2001:db8:ffff:ffff::/64
+reg_test removesubnet file route_aggipv6-2 2001:dbb::/64
+reg_test removesubnet file route_aggipv4 10.1.4.0/32
 
 reg_test split 2001:db8:1::/48 16,16,16
 reg_test split 2001:db8:1::/48 16
