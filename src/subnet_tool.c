@@ -712,10 +712,10 @@ int subnet_file_remove(const struct subnet_file *sf1, struct subnet_file *sf2, c
 		if (res == NOMATCH || res == INCLUDED) {
 			copy_route(&sf2->routes[j],  &sf1->routes[i]);
 			j++;
-			st_debug(ADDRREMOVE, 2, "%P is not included in %P\n", *subnet, sf1->routes[i]);
+			st_debug(ADDRREMOVE, 4, "%P is not included in %P\n", *subnet, sf1->routes[i]);
 			continue;
 		} else if (res == EQUALS) {
-			st_debug(ADDRREMOVE, 2, "removing entire subnet %P\n", *subnet);
+			st_debug(ADDRREMOVE, 4, "removing entire subnet %P\n", *subnet);
 			continue;
 		}
 		r = subnet_remove(&sf1->routes[i].subnet, subnet, &n);
