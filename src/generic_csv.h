@@ -62,6 +62,7 @@ struct csv_field {
 };
 
 struct csv_file {
+	char *file_name;
 	struct csv_field *csv_field;
 	char *delim; /** delimiteur */
 	int max_mandatory_pos ; /* used to track the pos of the last mandatory field */
@@ -81,7 +82,7 @@ struct csv_file {
  * - simple_strtok_r : doesnt treat consecutive delims as one
  * - strtok_r        : treat consecutives delims as one
  * */
-void init_csv_file(struct csv_file *cf, struct csv_field *csv_field, char *delim,
+void init_csv_file(struct csv_file *cf, char *file_name, struct csv_field *csv_field, char *delim,
 		char * (*strtok_r)(char *s, const char *delim, char **save_ptr));
 
 /* this func will open the 'filename' FILE, parse it according to 'cf' and 'state'

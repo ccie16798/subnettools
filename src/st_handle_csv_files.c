@@ -173,7 +173,7 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 	if (nof->netcsv_comment[0])
 		csv_field[4].name = nof->netcsv_comment;
 
-	init_csv_file(&cf, csv_field, nof->delim, &strtok_r);
+	init_csv_file(&cf, name, csv_field, nof->delim, &strtok_r);
 	cf.is_header = &netcsv_is_header;
 	cf.endofline_callback = &netcsv_endofline_callback;
 	cf.validate_header = &netcsv_validate_header;
@@ -220,7 +220,7 @@ int load_PAIP(char  *name, struct subnet_file *sf, struct st_options *nof) {
 		 */
 		csv_field[3].name = nof->ipam_comment2;
 	}
-	init_csv_file(&cf, csv_field, nof->ipam_delim, &simple_strtok_r);
+	init_csv_file(&cf, name, csv_field, nof->ipam_delim, &simple_strtok_r);
         cf.is_header = netcsv_is_header;
 	cf.endofline_callback = netcsv_endofline_callback;
 
@@ -447,7 +447,7 @@ int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof) {
 	struct csv_state state;
 
         cf.is_header = NULL;
-	init_csv_file(&cf, csv_field, nof->delim, &strtok_r);
+	init_csv_file(&cf, name, csv_field, nof->delim, &strtok_r);
 	cf.endofline_callback   = bgpcsv_endofline_callback;
 	cf.header_field_compare = bgp_field_compare;
 

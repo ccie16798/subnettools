@@ -262,14 +262,15 @@ int generic_header_cmp(const char *s1, const char *s2) {
 	return strcmp(s1, s2);
 }
 
-void init_csv_file(struct csv_file *cf, struct csv_field *csv_field, char *delim,
-		char * (*func)(char *s, const char *delim, char **save_ptr)) {
+void init_csv_file(struct csv_file *cf, char *file_name, struct csv_field *csv_field,
+		char *delim, char * (*func)(char *s, const char *delim, char **save_ptr)) {
 	if (cf == NULL)
 		return;
 	/* mandatory fields */
 	cf->csv_field = csv_field;
 	cf->delim = delim;
 	cf->csv_strtok_r = func;
+	cf->file_name = file_name;
 	/* optional fields */
 	cf->is_header = NULL;
 	cf->validate_header = NULL;
