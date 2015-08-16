@@ -748,7 +748,7 @@ static int run_remove(int arc, char **argv, void *st_options) {
 			printf("Invalid IP %s\n", argv[4]);
 			return -1;
 		}
-		subnet_file_remove(&sf1, &sf2, &subnet2);
+		subnet_file_remove_subnet(&sf1, &sf2, &subnet2);
 		fprint_subnet_file_fmt(nof->output_file, &sf2, nof->output_fmt);
 		free(sf1.routes);
 		free(sf2.routes);

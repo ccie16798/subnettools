@@ -624,7 +624,7 @@ unsigned long long sum_subnet_file(struct subnet_file *sf) {
 /*
  * result is stored in *sf2
  */
-int subnet_file_remove(const struct subnet_file *sf1, struct subnet_file *sf2, const struct subnet *subnet) {
+int subnet_file_remove_subnet(const struct subnet_file *sf1, struct subnet_file *sf2, const struct subnet *subnet) {
 	unsigned long i, j;
 	int res, n;
 	struct subnet *r;
@@ -662,7 +662,7 @@ int subnet_file_remove(const struct subnet_file *sf1, struct subnet_file *sf2, c
 			sf2->routes = new_r;
 		} /* realloc */
 		for (res = 0; res < n; res++) {
-			copy_route(&sf2->routes[j],  &sf1->routes[i]);
+			copy_route(&sf2->routes[j],  &sf1->routes[i]); /* copy comment, device ... */
 			copy_subnet(&sf2->routes[j].subnet, &r[res]);
 			j++;
 		}
