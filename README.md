@@ -6,21 +6,46 @@ IPv4/IPv6 subnet calculator, CSV route file manipulation and modification tool
 
 FEATURES
 ========
-- CSV files comparison (common routes, missing routes)
-- CSV subnet file COMMENT extraction from an IPAM file (IPAM format fully dynamic)
-- Random file grepping for subnets
-- CSV route files simplification (duplicates removal, sorting)
-- subnet arithmetics (convert mask notation to/from CIDR, compute Network Address, Broadcast address...)
-- subnet aggregation
-- subnet splitting (multiple levels)
-- converting 'sh ip route' files to a CSV (Cisco IOS, NX-OS, ASA, Palo  Alto, Gaia)
-- converting 'sh ip bgp' files to a CSV (Cisco IOS only)
-- comparing BGP routes (Withdrawn routes, UPDATED routes ....)
+Subnettools is a sotfware intending to help networ engineers manipulating route table and extract 
+information from it; subnettools has :
 - native IPv6 & IPv4 support
 - IPv4 & IPv6 address information (known subnet membership, decoding of embedded IPs like Teredo)
 - Powerfull pattern matching engine
 
-- subnettools FILE format is a CSV where each line represent a route ; a route is
+Subnet arithmetic
+-----------------
+relation IP1 IP2    : prints a relationship between IP1 and IP2
+split S, <l1,l2,..> : split subnet S l1 times, the result l2 times, and so on..
+split2 S, <m1,m2,..>: split subnet S with mask m1, then m2, and so on...
+removesub TYPE O1 S1: remove Subnet S from Object O1; if TYPE=file O1=ile, if TYPE=subnet 01=subnet
+ipinfo IP|all|IPvX  : prints information about IP, or all known subnets (all, IPv4 or IPv6)
+
+Route file simplification
+-------------------------
+sort FILE1          : sort CSV FILE1
+sortby name file    : sort CSV file by (prefix|gw|mask), prefix is always a tie-breaker
+sortby help	    : print available sort options
+subnetagg FILE1     : sort and aggregate subnets in CSV FILE1; GW is not checked
+routeagg  FILE1     : sort and aggregate subnets in CSV FILE1; GW is checked
+simplify1 FILE1     : simplify CSV subnet file FILE1; duplicate or included networks are removed; GW is checked
+simplify2 FILE1     : simplify CSV subnet file FILE1; prints redundant routes that can be removed
+
+Route file comparison
+---------------------
+compare FILE1 FILE2 : compare FILE1 & FILE2, printing subnets in FILE1 INCLUDED in FILE2
+missing FILE1 FILE2 : prints subnets from FILE1 that are not covered by FILE2; GW is not checked
+ipam <IPAM> FILE1   : load IPAM, and print FILE1 subnets with comment extracted from IPAM
+diff FILE1 FILE2    : diff FILE1 & FILE2 (EXPERIMENTAL)
+common FILE1 FILE2  : merge CSV subnet files FILE1 & FILE2; prints common routes only; GW isn't checked
+addfiles FILE1 FILE2: merge CSV subnet files FILE1 & FILE2; prints the sum of both files
+grep FILE prefix    : grep FILE for prefix/mask
+filter FILE EXPR    : grep netcsv   FILE using regexp EXPR
+filter help         : prints help about bgp filters
+bgpfilter FILE EXPR : grep bgp_file FILE using regexp EXPR
+bgpfilter help      : prints help about bgp filters
+
+
+subnettools FILE format is a CSV where each line represent a route ; a route is
 -* a subnet
 -* a subnet mask
 -* a gateway
