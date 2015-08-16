@@ -130,10 +130,9 @@ static inline int pad_buffer_out(char *out, size_t len, const char *buffer, size
 		int field_width, int pad_left, char c) {
 	int res;
 
-	//buff_size = strlen(buffer);
 	debug(FMT, 7, "Padding : len=%d, buff_size=%d, field_width=%d\n", (int)len, (int)buff_size, field_width);
 	if (buff_size <= 0) {
-		debug(FMT, 2, "Cannot pad an Invalid buffer\n");
+		debug(FMT, 1, "Cannot pad an Invalid buffer\n");
 		return 0;
 	}
 	/* if buffer size is larger than field width, no need to pad */
@@ -205,7 +204,7 @@ int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt) {
 					else if (r->subnet.ip_ver == IPV6_A)
 						res = sprint_uint(buffer, r->subnet.mask);
 					else {
-						strcpy(buffer,"<Invalid mask>");
+						strcpy(buffer, "<Invalid mask>");
 						res = strlen(buffer);
 					}
 					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
@@ -217,7 +216,7 @@ int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt) {
 					if (r->subnet.ip_ver == IPV4_A || r->subnet.ip_ver == IPV6_A)
 						res = sprint_uint(buffer, r->subnet.mask);
 					else {
-						strcpy(buffer,"<Invalid mask>");
+						strcpy(buffer, "<Invalid mask>");
 						res = strlen(buffer);
 					}
 					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
@@ -418,7 +417,7 @@ int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt
 					if (r->subnet.ip_ver == IPV4_A || r->subnet.ip_ver == IPV6_A)
 						res = sprint_uint(buffer, r->subnet.mask);
 					else {
-						strcpy(buffer,"<Invalid mask>");
+						strcpy(buffer, "<Invalid mask>");
 						res = strlen(buffer);
 					}
 					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
@@ -553,7 +552,7 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 					res = strxcpy(buffer, v_s, sizeof(buffer) - 1);
 
 					if (strlen(v_s) >= sizeof(buffer) - 1)
-						debug(FMT, 1, "truncating string '%s' to %d bytes\n", v_s, (int)(sizeof(buffer) - 1));
+						debug(FMT, 3, "truncating string '%s' to %d bytes\n", v_s, (int)(sizeof(buffer) - 1));
 					res = pad_buffer_out(outbuf + j, len - j, buffer, res,
 							field_width, pad_left, ' ');
 					j += res;
@@ -595,7 +594,7 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 						v_short = va_arg(ap, int);
 						res = sprint_hexshort(buffer, v_short);
 					} else {
-						debug(FMT, 1, "Invalid format '%c' after '%%h'\n", fmt[i2 + 1]);
+						debug(FMT, 2, "Invalid format '%c' after '%%h'\n", fmt[i2 + 1]);
 						break;
 					}
 					i++;
@@ -614,7 +613,7 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 						v_ulong = va_arg(ap, unsigned long);
 						res = sprint_hexlong(buffer, v_ulong);
 					} else {
-						debug(FMT, 1, "Invalid format '%c' after '%%l'\n", fmt[i2 + 1]);
+						debug(FMT, 2, "Invalid format '%c' after '%%l'\n", fmt[i2 + 1]);
 						break;
 					}
 					i++;
@@ -688,7 +687,7 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 						i++;
 					}
 					if (o_num >= max_o) {
-						debug(FMT, 1, "Invalid object number #%d, max %d\n", o_num, max_o);
+						debug(FMT, 2, "Invalid object number #%d, max %d\n", o_num, max_o);
 						break;
 					}
 					res = sto2string(buffer, &o[o_num], sizeof(buffer), 3);
