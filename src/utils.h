@@ -4,6 +4,12 @@
 int isInt(const char *s);
 int isUnsignedInt(const char *s);
 int isPower2(unsigned int x);
+/*
+ * my_atoi will transform 's' into an 'int'
+ * 'res' will be set to :
+ *  0   if 's' represents an INT
+ * -1   if 's' doesn't represent an int
+ */
 int my_atoi(const char *s, int *res); 
 int mylog2(unsigned int x);
 /* take a isxdigit char as argument;
