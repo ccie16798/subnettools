@@ -29,6 +29,10 @@
 #include "st_handle_csv_files.h"
 #include "subnet_tool.h"
 
+/*
+ * compare 2 CSV files sf1 and sf1
+ * prints sf1 subnets, and subnet from sf2 that are equals or included
+ */
 void compare_files(struct subnet_file *sf1, struct subnet_file *sf2, struct st_options *nof) {
 	unsigned long i, j;
 	int res;
@@ -54,7 +58,8 @@ void compare_files(struct subnet_file *sf1, struct subnet_file *sf2, struct st_o
 }
 
 /*
- * get routes from sf1 not covered by sf2 INTO sf3 */
+ * get routes from sf1 not covered by sf2 INTO sf3
+ **/
 int missing_routes(const struct subnet_file *sf1, const struct subnet_file *sf2, struct subnet_file *sf3) {
 	unsigned long i, j, k;
 	int res, find;
