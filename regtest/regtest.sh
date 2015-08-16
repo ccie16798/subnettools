@@ -283,6 +283,8 @@ reg_test -c st-bizarr.conf sort bizar.csv
 # a CSV with strange fields names, output more strange 
 reg_test -c st-bizarr2.conf sort bizar2.csv
 reg_test missing  BURP2 BURP
+reg_test uniq  BURP2 BURP
+reg_test uniq  uniq1 uniq2
 reg_test common  BURP2 BURP
 reg_test subnetagg aggipv4
 # this one should test enough IPv6 functionnality
