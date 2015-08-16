@@ -69,7 +69,7 @@ static void __heap_print_subnet(void *v) {
 	st_printf("%P", *s);
 }
 /*
- * get uniq routes from sf1 and sf2 INTO sf3
+ * get uniques routes from sf1 and sf2 INTO sf3
  **/
 int uniq_routes(const struct subnet_file *sf1, const struct subnet_file *sf2, struct subnet_file *sf3) {
 	unsigned long i, j;
@@ -654,6 +654,7 @@ int subnet_file_remove(const struct subnet_file *sf1, struct subnet_file *sf2, c
 		if (n + sf2->nr >= sf2->max_nr) {
 			sf2->max_nr *= 2;
 			new_r = realloc(sf2->routes,  sizeof(struct route) * sf2->max_nr);
+			debug(MEMORY, 3, "reallocating %lu bytes for new_r\n", sizeof(struct route) * sf2->max_nr);
 			if (new_r == NULL) {
 				fprintf(stderr, "unable to reallocate, need to abort\n");
 				return -3;
