@@ -53,6 +53,7 @@ struct file_options fileoptions[] = {
 
 static int run_compare(int argc, char **argv, void *st_options);
 static int run_missing(int argc, char **argv, void *st_options);
+static int run_uniq(int argc, char **argv, void *st_options);
 static int run_paip(int argc, char **argv, void *st_options);
 static int run_grep(int argc, char **argv, void *st_options);
 static int run_convert(int argc, char **argv, void *st_options);
@@ -107,6 +108,7 @@ struct st_command commands[] = {
 	{ "ipinfo",	&run_ipinfo,	1},
 	{ "compare",	&run_compare,	2},
 	{ "missing",	&run_missing,	2},
+	{ "uniq",	&run_uniq,	2},
 	{ "paip",	&run_paip,	1},
 	{ "ipam",	&run_paip,	1},
 	{ "grep",	&run_grep,	2},
@@ -176,6 +178,8 @@ void usage() {
 	printf("---------------------\n");
 	printf("compare FILE1 FILE2 : compare FILE1 & FILE2, printing subnets in FILE1 INCLUDED in FILE2\n");
 	printf("missing FILE1 FILE2 : prints subnets from FILE1 that are not covered by FILE2; GW is not checked\n");
+	printf("uniq FILE1 FILE2    : prints unique subnets from FILE1 and FILE2\n");
+	printf("g FILE1 FILE2 : prints subnets from FILE1 that are not covered by FILE2; GW is not checked\n");
 	printf("ipam <IPAM> FILE1   : load IPAM, and print FILE1 subnets with comment extracted from IPAM\n");
 	printf("common FILE1 FILE2  : merge CSV subnet files FILE1 & FILE2; prints common routes only; GW isn't checked\n");
 	printf("addfiles FILE1 FILE2: merge CSV subnet files FILE1 & FILE2; prints the sum of both files\n");
@@ -383,6 +387,31 @@ static int run_missing(int arc, char **argv, void *st_options) {
 		return res;
 	}
 	res = missing_routes(&sf1, &sf2, &sf3);
+	if (res < 0)
+		return res;
+	fprint_subnet_file_fmt(nof->output_file, &sf3, nof->output_fmt);
+	free(sf3.routes);
+	free(sf2.routes);
+	free(sf1.routes);
+	return 0;
+}
+
+static int run_uniq(int arc, char **argv, void *st_options) {
+	int res;
+	struct subnet_file sf1, sf2, sf3;
+	struct st_options *nof = st_options;
+
+	res = load_netcsv_file(argv[2], &sf1, nof);
+	if (res < 0) {
+		fprintf(stderr, "invalid file %s; not a CSV?\n", argv[2]);
+		return res;
+	}
+	res = load_netcsv_file(argv[3], &sf2, nof);
+	if (res < 0) {
+		fprintf(stderr, "invalid file %s; not a CSV?\n", argv[3]);
+		return res;
+	}
+	res = uniq_routes(&sf1, &sf2, &sf3);
 	if (res < 0)
 		return res;
 	fprint_subnet_file_fmt(nof->output_file, &sf3, nof->output_fmt);

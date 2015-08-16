@@ -57,6 +57,73 @@ void compare_files(struct subnet_file *sf1, struct subnet_file *sf2, struct st_o
 	}
 }
 
+static int __heap_subnet_is_superior(void *v1, void *v2) {
+	struct subnet *s1 = &((struct route *)v1)->subnet;
+	struct subnet *s2 = &((struct route *)v2)->subnet;
+	return subnet_is_superior(s1, s2);
+}
+
+static void __heap_print_subnet(void *v) {
+	struct subnet *s = &((struct route*)v)->subnet;
+
+	st_printf("%P", *s);
+}
+/*
+ * get uniq routes from sf1 and sf2 INTO sf3
+ **/
+int uniq_routes(const struct subnet_file *sf1, const struct subnet_file *sf2, struct subnet_file *sf3) {
+	unsigned long i, j;
+	int res, find;
+	TAS tas;
+	struct route *r;
+
+	res = alloc_subnet_file(sf3, sf2->nr + sf1->nr);
+	if (res < 0)
+		return -1;
+	alloc_tas(&tas, sf3->nr, __heap_subnet_is_superior);
+
+	if (tas.tab == NULL) {
+		fprintf(stderr, "%s : no memory \n", __FUNCTION__);
+		return -1;
+	}
+	for (i = 0; i < sf1->nr; i++) {
+		find = 0;
+		for (j = 0; j < sf2->nr; j++) {
+			res = subnet_compare(&sf1->routes[i].subnet, &sf2->routes[j].subnet);
+			if (res != NOMATCH) {
+				st_debug(ADDRCOMP, 4, "skipping %P rel with %P\n", sf1->routes[i].subnet,
+						sf2->routes[j].subnet);
+				find = 1;
+				break;
+			}
+		}
+		if (find == 0)
+			addTAS(&tas, &sf1->routes[i]);
+	}
+	for (j = 0; j < sf2->nr; j++) {
+		find = 0;
+		for (i = 0; i < sf1->nr; i++) {
+			res = subnet_compare(&sf2->routes[j].subnet, &sf1->routes[i].subnet);
+			if (res != NOMATCH) {
+				st_debug(ADDRCOMP, 4, "skipping %P rel with %P\n", sf2->routes[j].subnet,
+						sf1->routes[i].subnet);
+				find = 1;
+				break;
+			}
+		}
+		if (find == 0)
+			addTAS(&tas, &sf2->routes[j]);
+	}
+	for (i = 0; ; i++) {
+		r = popTAS(&tas);
+		if (r == NULL)
+			break;
+		copy_route(&sf3->routes[i], r);
+	}
+	sf3->nr = i;
+	return 0;
+}
+
 /*
  * get routes from sf1 not covered by sf2 INTO sf3
  **/
@@ -279,17 +346,6 @@ int network_grep_file(char *name, struct st_options *nof, char *ip) {
 	return 0;
 }
 
-static int __heap_subnet_is_superior(void *v1, void *v2) {
-	struct subnet *s1 = &((struct route *)v1)->subnet;
-	struct subnet *s2 = &((struct route *)v2)->subnet;
-	return subnet_is_superior(s1, s2);
-}
-
-static void __heap_print_subnet(void *v) {
-	struct subnet *s = &((struct route*)v)->subnet;
-
-	st_printf("%P", *s);
-}
 /*
  * simplify subnet file (removes redundant entries)
  * GW is not taken into account

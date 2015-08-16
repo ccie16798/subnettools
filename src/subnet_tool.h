@@ -5,7 +5,7 @@
 #include "st_handle_csv_files.h"
 void compare_files(struct subnet_file *sf1, struct subnet_file *sf2, struct st_options *nof);
 int missing_routes(const struct subnet_file *sf1, const struct subnet_file *sf2, struct subnet_file *sf3);
-void diff_files(const struct subnet_file *sf1, const struct subnet_file *sf2, struct st_options *nof);
+int uniq_routes(const struct subnet_file *sf1, const struct subnet_file *sf2, struct subnet_file *sf3);
 void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *paip, struct st_options *nof);
 int network_grep_file(char *name, struct st_options *nof, char *ip);
 
