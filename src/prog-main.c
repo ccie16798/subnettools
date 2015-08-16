@@ -70,6 +70,7 @@ static int run_scanf(int argc, char **argv, void *st_options);
 static int run_subnetagg(int argc, char **argv, void *st_options);
 static int run_routeagg(int argc, char **argv, void *st_options);
 static int run_remove(int argc, char **argv, void *st_options);
+static int run_remove_file(int argc, char **argv, void *st_options);
 static int run_split(int argc, char **argv, void *st_options);
 static int run_split_2(int argc, char **argv, void *st_options);
 static int run_help(int argc, char **argv, void *st_options);
@@ -125,6 +126,7 @@ struct st_command commands[] = {
 	{ "subnetagg",	&run_subnetagg,	1},
 	{ "routeagg",	&run_routeagg,	1},
 	{ "removesubnet", &run_remove,	3},
+	{ "removefile", &run_remove_file,2},
 	{ "split",	&run_split,	2},
 	{ "split2",	&run_split_2,	2},
 	{ "scanf",	&run_scanf,	2},
@@ -162,6 +164,7 @@ void usage() {
 	printf("split S, <l1,l2,..> : split subnet S l1 times, the result l2 times, and so on..\n");
 	printf("split2 S, <m1,m2,..>: split subnet S with mask m1, then m2, and so on...\n");
 	printf("removesub TYPE O1 S1: remove Subnet S from Object O1; if TYPE=file O1=ile, if TYPE=subnet 01=subnet\n");
+	printf("removefile F1 F2    : remove all F2 subnets from F1\n");
 	printf("ipinfo IP|all|IPvX  : prints information about IP, or all known subnets (all, IPv4 or IPv6)\n");
 	printf("\n");
 	printf("Route file simplification\n");
@@ -708,6 +711,28 @@ static int run_routeagg(int arc, char **argv, void *st_options) {
 	}
 	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
 	free(sf.routes);
+	return 0;
+}
+
+static int run_remove_file(int arc, char **argv, void *st_options) {
+	struct subnet_file sf1, sf2, sf3;
+	struct st_options *nof = st_options;
+	int res;
+
+	res = load_netcsv_file(argv[2], &sf1, nof);
+	if (res < 0) {
+		fprintf(stderr, "Invalid csv file %s\n", argv[3]);
+		return res;
+	}
+	res = load_netcsv_file(argv[3], &sf3, nof);
+	if (res < 0) {
+		fprintf(stderr, "Invalid csv file %s\n", argv[3]);
+		return res;
+	}
+	subnet_file_remove_file(&sf1, &sf2, &sf3);
+	if (res <0)
+		return res;
+	fprint_subnet_file_fmt(nof->output_file, &sf1, nof->output_fmt);
 	return 0;
 }
 
