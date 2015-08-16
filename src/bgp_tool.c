@@ -292,11 +292,12 @@ int bgp_sort_by(struct bgp_file *sf, char *name) {
 	while (1) {
 		if (bgpsort[i].name == NULL)
 			break;
-		if (!strncasecmp(name, bgpsort[i].name, strlen(name)))
+		if (!strncasecmp(name, bgpsort[i].name, strlen(name))) {
 			debug_timing_start(2);
 			res = __bgp_sort_by(sf, bgpsort[i].cmpfunc);
 			debug_timing_end(2);
 			return res;
+		}
 		i++;
 	}
 	return -1664;
