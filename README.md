@@ -14,15 +14,11 @@ information from it; subnettools has :
 
 Subnet arithmetic
 -----------------
-relation IP1 IP2    : prints a relationship between IP1 and IP2
-
-split S, <l1,l2,..> : split subnet S l1 times, the result l2 times, and so on..
-
-split2 S, <m1,m2,..>: split subnet S with mask m1, then m2, and so on...
-
-removesub TYPE O1 S1: remove Subnet S from Object O1; if TYPE=file O1=ile, if TYPE=subnet 01=subnet
-
-ipinfo IP|all|IPvX  : prints information about IP, or all known subnets (all, IPv4 or IPv6)
+- relation IP1 IP2    : prints a relationship between IP1 and IP2
+- split S, <l1,l2,..> : split subnet S l1 times, the result l2 times, and so on..
+- split2 S, \<m1,m2,..\>: split subnet S with mask m1, then m2, and so on...
+- removesub TYPE O1 S1: remove Subnet S from Object O1; if TYPE=file O1=ile, if TYPE=subnet 01=subnet
+- ipinfo IP|all|IPvX  : prints information about IP, or all known subnets (all, IPv4 or IPv6)
 
 Route file simplification
 -------------------------
