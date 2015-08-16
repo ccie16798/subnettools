@@ -31,7 +31,7 @@ int generic_command_run(int argc, char **argv, char *progname, void *opt) {
 	int found = 0, found_i = 0;
 	int founds[30];
 
-	debug(PARSEOPTS, 2, "parsing command : %s\n", argv[1]);
+	debug(PARSEOPTS, 3, "parsing command : %s\n", argv[1]);
 	for (i = 0; ;i++) {
 		if (commands[i].name == NULL)
 			break;
@@ -68,7 +68,7 @@ int generic_command_run(int argc, char **argv, char *progname, void *opt) {
 		res = commands[found_i].run_cmd(argc, argv, opt);
 		debug_timing_end(1);
 	} else {
-		debug(PARSEOPTS, 3, "BUG here '%s'\n", argv[1]);
+		debug(PARSEOPTS, 1, "BUG here '%s'\n", argv[1]);
 		res = -1000;
 	}
 	return res;

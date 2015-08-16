@@ -102,7 +102,7 @@ void parse_debug(char *string) {
 				break;
 			if (!strcmp(s2, debugs[i].name)) {
 				debugs_level[debugs[i].num] = debug_level;;
-				debug(DEBUG, 2, "adding debug flag %s, level %d\n", debugs[i].name, debug_level);
+				debug(DEBUG, 3, "adding debug flag %s, level %d\n", debugs[i].name, debug_level);
 				break;
 			}
 		}
@@ -128,7 +128,7 @@ char  try_to_guess_delim(FILE *f) {
 			for (i = 0; i < strlen(try); i++)
 				if (try[i] == s[j]) {
 					count[i]++;
-					debug(TRYGUESS, 2, "%c one hit\n", try[i]);
+					debug(TRYGUESS, 3, "%c one hit\n", try[i]);
 				}
 		}
 	}
