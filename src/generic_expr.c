@@ -78,7 +78,7 @@ static int simple_expr(char *pattern, int len, struct generic_expr *e) {
 
 int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 	int i = 0;
-	char buffer[128];
+	char buffer[256];
 	int res1, res2;
 	int parenthese = 0;
 	int negate = 0;
