@@ -164,29 +164,31 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 			e->recursion_level--;
 			if (res1 < 0)
 				return res1;
-			if (res1 == 1) /* shortcut, no need to evaluate other side */
-				return (negate? 0 : 1);
+			res1 = (negate ? !res1 : res1);
+			if (res1) /* shortcut, no need to evaluate other side */
+				return res1;
 			res2 = run_generic_expr(pattern + i + 1, len - i - 1, e);
 			e->recursion_level--;
 			if (res2 < 0)
 				return res2;
 			/*
-			 * negate applies only to the  whole expression
+			 * negate doesnt apply to the  whole expression
 			 */
-			return (negate ? !(res1 | res2) : res1 | res2);
+			return  res1 | res2;
 		}
 		if (pattern[i] == '&') {
 			res1 = run_generic_expr(pattern, i, e);
 			e->recursion_level--;
 			if (res1 < 0)
 				return res1;
+			res1 = (negate ? !res1 : res1);
 			if (res1 == 0)
-				return (negate? 1 : 0);
+				return res1;
 			res2 = run_generic_expr(pattern + i + 1, len - i - 1, e);
 			e->recursion_level--;
 			if (res2 < 0)
 				return res2;
-			return (negate ? !(res1 & res2) : res1 & res2);
+			return (res1 & res2);
 		}
 		i++;
 	}
