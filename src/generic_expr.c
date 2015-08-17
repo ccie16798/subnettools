@@ -31,9 +31,7 @@ void init_generic_expr(struct generic_expr *e, const char *s, int (*compare)(cha
 
 static int simple_expr(char *pattern, int len, struct generic_expr *e) {
 	int i = 0, j = 0;
-	char string[256];
-	char value[256];
-	char operator;
+	char operator, c;
 	int res;
 
 	e->recursion_level++;
@@ -47,40 +45,33 @@ static int simple_expr(char *pattern, int len, struct generic_expr *e) {
 			e->recursion_level--;
 			return -1;
 		}
-		if (i == sizeof(string)) {
-			debug(GEXPR, 1, "expr '%s' is too long, max len=%d\n", pattern, (int)sizeof(string));
-			e->recursion_level--;
-			return -1;
-		}
 		if (is_comp(pattern[i]))
 			break;
-		string[i] = pattern[i];
 		i++;
 	}
 	operator = pattern[i];
-	string[i] = '\0';
+	pattern[i] = '\0';
 	i++;
 	j = i;
 	while (1) {
 		if (pattern[i] == '\0' || i == len)
 			break;
-		if (i - j == sizeof(value)) {
-			debug(GEXPR, 1, "expr '%s' is too long, max len=%d\n", pattern, (int)sizeof(value));
-			e->recursion_level--;
-			return -1;
-		}
 		if (is_comp(pattern[i])) {
 			debug(GEXPR, 1, "Invalid expr '%s', 2 x comparators\n", pattern);
 			e->recursion_level--;
+			pattern[j - 1] = operator;
 			return -1;
 		}
-		value[i - j] = pattern[i];
 		i++;
 	}
-	value[i - j] = '\0';
-	res = e->compare(string, value, operator, e->object);
-	debug(GEXPR, 5, "comparing '%s' against '%s', return=%d\n", string, value, res);
+	c = pattern[i];
+	pattern[i] = '\0';
+	res = e->compare(pattern, pattern + j, operator, e->object);
+	debug(GEXPR, 5, "comparing '%s' against '%s', return=%d\n", pattern, pattern + j, res);
 	e->recursion_level--;
+	/* restoring pattern to its original value */
+	pattern[j - 1] = operator;
+	pattern[i]     = c;
 	return res;
 }
 
