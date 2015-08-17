@@ -54,12 +54,11 @@ static int simple_expr(char *pattern, int len, struct generic_expr *e) {
 		}
 		if (is_comp(pattern[i]))
 			break;
-		string[j] = pattern[i];
+		string[i] = pattern[i];
 		i++;
-		j++;
 	}
 	operator = pattern[i];
-	string[j] = '\0';
+	string[i] = '\0';
 	i++;
 	j = i;
 	while (1) {
@@ -174,7 +173,7 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 			/*
 			 * negate doesnt apply to the  whole expression
 			 */
-			return  res1 | res2;
+			return  (res1 | res2);
 		}
 		if (pattern[i] == '&') {
 			res1 = run_generic_expr(pattern, i, e);
