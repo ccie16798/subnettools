@@ -117,7 +117,7 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 				debug(GEXPR, 1, "Invalid pattern '%s', no closing ')'\n", pattern);
 				return -1;
 			}
-			if (pattern[i] == '(' && pattern[i - 1] != '\\' )
+			if (pattern[i] == '(')
 				parenthese++;
 			else if (pattern[i] == ')' && parenthese == 1 && pattern[i - 1] != '\\') {
 				debug(GEXPR, 3, "Found closing (expr)', recursion\n");
@@ -126,8 +126,8 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 				if (res1 < 0)
 					return res1;
 				/*
-				 * negate applies only to the first pattern found, its precedence
-				 * is stronger than '&' and '|'
+				 * negate applies only to the expression in parenthesis
+				 * it is stronger than '&' and '|'
 				 */
 				res1 = (negate ? !res1 : res1);
 				while (isspace(pattern[i + 1]))
@@ -135,6 +135,12 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 				/* we reached end of string, just return */
 				if (pattern[i + 1] == '\0' || len == i + 1)
 					return res1;
+				/* let s try to take shortcuts */
+				if (res1 && pattern[i + 1] == '|')
+					return 1;
+				if (res1 == 0 && pattern[i + 1] == '&')
+					return 0;
+
 				res2 = run_generic_expr(pattern + i + 2,  len - i - 2, e);
 				e->recursion_level--;
 				if (res2 < 0)
@@ -145,7 +151,7 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 					return res1 & res2;
 				debug(GEXPR, 3, "A comparator is required after ) '%s'\n", buffer);
 				return -1;
-			} else if (pattern[i] == ')' && pattern[i - 1] != '\\')
+			} else if (pattern[i] == ')')
 				parenthese--;
 			i++;
 		}
