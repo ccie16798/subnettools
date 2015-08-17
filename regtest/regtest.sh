@@ -126,8 +126,15 @@ reg_test_logic() {
 	$PROG exprtest '(12=\(2\))' > res/logic14
 	$PROG exprtest '(12=(2\))' > res/logic15
 	$PROG exprtest '(12)=2)' > res/logic16
+	$PROG exprtest '!0=1&2=2' > res/logic17
+	$PROG exprtest '!0=1&!1=2' > res/logic18
+	$PROG exprtest '!1=1&!1=2' > res/logic19
+	$PROG exprtest '1=1&!1=0'  > res/logic20
+	$PROG exprtest '!1=1|!1=0'  > res/logic21
+	$PROG exprtest '!0=1|!1=0'  > res/logic22
+	$PROG exprtest '!1=1|!1=1'  > res/logic23
 
-	n=16
+	n=23
 	for i in `seq 1 $n`; do
 		output_file=logic$i
 		if [ ! -f ref/$output_file ]; then
