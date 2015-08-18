@@ -431,15 +431,10 @@ static int run_paip(int arc, char **argv, void *st_options) {
 	struct st_options *nof = st_options;
 
 	res = load_PAIP(argv[2], &paip, nof);
-	if (res < 0) {
-		fprintf(stderr, "invalid IPAM file %s; not a CSV?\n", argv[2]);
-		return res;
-	}
+	DIE_ON_BAD_FILE(argv[2]);
 	res = load_netcsv_file(argv[3], &sf, nof);
-	if (res < 0) {
-		fprintf(stderr, "invalid file %s; not a CSV?\n", argv[3]);
-		return res;
-	}
+	DIE_ON_BAD_FILE(argv[3]);
+
 	print_file_against_paip(&sf, &paip, nof);
 	free(sf.routes);
 	free(paip.routes);
@@ -472,13 +467,12 @@ static int run_filter(int arc, char **argv, void *st_options) {
 		res = subnet_filter(&sf, argv[2]);
 	} else {
 		res = load_netcsv_file(argv[2], &sf, nof);
-		if (res < 0)
-			return res;
+		DIE_ON_BAD_FILE(argv[2]);
 		res = subnet_filter(&sf, argv[3]);
 	}
 	if (res < 0) {
 		free(sf.routes);
-		fprintf(stderr, "Couldnt filter file %s\n", argv[3] ? argv[2] : "<tsdin>");
+		fprintf(stderr, "Couldnt filter file %s\n", argv[3] ? argv[2] : "<stdin>");
 		return res;
 	}
 	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
@@ -502,13 +496,12 @@ static int run_bgp_filter(int arc, char **argv, void *st_options) {
 		res = bgp_filter(&sf, argv[2]);
 	} else {
 		res = load_bgpcsv(argv[2], &sf, nof);
-		if (res < 0)
-			return res;
+		DIE_ON_BAD_FILE(argv[2]);
 		res = bgp_filter(&sf, argv[3]);
 	}
 	if (res < 0) {
 		free(sf.routes);
-		fprintf(stderr, "Couldnt filter file %s\n", argv[3] ? argv[2] : "<tsdin>");
+		fprintf(stderr, "Couldnt filter file %s\n", argv[3] ? argv[2] : "<stdin>");
 		return res;
 	}
 	fprint_bgp_file(nof->output_file, &sf);
@@ -530,8 +523,8 @@ static int run_simplify1(int arc, char **argv, void *st_options) {
 
 	nof->simplify_mode = 0;
 	res = load_netcsv_file(argv[2], &sf, nof);
-	if (res < 0)
-		return res;
+	DIE_ON_BAD_FILE(argv[2]);
+
 	res = route_file_simplify(&sf, nof->simplify_mode);
 	if (res < 0) {
 		free(sf.routes);
@@ -550,8 +543,8 @@ static int run_simplify2(int arc, char **argv, void *st_options) {
 
 	nof->simplify_mode = 1;
 	res = load_netcsv_file(argv[2], &sf, nof);
-	if (res < 0)
-		return res;
+	DIE_ON_BAD_FILE(argv[2]);
+
 	res = route_file_simplify(&sf, nof->simplify_mode);
 	if (res < 0) {
 		free(sf.routes);
@@ -569,14 +562,17 @@ static int run_common(int arc, char **argv, void *st_options) {
 	struct st_options *nof = st_options;
 
 	res = load_netcsv_file(argv[2], &sf1, nof);
-	if (res < 0)
-		return res;
+	DIE_ON_BAD_FILE(argv[2]);
 	res = load_netcsv_file(argv[3], &sf2, nof);
-	if (res < 0)
-		return res;
+	DIE_ON_BAD_FILE(argv[3]);
+
 	res = alloc_subnet_file(&sf3, sf1.nr + sf2.nr);
-	if (res < 0)
+	if (res < 0) {
+		free(sf2.routes);
+		free(sf1.routes);
+		fprintf(stderr, "not enough memory\n");
 		return res;
+	}
 	res = subnet_file_merge_common_routes(&sf1, &sf2, &sf3);
 	if (res >= 0)
 		fprint_subnet_file_fmt(nof->output_file, &sf3, nof->output_fmt);
@@ -597,15 +593,17 @@ static int run_addfiles(int arc, char **argv, void *st_options) {
 	struct st_options *nof = st_options;
 
 	res = load_netcsv_file(argv[2], &sf1, nof);
-	if (res < 0)
-		return res;
+	DIE_ON_BAD_FILE(argv[2]);
 	res = load_netcsv_file(argv[3], &sf2, nof);
-	if (res < 0)
-		return res;
+	DIE_ON_BAD_FILE(argv[3]);
 
 	res = alloc_subnet_file(&sf3, sf1.nr + sf2.nr);
-	if (res < 0)
+	if (res < 0) {
+		free(sf2.routes);
+		free(sf1.routes);
+		fprintf(stderr, "not enough memory\n");
 		return res;
+	}
 	debug_timing_start(2);
 	for (i = 0; i < sf1.nr; i++)
 		copy_route(&sf3.routes[i], &sf1.routes[i]);
@@ -628,9 +626,8 @@ static int run_sort(int arc, char **argv, void *st_options) {
 	struct st_options *nof = st_options;
 
 	res = load_netcsv_file(argv[2], &sf, nof);
+	DIE_ON_BAD_FILE(argv[2]);
 
-	if (res < 0)
-		return res;
 	res = subnet_sort_by(&sf, "prefix");
 	if (res < 0) {
 		fprintf(stderr, "Couldnt sort file %s\n", argv[2]);
@@ -651,16 +648,18 @@ static int run_sortby(int arc, char **argv, void *st_options) {
 		return 0;
 	}
 	res = load_netcsv_file(argv[3], &sf1, st_options);
-	if (res < 0)
-		return res;
+	DIE_ON_BAD_FILE(argv[3]);
+
 	res = subnet_sort_by(&sf1, argv[2]);
 	if (res == -1664) {
 		fprintf(stderr, "Cannot sort by '%s'\n", argv[2]);
 		fprintf(stderr, "You can sort by :\n");
+		free(sf1.routes);
 		subnet_available_cmpfunc(stderr);
 		return res;
 	}
 	fprint_subnet_file(o->output_file, &sf1, 3);
+	free(sf1.routes);
 	return 0;
 }
 
@@ -671,8 +670,8 @@ static int run_sum(int arc, char **argv, void *st_options) {
 	unsigned long long sum;
 
 	res = load_netcsv_file(argv[2], &sf, nof);
-	if (res < 0)
-		return res;
+	DIE_ON_BAD_FILE(argv[2]);
+
 	sum = sum_subnet_file(&sf);
 	fprintf(nof->output_file, "Sum : %llu\n", sum);
 	free(sf.routes);
@@ -685,8 +684,7 @@ static int run_subnetagg(int arc, char **argv, void *st_options) {
 	struct st_options *nof = st_options;
 
 	res = load_netcsv_file(argv[2], &sf, nof);
-	if (res < 0)
-		return res;
+	DIE_ON_BAD_FILE(argv[2]);
 	res = aggregate_route_file(&sf, 0);
 	if (res < 0) {
 		fprintf(stderr, "Couldnt aggregate file %s\n", argv[2]);
@@ -703,8 +701,8 @@ static int run_routeagg(int arc, char **argv, void *st_options) {
 	struct st_options *nof = st_options;
 
 	res = load_netcsv_file(argv[2], &sf, nof);
-	if (res < 0)
-		return res;
+	DIE_ON_BAD_FILE(argv[2]);
+
 	res = aggregate_route_file(&sf, 1);
 	if (res < 0) {
 		fprintf(stderr, "Couldnt aggregate file %s\n", argv[2]);
@@ -721,17 +719,12 @@ static int run_remove_file(int arc, char **argv, void *st_options) {
 	int res;
 
 	res = load_netcsv_file(argv[2], &sf1, nof);
-	if (res < 0) {
-		fprintf(stderr, "Invalid csv file %s\n", argv[3]);
-		return res;
-	}
+	DIE_ON_BAD_FILE(argv[2]);
 	res = load_netcsv_file(argv[3], &sf3, nof);
-	if (res < 0) {
-		fprintf(stderr, "Invalid csv file %s\n", argv[3]);
-		return res;
-	}
+	DIE_ON_BAD_FILE(argv[3]);
+
 	subnet_file_remove_file(&sf1, &sf2, &sf3);
-	if (res <0)
+	if (res < 0)
 		return res;
 	fprint_subnet_file_fmt(nof->output_file, &sf2, nof->output_fmt);
 	free(sf2.routes);
@@ -767,10 +760,8 @@ static int run_remove(int arc, char **argv, void *st_options) {
 		return 0;
 	} else  if (!strcasecmp(argv[2], "file")) {
 		res = load_netcsv_file(argv[3], &sf1, nof);
-		if (res < 0) {
-			fprintf(stderr, "Invalid csv file %s\n", argv[3]);
-			return res;
-		}
+		DIE_ON_BAD_FILE(argv[3]);
+
 		res = get_subnet_or_ip(argv[4], &subnet2);
 		if (res < 0) {
 			printf("Invalid IP %s\n", argv[4]);
@@ -862,11 +853,10 @@ static int run_bgpcmp(int arc, char **argv, void *st_options) {
 	int res;
 
 	res = load_bgpcsv(argv[2], &sf1, st_options);
-	if (res < 0)
-		return res;
+	DIE_ON_BAD_FILE(argv[2]);
 	res = load_bgpcsv(argv[3], &sf2, st_options);
-	if (res < 0)
-		return res;
+	DIE_ON_BAD_FILE(argv[3]);
+
 	compare_bgp_file(&sf1, &sf2, st_options);
 	return 0;
 }
@@ -881,17 +871,19 @@ static int run_bgpsortby(int arc, char **argv, void *st_options) {
 		return 0;
 	}
 	res = load_bgpcsv(argv[3], &sf1, st_options);
-	if (res < 0)
-		return res;
+	DIE_ON_BAD_FILE(argv[3]);
+
 	res = bgp_sort_by(&sf1, argv[2]);
 	if (res == -1664) {
 		fprintf(stderr, "Cannot sort by '%s'\n", argv[2]);
 		fprintf(stderr, "You can sort by :\n");
 		bgp_available_cmpfunc(stderr);
+		free(sf1.routes);
 		return res;
 	}
 	fprint_bgp_file_header(o->output_file);
 	fprint_bgp_file(o->output_file, &sf1);
+	free(sf1.routes);
 	return 0;
 }
 
@@ -918,7 +910,6 @@ static int run_test2(int arc, char **argv, void *st_options) {
 	int res;
 	struct sto o[40];
 
-	
         res = sto_sscanf(argv[2], argv[3], o, 40);
 	printf("%d \n", res);
 	sto_printf("%O0 %O1 %O2 %O3 %O4 %O5 %O6 %O7\n", o, res);
