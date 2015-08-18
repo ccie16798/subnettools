@@ -787,11 +787,12 @@ int subnet_split(FILE *out, const struct subnet *s, char *string_levels) {
 
 	i = 0;
 	while (i < sum) {
+		subnet.mask = base_mask;
 		for (k = 0; k < n_levels - 1; k++) {
-			subnet.mask = base_mask + sum_log_to(levels, 0, k + 1);
+			subnet.mask += mylog2(levels[k]);
 			st_fprintf(out, "%N/%m;", subnet, subnet);
 		}
-		subnet.mask = base_mask + sum_log_to(levels, 0, k + 1);
+		subnet.mask += mylog2(levels[k]); /* necessary to not print a final ; */
 		st_fprintf(out, "%N/%m\n", subnet, subnet);
 		next_subnet(&subnet);
 		i++;
