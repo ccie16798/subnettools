@@ -734,7 +734,7 @@ static int split_parse_levels(char *s, int *levels) {
 			current *= 10;
 			current += (s[i] - '0');
 		} else {
-			debug(SPLIT, 1, "Invalid level string '%s', 2 consecutives ','\n", s);
+			debug(SPLIT, 1, "Invalid level string '%s', invalid char '%c'\n", s, s[i]);
 			return -1;
 		}
 		i++;
@@ -839,7 +839,7 @@ static int split_parse_levels_2(char *s, int *levels) {
 			current *= 10;
 			current += (s[i] - '0');
 		} else {
-			debug(SPLIT, 1, "Invalid level string '%s', 2 consecutives ','\n", s);
+			debug(SPLIT, 1, "Invalid level string '%s', invalid char '%c'\n", s, s[i]);
 			return -1;
 		}
 		i++;
