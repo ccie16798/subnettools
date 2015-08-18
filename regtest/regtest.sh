@@ -172,7 +172,9 @@ reg_test_bgpfilter() {
 	$PROG bgpfilter bgp1 "as_path~.*(33299).*" > res/bgpfilter12
 	$PROG bgpfilter bgp1 "as_path~.*(33299).*&prefix}10.100.0.1" > res/bgpfilter13
 	$PROG bgpfilter bgp1 "as_path~100.*a" > res/bgpfilter14
-	n=14
+	$PROG bgpfilter bgp1 "(as_path~.*(33299).*)&(prefix}10.100.0.1|prefix}10.101.0.1)" > res/bgpfilter15
+	n=15
+
 	for i in `seq 1 $n`; do
 		output_file=bgpfilter$i
 		if [ ! -f ref/$output_file ]; then
@@ -319,7 +321,7 @@ reg_test removesubnet subnet 10.1.0.0/16  10.1.0.0/28
 reg_test removesubnet subnet 10.1.0.0/16  10.1.255.240/28
 reg_test removesubnet subnet 2001:db8::/32 2001:db8::/64
 reg_test removesubnet subnet 2001:db8::/32 2001:db8:a::/64
-reg_test removesubnet 2001:db8::/32 2001:db8:ffff:ffff::/64
+reg_test removesubnet subnet 2001:db8::/32 2001:db8:ffff:ffff::/64
 reg_test removesubnet file route_aggipv6-2 2001:dbb::/64
 reg_test removesubnet file route_aggipv4 10.1.4.0/32
 
