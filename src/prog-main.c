@@ -252,6 +252,12 @@ void debug_usage() {
 	printf("Available symbols :\n");
 	list_debugs();
 }
+
+#define DIE_ON_BAD_FILE(__ffile_) \
+	if (res < 0) { \
+		fprintf(stderr, "Invalid file %s\n", __ffile_); \
+		return res; \
+	} \
 /*
  * COMMAND HANDLERS
  */
@@ -341,10 +347,7 @@ static int run_print(int arc, char **argv, void *st_options) {
 	struct st_options *nof = st_options;
 
 	res = load_netcsv_file(argv[2], &sf, nof);
-	if (res < 0) {
-		fprintf(stderr, "Invalid file %s\n", argv[2]);
-		return res;
-	}
+	DIE_ON_BAD_FILE(argv[2]);
 	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
 	return 0;
 }
@@ -355,10 +358,8 @@ static int run_bgpprint(int arc, char **argv, void *st_options) {
 	struct st_options *nof = st_options;
 
 	res = load_bgpcsv(argv[2], &sf, nof);
-	if (res < 0) {
-		fprintf(stderr, "Invalid file %s\n", argv[2]);
-		return res;
-	}
+	DIE_ON_BAD_FILE(argv[2]);
+
 	fprint_bgproute_fmt(nof->output_file, NULL, nof->bgp_output_fmt);
 	fprint_bgp_file_fmt(nof->output_file, &sf, nof->bgp_output_fmt);
 	return 0;
@@ -370,15 +371,10 @@ static int run_compare(int arc, char **argv, void *st_options) {
 	struct st_options *nof = st_options;
 
 	res = load_netcsv_file(argv[2], &sf1, nof);
-	if (res < 0) {
-		fprintf(stderr, "Invalid file %s\n", argv[2]);
-		return res;
-	}
+	DIE_ON_BAD_FILE(argv[2]);
 	res = load_netcsv_file(argv[3], &sf2, nof);
-	if (res < 0) {
-		fprintf(stderr, "Invalid file %s\n", argv[3]);
-		return res;
-	}
+	DIE_ON_BAD_FILE(argv[3]);
+
 	compare_files(&sf1, &sf2, nof);
 	return 0;
 }
@@ -389,18 +385,16 @@ static int run_missing(int arc, char **argv, void *st_options) {
 	struct st_options *nof = st_options;
 
 	res = load_netcsv_file(argv[2], &sf1, nof);
-	if (res < 0) {
-		fprintf(stderr, "invalid file %s; not a CSV?\n", argv[2]);
-		return res;
-	}
+	DIE_ON_BAD_FILE(argv[3]);
 	res = load_netcsv_file(argv[3], &sf2, nof);
+	DIE_ON_BAD_FILE(argv[3]);
+
+	res = missing_routes(&sf1, &sf2, &sf3);
 	if (res < 0) {
-		fprintf(stderr, "invalid file %s; not a CSV?\n", argv[3]);
+		free(sf2.routes);
+		free(sf1.routes);
 		return res;
 	}
-	res = missing_routes(&sf1, &sf2, &sf3);
-	if (res < 0)
-		return res;
 	fprint_subnet_file_fmt(nof->output_file, &sf3, nof->output_fmt);
 	free(sf3.routes);
 	free(sf2.routes);
@@ -414,18 +408,16 @@ static int run_uniq(int arc, char **argv, void *st_options) {
 	struct st_options *nof = st_options;
 
 	res = load_netcsv_file(argv[2], &sf1, nof);
-	if (res < 0) {
-		fprintf(stderr, "invalid file %s; not a CSV?\n", argv[2]);
-		return res;
-	}
+	DIE_ON_BAD_FILE(argv[2]);
 	res = load_netcsv_file(argv[3], &sf2, nof);
+	DIE_ON_BAD_FILE(argv[3]);
+
+	res = uniq_routes(&sf1, &sf2, &sf3);
 	if (res < 0) {
-		fprintf(stderr, "invalid file %s; not a CSV?\n", argv[3]);
+		free(sf1.routes);
+		free(sf2.routes);
 		return res;
 	}
-	res = uniq_routes(&sf1, &sf2, &sf3);
-	if (res < 0)
-		return res;
 	fprint_subnet_file_fmt(nof->output_file, &sf3, nof->output_fmt);
 	free(sf1.routes);
 	free(sf2.routes);
