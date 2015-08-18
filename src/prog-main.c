@@ -255,7 +255,7 @@ void debug_usage() {
 
 #define DIE_ON_BAD_FILE(__ffile_) \
 	if (res < 0) { \
-		fprintf(stderr, "Invalid file %s\n", __ffile_); \
+		fprintf(stderr, "Invalid file %s\n", (__ffile_ ? __ffile_ : "<stdin>")); \
 		return res; \
 	} \
 /*
