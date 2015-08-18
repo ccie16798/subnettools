@@ -32,6 +32,7 @@
 const char *default_fmt     = "%I;%m;%D;%G;%C";
 const char *bgp_default_fmt = "%v;%5T;%4B;%16P;%16G;%10M;%10L;%10w;%6o;%A";
 
+/* struct file_options and MACROs ffrom config_file.[ch] */
 struct file_options fileoptions[] = {
 	{ FILEOPT_LINE(ipam_prefix_field, struct st_options, TYPE_STRING), "IPAM CSV header field describing the prefix"  },
 	{ FILEOPT_LINE(ipam_mask, struct st_options, TYPE_STRING), "IPAM CSV header field describing the mask" },
@@ -133,6 +134,7 @@ struct st_command commands[] = {
 	{ "help",	&run_help,	0},
 	{ "version",	&run_version,	0},
 	{ "confdesc",	&run_confdesc,	0},
+	/* 'hidden' debug functions */
 	{ "exprtest",	&run_gen_expr,	1, 1},
 	{ "test",	&run_test,	1, 1},
 	{ "test2",	&run_test2,	2, 1},
@@ -364,11 +366,15 @@ static int run_compare(int arc, char **argv, void *st_options) {
 	struct st_options *nof = st_options;
 
 	res = load_netcsv_file(argv[2], &sf1, nof);
-	if (res < 0)
-		fprintf(stderr, "invalid file %s; not a CSV?\n", argv[2]);
+	if (res < 0) {
+		fprintf(stderr, "Invalid file %s\n", argv[2]);
+		return res;
+	}
 	res = load_netcsv_file(argv[3], &sf2, nof);
-	if (res < 0)
-		fprintf(stderr, "invalid file %s; not a CSV?\n", argv[3]);
+	if (res < 0) {
+		fprintf(stderr, "Invalid file %s\n", argv[2]);
+		return res;
+	}
 	compare_files(&sf1, &sf2, nof);
 	return 0;
 }
