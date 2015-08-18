@@ -305,7 +305,7 @@ static int run_echo(int arc, char **argv, void *st_options) {
 	else if (res == IPV4_N || res == IPV6_N)
 		st_printf(argv[2], subnet, subnet, subnet);
 	else
-		printf("Invalid IP");
+		fprintf(stderr, "Invalid IP");
 	printf("\n");
 	return 0;
 }
@@ -341,8 +341,10 @@ static int run_print(int arc, char **argv, void *st_options) {
 	struct st_options *nof = st_options;
 
 	res = load_netcsv_file(argv[2], &sf, nof);
-	if (res < 0)
+	if (res < 0) {
+		fprintf(stderr, "Invalid file %s\n", argv[2]);
 		return res;
+	}
 	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
 	return 0;
 }
@@ -353,8 +355,10 @@ static int run_bgpprint(int arc, char **argv, void *st_options) {
 	struct st_options *nof = st_options;
 
 	res = load_bgpcsv(argv[2], &sf, nof);
-	if (res < 0)
+	if (res < 0) {
+		fprintf(stderr, "Invalid file %s\n", argv[2]);
 		return res;
+	}
 	fprint_bgproute_fmt(nof->output_file, NULL, nof->bgp_output_fmt);
 	fprint_bgp_file_fmt(nof->output_file, &sf, nof->bgp_output_fmt);
 	return 0;
@@ -372,7 +376,7 @@ static int run_compare(int arc, char **argv, void *st_options) {
 	}
 	res = load_netcsv_file(argv[3], &sf2, nof);
 	if (res < 0) {
-		fprintf(stderr, "Invalid file %s\n", argv[2]);
+		fprintf(stderr, "Invalid file %s\n", argv[3]);
 		return res;
 	}
 	compare_files(&sf1, &sf2, nof);
