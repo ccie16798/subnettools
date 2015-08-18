@@ -1168,6 +1168,7 @@ int subnet_filter(struct subnet_file *sf, char *expr) {
 		e.object = &sf->routes[i];
 		res = run_generic_expr(expr, len, &e);
 		if (res < 0) {
+			debug(FILTER, 1, "Invalid filtering pattern '%s'\n", expr);
 			free(new_r);
 			debug_timing_end(2);
 			return -1;
