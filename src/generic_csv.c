@@ -237,15 +237,16 @@ int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state* stat
 		fclose(f);
 		return res;
 	}
-	if (cf->validate_header)
+	if (cf->validate_header) {
 		res2 = cf->validate_header(cf->csv_field);
-	if (res2 < 0) {
-		fclose(f);
-		return res;
+		if (res2 < 0) {
+			fclose(f);
+			return res;
+		}
 	}
 	state->line = 0;
 	if (res == CSV_HEADER_FOUND) /* first line was a header, no need to put initial_buff */
-		 res = read_csv_body(f, filename, cf, state, data, NULL);
+		res = read_csv_body(f, filename, cf, state, data, NULL);
 	else if (res == CSV_NO_HEADER) /* we need to pass initial buff */
 		res = read_csv_body(f, filename, cf, state, data, buffer);
 	else {
