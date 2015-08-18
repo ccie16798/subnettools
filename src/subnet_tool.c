@@ -122,7 +122,7 @@ int uniq_routes(const struct subnet_file *sf1, const struct subnet_file *sf2, st
 	}
 	sf3->nr = i;
 	free(tas.tab);
-	return 0;
+	return 1;
 }
 
 /*
@@ -153,7 +153,7 @@ int missing_routes(const struct subnet_file *sf1, const struct subnet_file *sf2,
 		}
 	}
 	sf3->nr = k;
-	return 0;
+	return 1;
 }
 
 /*
@@ -341,7 +341,7 @@ int network_grep_file(char *name, struct st_options *nof, char *ip) {
 	} // for fgets
 	fclose(f);
 	debug_timing_end(2);
-	return 0;
+	return 1;
 }
 
 /*
@@ -390,7 +390,7 @@ int subnet_file_simplify(struct subnet_file *sf) {
 	free(sf->routes);
 	sf->routes = new_r;
 	debug_timing_end(2);
-	return 0;
+	return 1;
 }
 
 /*
