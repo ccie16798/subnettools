@@ -91,7 +91,7 @@ int uniq_routes(const struct subnet_file *sf1, const struct subnet_file *sf2, st
 		for (j = 0; j < sf2->nr; j++) {
 			res = subnet_compare(&sf1->routes[i].subnet, &sf2->routes[j].subnet);
 			if (res != NOMATCH) {
-				st_debug(ADDRCOMP, 4, "skipping %P rel with %P\n", sf1->routes[i].subnet,
+				st_debug(ADDRCOMP, 4, "skipping %P, relaled with %P\n", sf1->routes[i].subnet,
 						sf2->routes[j].subnet);
 				find = 1;
 				break;
@@ -160,33 +160,29 @@ int missing_routes(const struct subnet_file *sf1, const struct subnet_file *sf2,
  *  loop through sf1 and match against PAIP/ IPAM
  */
 void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *paip, struct st_options *nof) {
-	u32 mask1, mask2;
+	int mask;
 	int res;
 	unsigned long i, j;
-	int find_included, find_equals;
+	int find_included, find_equals, find_j;
 	int includes;
 	u32 find_mask;
-	struct subnet find_subnet;
-	char find_comment[128], buffer1[51], buffer2[51];
 
 	debug_timing_start(2);
 	for (i = 0; i < sf1->nr; i++) {
-		mask1 = sf1->routes[i].subnet.mask;
-		subnet2str(&sf1->routes[i].subnet, buffer1, sizeof(buffer1), 2);
 		find_equals = 0;
-
 		/** first try an exact match **/
 		for (j = 0;  j < paip->nr; j++) {
-			mask2 = paip->routes[j].subnet.mask;
+			mask = paip->routes[j].subnet.mask;
 			res = subnet_compare(&sf1->routes[i].subnet, &paip->routes[j].subnet);
 			if (res == EQUALS) {
-				strxcpy(sf1->routes[i].comment, paip->routes[j].comment, sizeof(sf1->routes[i].comment));
+				strxcpy(sf1->routes[i].comment, paip->routes[j].comment,
+						sizeof(sf1->routes[i].comment));
 				fprint_route_fmt(nof->output_file, &sf1->routes[i], nof->output_fmt);
 				find_equals = 1;
 				break;
 			}
 		}
-		if (find_equals == 1)
+		if (find_equals)
 			continue;
 
 		find_included = 0;
@@ -201,28 +197,29 @@ void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *
 		 **
 		 **/
 		for (j = 0; j < paip->nr; j++) {
-			mask2 = paip->routes[j].subnet.mask;
-			subnet2str(&paip->routes[j].subnet, buffer2, sizeof(buffer2), 2);
+			mask = paip->routes[j].subnet.mask;
 			res = subnet_compare( &sf1->routes[i].subnet, &paip->routes[j].subnet);
 			if (res == INCLUDED) {
 				find_included = 1;
 				/* we  get the largest including mask only */
-				if (mask2 <  find_mask)
+				if (mask <  find_mask)
 					continue;
-				strxcpy(find_comment, paip->routes[j].comment, sizeof(find_comment));
-				memcpy(&find_subnet, &paip->routes[j], sizeof(find_subnet));
-				find_mask = mask2;
+				find_j = j;
+				find_mask = mask;
 			} else if (includes > 5) {
 				/* rate limite */
 				continue;
 			} else if (res == INCLUDES) {
 				includes++;
-				fprintf(nof->output_file, "###%s;%d includes %s;%d;%s\n", buffer1, mask1, buffer2, mask2, paip->routes[j].comment);
+				st_fprintf(nof->output_file, "###%I;%d includes %I;%d;%s\n",
+						sf1->routes[i].subnet, sf1->routes[i].subnet.mask,
+						paip->routes[j].subnet, mask, paip->routes[j].comment);
 			}
 		}
 		if (find_included) {
-			subnet2str(&find_subnet, buffer2, sizeof(buffer2), 2);
-			fprintf(nof->output_file, "###%s;%d is included in  %s;%d;%s\n", buffer1, mask1, buffer2, find_mask, find_comment);
+			st_fprintf(nof->output_file, "###%I;%d is included in  %I;%d;%s\n",
+					sf1->routes[i].subnet, sf1->routes[i].subnet.mask,
+					paip->routes[find_j].subnet, find_mask, paip->routes[find_j].comment);
 		}
 	}
 	debug_timing_end(2);
