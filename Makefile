@@ -10,3 +10,7 @@ test-printf:
 
 test:
 	cd src; make test
+
+regtest: src/*.c src/*.h
+	cd regtest; sh ./regtest.sh
+	
