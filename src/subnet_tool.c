@@ -79,11 +79,11 @@ int uniq_routes(const struct subnet_file *sf1, const struct subnet_file *sf2, st
 
 	res = alloc_subnet_file(sf3, sf2->nr + sf1->nr);
 	if (res < 0)
-		return -1;
+		return res;
 	res = alloc_tas(&tas, sf3->max_nr, __heap_subnet_is_superior);
 	if (res < 0) { /* out of mem */
 		free(sf3->routes);
-		return -1;
+		return res;
 	}
 
 	for (i = 0; i < sf1->nr; i++) {
@@ -134,7 +134,7 @@ int missing_routes(const struct subnet_file *sf1, const struct subnet_file *sf2,
 	
 	res = alloc_subnet_file(sf3, sf1->max_nr);
 	if (res < 0)
-		return -1;
+		return res;
 	k = 0;
 	for (i = 0; i < sf1->nr; i++) {
 		find = 0;
@@ -360,7 +360,6 @@ int subnet_file_simplify(struct subnet_file *sf) {
 	res = alloc_tas(&tas, sf->nr, __heap_subnet_is_superior);
 	if (res < 0)
 		return -1;
-
 	new_r = malloc(sf->nr * sizeof(struct route));
 	if (new_r == NULL) {
 		free(tas.tab);
@@ -943,6 +942,7 @@ static int __heap_mask_is_superior(void *v1, void *v2) {
  */
 static int __subnet_sort_by(struct subnet_file *sf, int cmpfunc(void *v1, void *v2)) {
 	unsigned long i;
+	int res;
 	TAS tas;
 	struct route *new_r, *r;
 
@@ -956,6 +956,7 @@ static int __subnet_sort_by(struct subnet_file *sf, int cmpfunc(void *v1, void *
 	}
 	new_r = malloc(sf->max_nr * sizeof(struct route));
 	if (new_r == NULL) {
+		fprintf(stderr, "%s : no memory\n", __FUNCTION__);
 		free(tas.tab);
 		debug_timing_end(2);
 		return -1;
@@ -1182,13 +1183,13 @@ int subnet_filter(struct subnet_file *sf, char *expr) {
 	init_generic_expr(&e, expr, route_filter);
 	debug_timing_start(2);
 
-	new_r = malloc(sf->max_nr * sizeof(struct route));
+	new_r = malloc(sf->nr * sizeof(struct route));
 	if (new_r == NULL) {
 		fprintf(stderr, "%s : no memory\n", __FUNCTION__);
 		debug_timing_end(2);
 		return -1;
 	}
-	debug(MEMORY, 3, "Allocated %lu bytes for struct route\n", sf->max_nr * sizeof(struct route));
+	debug(MEMORY, 3, "Allocated %lu bytes for struct route\n", sf->nr * sizeof(struct route));
 	j = 0;
 	len = strlen(expr);
 
