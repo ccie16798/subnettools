@@ -1140,7 +1140,8 @@ static int route_filter(char *s, char *value, char op, void *object) {
 			return -1;
 		}
 	}
-	return 0;
+	debug(FILTER, 1, "Cannot filter on attribute '%s'\n", s);
+	return -1;
 }
 
 /*
