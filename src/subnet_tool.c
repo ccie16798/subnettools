@@ -1028,7 +1028,7 @@ static int route_filter(char *s, char *value, char op, void *object) {
 		res = get_subnet_or_ip(value, &subnet);
 		if (res < 0) {
 			debug(FILTER, 1, "Filtering on prefix %c '%s',  but it is not an IP\n", op, value);
-			return 0;
+			return -1;
 		}
 		res = subnet_compare(&route->subnet, &subnet);
 		switch (op) {
@@ -1052,7 +1052,7 @@ static int route_filter(char *s, char *value, char op, void *object) {
 			break;
 		default:
 			debug(FILTER, 1, "Unsupported op '%c' for prefix\n", op);
-			return 0;
+			return -1;
 		}
 	}
 	else if (!strcmp(s, "gw")) {
@@ -1061,7 +1061,7 @@ static int route_filter(char *s, char *value, char op, void *object) {
 		res = get_subnet_or_ip(value, &subnet);
 		if (res < 0) {
 			debug(FILTER, 1, "Filtering on gw %c '%s',  but it is not an IP\n", op, value);
-			return 0;
+			return -1;
 		}
 		switch (op) {
 		case '=':
@@ -1079,14 +1079,14 @@ static int route_filter(char *s, char *value, char op, void *object) {
 			break;
 		default:
 			debug(FILTER, 1, "Unsupported op '%c' for prefix\n", op);
-			return 0;
+			return -1;
 		}
 	}
 	else if (!strcmp(s, "mask")) {
 		res =  string2mask(value, 42);
 		if (res < 0) {
 			debug(FILTER, 1, "Filtering on mask %c '%s',  but it is valid\n", op, value);
-			return 0;
+			return -1;
 		}
 		switch (op) {
 		case '=':
@@ -1121,7 +1121,7 @@ static int route_filter(char *s, char *value, char op, void *object) {
 			return 1;
 		default:
 			debug(FILTER, 1, "Unsupported op '%c' for device\n", op);
-			return 0;
+			return -1;
 		}
 	}
 	else if (!strcmp(s, "comment")) {
@@ -1137,7 +1137,7 @@ static int route_filter(char *s, char *value, char op, void *object) {
 			return (res < 0 ? 0 : 1);
 		default:
 			debug(FILTER, 1, "Unsupported op '%c' for comment\n", op);
-			return 0;
+			return -1;
 		}
 	}
 	return 0;
