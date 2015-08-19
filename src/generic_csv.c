@@ -47,7 +47,7 @@ static int read_csv_header(char *filename, const char *buffer, struct csv_file *
 		} // while s
 		debug(CSVHEADER, 3, "found %d fields\n", pos - 1);
 	} else  {
-		debug(CSVHEADER, 1, "file %s doesnt have a CSV header, using default values\n", filename);
+		debug(CSVHEADER, 2, "file %s doesnt have a CSV header, using default values\n", filename);
 		no_header = 1;
 		/* setting default pos */
 		for (i = 0; ; i++) {
@@ -86,7 +86,7 @@ static int read_csv_header(char *filename, const char *buffer, struct csv_file *
 	}
 
 	if (bad_header) {
-		fprintf(stderr, "file %s doesnt have a valid CSV header\n", filename);
+		fprintf(stderr, "file %s doesn't have a valid CSV header\n", filename);
 		return CSV_BAD_HEADER;
 	}
 	cf->max_mandatory_pos = max_mandatory_pos;
@@ -118,7 +118,7 @@ static int read_csv_body(FILE *f, char *name, struct csv_file *cf,
 	} else {
 		s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res);
 		if (s == NULL) {
-			debug(LOAD_CSV, 1, "File %s doesnt have any content\n", name);
+			debug(LOAD_CSV, 1, "File %s doesn't have any content\n", name);
 			return  CSV_EMPTY_FILE;
 		}
 	}
