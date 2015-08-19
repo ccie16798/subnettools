@@ -54,14 +54,14 @@ inline void zero_ipaddr(struct ip_addr *a) {
  */
 int subnet_compare(const struct subnet *sub1, const struct subnet *sub2) {
 	if (sub1->ip_ver != sub2->ip_ver) {
-		debug(ADDRCOMP, 2, "different address FAMILY\n");
+		debug(ADDRCOMP, 1, "different address FAMILY\n");
 		return -1;
 	}
 	if (sub1->ip_ver == IPV4_A)
 		return subnet_compare_ipv4(sub1->ip, sub1->mask, sub2->ip, sub2->mask);
 	else if (sub1->ip_ver == IPV6_A)
 		return subnet_compare_ipv6(sub1->ip6, sub1->mask, sub2->ip6, sub2->mask);
-	debug(ADDRCOMP, 1, "Impossible to get here, IP version = %d BUG?\n", sub1->ip_ver);
+	fprintf(stderr, "Impossible to get here, IP version = %d BUG?\n", sub1->ip_ver);
 	return -1;
 }
 
@@ -223,6 +223,8 @@ int addrv62str(ipv6 z, char *out_buffer, size_t len, int compress) {
 		return -1;
 	}
 	if (compress == 0) {
+		/* no need for snprintf since we made sure len is at least 40 and
+		 * we can't print more than 40 chars here */
 		a = sprintf(out_buffer, "%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x", block(z, 0), block(z, 1) , block(z, 2) , block(z, 3) , block(z, 4), block(z, 5), block(z, 6), block(z, 7));
 		return a;
 	} else if (compress == 1) {
@@ -261,7 +263,7 @@ int addrv62str(ipv6 z, char *out_buffer, size_t len, int compress) {
 		max_skip = max_skip_index = 0;
 	debug(PARSEIPV6, 5, "can skip %d blocks at index %d\n", max_skip, max_skip_index);
 	if (compress == 3 && (skip_index == 0 && (max_skip >= 5 && max_skip < 8))) {
-		/* Mapped& Compatible IPv4 address */
+		/* Mapped & Compatible IPv4 address */
 		if (block(z, 5) == 0x0) {
 			if (block(z, 6) == 0 && block(z, 7) == 1) /** the loopback address */
 				return sprintf(out_buffer, "::1");
@@ -348,8 +350,10 @@ int string2mask(const char *s, int len) {
 		debug(PARSEIP, 3, "Invalid mask '%s', starts with '.'\n", s);
 		return BAD_MASK;
 	}
+	a = 0;
 	for ( ; ; i++) {
 		if (s[i] == '\0' || i == len) {
+			truc[count_dot] = a;
 			break;
 		} else if (s[i] == '.') {
 		 	if (s[i + 1] == '.') {
@@ -360,16 +364,23 @@ int string2mask(const char *s, int len) {
 				debug(PARSEIP, 3, "Invalid mask '%s', ends with '.'\n", s);
 				return BAD_MASK;
 			}
+			truc[count_dot] = a;
 			count_dot++;
-		} else if (isdigit(s[i]))
+			if (count_dot > 3) {
+				debug(PARSEIP, 3, "Invalid mask '%s', too many '.'\n", s);
+				return BAD_MASK;
+			}
+			a = 0;
+		} else if (isdigit(s[i])) {
+			a *= 10;
+			a += s[i] - '0';
 			continue;
-		else {
+		} else {
 			debug(PARSEIP, 3, "Invalid mask '%s', contains '%c'\n", s, s[i]);
 			return BAD_MASK;
 		}
 	}
 	if (count_dot == 0) { /* prefix length*/
-		a = atoi(s);
 		if (a > 128) {
 			debug(PARSEIP, 3, "Invalid mask '%s', too long\n", s);
 			return BAD_MASK;
@@ -381,7 +392,6 @@ int string2mask(const char *s, int len) {
 		return BAD_MASK;
 	}
 	a = 0;
-	sscanf(s, "%d.%d.%d.%d", truc, truc + 1, truc + 2, truc + 3);
 	for (i = 0; i < 4; i++) {
 		if (i && ( (truc[i] > truc[i - 1])  || (truc[i] && truc[i] < 255 && truc[i - 1] < 255))   ) {
 			debug(PARSEIP, 3, "Invalid X.X.X.X mask %s\n",s);
