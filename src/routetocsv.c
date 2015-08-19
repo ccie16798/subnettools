@@ -139,8 +139,10 @@ int palo_to_csv(char *name, FILE *f, struct st_options *o) {
 	fprintf(o->output_file, "prefix;mask;device;GW;comment\n");
 
         while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
-		zero_route(&route);
 		line++;
+		if (res)
+			debug(PARSEROUTE, 1, "%s line %lu too long, discarding %d chars\n", name, line, res);
+		zero_route(&route);
 		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
 		res = st_sscanf(s, "%P *%I.*$%32s", &route.subnet, &route.gw, route.device);
 		if (res < 1) {
@@ -174,6 +176,8 @@ int ipso_route_to_csv(char *name, FILE *f, struct st_options *o) {
 
         while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
+		if (res)
+			debug(PARSEROUTE, 1, "%s line %lu too long, discarding %d chars\n", name, line, res);
 		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
 		if (isspace(s[0])) /* strangely some lines are prepended with a space ....*/
 			s++;
@@ -234,6 +238,8 @@ int cisco_nexus_to_csv(char *name, FILE *f, struct st_options *o) {
 	zero_route(&route);
         while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
+		if (res)
+			debug(PARSEROUTE, 1, "%s line %lu too long, discarding %d chars\n", name, line, res);
 		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
 		if (strstr(s, "*via ")) {
 /*	    *via 128.90.8.22, Vlan35, [170/512256], 2w0d, eigrp-WAN, external, tag 1387965159 */
@@ -293,6 +299,8 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o) {
 
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
+		if (res)
+			debug(PARSEROUTE, 1, "%s line %lu too long, discarding %d chars\n", name, line, res);
 		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
 
 		/* handle gateway of last resort line */
@@ -417,6 +425,8 @@ int cisco_fw_to_csv(char *name, FILE *f, struct st_options *o) {
 	zero_route(&route);
         while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
+		if (res)
+			debug(PARSEROUTE, 1, "%s line %lu too long, discarding %d chars\n", name, line, res);
 		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
 		if (find_hop) {
 			res = st_sscanf(s, ".*(via )%I.*$%32s", &route.gw, route.device);
@@ -475,6 +485,8 @@ int cisco_fw_conf_to_csv(char *name, FILE *f, struct st_options *o) {
 	zero_route(&route);
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
+		if (res)
+			debug(PARSEROUTE, 1, "%s line %lu too long, discarding %d chars\n", name, line, res);
 		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
 		res = st_sscanf(s, "(ipv6 )?route *%32S *%I.%M %I", route.device, &route.subnet.ip_addr, &route.subnet.mask, &route.gw);
 		if (res < 4) {
@@ -502,6 +514,8 @@ int cisco_routeconf_to_csv(char *name, FILE *f, struct st_options *o) {
 	zero_route(&route);
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
+		if (res)
+			debug(PARSEROUTE, 1, "%s line %lu too long, discarding %d chars\n", name, line, res);
 		debug(PARSEROUTE, 9, "line %lu buffer : '%s'", line, s);
 		res = sto_sscanf(buffer, "ip(v6)? route.*%I.%M (%32S)? *%I.*(name) %128s", sto, 6);
 		if (res < 2) {
@@ -539,6 +553,8 @@ int ciscobgp_to_csv(char *name, FILE *f, struct st_options *o) {
 	fprint_bgp_file_header(o->output_file);
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
+		if (res)
+			debug(PARSEROUTE, 1, "%s line %lu too long, discarding %d chars\n", name, line, res);
 		zero_bgproute(&route);
 		debug(PARSEROUTE, 9, "line %lu buffer : '%s'", line, s);
 
