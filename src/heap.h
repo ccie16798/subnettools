@@ -3,7 +3,7 @@
 
 struct tas {
 	void **tab;
-	unsigned long nr; /* nr of element in the HEAP */
+	unsigned long nr; /* nr of elements in the HEAP */
 	unsigned long max_nr; /* number of malloc'd elements */
 	int (*compare)(void *, void *);
 	void (*print)(void *);
@@ -19,7 +19,7 @@ void addTAS(TAS *t, void *elem);
 
 /* if you are unsure, use this one
  * checking the return value is mandatory */
-int addTAS_may_fail(TAS *tas, void *el) __attribute__ ((warn_unused_result));
+int addTAS_may_fail(TAS *tas, void *elem) __attribute__ ((warn_unused_result));
 void *popTAS(TAS *);
 void print_tas(TAS tas);
 
