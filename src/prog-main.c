@@ -562,12 +562,6 @@ static int run_common(int arc, char **argv, void *st_options) {
 	res = load_netcsv_file(argv[3], &sf2, nof);
 	DIE_ON_BAD_FILE(argv[3]);
 
-	res = alloc_subnet_file(&sf3, sf1.nr + sf2.nr);
-	if (res < 0) {
-		free(sf2.routes);
-		free(sf1.routes);
-		return res;
-	}
 	res = subnet_file_merge_common_routes(&sf1, &sf2, &sf3);
 	if (res >= 0)
 		fprint_subnet_file_fmt(nof->output_file, &sf3, nof->output_fmt);
@@ -600,10 +594,15 @@ static int run_addfiles(int arc, char **argv, void *st_options) {
 	for (i = 0; i < sf1.nr; i++)
 		copy_route(&sf3.routes[i], &sf1.routes[i]);
 	for (j = 0; j < sf2.nr; j++)
-		copy_route(&sf3.routes[i+j], &sf2.routes[j]);
+		copy_route(&sf3.routes[i + j], &sf2.routes[j]);
 	sf3.nr = i + j;
 	/* since the routes comes from different files, we wont compare the GW */
-	subnet_file_simplify(&sf3);
+	res = subnet_file_simplify(&sf3);
+	if (res < 0) {
+		free(sf2.routes);
+		free(sf1.routes);
+		return res;
+	}
 	fprint_subnet_file_fmt(nof->output_file, &sf3, nof->output_fmt);
 	free(sf1.routes);
 	free(sf2.routes);

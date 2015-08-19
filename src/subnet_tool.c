@@ -80,12 +80,12 @@ int uniq_routes(const struct subnet_file *sf1, const struct subnet_file *sf2, st
 	res = alloc_subnet_file(sf3, sf2->nr + sf1->nr);
 	if (res < 0)
 		return -1;
-	alloc_tas(&tas, sf3->max_nr, __heap_subnet_is_superior);
-
-	if (tas.tab == NULL) {
-		fprintf(stderr, "%s : no memory \n", __FUNCTION__);
+	res = alloc_tas(&tas, sf3->max_nr, __heap_subnet_is_superior);
+	if (res < 0) { /* out of mem */
+		free(sf3->routes);
 		return -1;
 	}
+
 	for (i = 0; i < sf1->nr; i++) {
 		find = 0;
 		for (j = 0; j < sf2->nr; j++) {
@@ -357,10 +357,13 @@ int subnet_file_simplify(struct subnet_file *sf) {
 	if (sf->nr == 0)
 		return 0;
 	debug_timing_start(2);
-	alloc_tas(&tas, sf->nr, __heap_subnet_is_superior);
+	res = alloc_tas(&tas, sf->nr, __heap_subnet_is_superior);
+	if (res < 0)
+		return -1;
 
 	new_r = malloc(sf->nr * sizeof(struct route));
-	if (tas.tab == NULL || new_r == NULL) {
+	if (new_r == NULL) {
+		free(tas.tab);
 		fprintf(stderr, "%s : no memory \n", __FUNCTION__);
 		return -1;
 	}
@@ -402,15 +405,24 @@ int route_file_simplify(struct subnet_file *sf,  int mode) {
 	TAS tas;
 	struct route *new_r, *r, *discard;
 
-	alloc_tas(&tas, sf->nr, __heap_subnet_is_superior);
+	res = alloc_tas(&tas, sf->nr, __heap_subnet_is_superior);
+	if (res < 0)
+		return res;
 	new_r   =  malloc(sf->nr * sizeof(struct route)); /* common routes */
-	discard =  malloc(sf->nr * sizeof(struct route)); /* excluded routes */
-
-	debug(MEMORY, 3, "Allocated %lu bytes for new struct route\n", 2 * sf->nr * sizeof(struct route));
-	if (tas.tab == NULL||new_r == NULL||discard == NULL) {
+	if (new_r == NULL) {
+		free(tas.tab);
 		fprintf(stderr, "%s : no memory\n", __FUNCTION__);
 		return -1;
 	}
+	discard =  malloc(sf->nr * sizeof(struct route)); /* excluded routes */
+	if (discard == NULL) {
+		free(tas.tab);
+		free(new_r);
+		fprintf(stderr, "%s : no memory\n", __FUNCTION__);
+		return -1;
+	}
+	debug(MEMORY, 3, "Allocated %lu bytes for new struct route\n", 2 * sf->nr * sizeof(struct route));
+
 	for (i = 0; i < sf->nr; i++)
 		addTAS(&tas, &sf->routes[i]);
 
@@ -546,9 +558,12 @@ int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct
 	TAS tas;
 
 	debug_timing_start(2);
-	alloc_tas(&tas, sf1->nr + sf2->nr, &__heap_subnet_is_superior);
-	if (tas.tab == NULL || sf3->routes == NULL) {
-		fprintf(stderr, "%s : no memory\n", __FUNCTION__);
+	res = alloc_tas(&tas, sf1->nr + sf2->nr, &__heap_subnet_is_superior);
+	if (res < 0)
+		return res;
+	res = alloc_subnet_file(sf3, sf1->nr + sf2->nr);
+	if (res < 0) {
+		free(tas.tab);
 		debug_timing_end(2);
 		return -1;
 	}
