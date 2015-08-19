@@ -547,7 +547,7 @@ int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct
 
 	debug_timing_start(2);
 	alloc_tas(&tas, sf1->nr + sf2->nr, &__heap_subnet_is_superior);
-	if (tas.tab == NULL||sf3->routes == NULL) {
+	if (tas.tab == NULL || sf3->routes == NULL) {
 		fprintf(stderr, "%s : no memory\n", __FUNCTION__);
 		debug_timing_end(2);
 		return -1;
