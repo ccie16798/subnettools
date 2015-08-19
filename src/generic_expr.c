@@ -17,10 +17,11 @@
 
 
 static inline int is_comp(char c) {
-	return (c == '=') | (c == '<') | (c == '>') | (c == '~') | (c == '{') | (c == '}') | (c == '#')  ;
+	return ((c == '=') | (c == '<') | (c == '>') | (c == '~') | (c == '{') | (c == '}') | (c == '#'));
 }
 
-void init_generic_expr(struct generic_expr *e, const char *s, int (*compare)(char *, char *, char, void *)) {
+void init_generic_expr(struct generic_expr *e, const char *s,
+		int (*compare)(char *, char *, char, void *)) {
 	e->pattern = s;
 	if (s == NULL)
 		return;
@@ -99,7 +100,7 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 	}
 	/* handle expr inside parenthesis */
 	if (pattern[i] == '(') {
-		debug(GEXPR, 3, "Found a '(', trying to split expr\n");
+		debug(GEXPR, 5, "Found a '(', trying to split expr\n");
 		i += 1;
 		parenthese++;
 		while (1) {
@@ -110,7 +111,7 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 			if (pattern[i] == '(')
 				parenthese++;
 			else if (pattern[i] == ')' && parenthese == 1 && pattern[i - 1] != '\\') {
-				debug(GEXPR, 3, "Found closing (expr)', recursion\n");
+				debug(GEXPR, 5, "Found closing (expr)', recursion\n");
 				res1 = run_generic_expr(pattern + 1,  i - 1, e);
 				e->recursion_level--;
 				if (res1 < 0)
@@ -125,7 +126,9 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 				/* we reached end of string, just return */
 				if (pattern[i + 1] == '\0' || len == i + 1)
 					return res1;
-				/* let s try to take shortcuts */
+				/* let s try to take shortcuts to avoid evalutating second part of expr
+				 * downside is that if the other part of expr has a syntax error,
+				 * we don't catch it  */
 				if (res1 && pattern[i + 1] == '|')
 					return 1;
 				if (res1 == 0 && pattern[i + 1] == '&')
@@ -172,7 +175,7 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 			if (res1 < 0)
 				return res1;
 			res1 = (negate ? !res1 : res1);
-			if (res1 == 0)
+			if (res1 == 0) /* shortcut */
 				return res1;
 			res2 = run_generic_expr(pattern + i + 1, len - i - 1, e);
 			e->recursion_level--;
@@ -189,6 +192,7 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 	return (negate ? !res1 : res1);
 }
 
+/* used for testing purposes */
 int int_compare(char *s1, char *s2, char o, void *object) {
 	int l1 = atoi(s1);
 	int l2 = atoi(s2);
