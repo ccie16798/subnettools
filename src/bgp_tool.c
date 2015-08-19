@@ -454,8 +454,10 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 			return (res < 0 ? 0 : 1);
 		}
 		res =  my_atoi(value, &err);
-		if (err < 0)
+		if (err < 0) {
+			debug(FILTER, 1, "Filtering on AS_PATH length '%s',  but it is not valid \n", value);
 			return 0;
+		}
 		switch (op) {
 		case '=':
 			return (as_path_length(route->AS_PATH) == res);
@@ -477,8 +479,10 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 	}
 	else if (!strcasecmp(s, "best")) {
 		res =  my_atoi(value, &err);
-		if (err < 0)
+		if (err < 0) {
+			debug(FILTER, 1, "Filtering on Best '%s',  but it is not valid \n", value);
 			return 0;
+		}
 		switch (op) {
 		case '=':
 			return route->best == res;
@@ -545,12 +549,13 @@ int bgp_filter(struct bgp_file *sf, char *expr) {
 		e.object = &sf->routes[i];
 		res = run_generic_expr(expr, len, &e);
 		if (res < 0) {
+			fprintf(stderr, "Invalid filter '%s'\n", expr);
 			free(new_r);
 			debug_timing_end(2);
 			return -1;
 		}
 		if (res) {
-			st_debug(FILTER, 5, "Match on %P\n", sf->routes[i].subnet);
+			st_debug(FILTER, 5, "Matching filter '%s' on %P\n", expr, sf->routes[i].subnet);
 			copy_bgproute(&new_r[j], &sf->routes[i]);
 			j++;
 		}
