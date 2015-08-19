@@ -472,7 +472,6 @@ static int run_filter(int arc, char **argv, void *st_options) {
 	}
 	if (res < 0) {
 		free(sf.routes);
-		fprintf(stderr, "Couldnt filter file %s\n", argv[3] ? argv[2] : "<stdin>");
 		return res;
 	}
 	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
@@ -501,7 +500,6 @@ static int run_bgp_filter(int arc, char **argv, void *st_options) {
 	}
 	if (res < 0) {
 		free(sf.routes);
-		fprintf(stderr, "Couldnt filter file %s\n", argv[3] ? argv[2] : "<stdin>");
 		return res;
 	}
 	fprint_bgp_file(nof->output_file, &sf);
@@ -528,7 +526,6 @@ static int run_simplify1(int arc, char **argv, void *st_options) {
 	res = route_file_simplify(&sf, nof->simplify_mode);
 	if (res < 0) {
 		free(sf.routes);
-		fprintf(stderr, "Couldnt simplify file %s\n", argv[2]);
 		return res;
 	}
 	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
@@ -548,7 +545,6 @@ static int run_simplify2(int arc, char **argv, void *st_options) {
 	res = route_file_simplify(&sf, nof->simplify_mode);
 	if (res < 0) {
 		free(sf.routes);
-		fprintf(stderr, "Couldnt simplify file %s\n", argv[2]);
 		return res;
 	}
 	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
@@ -579,10 +575,8 @@ static int run_common(int arc, char **argv, void *st_options) {
 	free(sf3.routes);
 	free(sf2.routes);
 	free(sf1.routes);
-	if (res < 0) {
-		fprintf(stderr, "Couldnt merge file %s\n", argv[2]);
+	if (res < 0)
 		return res;
-	}
 	return 0;
 }
 
@@ -629,10 +623,8 @@ static int run_sort(int arc, char **argv, void *st_options) {
 	DIE_ON_BAD_FILE(argv[2]);
 
 	res = subnet_sort_by(&sf, "prefix");
-	if (res < 0) {
-		fprintf(stderr, "Couldnt sort file %s\n", argv[2]);
+	if (res < 0)
 		return res;
-	}
 	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
 	free(sf.routes);
 	return 0;
@@ -686,10 +678,8 @@ static int run_subnetagg(int arc, char **argv, void *st_options) {
 	res = load_netcsv_file(argv[2], &sf, nof);
 	DIE_ON_BAD_FILE(argv[2]);
 	res = aggregate_route_file(&sf, 0);
-	if (res < 0) {
-		fprintf(stderr, "Couldnt aggregate file %s\n", argv[2]);
+	if (res < 0)
 		return res;
-	}
 	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
 	free(sf.routes);
 	return 0;
@@ -704,10 +694,8 @@ static int run_routeagg(int arc, char **argv, void *st_options) {
 	DIE_ON_BAD_FILE(argv[2]);
 
 	res = aggregate_route_file(&sf, 1);
-	if (res < 0) {
-		fprintf(stderr, "Couldnt aggregate file %s\n", argv[2]);
+	if (res < 0)
 		return res;
-	}
 	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
 	free(sf.routes);
 	return 0;
@@ -993,7 +981,7 @@ static int option_addr_compress(int argc, char **argv, void *st_options) {
 	}
 	a = atoi(argv[1]);
 	if (a < 0 || a > 3) {
-		fprintf(stderr, "out of bound value for option '-p', [0-2], got '%s'\n", argv[1]);
+		fprintf(stderr, "out of bound value for option '-p', [0-3], got '%s'\n", argv[1]);
 		return 0;
 	}
 	nof->ip_compress_mode = a;
