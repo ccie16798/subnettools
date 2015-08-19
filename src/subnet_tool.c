@@ -1026,8 +1026,10 @@ static int route_filter(char *s, char *value, char op, void *object) {
 	debug(FILTER, 8, "Filtering '%s' %c '%s'\n", s, op, value);
 	if (!strcmp(s, "prefix")) {
 		res = get_subnet_or_ip(value, &subnet);
-		if (res < 0)
+		if (res < 0) {
+			debug(FILTER, 1, "Filtering on prefix %c '%s',  but it is not an IP\n", op, value);
 			return 0;
+		}
 		res = subnet_compare(&route->subnet, &subnet);
 		switch (op) {
 		case '=':
@@ -1057,8 +1059,10 @@ static int route_filter(char *s, char *value, char op, void *object) {
 		if (route->gw.ip_ver == 0)
 			return 0;
 		res = get_subnet_or_ip(value, &subnet);
-		if (res < 0)
+		if (res < 0) {
+			debug(FILTER, 1, "Filtering on gw %c '%s',  but it is not an IP\n", op, value);
 			return 0;
+		}
 		switch (op) {
 		case '=':
 			return is_equal_ip(&route->gw, &subnet.ip_addr);
@@ -1080,8 +1084,10 @@ static int route_filter(char *s, char *value, char op, void *object) {
 	}
 	else if (!strcmp(s, "mask")) {
 		res =  string2mask(value, 42);
-		if (res < 0)
+		if (res < 0) {
+			debug(FILTER, 1, "Filtering on mask %c '%s',  but it is valid\n", op, value);
 			return 0;
+		}
 		switch (op) {
 		case '=':
 			return route->subnet.mask == res;
