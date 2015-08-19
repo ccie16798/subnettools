@@ -352,7 +352,7 @@ int string2mask(const char *s, int len) {
 
 	for ( ; ; i++) {
 		if (s[i] == '\0' || i == len) {
-			if (count_dot == 0)
+			if (count_dot == 0) /* prefix-notation mask */
 				break;
 			else if (count_dot != 3) {
 				debug(PARSEIP, 3, "Invalid DDN mask '%s', not enough '.'\n", s);
@@ -592,8 +592,8 @@ static int string2addrv6(const char *s, struct ip_addr *addr, int len) {
 			do_skip = 0;
 			current_block = 0;
 			num_digit = 0;
-		} else if (s[i] ==':'||s[i] == '\0'||i == len) {
-			if (s[i] == '\0'||i == len)
+		} else if (s[i] ==':' || s[i] == '\0' || i == len) {
+			if (s[i] == '\0' || i == len)
 				stop = 1;
 			debug(PARSEIPV6, 8, "copying '%x' to block#%d\n", current_block, out_i);
 			set_block(addr->ip6, out_i, current_block);
