@@ -35,7 +35,7 @@ static inline void *rightSon(TAS t, int n) {
 #endif
 int alloc_tas(TAS *tas, unsigned long n, int (*compare)(void *v1, void *v2)) {
 	if (n > (SIZE_T_MAX / sizeof(void *) - 1)) {
-		debug(MEMORY, 1, "cannot allocate %llu bytes for heap, too big\n", (unsigned long long)n * sizeof(void *));
+		fprintf(stderr, "error: too much memory requested for heap\n");
 		tas->tab = NULL;
 		tas->nr = 0;
 		return -1;
@@ -43,7 +43,7 @@ int alloc_tas(TAS *tas, unsigned long n, int (*compare)(void *v1, void *v2)) {
 
 	tas->tab = malloc(n * sizeof(void *));
 	if (tas->tab == NULL) {
-		debug(MEMORY, 1, "failed to allocate %lu bytes for heap\n", n * sizeof(void *));
+		fprintf(stderr, "Cannot alloc  memory (%lu Kbytes) for heap\n", n * sizeof(void *));
 		tas->nr = 0;
 		return -1;
 	}
@@ -80,12 +80,13 @@ int addTAS_may_fail(TAS *tas, void *el) {
 	if (tas->nr == tas->max_nr - 1) {
 		tas->max_nr *= 2;
 		if (tas->max_nr >  (SIZE_T_MAX / sizeof(void *))) {
-			debug(MEMORY, 1, "cannot allocate %llu bytes for heap, too big\n", (unsigned long long)tas->max_nr * sizeof(void *));
+			fprintf(stderr, "error: too much memory requested for heap\n");
 			return -1;
 		}
 		truc = realloc(tas->tab, sizeof(void *) * tas->max_nr);
 		if (truc == NULL) {
-			fprintf(stderr, "catastrophic failure\n");
+			fprintf(stderr, "Cannot realloc  memory (%lu Kbytes) for heap\n",
+					tas->max_nr * sizeof(void *));
 			return -1;
 		}
 		tas->tab = truc;
