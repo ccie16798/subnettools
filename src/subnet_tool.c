@@ -559,13 +559,15 @@ int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct
 
 	debug_timing_start(2);
 	res = alloc_tas(&tas, sf1->nr + sf2->nr, &__heap_subnet_is_superior);
-	if (res < 0)
+	if (res < 0) {
+		debug_timing_end(2);
 		return res;
+	}
 	res = alloc_subnet_file(sf3, sf1->nr + sf2->nr);
 	if (res < 0) {
 		free(tas.tab);
 		debug_timing_end(2);
-		return -1;
+		return res;
 	}
 	/* going through subnet_file1 ; adding to stack only if equals or included */
 	for (i = 0; i < sf1->nr; i++) {
@@ -668,7 +670,7 @@ int subnet_file_remove_subnet(const struct subnet_file *sf1, struct subnet_file 
 			new_r = realloc(sf2->routes,  sizeof(struct route) * sf2->max_nr);
 			debug(MEMORY, 3, "reallocating %lu bytes for new_r\n", sizeof(struct route) * sf2->max_nr);
 			if (new_r == NULL) {
-				fprintf(stderr, "unable to reallocate, need to abort\n");
+				fprintf(stderr, "%s : unable to reallocate, need to abort\n", __FUNCTION__);
 				return -3;
 			}
 			sf2->routes = new_r;
@@ -693,6 +695,7 @@ int subnet_file_remove_file(struct subnet_file *sf1, struct subnet_file *sf2, co
 	int res;
 	struct subnet_file sf;
 
+	debug_timing_start(2);
 	memcpy(&sf, sf1, sizeof(struct subnet_file));
 
 	for (i = 0; i < sf3->nr; i++) {
@@ -719,29 +722,29 @@ static int split_parse_levels(char *s, int *levels) {
 	int n_levels = 0;
 
 	if (!isdigit(s[i])) {
-		debug(SPLIT, 1, "Invalid level string '%s', starts with '%c'\n", s, s[0]);
+		fprintf(stderr, "Invalid level string '%s', starts with '%c'\n", s, s[0]);
 		return -1;
 	}
 	while (1) {
 		if (s[i] == '\0')
 			break;
 		if (s[i] == ',' && s[i + 1] == ',') {
-			debug(SPLIT, 1, "Invalid level string '%s', 2 consecutives ','\n", s);
+			fprintf(stderr, "Invalid level string '%s', 2 consecutives ','\n", s);
 			return -1;
 		} else if (s[i] == ',' && s[i + 1] == '\0') {
-                        debug(SPLIT, 1, "Invalid level string '%s', ends with','\n", s);
+                        fprintf(stderr, "Invalid level string '%s', ends with','\n", s);
                         return -1;
 		}
 		if (s[i] == ',') {
 			if (!isPower2(current)) {
-				debug(SPLIT, 1, "split level %d is not a power of two\n", current);
+				fprintf(stderr, "split level %d is not a power of two\n", current);
 				return -1;
 			}
 			levels[n_levels] = current;
 			debug(SPLIT, 5, "split level#%d = %d\n", n_levels, levels[n_levels]);
 			n_levels++;
 			if (n_levels == 8) {
-				debug(SPLIT, 1, "only 10 split levels are supported\n");
+				fprintf(stderr, "Only 10 split levels are supported\n");
 				return n_levels;
 			}
 			current = 0;
@@ -749,13 +752,13 @@ static int split_parse_levels(char *s, int *levels) {
 			current *= 10;
 			current += (s[i] - '0');
 		} else {
-			debug(SPLIT, 1, "Invalid level string '%s', invalid char '%c'\n", s, s[i]);
+			fprintf(stderr, "Invalid level string '%s', invalid char '%c'\n", s, s[i]);
 			return -1;
 		}
 		i++;
 	}
 	if (!isPower2(current)) {
-		debug(SPLIT, 1, "split level %d is not a power of two\n", current);
+		fprintf(stderr, "split level %d is not a power of two\n", current);
 		return -1;
 	}
 	levels[n_levels] = current;
@@ -790,7 +793,7 @@ int subnet_split(FILE *out, const struct subnet *s, char *string_levels) {
 	/* make sure the splits levels are not too large; for IPv6, we can loop more than 2^(ulong bits) */
 	if  ((s->ip_ver == IPV4_A && res > (32 - s->mask))
 			|| (s->ip_ver == IPV6_A && res > (128 - s->mask)) || res > sizeof(sum) * 4) {
-		debug(SPLIT, 1, "Too many splits\n");
+		fprintf(stderr, "Too many splits required, aborting\n");
 		return -1;
 	}
 	sum = 1;
@@ -825,29 +828,29 @@ static int split_parse_levels_2(char *s, int *levels) {
 	int n_levels = 0;
 
 	if (!isdigit(s[i])) {
-		debug(SPLIT, 1, "Invalid level string '%s', starts with '%c'\n", s, s[0]);
+		fprintf(stderr, "Invalid level string '%s', starts with '%c'\n", s, s[0]);
 		return -1;
 	}
 	while (1) {
 		if (s[i] == '\0')
 			break;
 		if (s[i] == ',' && s[i + 1] == ',') {
-			debug(SPLIT, 1, "Invalid level string '%s', 2 consecutives ','\n", s);
+			fprintf(stderr, "Invalid level string '%s', 2 consecutives ','\n", s);
 			return -1;
 		} else if (s[i] == ',' && s[i + 1] == '\0') {
-                        debug(SPLIT, 1, "Invalid level string '%s', ends with','\n", s);
+                        fprintf(stderr, "Invalid level string '%s', ends with','\n", s);
                         return -1;
 		}
 		if (s[i] == ',') {
 			levels[n_levels] = current;
 			if (n_levels && current <= levels[n_levels - 1]) {
-				debug(SPLIT, 1, "Invalid split, %d >= %d\n", levels[n_levels - 1], current);
+				fprintf(stderr, "Invalid split, %d >= %d\n", levels[n_levels - 1], current);
 				return -1;
 			}
 			debug(SPLIT, 5, "split level#%d = %d\n", n_levels, levels[n_levels]);
 			n_levels++;
 			if (n_levels == 8) {
-				debug(SPLIT, 1, "only 10 split levels are supported\n");
+				fprintf(stderr, "Only 10 split levels are supported\n");
 				return n_levels;
 			}
 			current = 0;
@@ -855,7 +858,7 @@ static int split_parse_levels_2(char *s, int *levels) {
 			current *= 10;
 			current += (s[i] - '0');
 		} else {
-			debug(SPLIT, 1, "Invalid level string '%s', invalid char '%c'\n", s, s[i]);
+			fprintf(stderr, "Invalid level string '%s', invalid char '%c'\n", s, s[i]);
 			return -1;
 		}
 		i++;
@@ -883,14 +886,14 @@ int subnet_split_2(FILE *out, const struct subnet *s, char *string_levels) {
 	if (res < 0)
 		return res;
 	if (levels[0] <= s->mask) {
-		debug(SPLIT, 1, "split mask lower than subnet mask\n");
+		fprintf(stderr, "split mask lower than subnet mask\n");
 		return -1;
 	}
 	n_levels = res;
 	if  ((s->ip_ver == IPV4_A && levels[res - 1] > 32)
 			|| (s->ip_ver == IPV6_A && levels[res - 1] > 128)
 			|| (levels[n_levels - 1] - s->mask >=  sizeof(sum) * 8)) {
-		debug(SPLIT, 1, "Too many splits\n");
+		fprintf(stderr, "Too many splits required, aborting\n");
 		return -1;
 	}
 	sum = 1 << (levels[0] - s->mask);
@@ -946,12 +949,14 @@ static int __subnet_sort_by(struct subnet_file *sf, int cmpfunc(void *v1, void *
 	if (sf->nr == 0)
 		return 0;
 	debug_timing_start(2);
-	alloc_tas(&tas, sf->nr, cmpfunc);
-
+	res = alloc_tas(&tas, sf->nr, cmpfunc);
+	if (res < 0) {
+		debug_timing_end(2);
+		return res;
+	}
 	new_r = malloc(sf->max_nr * sizeof(struct route));
-
-	if (tas.tab == NULL || new_r == NULL) {
-		fprintf(stderr, "%s : no memory\n", __FUNCTION__);
+	if (new_r == NULL) {
+		free(tas.tab);
 		debug_timing_end(2);
 		return -1;
 	}
