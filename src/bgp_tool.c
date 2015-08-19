@@ -85,7 +85,8 @@ int compare_bgp_file(const struct bgp_file *sf1, const struct bgp_file *sf2, str
 				changed++;
 			if (strcmp(sf1->routes[i].AS_PATH, sf2->routes[j].AS_PATH))
 				changed++;
-			if (changed != 0)
+
+			if (changed)
 				changed_j = j;
 			else {
 				changed_j = -1;
@@ -353,14 +354,17 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 	debug(FILTER, 8, "Filtering '%s' %c '%s'\n", s, op, value);
 	if (!strcmp(s, "prefix")) {
 		res = get_subnet_or_ip(value, &subnet);
-		if (res < 0)
+		if (res < 0) {
+			debug(FILTER, 1, "Filtering on prefix '%s',  but it is not an IP\n", value);
 			return 0;
-		res = subnet_compare(&route->subnet, &subnet);
+		}
 		switch (op) {
 		case '=':
+			res = subnet_compare(&route->subnet, &subnet);
 			return (res == EQUALS);
 			break;
 		case '#':
+			res = subnet_compare(&route->subnet, &subnet);
 			return !(res == EQUALS);
 			break;
 		case '<':
@@ -370,9 +374,11 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 			return !__heap_subnet_is_superior(&route->subnet, &subnet) && res != EQUALS;
 			break;
 		case '{':
+			res = subnet_compare(&route->subnet, &subnet);
 			return (res == INCLUDED || res == EQUALS);
 			break;
 		case '}':
+			res = subnet_compare(&route->subnet, &subnet);
 			return (res == INCLUDES || res == EQUALS);
 			break;
 		default:
@@ -384,7 +390,10 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 		if (route->gw.ip_ver == 0)
 			return 0;
 		res = get_subnet_or_ip(value, &subnet);
-		if (res < 0)
+		if (res < 0) {
+			debug(FILTER, 1, "Filtering on gw '%s',  but it is not an IP\n", value);
+			return 0;
+		}
 			return 0;
 		switch (op) {
 		case '=':
@@ -407,24 +416,34 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 	}
 	else if (!strcmp(s, "mask")) {
 		res =  string2mask(value, 42);
+		if (res < 0) {
+			debug(FILTER, 1, "Filtering on mask '%s',  but it is valid\n", value);
+			return 0;
+		}
 		BLOCK_INT(subnet.mask);
 	}
 	else if (!strcasecmp(s, "med")) {
 		res =  my_atoi(value, &err);
-		if (err < 0)
+		if (err < 0) {
+			debug(FILTER, 1, "Filtering on MED '%s',  but it is not valid \n", value);
 			return 0;
+		}
 		BLOCK_INT(MED);
 	}
 	else if (!strcasecmp(s, "weight")) {
 		res =  my_atoi(value, &err);
-		if (err < 0)
+		if (err < 0) {
+			debug(FILTER, 1, "Filtering on WEIGHT '%s',  but it is not valid \n", value);
 			return 0;
+		}
 		BLOCK_INT(weight);
 	}
 	else if (!strcasecmp(s, "LOCALPREF") || !strcasecmp(s, "local_pref")) {
 		res =  my_atoi(value, &err);
-		if (err < 0)
+		if (err < 0) {
+			debug(FILTER, 1, "Filtering on LOCAL_PREF '%s',  but it is not valid \n", value);
 			return 0;
+		}
 		BLOCK_INT(LOCAL_PREF);
 	}
 	/* we compare AS_PATH length, except with ~ compator
