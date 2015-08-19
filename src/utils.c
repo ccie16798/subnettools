@@ -15,6 +15,7 @@
 
 int isUnsignedInt(const char *s) {
 	int i;
+
 	for (i = 0; i < strlen(s); i++) {
 		if (!isdigit(s[i]))
 			return 0;
@@ -33,10 +34,14 @@ int isInt(const char *s) {
 	return 1;
 }
 
-int my_atoi(const char *s, int *res) {
+int string2int(const char *s, int *res) {
 	int i = 0, a = 0;
 	int sign = 1;
 
+	if (s == NULL) {
+		*res = -2;
+		return 0;
+	}
 	if (*s == '-') {
 		sign = -1;
 		i++;

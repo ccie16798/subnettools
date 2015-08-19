@@ -419,7 +419,7 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 		BLOCK_INT(subnet.mask);
 	}
 	else if (!strcasecmp(s, "med")) {
-		res =  my_atoi(value, &err);
+		res =  string2int(value, &err);
 		if (err < 0) {
 			debug(FILTER, 1, "Filtering on MED %c '%s',  but it is not valid \n", op, value);
 			return -1;
@@ -427,7 +427,7 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 		BLOCK_INT(MED);
 	}
 	else if (!strcasecmp(s, "weight")) {
-		res =  my_atoi(value, &err);
+		res =  string2int(value, &err);
 		if (err < 0) {
 			debug(FILTER, 1, "Filtering on WEIGHT %c '%s',  but it is not valid \n", op, value);
 			return -1;
@@ -435,7 +435,7 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 		BLOCK_INT(weight);
 	}
 	else if (!strcasecmp(s, "LOCALPREF") || !strcasecmp(s, "local_pref")) {
-		res =  my_atoi(value, &err);
+		res =  string2int(value, &err);
 		if (err < 0) {
 			debug(FILTER, 1, "Filtering on LOCAL_PREF %c '%s',  but it is not valid \n", op, value);
 			return -1;
@@ -449,7 +449,7 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 			res = st_sscanf(route->AS_PATH, value);
 			return (res < 0 ? 0 : 1);
 		}
-		res =  my_atoi(value, &err);
+		res =  string2int(value, &err);
 		if (err < 0) {
 			debug(FILTER, 1, "Filtering on AS_PATH length %c '%s',  but it is not valid \n", op, value);
 			return -1;
@@ -474,7 +474,7 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 		}
 	}
 	else if (!strcasecmp(s, "best")) {
-		res =  my_atoi(value, &err);
+		res =  string2int(value, &err);
 		if (err < 0) {
 			debug(FILTER, 1, "Filtering on Best %c '%s',  but it is not valid \n", op, value);
 			return -1;
