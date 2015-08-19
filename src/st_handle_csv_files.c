@@ -29,7 +29,8 @@ int alloc_subnet_file(struct subnet_file *sf, unsigned long n) {
 	sf->routes = malloc(sizeof(struct route) * n);
 	debug(MEMORY, 3, "trying to alloc %lu bytes\n",  sizeof(struct route) * n);
 	if (sf->routes == NULL) {
-		fprintf(stderr, "error: cannot alloc  memory for sf->routes\n");
+		fprintf(stderr, "Cannot alloc  memory (%lu Kbytes) for sf->routes\n", n * sizeof(struct route));
+		sf->nr = sf->max_nr = 0;
 		return -1;
 	}
 	sf->nr = 0;
