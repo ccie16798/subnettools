@@ -322,7 +322,7 @@ int bgp_sort_by(struct bgp_file *sf, char *name) {
 			break; \
 		default: \
 			debug(FILTER, 1, "Unsupported op '%c' for %s\n", op, #__VAR); \
-			return 0; \
+			return -1; \
 		} \
 
 int fprint_bgpfilter_help(FILE *out) {
@@ -356,7 +356,7 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 		res = get_subnet_or_ip(value, &subnet);
 		if (res < 0) {
 			debug(FILTER, 1, "Filtering on prefix %c '%s',  but it is not an IP\n", op, value);
-			return 0;
+			return -1;
 		}
 		res = subnet_compare(&route->subnet, &subnet);
 		switch (op) {
@@ -380,7 +380,7 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 			break;
 		default:
 			debug(FILTER, 1, "Unsupported op '%c' for prefix\n", op);
-			return 0;
+			return -1;
 		}
 	}
 	else if (!strcmp(s, "gw")) {
@@ -389,9 +389,8 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 		res = get_subnet_or_ip(value, &subnet);
 		if (res < 0) {
 			debug(FILTER, 1, "Filtering on gw %c '%s',  but it is not an IP\n", op, value);
-			return 0;
+			return -1;
 		}
-			return 0;
 		switch (op) {
 		case '=':
 			return is_equal_ip(&route->gw, &subnet.ip_addr);
@@ -415,7 +414,7 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 		res =  string2mask(value, 42);
 		if (res < 0) {
 			debug(FILTER, 1, "Filtering on mask %c '%s',  but it is valid\n", op, value);
-			return 0;
+			return -1;
 		}
 		BLOCK_INT(subnet.mask);
 	}
@@ -423,7 +422,7 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 		res =  my_atoi(value, &err);
 		if (err < 0) {
 			debug(FILTER, 1, "Filtering on MED %c '%s',  but it is not valid \n", op, value);
-			return 0;
+			return -1;
 		}
 		BLOCK_INT(MED);
 	}
@@ -431,7 +430,7 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 		res =  my_atoi(value, &err);
 		if (err < 0) {
 			debug(FILTER, 1, "Filtering on WEIGHT %c '%s',  but it is not valid \n", op, value);
-			return 0;
+			return -1;
 		}
 		BLOCK_INT(weight);
 	}
@@ -439,7 +438,7 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 		res =  my_atoi(value, &err);
 		if (err < 0) {
 			debug(FILTER, 1, "Filtering on LOCAL_PREF %c '%s',  but it is not valid \n", op, value);
-			return 0;
+			return -1;
 		}
 		BLOCK_INT(LOCAL_PREF);
 	}
@@ -453,7 +452,7 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 		res =  my_atoi(value, &err);
 		if (err < 0) {
 			debug(FILTER, 1, "Filtering on AS_PATH length %c '%s',  but it is not valid \n", op, value);
-			return 0;
+			return -1;
 		}
 		switch (op) {
 		case '=':
@@ -470,7 +469,7 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 			break;
 		default:
 			debug(FILTER, 1, "Unsupported op '%c' for AS_PATH\n", op);
-			return 0;
+			return -1;
 			break;
 		}
 	}
@@ -478,7 +477,7 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 		res =  my_atoi(value, &err);
 		if (err < 0) {
 			debug(FILTER, 1, "Filtering on Best %c '%s',  but it is not valid \n", op, value);
-			return 0;
+			return -1;
 		}
 		switch (op) {
 		case '=':
@@ -489,7 +488,7 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 			break;
 		default:
 			debug(FILTER, 1, "Unsupported op '%c' for best\n", op);
-			return 0;
+			return -1;
 			break;
 		}
 	}
@@ -503,7 +502,7 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 			break;
 		default:
 			debug(FILTER, 1, "Unsupported op '%c' for type\n", op);
-			return 0;
+			return -1;
 		}
 	}
 	else if (!strcasecmp(s, "origin")) {
@@ -516,9 +515,10 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 			break;
 		default:
 			debug(FILTER, 1, "Unsupported op '%c' for origin\n", op);
-			return 0;
+			return -1;
 		}
 	}
+	debug(FILTER, 1, "Cannot filter on attribute '%s'\n", s);
 	return 0;
 }
 
