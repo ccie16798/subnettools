@@ -1,7 +1,7 @@
 /*
  * generic command line and options parser
  *
- * Copyright (C) 2014 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ * Copyright (C) 2014, 2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
@@ -13,6 +13,8 @@
 #include "generic_command.h"
 #include "debug.h"
 #include "utils.h"
+
+#define MAX_AMBIGUOUS 39
 
 static void enough_args(int argc, int value, char *com, char *progname) {
 	if (argc < value ) {
@@ -29,7 +31,7 @@ extern struct st_command options[];
 int generic_command_run(int argc, char **argv, char *progname, void *opt) {
 	int i, res;
 	int found = 0, found_i = 0;
-	int founds[30];
+	int founds[MAX_AMBIGUOUS];
 
 	debug(PARSEOPTS, 3, "parsing command : %s\n", argv[1]);
 	for (i = 0; ;i++) {
@@ -42,8 +44,8 @@ int generic_command_run(int argc, char **argv, char *progname, void *opt) {
 				debug(PARSEOPTS, 5, "found EXACT handler for %s\n", argv[1]);
 				break;
 			}
-			/* if more than one match, means the caller used an ambiguious abbreviation */
-			if (found >= 39) /* enough is enough, OK??? */
+			/* if more than one match, means the caller used an ambiguous abbreviation */
+			if (found >= MAX_AMBIGUOUS - 1) /* enough is enough, OK??? */
 				break;
 			if (commands[i].hidden)
 				continue;
