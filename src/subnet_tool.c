@@ -1161,6 +1161,7 @@ int subnet_filter(struct subnet_file *sf, char *expr) {
 		debug_timing_end(2);
 		return -1;
 	}
+	debug(MEMORY, 3, "Allocated %lu bytes for struct route\n", sf->max_nr * sizeof(struct route));
 	j = 0;
 	len = strlen(expr);
 
@@ -1168,13 +1169,13 @@ int subnet_filter(struct subnet_file *sf, char *expr) {
 		e.object = &sf->routes[i];
 		res = run_generic_expr(expr, len, &e);
 		if (res < 0) {
-			debug(FILTER, 1, "Invalid filtering pattern '%s'\n", expr);
+			fprintf(stderr, "Invalid filter '%s'\n", expr);
 			free(new_r);
 			debug_timing_end(2);
 			return -1;
 		}
 		if (res) {
-			st_debug(FILTER, 5, "Match on %P\n", sf->routes[i].subnet);
+			st_debug(FILTER, 5, "Matching filter '%s' on %P\n", expr, sf->routes[i].subnet);
 			copy_route(&new_r[j], &sf->routes[i]);
 			j++;
 		}
