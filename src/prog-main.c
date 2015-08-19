@@ -566,7 +566,6 @@ static int run_common(int arc, char **argv, void *st_options) {
 	if (res < 0) {
 		free(sf2.routes);
 		free(sf1.routes);
-		fprintf(stderr, "not enough memory\n");
 		return res;
 	}
 	res = subnet_file_merge_common_routes(&sf1, &sf2, &sf3);
@@ -595,7 +594,6 @@ static int run_addfiles(int arc, char **argv, void *st_options) {
 	if (res < 0) {
 		free(sf2.routes);
 		free(sf1.routes);
-		fprintf(stderr, "not enough memory\n");
 		return res;
 	}
 	debug_timing_start(2);
@@ -738,10 +736,9 @@ static int run_remove(int arc, char **argv, void *st_options) {
 			return -1;
 		}
 		r = subnet_remove(&subnet1, &subnet2, &n);
-		if (n == -1) {
-			printf("no memory for subnet_remove\n");
+		if (n == -1)
 			return -1;
-		}
+
 		for (i = 0; i < n; i++)
 			st_printf("%P\n", r[i]);
 		free(r);
