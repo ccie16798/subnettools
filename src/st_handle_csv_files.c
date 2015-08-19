@@ -27,12 +27,12 @@ int alloc_subnet_file(struct subnet_file *sf, unsigned long n) {
 		return -1;
 	}
 	sf->routes = malloc(sizeof(struct route) * n);
-	debug(MEMORY, 3, "trying to alloc %lu bytes\n",  sizeof(struct route) * n);
 	if (sf->routes == NULL) {
 		fprintf(stderr, "Cannot alloc  memory (%lu Kbytes) for sf->routes\n", n * sizeof(struct route));
 		sf->nr = sf->max_nr = 0;
 		return -1;
 	}
+	debug(MEMORY, 3, "Allocated %lu bytes for subnet_file\n",  sizeof(struct route) * n);
 	sf->nr = 0;
 	sf->max_nr = n;
 	return 0;
@@ -54,9 +54,9 @@ static int netcsv_prefix_handle(char *s, void *data, struct csv_state *state) {
 
 static int netcsv_mask_handle(char *s, void *data, struct csv_state *state) {
 	struct subnet_file *sf = data;
-	u32 mask = string2mask(s, 21);
+	int mask = string2mask(s, 21);
 
-	if (mask == BAD_MASK) {
+	if (mask < 0) {
 		debug(LOAD_CSV, 2, "invalid mask %s line %lu\n", s, state->line);
 		return CSV_INVALID_FIELD_BREAK;
 	}
@@ -123,7 +123,7 @@ static int netcsv_endofline_callback(struct csv_state *state, void *data) {
 		sf->max_nr *= 2;
 		debug(MEMORY, 3, "need to reallocate %lu bytes\n", sf->max_nr * sizeof(struct route));
 		if (sf->max_nr > SIZE_T_MAX / sizeof(struct route)) {
-			debug(MEMORY, 1, "cannot allocate %llu bytes for struct route, too big\n", (unsigned long long)sf->max_nr * sizeof(struct route));
+			fprintf(stderr, "error: too much memory requested for struct route\n");
 			return CSV_CATASTROPHIC_FAILURE;
 		}
 		new_r = realloc(sf->routes,  sizeof(struct route) * sf->max_nr);
@@ -239,11 +239,13 @@ int alloc_bgp_file(struct bgp_file *sf, unsigned long n) {
 		return -1;
 	}
 	sf->routes = malloc(sizeof(struct bgp_route) * n);
-	debug(MEMORY, 3, "trying to alloc %lu bytes\n",  sizeof(struct bgp_route) * n);
 	if (sf->routes == NULL) {
-		fprintf(stderr, "error: cannot alloc  memory for sf->routes\n");
+		fprintf(stderr, "Cannot alloc  memory (%lu Kbytes) for sf->routes\n",
+				n * sizeof(struct bgp_route));
+		sf->nr = sf->max_nr = 0;
 		return -1;
 	}
+	debug(MEMORY, 3, "Allocated %lu bytes for subnet_file\n",  sizeof(struct route) * n);
 	sf->nr = 0;
 	sf->max_nr = n;
 	return 0;
@@ -347,12 +349,16 @@ static int bgpcsv_aspath_handle(char *s, void *data, struct csv_state *state) {
 	struct bgp_file *sf = data;
 
 	strxcpy(sf->routes[sf->nr].AS_PATH, s, sizeof(sf->routes[sf->nr].AS_PATH));
+	if (strlen(s) >= sizeof(sf->routes[sf->nr].AS_PATH))
+		debug(LOAD_CSV, 2, "line %lu STRING AS_PATH '%s'  too long, truncating to '%s'\n", state->line, s, sf->routes[sf->nr].AS_PATH);
 	return CSV_VALID_FIELD;
 }
 
 static int bgpcsv_best_handle(char *s, void *data, struct csv_state *state) {
 	struct bgp_file *sf = data;
 
+	while (isspace(*s))
+		s++;
 	if (!strcasecmp(s, "BEST"))
 		sf->routes[sf->nr].best = 1;
 	else
@@ -365,7 +371,7 @@ static int bgpcsv_type_handle(char *s, void *data, struct csv_state *state) {
 
 	while (isspace(*s))
 		s++;
-	if (!strcasecmp(s, "ebgp"))
+	if (!strcasecmp(s, "ebgp")) /* FIXME */
 		sf->routes[sf->nr].type = 'e';
 	else if (!strcasecmp(s, "ibgp"))
 		sf->routes[sf->nr].type = 'i';
@@ -409,8 +415,8 @@ static int bgpcsv_endofline_callback(struct csv_state *state, void *data) {
 	if  (sf->nr == sf->max_nr) {
 		sf->max_nr *= 2;
 		debug(MEMORY, 3, "need to reallocate %lu bytes\n", sf->max_nr * sizeof(struct bgp_route));
-		if (sf->max_nr > SIZE_T_MAX / sizeof(struct route)) {
-			debug(MEMORY, 1, "cannot allocate %llu bytes for struct route, too big\n", (unsigned long long)sf->max_nr * sizeof(struct bgp_route));
+		if (sf->max_nr > SIZE_T_MAX / sizeof(struct bgp_route)) {
+			fprintf(stderr, "error: too much memory requested for struct route\n");
 			return CSV_CATASTROPHIC_FAILURE;
 		}
 		new_r = realloc(sf->routes,  sizeof(struct bgp_route) * sf->max_nr);
