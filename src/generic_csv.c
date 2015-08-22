@@ -250,7 +250,7 @@ int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state* stat
 	else if (res == CSV_NO_HEADER) /* we need to pass initial buff */
 		res = read_csv_body(f, filename, cf, state, data, buffer);
 	else {
-		fprintf(stderr, "BUG at %s line %d, invalid resi=%d\n", __FILE__, __LINE__, res);
+		fprintf(stderr, "BUG at %s line %d, invalid res=%d\n", __FILE__, __LINE__, res);
 		fclose(f);
 		return -3;
 	}
