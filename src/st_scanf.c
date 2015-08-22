@@ -1,7 +1,7 @@
 /*
  * IPv4, IPv6 subnet/routes scanf equivalent with PATTERN matching
  *
- * Copyright (C) 2014,2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ * Copyright (C) 2014, 2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
@@ -18,8 +18,6 @@
 #include "st_scanf.h"
 #include "st_object.h"
 
-// TO check : bound checking
-
 #define ST_STRING_INFINITY 1000000000  /* Subnet tool definition of infinity */
 
 struct expr {
@@ -32,7 +30,7 @@ struct expr {
 	int last_match; /* the last pos in input string where the ->stop(remain, e) matched and ->stop(remain - 1, e) DIDNOT */
 	int last_nmatch;
 	int has_stopped; /* set when ->early_stop decide to stop */
-	int min_match;
+	int min_match; /* in case of multiplier like {3,6} the number of minimun required matches */
 	int skip_stop; /* if positive, dont run e->stop */
 };
 
@@ -66,7 +64,7 @@ static inline int is_multiple_char(char c) {
  * find the conversion specifier char after a '%'
  * (since it can the followed by a max_field_length)
  */
-static char conversion_specifier(const char *fmt) {
+static inline char conversion_specifier(const char *fmt) {
 	int i = 0;
 
 	while (1) {
@@ -270,10 +268,7 @@ static int match_char_against_range(char c, const char *expr, int *i) {
 		*i += 1;
 	}
 	*i += 1;
-	if (invert)
-		return !res;
-	else
-		return res;
+	return (invert ? !res : res);
 }
 /* parse STRING 'in' at index *j according to fmt at index *i
    fmt[*i] == '%' when the function starts
