@@ -6,7 +6,7 @@ IPv4/IPv6 subnet calculator, CSV route file manipulation and modification tool
 
 FEATURES
 ========
-Subnettools is a sotfware intending to help networ engineers manipulating route table and extract 
+Subnettools is a sotfware intending to help networ engineers manipulating route table and extract
 information from it; subnettools has :
 - native IPv6 & IPv4 support
 - IPv4 & IPv6 address information (known subnet membership, decoding of embedded IPs like Teredo)
@@ -34,8 +34,8 @@ Route file comparison
 ---------------------
 - compare FILE1 FILE2 : compare FILE1 & FILE2, printing subnets in FILE1 INCLUDED in FILE2
 - missing FILE1 FILE2 : prints subnets from FILE1 that are not covered by FILE2; GW is not checked
+- uniq FILE1 FILE2    : prints unique subnets from FILE1 and FILE2
 - ipam <IPAM> FILE1   : load IPAM, and print FILE1 subnets with comment extracted from IPAM
-- diff FILE1 FILE2    : diff FILE1 & FILE2 (EXPERIMENTAL)
 - common FILE1 FILE2  : merge CSV subnet files FILE1 & FILE2; prints common routes only; GW isn't checked
 - addfiles FILE1 FILE2: merge CSV subnet files FILE1 & FILE2; prints the sum of both files
 - grep FILE prefix    : grep FILE for prefix/mask
@@ -60,9 +60,9 @@ BGP route file tools
 IP route to CSV converters
 --------------------------
 - convert PARSER FILE1: convert FILE1 to csv using parser PARSER
-- convert help        : use 'subnet_tool convert help' for available parsers 
+- convert help        : use 'subnet_tool convert help' for available parsers
 
-subnettools FILE format is a CSV where each line represent a route ; a route is
+subnettools subnet FILE format is a CSV where each line represent a route ; a route is
 -* a subnet
 -* a subnet mask
 -* a gateway
@@ -250,7 +250,7 @@ escape char for special chars is '\\'
 some examples :
 ---------------
 	Find any subnet included in 2001:db8::/48
-	
+
 	[etienne@ARODEF subnet_tools]$ ./subnet-tools   filter filter1 "prefix{2001:db8::0/48"
 	2001:db8::;64;Ethernet1/0;2001::1;test1
 	2001:db8::;128;Lo0;::;test1
@@ -264,7 +264,7 @@ some examples :
 	2001:db8:a::;64;Ethernet1/0;2001::3;test3
 	2001:db8:e::;64;Ethernet1/0;2001::2;test2
 
-	combine the two previous examples 
+	combine the two previous examples:
 	OR
 	[etienne@ARODEF subnet_tools]$ ./subnet-tools   filter filter1 "device=Ethernet1/0|prefix{2001:db8::0/48"
 	2001:db8::;64;Ethernet1/0;2001::1;test1
@@ -280,8 +280,6 @@ some examples :
 	2001:db8::;64;Ethernet1/0;2001::1;test1
 	
 	
-	
-
 CODING
 ======
 - subnettools is in C because i like that, and i know only that
