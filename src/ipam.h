@@ -10,7 +10,7 @@
 
 struct  ipam_ea {
 	char *name;
-	struct sto value;
+	char *value;
 };
 
 struct ipam {
@@ -23,6 +23,7 @@ struct ipam {
 struct ipam_file {
 	struct ipam *routes;
 	unsigned long nr;
+	int ea_nr; /* number of Extensible Attributes */
 	unsigned long max_nr; /* the number of routes that has been malloced */
 
 };

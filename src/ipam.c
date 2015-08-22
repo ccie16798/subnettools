@@ -53,7 +53,16 @@ static int ipam_mask_handle(char *s, void *data, struct csv_state *state) {
 
 static int ipam_ea_handle(char *s, void *data, struct csv_state *state) {
         struct ipam_file *sf = data;
+	int ea_nr = state->state[0];
+	char *z;
 
+	z = strdup(s);
+	if (z == NULL) {
+		debug(LOAD_CSV, 1, "Unable to allocate memory\n");
+		return CSV_CATASTROPHIC_FAILURE;
+	}
+	sf->routes[sf->nr].ea[ea_nr].value = z;
+	state->state[0]++;
 	return CSV_VALID_FIELD;
 }
 
@@ -61,6 +70,7 @@ static int ipam_ea_handle(char *s, void *data, struct csv_state *state) {
 static int ipam_endofline_callback(struct csv_state *state, void *data) {
 	struct ipam_file *sf = data;
 	struct ipam *new_r;
+	struct ipam_ea *ea;
 
 	if (state->badline) {
 		debug(LOAD_CSV, 1, "%s : invalid line %lu\n", state->file_name, state->line);
@@ -80,8 +90,17 @@ static int ipam_endofline_callback(struct csv_state *state, void *data) {
 			return  CSV_CATASTROPHIC_FAILURE;
 		}
 		sf->routes = new_r;
-		memset(&sf->routes[sf->nr], 0, sizeof(struct ipam));
 	}
+	memset(&sf->routes[sf->nr], 0, sizeof(struct ipam));
+	ea = malloc(sizeof(struct ipam_ea) * sf->ea_nr);
+	if (ea == NULL) {
+		fprintf(stderr, "unable to allocate memory for Extended Attributes aborting\n");
+		return  CSV_CATASTROPHIC_FAILURE;
+	}
+	sf->routes[sf->nr].ea    = ea;
+	sf->routes[sf->nr].ea_nr = sf->ea_nr;
+	debug(MEMORY, 3, "Allocated %lu bytes for EA\n",  sizeof(struct ipam_ea) * sf->ea_nr);
+	state->state[0] = 0; /* state[0] holds the num of the EA */
 	return CSV_CONTINUE;
 }
 
