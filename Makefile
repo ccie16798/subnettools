@@ -13,4 +13,3 @@ test:
 
 regtest: src/*.c src/*.h
 	cd regtest; sh ./regtest.sh
-	
