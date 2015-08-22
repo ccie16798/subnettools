@@ -805,6 +805,29 @@ static int run_scanf(int arc, char **argv, void *st_options) {
 	return 0;
 }
 
+
+static int run_fscanf(int arc, char **argv, void *st_options) {
+	int res;
+	struct sto o[40];
+	FILE *f;
+	char buffer[1024];
+	char *s;
+	unsigned long line = 0;
+
+	f = fopen(argv[2], "r");
+	if (f == NULL) {
+		fprintf(stderr, "Cannot open %s for reading\n", argv[2]);
+		return -1;
+	}
+	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
+		line++;
+		res = sto_sscanf(s, argv[3], o, 40);
+		printf("Line %lu: ", line);
+		sto_printf("%O0 %O1 %O2 %O3 %O4 %O5 %O6 %O7\n", o, res);
+	}
+	return 0;
+}
+
 static int run_help(int arc, char **argv, void *st_options) {
 	usage();
 	return 0;
