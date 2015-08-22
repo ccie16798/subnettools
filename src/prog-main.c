@@ -68,6 +68,7 @@ static int run_filter(int argc, char **argv, void *st_options);
 static int run_bgp_filter(int argc, char **argv, void *st_options);
 static int run_sum(int argc, char **argv, void *st_options);
 static int run_scanf(int argc, char **argv, void *st_options);
+static int run_fscanf(int argc, char **argv, void *st_options);
 static int run_subnetagg(int argc, char **argv, void *st_options);
 static int run_routeagg(int argc, char **argv, void *st_options);
 static int run_remove(int argc, char **argv, void *st_options);
@@ -131,6 +132,7 @@ struct st_command commands[] = {
 	{ "split",	&run_split,	2},
 	{ "split2",	&run_split_2,	2},
 	{ "scanf",	&run_scanf,	2},
+	{ "fscanf",	&run_fscanf,	2},
 	{ "help",	&run_help,	0},
 	{ "version",	&run_version,	0},
 	{ "confdesc",	&run_confdesc,	0},
@@ -215,6 +217,7 @@ void usage() {
 	printf("--------------\n");
 	printf("echo FMT ARG2       : try to get subnet from ARG2 and echo it according to FMT\n");
 	printf("scanf STRING1 FMT   : scan STRING1 according to scanf-like format FMT\n");
+	printf("fscanf FILE   FMT   : scan FILE according to scanf-like format FMT\n");
 	printf("confdesc            : print a small explanation of %s configuration file\n", PROG_NAME);
 	printf("help                : This HELP \n");
 	printf("version             : %s version \n", PROG_NAME);
