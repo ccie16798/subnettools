@@ -2,6 +2,7 @@
 #define IPAM_H
 
 #include "iptools.h"
+#include "st_object.h"
 
 #ifndef SIZE_T_MAX
 #define SIZE_T_MAX ((size_t)0 - 1)
@@ -9,8 +10,7 @@
 
 struct  ipam_ea {
 	char *name;
-	int type;
-	void *value;
+	struct sto value;
 };
 
 struct ipam {
