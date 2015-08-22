@@ -285,6 +285,26 @@ void init_csv_state(struct csv_state *cs, char *name) {
 	cs->file_name = name;
 }
 
+int register_csv_field(struct csv_field *cf, char *name, int mandatory,
+	int (*handle)(char *token, void *data, struct csv_state *state)) {
+	int i;
+
+	while (1) {
+		if (cf[i].name != NULL) {
+			i++;
+			continue;
+		}
+		cf[i].name        = name;
+		cf[i].handle      = handle;
+		cf[i].mandatory   = mandatory;
+		cf[i].pos 	  = 0;
+		cf[i].default_pos = 0;
+		cf[i + 1].name 	  = NULL;
+		return 1;
+	}
+	return 0;
+}
+
 #ifdef GENERICCSV_TEST
 struct networks {
 	char net[100][25];

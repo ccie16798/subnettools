@@ -86,6 +86,8 @@ struct csv_file {
 void init_csv_file(struct csv_file *cf, char *file_name, struct csv_field *csv_field, char *delim,
 		char * (*strtok_r)(char *s, const char *delim, char **save_ptr));
 void init_csv_state(struct csv_state *cs, char *file_name);
+int register_csv_field(struct csv_field *cf, char *name, int mandatory,
+	int (*handle)(char *token, void *data, struct csv_state *state));
 /* this func will open the 'filename' FILE, parse it according to 'cf' and 'state'
  * and usually you'll want to feed a  pointer to a struct  whatever in *data
  *
