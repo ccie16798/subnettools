@@ -196,7 +196,7 @@ static int ipam_comment_handle(char *s, void *data, struct csv_state *state) {
 	return CSV_VALID_FIELD;
 }
 
-int load_PAIP(char  *name, struct subnet_file *sf, struct st_options *nof) {
+int load_ipam_no_EA(char  *name, struct subnet_file *sf, struct st_options *nof) {
 	/*
 	 * default IPAM fields (Infoblox)
   	 * obviously if you have a different IPAM please describe it in the config file

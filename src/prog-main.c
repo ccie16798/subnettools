@@ -433,7 +433,7 @@ static int run_paip(int arc, char **argv, void *st_options) {
 	struct subnet_file paip, sf;
 	struct st_options *nof = st_options;
 
-	res = load_PAIP(argv[2], &paip, nof);
+	res = load_ipam_no_EA(argv[2], &paip, nof);
 	DIE_ON_BAD_FILE(argv[2]);
 	res = load_netcsv_file(argv[3], &sf, nof);
 	DIE_ON_BAD_FILE(argv[3]);
