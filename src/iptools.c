@@ -54,7 +54,7 @@ inline void zero_ipaddr(struct ip_addr *a) {
  */
 int subnet_compare(const struct subnet *sub1, const struct subnet *sub2) {
 	if (sub1->ip_ver != sub2->ip_ver) {
-		debug(ADDRCOMP, 1, "different address FAMILY\n");
+		debug(ADDRCOMP, 1, "different address FAMILY : %d, %d\n", sub1->ip_ver, sub2->ip_ver);
 		return -1;
 	}
 	if (sub1->ip_ver == IPV4_A)
@@ -73,6 +73,7 @@ int is_equal_ipv6(ipv6 ip1, ipv6 ip2) {
 			return 0;
 	return 1;
 }
+
 int is_equal_ip(struct ip_addr *ip1, struct ip_addr *ip2) {
 	if (ip1->ip_ver != ip2->ip_ver)
 		return 0;
@@ -702,7 +703,7 @@ int get_subnet_or_ip(const char *s, struct subnet *subnet) {
 		if (s[i] == '/') {
 			count_slash++;
 			slash_i = i;
-		} else if (isxdigit(s[i])||s[i] == '.'||s[i] == ':'||s[i] == ' ')
+		} else if (isxdigit(s[i]) || s[i] == '.' || s[i] == ':' || s[i] == ' ')
 			continue;
 		else {
 			debug(PARSEIP, 3, "Invalid prefix '%s', contains '%c'\n", s, s[i]);
@@ -730,7 +731,7 @@ int get_subnet_or_ip(const char *s, struct subnet *subnet) {
 		else if (a == IPV6_A)
 			return IPV6_N;
 	}
-	debug(PARSEIP, 3, "bad prefix '%s'\n", s);
+	debug(PARSEIP, 3, "Invalid prefix '%s'\n", s);
 	return BAD_IP;
 }
 
