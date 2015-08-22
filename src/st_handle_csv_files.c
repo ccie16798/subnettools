@@ -1,5 +1,5 @@
 /*
- * Subnet_tool ! : a tool that will help network engineers :
+ * routines to load CSV files into memory
  *
  * Copyright (C) 2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
