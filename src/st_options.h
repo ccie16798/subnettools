@@ -2,7 +2,11 @@
 #define ST_OPTIONS_H
 
 
-#define MAX_DELIM 32
+#define MAX_DELIM	32
+#define IPAM_MAX_EA_LEN	128
+#define FMT_LEN		128
+
+
 struct st_options {
         int subnet_off;
         int grep_field; /** when grepping, grep only on this field **/
@@ -11,8 +15,8 @@ struct st_options {
         char delim[MAX_DELIM];
         FILE *output_file;
 	int ip_compress_mode; /* ==0 means no adress compression, 1 we remove leading 0, 2 means full compression */
-	char output_fmt[128];
-	char bgp_output_fmt[128];
+	char output_fmt[FMT_LEN];
+	char bgp_output_fmt[FMT_LEN];
 	/* set from config file only */
 	/* IPAM FILE description */
 	char ipam_prefix_field[32];
@@ -20,6 +24,7 @@ struct st_options {
 	char ipam_comment1[32];
 	char ipam_comment2[32];
 	char ipam_delim[MAX_DELIM];
+	char ipam_EA_name[IPAM_MAX_EA_LEN];
 	/* netcsv FILE description */
 	char netcsv_prefix_field[32];
 	char netcsv_mask[32];
