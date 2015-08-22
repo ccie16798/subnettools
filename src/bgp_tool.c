@@ -237,13 +237,17 @@ static int __bgp_sort_by(struct bgp_file *sf, int cmpfunc(void *v1, void *v2)) {
 	unsigned long i;
 	TAS tas;
 	struct bgp_route *new_r, *r;
+	int res;
 
 	if (sf->nr == 0)
 		return 0;
-	alloc_tas(&tas, sf->nr, cmpfunc);
-	new_r = malloc(sf->max_nr * sizeof(struct bgp_route));
+	res = alloc_tas(&tas, sf->nr, cmpfunc);
+	if (res < 0)
+		return res;
 
-	if (tas.tab == NULL || new_r == NULL) {
+	new_r = malloc(sf->max_nr * sizeof(struct bgp_route));
+	if (new_r == NULL) {
+		free(tas.tab);
 		fprintf(stderr, "%s : no memory\n", __FUNCTION__);
 		return -1;
 	}
