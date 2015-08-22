@@ -66,6 +66,7 @@ sprint_unsigned(long)
 			outbuf[j++] = fmt[i + 1]; \
 	} \
 	i += 2;
+
 /* this block computes field field between '%' and conversion specifier */
 #define BLOCK_FIELD_WIDTH \
 	i2 = i + 1; \
@@ -131,8 +132,6 @@ static inline int pad_buffer_out(char *out, size_t len, const char *buffer, size
 	int res;
 
 	debug(FMT, 7, "Padding : len=%d, buff_size=%d, field_width=%d\n", (int)len, (int)buff_size, field_width);
-	if (buff_size == 0)
-		return 0;
 	if (buff_size < 0) {
 		debug(FMT, 1, "Cannot pad an Invalid buffer\n");
 		return 0;
@@ -183,8 +182,12 @@ int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt) {
 	while (1) {
 		c = fmt[i];
 		debug(FMT, 5, "Still to parse : '%s'\n", fmt + i);
-		if (j > sizeof(outbuf) - 140) { /* 128 is the max size (comment) */
-			debug(FMT, 1, "output buffer maybe too small, aborting\n");
+		if (j >= sizeof(outbuf)) {
+			fprintf(stderr, "BUG in %s, buffer overrun, j=%d len=%d\n", __FUNCTION__, j,
+					 (int)sizeof(outbuf));
+			break;
+		} else if (j == sizeof(outbuf) - 1) {
+			debug(FMT, 2, "Output buffer is full, stopping\n");
 			break;
 		}
 		if (c == '\0')
@@ -285,7 +288,7 @@ int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt) {
 					outbuf[j] = '%';
 					outbuf[j + 1] = fmt[i2];
 					j += 2;
-			} //switch
+			} /* switch */
 			i += 2;
 		} else if (c == '\\') {
 			BLOCK_ESCAPE_CHAR
@@ -460,7 +463,7 @@ int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt
 					outbuf[j] = '%';
 					outbuf[j + 1] = fmt[i2];
 					j += 2;
-			} //switch
+			} /* switch */
 			i += 2;
 		} else if (c == '\\') {
 			BLOCK_ESCAPE_CHAR
@@ -689,7 +692,7 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 						i++;
 					}
 					if (o_num >= max_o) {
-						debug(FMT, 2, "Invalid object number #%d, max %d\n", o_num, max_o);
+						debug(FMT, 3, "Invalid object number #%d, max %d\n", o_num, max_o);
 						break;
 					}
 					res = sto2string(buffer, &o[o_num], sizeof(buffer), 3);
@@ -706,7 +709,7 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 					outbuf[j] = '%';
 					outbuf[j + 1] = fmt[i2];
 					j += 2;
-			} //switch
+			} /* switch */
 			i += 2;
 		} else if (c == '\\') {
 			BLOCK_ESCAPE_CHAR
