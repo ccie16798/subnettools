@@ -768,6 +768,8 @@ static int match_expr(struct expr *e, char *in, struct sto *o, int *num_o) {
 			e->has_stopped = 1;
 			return res;
 		}
+		/* it is possible to end EXPR_MULTIPLIER (think of '.*') expansion here,
+		 *  so lets pretend 'expr' didnt match */
 		return 0;
 	}
 	return res;
