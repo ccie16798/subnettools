@@ -15,6 +15,7 @@
 #include "st_scanf.h"
 #include "st_printf.h"
 #include "generic_csv.h"
+#include "generic_expr.h"
 #include "ipam.h"
 
 int alloc_ipam_file(struct ipam_file *sf, unsigned long n, int ea_nr) {
@@ -215,6 +216,11 @@ static int __heap_subnet_is_superior(void *v1, void *v2) {
 	return subnet_is_superior(s1, s2);
 }
 
+void fprint_ipamfilter_help(FILE *out) {
+
+
+}
+
 static int ipam_filter(char *s, char *value, char op, void *object) {
 	struct ipam *ipam = object;
 	struct subnet subnet;
@@ -308,4 +314,47 @@ static int ipam_filter(char *s, char *value, char op, void *object) {
 
 	}
 	return -1;
+}
+
+int ipam_file_filter(struct ipam_file *sf, char *expr) {
+	int i, j, res, len;
+	struct generic_expr e;
+	struct ipam *new_ipam;
+
+	if (sf->nr == 0)
+		return 0;
+	init_generic_expr(&e, expr, ipam_filter);
+	debug_timing_start(2);
+
+	new_ipam = malloc(sf->max_nr * sizeof(struct ipam));
+	if (new_ipam == NULL) {
+		fprintf(stderr, "%s : no memory\n", __FUNCTION__);
+		debug_timing_end(2);
+		return -1;
+	}
+	debug(MEMORY, 3, "Allocated %lu Kbytes for struct ipam\n",
+			 sf->max_nr * sizeof(struct ipam) / 1024);
+	j = 0;
+	len = strlen(expr);
+
+	for (i = 0; i < sf->nr; i++) {
+		e.object = &sf->routes[i];
+		res = run_generic_expr(expr, len, &e);
+		if (res < 0) {
+			fprintf(stderr, "Invalid filter '%s'\n", expr);
+			free(new_ipam);
+			debug_timing_end(2);
+			return -1;
+		}
+		if (res) {
+			st_debug(FILTER, 5, "Matching filter '%s' on %P\n", expr, sf->routes[i].subnet);
+			memcpy(&new_ipam[j], &sf->routes[i], sizeof(struct ipam));
+			j++;
+		}
+	}
+	free(sf->routes);
+	sf->routes = new_ipam;
+	sf->nr = j;
+	debug_timing_end(2);
+	return 0;
 }
