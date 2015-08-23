@@ -27,6 +27,7 @@
 #include "st_handle_csv_files.h"
 #include "subnet_tool.h"
 #include "bgp_tool.h"
+#include "ipam.h"
 #include "prog-main.h"
 
 const char *default_fmt     = "%I;%m;%D;%G;%C";
@@ -914,11 +915,9 @@ static int run_bgpsortby(int arc, char **argv, void *st_options) {
 }
 
 static int run_test(int arc, char **argv, void *st_options) {
-	struct bgp_file sf1;
-	struct bgp_file sf2;
+	struct ipam_file sf1;
 
-	load_bgpcsv(argv[2], &sf1, st_options);
-	load_bgpcsv(argv[3], &sf2, st_options);
+	load_ipam(argv[2], &sf1, st_options);
 	return 0;
 }
 
