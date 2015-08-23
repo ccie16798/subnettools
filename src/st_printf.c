@@ -431,6 +431,7 @@ static int __fprint_ipam_fmt(FILE *output, const struct ipam *r, const char *fmt
 	outbuf[j] = '\0';
 	return fputs(outbuf, output);
 }
+
 int fprint_ipam_fmt(FILE *output, const struct ipam *r, const char *fmt) {
 	return __fprint_ipam_fmt(output, r, fmt, 0);
 }
@@ -948,9 +949,24 @@ void print_bgp_file_fmt(const struct bgp_file *sf, const char *fmt) {
 	fprint_bgp_file_fmt(stdout, sf, fmt);
 }
 
+static void fprint_ipam_file(FILE *out, const struct ipam_file *sf) {
+	int i, j;
+
+	for (i = 0; i < sf->nr; i++) {
+		st_fprintf(out, "%P;", sf->routes[i].subnet);
+		for (j = 0; j < sf->ea_nr; j++)
+			fprintf(out, "%s=%s;", sf->routes[i].ea[j].name,
+					sf->routes[i].ea[j].value);
+		fprintf(out, "\n");
+	}
+}
+
 void fprint_ipam_file_fmt(FILE *output, const struct ipam_file *sf, const char *fmt) {
 	unsigned long i;
 
+	/* if user didnt provide a fmt, just use the simple fprint_ipam_file */
+	if (strlen(fmt) < 2)
+		return fprint_ipam_file(output, sf);
 	for (i = 0; i < sf->nr; i++)
 		fprint_ipam_fmt(output, &sf->routes[i], fmt);
 }

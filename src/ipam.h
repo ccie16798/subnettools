@@ -32,7 +32,6 @@ struct ipam_file {
 
 int alloc_ipam_file(struct ipam_file *sf, unsigned long n, int ea_nr);
 void free_ipam_file(struct ipam_file *sf);
-void fprint_ipam_file(FILE *out, struct ipam_file *sf);
 int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof);
 void fprint_ipamfilter_help(FILE *out);
 int ipam_file_filter(struct ipam_file *sf, char *expr);

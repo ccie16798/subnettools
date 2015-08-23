@@ -49,6 +49,7 @@ void fprint_subnet_file_fmt(FILE *output, const struct subnet_file *sf, const ch
 void fprint_bgp_file_fmt(FILE *output, const struct bgp_file *sf, const char *fmt);
 void print_bgp_file_fmt(const struct bgp_file *sf, const char *fmt);
 
+void fprint_ipam_file(FILE *out, struct ipam_file *sf);
 void fprint_ipam_file_fmt(FILE *output, const struct ipam_file *sf, const char *fmt);
 void print_ipam_file_fmt(const struct ipam_file *sf, const char *fmt);
 #define st_debug(__EVENT, __DEBUG_LEVEL, __FMT...) \

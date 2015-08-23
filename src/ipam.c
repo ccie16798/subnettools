@@ -66,19 +66,6 @@ int alloc_ea(struct ipam_file *sf, int i) {
 	return 0;
 }
 
-void fprint_ipam_file(FILE *out, struct ipam_file *sf) {
-	int i, j;
-
-	for (i = 0; i < sf->nr; i++) {
-		st_fprintf(out, "%P;", sf->routes[i].subnet);
-		for (j = 0; j < sf->ea_nr; j++)
-			fprintf(out, "%s=%s;", sf->routes[i].ea[j].name,
-					sf->routes[i].ea[j].value);
-		fprintf(out, "\n");
-	}
-
-}
-
 void free_ipam_file(struct ipam_file *sf) {
 	int i, j;
 
