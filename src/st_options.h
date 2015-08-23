@@ -25,7 +25,7 @@ struct st_options {
 	char ipam_comment1[32];
 	char ipam_comment2[32];
 	char ipam_delim[MAX_DELIM];
-	char ipam_EA_name[IPAM_MAX_EA_LEN];
+	char ipam_ea[IPAM_MAX_EA_LEN];
 	/* netcsv FILE description */
 	char netcsv_prefix_field[32];
 	char netcsv_mask[32];

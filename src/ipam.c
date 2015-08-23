@@ -11,7 +11,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "debug.h"
-#include "st_options.h"
 #include "utils.h"
 #include "st_printf.h"
 #include "generic_csv.h"
@@ -186,8 +185,8 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof) {
 	cf.endofline_callback = ipam_endofline_callback;
 	init_csv_state(&state, name);
 
-	debug(IPAM, 3, "Parsing EA : '%s'\n", nof->ipam_EA_name);
-	s = strtok(nof->ipam_EA_name, ",");
+	debug(IPAM, 3, "Parsing EA : '%s'\n", nof->ipam_ea);
+	s = strtok(nof->ipam_ea, ",");
 	/* getting Extensible attributes from config file of cmd_line */
 	while (s) {
 		ea_nr++;

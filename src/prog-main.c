@@ -45,7 +45,7 @@ struct file_options fileoptions[] = {
 	{ FILEOPT_LINE(ipam_comment2, struct st_options, TYPE_STRING),
 		"IPAM CSV header field describing comment" },
 	{ FILEOPT_LINE(ipam_delim, struct st_options, TYPE_STRING),  "IPAM CSV delimitor" },
-	{ FILEOPT_LINE(ipam_EA_name, struct st_options, TYPE_STRING),
+	{ FILEOPT_LINE(ipam_ea, struct st_options, TYPE_STRING),
 		"IPAM Extended Attributes to collect" },
 	{ "netcsv_delim", TYPE_STRING, sizeofmember(struct st_options, delim),
 		 offsetof(struct st_options, delim), "CSV delimitor" },
@@ -1059,7 +1059,7 @@ static int option_ecmp(int argc, char **argv, void *st_options) {
 static int option_ipam_ea(int argc, char **argv, void *st_options) {
 	struct st_options *nof = st_options;
 
-	strxcpy(nof->ipam_EA_name, argv[1], sizeof(nof->ipam_EA_name));
+	strxcpy(nof->ipam_ea, argv[1], sizeof(nof->ipam_ea));
 	debug(PARSEOPTS, 3, "The following Ipam EA will be collected: '%s'\n", argv[1]);
 	return 0;
 }

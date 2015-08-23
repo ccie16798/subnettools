@@ -1,6 +1,7 @@
 #ifndef IPAM_H
 #define IPAM_H
 
+#include "st_options.h"
 #include "iptools.h"
 #include "st_object.h"
 
