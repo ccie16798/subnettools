@@ -23,12 +23,13 @@ struct ipam {
 struct ipam_file {
 	struct ipam *routes;
 	unsigned long nr;
-	int ea_nr; /* number of Extensible Attributes */
 	unsigned long max_nr; /* the number of routes that has been malloced */
+	int ea_nr; /* number of Extensible Attributes */
+	struct ipam_ea *ea;
 
 };
 
-int alloc_ipam_file(struct ipam_file *sf, unsigned long n);
+int alloc_ipam_file(struct ipam_file *sf, unsigned long n, int ea_nr);
 void free_ipam_file(struct ipam_file *sf);
 void fprint_ipam_file(FILE *out, struct ipam_file *sf);
 int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof);

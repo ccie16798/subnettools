@@ -17,7 +17,7 @@
 #include "generic_csv.h"
 #include "ipam.h"
 
-int alloc_ipam_file(struct ipam_file *sf, unsigned long n) {
+int alloc_ipam_file(struct ipam_file *sf, unsigned long n, int ea_nr) {
 	if (n > SIZE_T_MAX / sizeof(struct ipam)) { /* being paranoid */
 		fprintf(stderr, "error: too much memory requested for struct ipam\n");
 		return -1;
@@ -25,13 +25,24 @@ int alloc_ipam_file(struct ipam_file *sf, unsigned long n) {
 	sf->routes = malloc(sizeof(struct ipam) * n);
 	if (sf->routes == NULL) {
 		fprintf(stderr, "Cannot alloc  memory (%lu Kbytes) for sf->ipam\n",
-				n * sizeof(struct ipam));
+				n * sizeof(struct ipam) / 1024);
 		sf->nr = sf->max_nr = 0;
 		return -1;
 	}
-	debug(MEMORY, 3, "Allocated %lu bytes for subnet_file\n",  sizeof(struct ipam) * n);
+	debug(MEMORY, 3, "Allocated %lu Kbytes for ipam_file\n",  sizeof(struct ipam) * n / 1024);
 	sf->nr = 0;
 	sf->max_nr = n;
+	sf->ea_nr = ea_nr;
+	sf->ea = malloc(ea_nr * sizeof(struct ipam_ea));
+	if (sf->ea == NULL) {
+		fprintf(stderr, "Cannot alloc  memory (%lu bytes) for sf->ea\n",
+				ea_nr * sizeof(struct ipam_ea));
+		sf->nr = sf->max_nr = 0;
+		free(sf->routes);
+		sf->routes = NULL;
+		return -1;
+	}
+	debug(MEMORY, 3, "Allocated %lu bytes for ipam_ea\n",  sizeof(struct ipam_ea) * ea_nr);
 	return 0;
 }
 
@@ -41,7 +52,7 @@ void fprint_ipam_file(FILE *out, struct ipam_file *sf) {
 	for (i = 0; i < sf->nr; i++) {
 		st_fprintf(out, "%P;", sf->routes[i].subnet);
 		for (j = 0; j < sf->ea_nr; j++)
-			st_fprintf(out, "%s=%s;", sf->routes[i].ea[j].name,
+			fprintf(out, "%s=%s;", sf->routes[i].ea[j].name,
 					sf->routes[i].ea[j].value);
 		fprintf(out, "\n");
 	}
@@ -147,6 +158,7 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof) {
 	struct csv_file cf;
 	struct csv_state state;
 	char *s;
+	int ea_nr = 0;
 
 	if (nof->ipam_prefix_field[0])
 		csv_field[0].name = nof->ipam_prefix_field;
@@ -156,18 +168,21 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof) {
 	debug(IPAM, 3, "Parsing EA : '%s'\n", nof->ipam_EA_name);
 	s = strtok(nof->ipam_EA_name, ",");
 	while (s) {
+		ea_nr++;
 		debug(IPAM, 3, "Registering Extended Attribute : '%s'\n", s);
 		register_csv_field(csv_field, s, 0, ipam_ea_handle);
 		s = strtok(NULL, ",");
 	}
+	debug(IPAM, 5, "Collecting %d Extended Attributes\n", ea_nr);
 	init_csv_file(&cf, name, csv_field, nof->ipam_delim, &simple_strtok_r);
 	cf.endofline_callback = ipam_endofline_callback;
 	init_csv_state(&state, name);
 
-	if (alloc_ipam_file(sf, 16192) < 0)
+	if (alloc_ipam_file(sf, 16192, ea_nr) < 0)
 		return -2;
 	memset(&sf->routes[0], 0, sizeof(struct ipam));
 	sf->routes[0].ea = malloc(sizeof(struct ipam_ea) * sf->ea_nr);
+	sf->routes[0].ea_nr = ea_nr;
 	if (sf->routes[0].ea == NULL) {
 		fprintf(stderr, "unable to allocate memory for Extended Attributes aborting\n");
 		return  CSV_CATASTROPHIC_FAILURE;
