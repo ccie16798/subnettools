@@ -301,8 +301,18 @@ int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt) {
 	outbuf[j] = '\0';
 	return fputs(outbuf, output);
 }
- /* a very specialized function to print a struct ipam */
-int fprint_ipam_fmt(FILE *output, const struct ipam *r, const char *fmt) {
+
+#define IPAM_HEADER(__val)			\
+	if (header) { \
+		strcpy(buffer, __val); \
+		res = strlen(buffer); \
+		res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer, \
+				res, field_width, pad_left, pad_value); \
+		j += res; \
+		break; \
+	}
+/* a very specialized function to print a struct ipam */
+static int __fprint_ipam_fmt(FILE *output, const struct ipam *r, const char *fmt, int header) {
 	int i, j, i2, compression_level;
 	int res, pad_left;
 	char c;
@@ -340,7 +350,7 @@ int fprint_ipam_fmt(FILE *output, const struct ipam *r, const char *fmt) {
 					i--;
 					break;
 				case 'M':
-					PRINT_FILE_HEADER(mask)
+					IPAM_HEADER("mask")
 					if (r->subnet.ip_ver == IPV4_A)
 						res = mask2ddn(r->subnet.mask, buffer, sizeof(buffer));
 					else if (r->subnet.ip_ver == IPV6_A)
@@ -354,7 +364,7 @@ int fprint_ipam_fmt(FILE *output, const struct ipam *r, const char *fmt) {
 					j += res;
 					break;
 				case 'm':
-					PRINT_FILE_HEADER(mask)
+					IPAM_HEADER("mask")
 					if (r->subnet.ip_ver == IPV4_A || r->subnet.ip_ver == IPV6_A)
 						res = sprint_uint(buffer, r->subnet.mask);
 					else {
@@ -366,7 +376,7 @@ int fprint_ipam_fmt(FILE *output, const struct ipam *r, const char *fmt) {
 					j += res;
 					break;
 				case 'I': /* IP address */
-					PRINT_FILE_HEADER(prefix)
+					IPAM_HEADER("address")
 					SET_IP_COMPRESSION_LEVEL(fmt[i2 + 1]);
 					copy_subnet(&v_sub, &r->subnet);
 					res = subnet2str(&v_sub, buffer, sizeof(buffer), compression_level);
@@ -375,7 +385,7 @@ int fprint_ipam_fmt(FILE *output, const struct ipam *r, const char *fmt) {
 					j += res;
 					break;
 				case 'P': /* Prefix */
-					PRINT_FILE_HEADER(prefix)
+					IPAM_HEADER("prefix")
 					SET_IP_COMPRESSION_LEVEL(fmt[i2 + 1]);
 					copy_subnet(&v_sub, &r->subnet);
 					subnet2str(&v_sub, buffer2, sizeof(buffer2), compression_level);
@@ -395,7 +405,7 @@ int fprint_ipam_fmt(FILE *output, const struct ipam *r, const char *fmt) {
 						debug(FMT, 3, "Invalid Extended Attribute number #%d, max %d\n",							 ea_num, r->ea_nr);
 						break;
 					}
-					if (r == NULL)
+					if (header)
 						res = strxcpy(buffer, r->ea[ea_num].name, sizeof(buffer));
 					else
 						res = strxcpy(buffer, r->ea[ea_num].value, sizeof(buffer));
@@ -420,6 +430,13 @@ int fprint_ipam_fmt(FILE *output, const struct ipam *r, const char *fmt) {
 	outbuf[j++] = '\n';
 	outbuf[j] = '\0';
 	return fputs(outbuf, output);
+}
+int fprint_ipam_fmt(FILE *output, const struct ipam *r, const char *fmt) {
+	return __fprint_ipam_fmt(output, r, fmt, 0);
+}
+
+int fprint_ipam_header(FILE *output, const struct ipam *r, const char *fmt) {
+	return __fprint_ipam_fmt(output, r, fmt, 1);
 }
 /*
  * a very specialized function to print a struct bgp_route */
