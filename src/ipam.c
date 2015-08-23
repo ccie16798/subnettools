@@ -12,6 +12,7 @@
 #include <string.h>
 #include "debug.h"
 #include "utils.h"
+#include "st_scanf.h"
 #include "st_printf.h"
 #include "generic_csv.h"
 #include "ipam.h"
@@ -204,4 +205,107 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof) {
 	if (res < 0)
 		return res;
 	return generic_load_csv(name, &cf, &state, sf);
+}
+
+
+static int __heap_subnet_is_superior(void *v1, void *v2) {
+	struct subnet *s1 = &((struct ipam *)v1)->subnet;
+	struct subnet *s2 = &((struct ipam *)v2)->subnet;
+
+	return subnet_is_superior(s1, s2);
+}
+
+static int ipam_filter(char *s, char *value, char op, void *object) {
+	struct ipam *ipam = object;
+	struct subnet subnet;
+	int res, j;
+	int found = 0;
+
+	debug(FILTER, 8, "Filtering '%s' %c '%s'\n", s, op, value);
+	if (!strcmp(s, "prefix")) {
+		res = get_subnet_or_ip(value, &subnet);
+		if (res < 0) {
+			debug(FILTER, 1, "Filtering on prefix %c '%s',  but it is not an IP\n", op, value);
+			return -1;
+		}
+		res = subnet_compare(&ipam->subnet, &subnet);
+		switch (op) {
+		case '=':
+			return (res == EQUALS);
+			break;
+		case '#':
+			return !(res == EQUALS);
+			break;
+		case '<':
+			return __heap_subnet_is_superior(&ipam->subnet, &subnet);
+			break;
+		case '>':
+			return !__heap_subnet_is_superior(&ipam->subnet, &subnet) && res != EQUALS;
+			break;
+		case '{':
+			return (res == INCLUDED || res == EQUALS);
+			break;
+		case '}':
+			return (res == INCLUDES || res == EQUALS);
+			break;
+		default:
+			debug(FILTER, 1, "Unsupported op '%c' for prefix\n", op);
+			return -1;
+		}
+	}
+	else if (!strcmp(s, "mask")) {
+		res =  string2mask(value, 42);
+		if (res < 0) {
+			debug(FILTER, 1, "Filtering on mask %c '%s',  but it is valid\n", op, value);
+			return -1;
+		}
+		switch (op) {
+		case '=':
+			return (ipam->subnet.mask == res);
+			break;
+		case '#':
+			return !(ipam->subnet.mask == res);
+			break;
+		case '<':
+			return (ipam->subnet.mask < res);
+			break;
+		case '>':
+			return (ipam->subnet.mask > res);
+			break;
+		default:
+			debug(FILTER, 1, "Unsupported op '%c' for mask\n", op);
+			return -1;
+		}
+	}
+	else {
+		for (j = 0; j < ipam->ea_nr; j++) {
+			if (!strcmp(s, ipam->ea[j].name)) {
+				found = 1;
+				break;
+			}
+		}
+		if (found == 0) {
+			debug(FILTER, 1, "Cannot filter on attribute '%s'\n", s);
+			return 0;
+		}
+		debug(IPAM, 5, "We will filter on EA: '%s'\n", ipam->ea[j].name);
+		switch(op) {
+		case '=':
+			return (!strcmp(ipam->ea[j].value, value));
+			break;
+		case '#':
+			return (strcmp(ipam->ea[j].value, value));
+			break;
+		case '~':
+			res = st_sscanf(ipam->ea[j].value, value);
+			return (res < 0 ? 0 : 1);
+			break;
+		default:
+			debug(FILTER, 1, "Unsupported op '%c' for Extended Attribute\n", op);
+			return -1;
+			break;
+		}
+
+	}
+	return -1;
 }
