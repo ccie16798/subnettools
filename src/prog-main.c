@@ -210,7 +210,6 @@ void usage() {
 	printf("compare FILE1 FILE2 : compare FILE1 & FILE2, printing subnets in FILE1 INCLUDED in FILE2\n");
 	printf("missing FILE1 FILE2 : prints subnets from FILE1 that are not covered by FILE2; GW is not checked\n");
 	printf("uniq FILE1 FILE2    : prints unique subnets from FILE1 and FILE2\n");
-	printf("ipam <IPAM> FILE1   : load IPAM, and print FILE1 subnets with comment extracted from IPAM\n");
 	printf("common FILE1 FILE2  : merge CSV subnet files FILE1 & FILE2; prints common routes only; GW isn't checked\n");
 	printf("addfiles FILE1 FILE2: merge CSV subnet files FILE1 & FILE2; prints the sum of both files\n");
 	printf("grep FILE prefix    : grep FILE for prefix/mask\n");
@@ -218,6 +217,12 @@ void usage() {
 	printf("filter help         : prints help about bgp filters\n");
 	printf("bgpfilter FILE EXPR : grep bgp_file FILE using regexp EXPR\n");
 	printf("bgpfilter help      : prints help about bgp filters\n");
+	printf("\n");
+	printf("IPAM tools\n");
+	printf("----------\n");
+	printf("ipam <IPAM> FILE1   : load IPAM, and print FILE1 subnets with comment extracted from IPAM\n");
+	printf("ipamfilter FILE EXPR: load IPAM, and filter using regexp EXPR\n");
+	printf("ipamprint FILE      : print IPAM; use option -ipamea to select Extended Attributes\n");
 	printf("\n");
 	printf("Miscellaneous route file tools\n");
 	printf("------------------------------\n");
@@ -247,6 +252,7 @@ void usage() {
 	printf("version             : %s version \n", PROG_NAME);
 	printf("\nOPTIONS := \n");
 	printf("-d <delim>      : change the default field delim (;) \n");
+	printf("-ipamea EA1,EA2 : load Extended Attributes in IPAM files; use ',' to select more\n");
 	printf("-c <file >      : use config file <file>  instead of st.conf\n");
 	printf("-o <file >      : write output in <file> \n");
 	printf("-rt		: when converting routing table, set route type as comment\n");
