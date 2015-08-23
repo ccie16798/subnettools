@@ -42,13 +42,18 @@ static int netcsv_prefix_handle(char *s, void *data, struct csv_state *state) {
 	struct subnet_file *sf = data;
 	int res;
 	struct subnet subnet;
+	int mask;
 
+	if (state->state[0])
+		mask = sf->routes[sf->nr].subnet.mask;
 	res = get_subnet_or_ip(s, &subnet);
 	if (res < 0) {
 		debug(LOAD_CSV, 2, "invalid IP %s line %lu\n", s, state->line);
 		return CSV_INVALID_FIELD_BREAK;
 	}
 	copy_subnet(&sf->routes[sf->nr].subnet,  &subnet);
+	if (state->state[0]) /* if we found a mask before finding a subnet */
+		sf->routes[sf->nr].subnet.mask = mask;
 	return CSV_VALID_FIELD;
 }
 
@@ -61,6 +66,7 @@ static int netcsv_mask_handle(char *s, void *data, struct csv_state *state) {
 		return CSV_INVALID_FIELD_BREAK;
 	}
 	sf->routes[sf->nr].subnet.mask = mask;
+	state->state[0] = 1;
 	return CSV_VALID_FIELD;
 }
 
@@ -134,6 +140,7 @@ static int netcsv_endofline_callback(struct csv_state *state, void *data) {
 		sf->routes = new_r;
 	}
 	zero_route(&sf->routes[sf->nr]);
+	state->state[0] = 0; /* state[0] = we found a mask */
 	return CSV_CONTINUE;
 }
 
