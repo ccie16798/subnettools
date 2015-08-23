@@ -1175,8 +1175,6 @@ int main(int argc, char **argv) {
 		strcpy(nof.output_fmt, default_fmt);
 	if (strlen(nof.bgp_output_fmt) < 2)
 		strcpy(nof.bgp_output_fmt, bgp_default_fmt);
-	if (strlen(nof.ipam_output_fmt) < 2)
-		strcpy(nof.ipam_output_fmt, ipam_default_fmt);
 
 	res = generic_command_run(argc, argv, PROG_NAME, &nof);
 	fclose(nof.output_file);
