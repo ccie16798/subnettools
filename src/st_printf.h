@@ -18,6 +18,10 @@ int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt);
  */
 int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt);
 
+
+int fprint_ipam_fmt(FILE *output, const struct ipam *r, const char *fmt);
+int fprint_ipam_header(FILE *output, const struct ipam *r, const char *fmt);
+
 /* subnettool variants of sprintf, fprintf and printf
  * fmt understand the following types :
  *
