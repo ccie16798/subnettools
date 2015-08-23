@@ -918,6 +918,7 @@ static int run_test(int arc, char **argv, void *st_options) {
 	struct ipam_file sf1;
 
 	load_ipam(argv[2], &sf1, st_options);
+	fprint_ipam_file(stdout, &sf1);
 	return 0;
 }
 
