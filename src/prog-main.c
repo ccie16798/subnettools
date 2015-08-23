@@ -400,9 +400,9 @@ static int run_ipamprint(int arc, char **argv, void *st_options) {
 	res = load_ipam(argv[2], &sf, nof);
 	DIE_ON_BAD_FILE(argv[2]);
 	/* print fmt header just if user provided a fmt */
-	if (strlen(nof->ipam_output_fmt) > 2)
-		fprint_ipam_header(nof->output_file, &sf.routes[0], nof->ipam_output_fmt);
+	fprint_ipam_header(nof->output_file, &sf.routes[0], nof->ipam_output_fmt);
 	fprint_ipam_file_fmt(nof->output_file, &sf, nof->ipam_output_fmt);
+	free_ipam_file(&sf);
 	return 0;
 }
 

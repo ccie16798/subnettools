@@ -437,6 +437,15 @@ int fprint_ipam_fmt(FILE *output, const struct ipam *r, const char *fmt) {
 }
 
 int fprint_ipam_header(FILE *output, const struct ipam *r, const char *fmt) {
+	int i, a = 0;
+
+	if (strlen(fmt) < 2) {
+		a += fprintf(output, "prefix;");
+		for (i = 0; i < r->ea_nr; i ++)
+			a += fprintf(output, "%s;", r->ea[i].name);
+		a += fprintf(output, "\n");
+		return a;
+	}
 	return __fprint_ipam_fmt(output, r, fmt, 1);
 }
 /*
