@@ -103,6 +103,7 @@ static int run_bgpsortby(int argc, char **argv, void *st_options);
 static int run_echo(int argc, char **argv, void *st_options);
 static int run_print(int argc, char **argv, void *st_options);
 static int run_bgpprint(int argc, char **argv, void *st_options);
+static int run_ipamprint(int argc, char **argv, void *st_options);
 static int run_test(int argc, char **argv, void *st_options);
 static int run_gen_expr(int argc, char **argv, void *st_options);
 static int run_test2(int argc, char **argv, void *st_options);
@@ -124,6 +125,7 @@ struct st_command commands[] = {
 	{ "echo",	&run_echo,	2},
 	{ "print",	&run_print,	0},
 	{ "bgpprint",	&run_bgpprint,	0},
+	{ "ipamprint",	&run_ipamprint,	0},
 	{ "relation",	&run_relation,	2},
 	{ "bgpcmp",	&run_bgpcmp,	2},
 	{ "bgpsortby",	&run_bgpsortby,	1},
@@ -385,6 +387,19 @@ static int run_bgpprint(int arc, char **argv, void *st_options) {
 
 	fprint_bgproute_fmt(nof->output_file, NULL, nof->bgp_output_fmt);
 	fprint_bgp_file_fmt(nof->output_file, &sf, nof->bgp_output_fmt);
+	return 0;
+}
+
+static int run_ipamprint(int arc, char **argv, void *st_options) {
+	int res;
+	struct ipam_file sf;
+	struct st_options *nof = st_options;
+
+	res = load_ipam(argv[2], &sf, nof);
+	DIE_ON_BAD_FILE(argv[2]);
+
+	fprint_ipam_fmt(nof->output_file, NULL, nof->ipam_output_fmt);
+	fprint_ipam_file_fmt(nof->output_file, &sf, nof->ipam_output_fmt);
 	return 0;
 }
 
