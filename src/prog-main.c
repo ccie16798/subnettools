@@ -83,6 +83,7 @@ static int run_addfiles(int argc, char **argv, void *st_options);
 static int run_sort(int argc, char **argv, void *st_options);
 static int run_sortby(int argc, char **argv, void *st_options);
 static int run_filter(int argc, char **argv, void *st_options);
+static int run_ipam_filter(int argc, char **argv, void *st_options);
 static int run_bgp_filter(int argc, char **argv, void *st_options);
 static int run_sum(int argc, char **argv, void *st_options);
 static int run_scanf(int argc, char **argv, void *st_options);
@@ -144,6 +145,7 @@ struct st_command commands[] = {
 	{ "sort",	&run_sort,	0},
 	{ "sortby",	&run_sortby,	1},
 	{ "filter",	&run_filter,	1},
+	{ "ipamfilter",	&run_ipam_filter,1},
 	{ "bgpfilter",	&run_bgp_filter,1},
 	{ "sum",	&run_sum,	1},
 	{ "subnetagg",	&run_subnetagg,	1},
@@ -502,11 +504,11 @@ static int run_filter(int arc, char **argv, void *st_options) {
 		res = load_netcsv_file(NULL, &sf, nof);
 		if (res < 0)
 			return res;
-		res = subnet_filter(&sf, argv[2]);
+		res = subnet_file_filter(&sf, argv[2]);
 	} else {
 		res = load_netcsv_file(argv[2], &sf, nof);
 		DIE_ON_BAD_FILE(argv[2]);
-		res = subnet_filter(&sf, argv[3]);
+		res = subnet_file_filter(&sf, argv[3]);
 	}
 	if (res < 0) {
 		free(sf.routes);
@@ -530,11 +532,11 @@ static int run_bgp_filter(int arc, char **argv, void *st_options) {
 		res = load_bgpcsv(NULL, &sf, nof);
 		if (res < 0)
 			return res;
-		res = bgp_filter(&sf, argv[2]);
+		res = bgp_file_filter(&sf, argv[2]);
 	} else {
 		res = load_bgpcsv(argv[2], &sf, nof);
 		DIE_ON_BAD_FILE(argv[2]);
-		res = bgp_filter(&sf, argv[3]);
+		res = bgp_file_filter(&sf, argv[3]);
 	}
 	if (res < 0) {
 		free(sf.routes);
@@ -542,6 +544,34 @@ static int run_bgp_filter(int arc, char **argv, void *st_options) {
 	}
 	fprint_bgp_file(nof->output_file, &sf);
 	free(sf.routes);
+	return 0;
+}
+
+static int run_ipam_filter(int arc, char **argv, void *st_options) {
+	int res;
+	struct ipam_file sf;
+	struct st_options *nof = st_options;
+
+	if (!strcmp(argv[2], "help")) {
+		fprint_ipamfilter_help(stdout);
+		return 0;
+	}
+	if (argv[3] == NULL) { /* read from stdin */
+		res = load_ipam(NULL, &sf, nof);
+		if (res < 0)
+			return res;
+		res = ipam_file_filter(&sf, argv[2]);
+	} else {
+		res = load_ipam(argv[2], &sf, nof);
+		DIE_ON_BAD_FILE(argv[2]);
+		res = ipam_file_filter(&sf, argv[3]);
+	}
+	if (res < 0) {
+		free_ipam_file(&sf);
+		return res;
+	}
+	fprint_ipam_file_fmt(nof->output_file, &sf, nof->ipam_output_fmt);
+	free_ipam_file(&sf);
 	return 0;
 }
 
