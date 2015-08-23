@@ -919,9 +919,10 @@ static int run_bgpsortby(int arc, char **argv, void *st_options) {
 
 static int run_test(int arc, char **argv, void *st_options) {
 	struct ipam_file sf1;
+	struct st_options *o = st_options;
 
 	load_ipam(argv[2], &sf1, st_options);
-	fprint_ipam_file(stdout, &sf1);
+	fprint_ipam_file_fmt(stdout, &sf1, o->ipam_output_fmt);
 	return 0;
 }
 
@@ -1103,8 +1104,13 @@ int main(int argc, char **argv) {
 		res = strxcpy(conf_abs_path, s, sizeof(conf_abs_path));
 		res = strxcpy(conf_abs_path + res, "/st.conf", sizeof(conf_abs_path) - res);
 		nof.config_file = conf_abs_path;
-	}
-	open_config_file(nof.config_file, &nof);
+		res = open_config_file(nof.config_file, &nof);
+		if (res == -1) { /* try to open ./st.conf */
+			strcpy(nof.config_file, "./st.conf");
+			res = open_config_file(nof.config_file, &nof);
+		}
+	} else
+		open_config_file(nof.config_file, &nof);
 
 	/* if delims are not set, set the default one*/
 	if (strlen(nof.delim) == 0)
