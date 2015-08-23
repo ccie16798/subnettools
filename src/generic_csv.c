@@ -168,8 +168,12 @@ static int read_csv_body(FILE *f, char *name, struct csv_file *cf,
 					}
 					if (s == NULL)
 						break;
+				} else if (res == CSV_CATASTROPHIC_FAILURE) {/* FATAL ERROR like no more memory*/
+					debug(LOAD_CSV, 1,  "line %lu : fatal error, aborting\n", state->line);
+					debug_timing_end(2);
+					return -2;
 				}
-			} /* if csv_field->handle != NULL */
+			} /* if csv_>field */
 			s = cf->csv_strtok_r(NULL, cf->delim, &save_s);
 		} /* while s */
 		if (pos < cf->max_mandatory_pos) {
