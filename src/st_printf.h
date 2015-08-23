@@ -1,6 +1,8 @@
 #ifndef ST_PRINTF_H
 #define ST_PRINTF_H
 #include "st_object.h"
+#include "ipam.h"
+#include "st_handle_csv.h"
 
 /* simple and dummy print a route */
 void fprint_route(FILE *output, const struct route *r, int compress_level);
@@ -36,7 +38,15 @@ int sto_fprintf(const char *fmt, struct sto *o, int max_o, ...);
 int sto_printf(const char *fmt, struct sto *o, int max_o, ...);
 
 void print_route(FILE *out, const struct route *r, int comp_level);
+void print_subnet_file(const struct subnet_file *sf, int comp_level);
+void fprint_subnet_file(FILE *output, const struct subnet_file *sf, int comp_level);
+void fprint_subnet_file_fmt(FILE *output, const struct subnet_file *sf, const char *fmt);
 
+void fprint_bgp_file_fmt(FILE *output, const struct bgp_file *sf, const char *fmt);
+void print_bgp_file_fmt(const struct bgp_file *sf, const char *fmt);
+
+void fprint_ipam_file_fmt(FILE *output, const struct ipam_file *sf, const char *fmt);
+void print_ipam_file_fmt(const struct ipam_file *sf, const char *fmt);
 #define st_debug(__EVENT, __DEBUG_LEVEL, __FMT...) \
 	do { \
 		int ___x = (__D_##__EVENT); \

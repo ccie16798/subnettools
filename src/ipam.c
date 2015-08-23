@@ -123,9 +123,10 @@ static int ipam_ea_handle(char *s, void *data, struct csv_state *state) {
 
 	z = strdup(s); /* s cant be NULL here */
 	if (z == NULL) {
-		debug(LOAD_CSV, 1, "Unable to allocate memory\n");
+		fprintf(stderr, "unable to alloc memory, need to abort\n");
 		return CSV_CATASTROPHIC_FAILURE;
 	}
+	debug(IPAM, 6, "Found %s = %s\n",  sf->routes[sf->nr].ea[ea_nr].name, z);
 	sf->routes[sf->nr].ea[ea_nr].value = z;
 	state->state[0]++;
 	return CSV_VALID_FIELD;

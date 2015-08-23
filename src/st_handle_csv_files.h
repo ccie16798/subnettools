@@ -21,11 +21,5 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 int load_ipam_no_EA(char  *name, struct subnet_file *sf, struct st_options *nof);
 int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof);
 
-void print_subnet_file(const struct subnet_file *sf, int comp_level);
-void fprint_subnet_file(FILE *output, const struct subnet_file *sf, int comp_level);
-void fprint_subnet_file_fmt(FILE *output, const struct subnet_file *sf, const char *fmt);
-
-void fprint_bgp_file_fmt(FILE *output, const struct bgp_file *sf, const char *fmt);
-void print_bgp_file_fmt(const struct bgp_file *sf, const char *fmt);
 #else
 #endif

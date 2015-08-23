@@ -279,7 +279,6 @@ int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt) {
 					copy_ipaddr(&sub.ip_addr, &r->gw);
 					sub.ip_ver = r->subnet.ip_ver;
 					res = subnet2str(&sub, buffer, sizeof(buffer), compression_level);
-					//res = addr2str(&r->gw, buffer, sizeof(buffer), compression_level);
 					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
 							res, field_width, pad_left, ' ');
 					j += res;
@@ -930,4 +929,15 @@ void fprint_bgp_file_fmt(FILE *output, const struct bgp_file *sf, const char *fm
 
 void print_bgp_file_fmt(const struct bgp_file *sf, const char *fmt) {
 	fprint_bgp_file_fmt(stdout, sf, fmt);
+}
+
+void fprint_ipam_file_fmt(FILE *output, const struct ipam_file *sf, const char *fmt) {
+	unsigned long i;
+
+	for (i = 0; i < sf->nr; i++)
+		fprint_ipam_fmt(output, &sf->routes[i], fmt);
+}
+
+void print_ipam_file_fmt(const struct ipam_file *sf, const char *fmt) {
+	fprint_ipam_file_fmt(stdout, sf, fmt);
 }
