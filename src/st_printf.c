@@ -267,9 +267,8 @@ int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt) {
 				case 'P': /* Prefix */
 					PRINT_FILE_HEADER(prefix)
 					SET_IP_COMPRESSION_LEVEL(fmt[i2 + 1]);
-					copy_subnet(&v_sub, &r->subnet);
-					subnet2str(&v_sub, buffer2, sizeof(buffer2), compression_level);
-					res = sprintf(buffer, "%s/%d", buffer2, (int)v_sub.mask);
+					subnet2str(&r->subnet, buffer2, sizeof(buffer2), compression_level);
+					res = sprintf(buffer, "%s/%d", buffer2, (int)r->subnet.mask);
 					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
 							res, field_width, pad_left, ' ');
 					j += res;
@@ -280,6 +279,7 @@ int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt) {
 					copy_ipaddr(&sub.ip_addr, &r->gw);
 					sub.ip_ver = r->subnet.ip_ver;
 					res = subnet2str(&sub, buffer, sizeof(buffer), compression_level);
+					//res = addr2str(&r->gw, buffer, sizeof(buffer), compression_level);
 					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
 							res, field_width, pad_left, ' ');
 					j += res;
