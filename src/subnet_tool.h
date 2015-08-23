@@ -13,7 +13,7 @@ int subnet_sort_ascending(struct subnet_file *sf);
 int subnet_sort_by(struct subnet_file *sf, char *name);
 void subnet_available_cmpfunc(FILE *out);
 int fprint_routefilter_help(FILE *out);
-int subnet_filter(struct subnet_file *sf, char *expr);
+int subnet_file_filter(struct subnet_file *sf, char *expr);
 /* remove duplicate/included entries, and sort */
 int subnet_file_simplify(struct subnet_file *sf);
 /* same but take GW into account, must be equal 

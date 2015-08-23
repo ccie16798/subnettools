@@ -1173,7 +1173,7 @@ static int route_filter(char *s, char *value, char op, void *object) {
  * 0  on SUCCESS
  * -1 on ERROR
  */
-int subnet_filter(struct subnet_file *sf, char *expr) {
+int subnet_file_filter(struct subnet_file *sf, char *expr) {
 	int i, j, res, len;
 	struct generic_expr e;
 	struct route *new_r;
