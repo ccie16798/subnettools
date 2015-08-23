@@ -32,6 +32,7 @@
 
 const char *default_fmt     = "%I;%m;%D;%G;%C";
 const char *bgp_default_fmt = "%v;%5T;%4B;%16P;%16G;%10M;%10L;%10w;%6o;%A";
+const char *ipam_default_fmt = "%I;%m";
 
 /* struct file_options and MACROs ffrom config_file.[ch] */
 struct file_options fileoptions[] = {
@@ -62,6 +63,8 @@ struct file_options fileoptions[] = {
 		"Default Output Format String" },
 	{ FILEOPT_LINE(bgp_output_fmt, struct st_options, TYPE_STRING),
 		"Default BGP Output Format String" },
+	{ FILEOPT_LINE(ipam_output_fmt, struct st_options, TYPE_STRING),
+		"Default IPAM Output Format String" },
 	{ FILEOPT_LINE(subnet_off, struct st_options, TYPE_INT) },
 	{NULL,                  0, 0}
 };
@@ -1031,6 +1034,7 @@ static int option_fmt(int argc, char **argv, void *st_options) {
 
 	strxcpy(nof->output_fmt, argv[1], sizeof(nof->output_fmt));
 	strxcpy(nof->bgp_output_fmt, argv[1], sizeof(nof->bgp_output_fmt));
+	strxcpy(nof->ipam_output_fmt, argv[1], sizeof(nof->ipam_output_fmt));
 	debug(PARSEOPTS, 3, "Changing default FMT : '%s'\n", argv[1]);
 	return 0;
 }
@@ -1120,6 +1124,8 @@ int main(int argc, char **argv) {
 		strcpy(nof.output_fmt, default_fmt);
 	if (strlen(nof.bgp_output_fmt) < 2)
 		strcpy(nof.bgp_output_fmt, bgp_default_fmt);
+	if (strlen(nof.ipam_output_fmt) < 2)
+		strcpy(nof.ipam_output_fmt, ipam_default_fmt);
 
 	res = generic_command_run(argc, argv, PROG_NAME, &nof);
 	fclose(nof.output_file);
