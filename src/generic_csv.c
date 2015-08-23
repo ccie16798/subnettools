@@ -291,7 +291,7 @@ void init_csv_state(struct csv_state *cs, char *name) {
 
 int register_csv_field(struct csv_field *cf, char *name, int mandatory,
 	int (*handle)(char *token, void *data, struct csv_state *state)) {
-	int i;
+	int i = 0;
 
 	while (1) {
 		if (cf[i].name != NULL) {
