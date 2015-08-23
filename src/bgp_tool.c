@@ -526,7 +526,7 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 	return 0;
 }
 
-int bgp_filter(struct bgp_file *sf, char *expr) {
+int bgp_file_filter(struct bgp_file *sf, char *expr) {
 	int i, j, res, len;
 	struct generic_expr e;
 	struct bgp_route *new_r;
