@@ -1,7 +1,7 @@
 /*
  * subnet tools MAIN
  *
- * Copyright (C) 2014,2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ * Copyright (C) 2014, 2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
@@ -34,19 +34,33 @@ const char *bgp_default_fmt = "%v;%5T;%4B;%16P;%16G;%10M;%10L;%10w;%6o;%A";
 
 /* struct file_options and MACROs ffrom config_file.[ch] */
 struct file_options fileoptions[] = {
-	{ FILEOPT_LINE(ipam_prefix_field, struct st_options, TYPE_STRING), "IPAM CSV header field describing the prefix"  },
-	{ FILEOPT_LINE(ipam_mask, struct st_options, TYPE_STRING), "IPAM CSV header field describing the mask" },
-	{ FILEOPT_LINE(ipam_comment1, struct st_options, TYPE_STRING), "IPAM CSV header field describing comment" },
-	{ FILEOPT_LINE(ipam_comment2, struct st_options, TYPE_STRING),  "IPAM CSV header field describing comment" },
+	{ FILEOPT_LINE(ipam_prefix_field, struct st_options, TYPE_STRING),
+		"IPAM CSV header field describing the prefix"  },
+	{ FILEOPT_LINE(ipam_mask, struct st_options, TYPE_STRING),
+		"IPAM CSV header field describing the mask" },
+	{ FILEOPT_LINE(ipam_comment1, struct st_options, TYPE_STRING),
+		"IPAM CSV header field describing comment" },
+	{ FILEOPT_LINE(ipam_comment2, struct st_options, TYPE_STRING),
+		"IPAM CSV header field describing comment" },
 	{ FILEOPT_LINE(ipam_delim, struct st_options, TYPE_STRING),  "IPAM CSV delimitor" },
-	{ "netcsv_delim", TYPE_STRING, sizeofmember(struct st_options, delim), offsetof(struct st_options, delim), "CSV delimitor" },
-	{ FILEOPT_LINE(netcsv_prefix_field, struct st_options, TYPE_STRING), "Subnet CSV header field describing the prefix" },
-	{ FILEOPT_LINE(netcsv_mask, struct st_options, TYPE_STRING), "Subnet CSV header field describing the mask" },
-	{ FILEOPT_LINE(netcsv_comment, struct st_options, TYPE_STRING), "Subnet CSV header field describing the comment" },
-	{ FILEOPT_LINE(netcsv_device, struct st_options, TYPE_STRING), "Subnet CSV header field describing the device" },
-	{ FILEOPT_LINE(netcsv_gw, struct st_options, TYPE_STRING), "Subnet CSV header field describing the gateway" },
-	{ FILEOPT_LINE(output_fmt, struct st_options, TYPE_STRING), "Default Output Format String" },
-	{ FILEOPT_LINE(bgp_output_fmt, struct st_options, TYPE_STRING), "Default BGP Output Format String" },
+	{ FILEOPT_LINE(ipam_EA_name, struct st_options, TYPE_STRING),
+		"IPAM Extended Attributes to collect" },
+	{ "netcsv_delim", TYPE_STRING, sizeofmember(struct st_options, delim), offsetof(struct st_options, delim),
+		"CSV delimitor" },
+	{ FILEOPT_LINE(netcsv_prefix_field, struct st_options, TYPE_STRING),
+		"Subnet CSV header field describing the prefix" },
+	{ FILEOPT_LINE(netcsv_mask, struct st_options, TYPE_STRING),
+		"Subnet CSV header field describing the mask" },
+	{ FILEOPT_LINE(netcsv_comment, struct st_options, TYPE_STRING),
+		"Subnet CSV header field describing the comment" },
+	{ FILEOPT_LINE(netcsv_device, struct st_options, TYPE_STRING),
+		"Subnet CSV header field describing the device" },
+	{ FILEOPT_LINE(netcsv_gw, struct st_options, TYPE_STRING),
+		"Subnet CSV header field describing the gateway" },
+	{ FILEOPT_LINE(output_fmt, struct st_options, TYPE_STRING),
+		"Default Output Format String" },
+	{ FILEOPT_LINE(bgp_output_fmt, struct st_options, TYPE_STRING),
+		"Default BGP Output Format String" },
 	{ FILEOPT_LINE(subnet_off, struct st_options, TYPE_INT) },
 	{NULL,                  0, 0}
 };
