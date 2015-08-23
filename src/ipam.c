@@ -12,9 +12,10 @@
 #include <string.h>
 #include "debug.h"
 #include "st_options.h"
-#include "ipam.h"
 #include "utils.h"
+#include "st_printf.h"
 #include "generic_csv.h"
+#include "ipam.h"
 
 int alloc_ipam_file(struct ipam_file *sf, unsigned long n) {
 	if (n > SIZE_T_MAX / sizeof(struct ipam)) { /* being paranoid */
@@ -32,6 +33,19 @@ int alloc_ipam_file(struct ipam_file *sf, unsigned long n) {
 	sf->nr = 0;
 	sf->max_nr = n;
 	return 0;
+}
+
+void fprint_ipam_file(FILE *out, struct ipam_file *sf) {
+	int i, j;
+
+	for (i = 0; i < sf->nr; i++) {
+		st_fprintf(out, "%P;", sf->routes[i].subnet);
+		for (j = 0; j < sf->ea_nr; j++)
+			st_fprintf(out, "%s=%s;", sf->routes[i].ea[j].name,
+					sf->routes[i].ea[j].value);
+		fprintf(out, "\n");
+	}
+
 }
 
 void free_ipam_file(struct ipam_file *sf) {
@@ -76,12 +90,7 @@ static int ipam_ea_handle(char *s, void *data, struct csv_state *state) {
 	int ea_nr = state->state[0];
 	char *z;
 
-	if (s == NULL) {
-		sf->routes[sf->nr].ea[ea_nr].value = NULL;
-		state->state[0]++;
-		return CSV_VALID_FIELD;
-	}
-	z = strdup(s);
+	z = strdup(s); /* s cant be NULL here */
 	if (z == NULL) {
 		debug(LOAD_CSV, 1, "Unable to allocate memory\n");
 		return CSV_CATASTROPHIC_FAILURE;
