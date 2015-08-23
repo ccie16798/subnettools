@@ -30,6 +30,7 @@ struct ipam_file {
 
 int alloc_ipam_file(struct ipam_file *sf, unsigned long n);
 
+int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof);
 
 #else
 #endif

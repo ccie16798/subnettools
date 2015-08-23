@@ -1,3 +1,12 @@
+/*
+ * Code to read IPAM CSV files
+ *
+ * Copyright (C) 2014,2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of version 2 of the GNU General Public License
+ * as published by the Free Software Foundation.
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -23,6 +32,17 @@ int alloc_ipam_file(struct ipam_file *sf, unsigned long n) {
 	sf->nr = 0;
 	sf->max_nr = n;
 	return 0;
+}
+
+void free_ipam_file(struct ipam_file *sf) {
+	int i, j;
+
+	for (i = 0; i < sf->nr; i++) {
+		for (j = 0; j < sf->ea_nr; j++)
+			free(sf->routes[i].ea[j].value);
+		free(sf->routes[i].ea);
+	}
+	free(sf->routes);
 }
 
 static int ipam_prefix_handle(char *s, void *data, struct csv_state *state) {
@@ -56,6 +76,11 @@ static int ipam_ea_handle(char *s, void *data, struct csv_state *state) {
 	int ea_nr = state->state[0];
 	char *z;
 
+	if (s == NULL) {
+		sf->routes[sf->nr].ea[ea_nr].value = NULL;
+		state->state[0]++;
+		return CSV_VALID_FIELD;
+	}
 	z = strdup(s);
 	if (z == NULL) {
 		debug(LOAD_CSV, 1, "Unable to allocate memory\n");
@@ -106,17 +131,26 @@ static int ipam_endofline_callback(struct csv_state *state, void *data) {
 
 int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof) {
 	struct csv_field csv_field[50] = {
-		{ "address*"	, 0,  3, 1, &ipam_prefix_handle },
-		{ "netmask"	, 0,  3, 1, &ipam_mask_handle },
+		{ "address*"	, 0,  0, 1, &ipam_prefix_handle },
+		{ "netmask_dec"	, 0,  0, 1, &ipam_mask_handle },
 		{ NULL, 0,0,0, NULL }
 	};
 	struct csv_file cf;
 	struct csv_state state;
+	char *s;
 
 	if (nof->ipam_prefix_field[0])
 		csv_field[0].name = nof->ipam_prefix_field;
 	if (nof->ipam_mask[0])
 		csv_field[1].name = nof->ipam_mask;
+
+	debug(IPAM, 3, "Parsing EA : '%s'\n", nof->ipam_EA_name);
+	s = strtok(nof->ipam_EA_name, ",");
+	while (s) {
+		debug(IPAM, 3, "Registering Extended Attribute : '%s'\n", s);
+		register_csv_field(csv_field, s, 0, ipam_ea_handle);
+		s = strtok(NULL, ",");
+	}
 	init_csv_file(&cf, name, csv_field, nof->ipam_delim, &simple_strtok_r);
 	cf.endofline_callback = ipam_endofline_callback;
 	init_csv_state(&state, name);
@@ -124,5 +158,10 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof) {
 	if (alloc_ipam_file(sf, 16192) < 0)
 		return -2;
 	memset(&sf->routes[0], 0, sizeof(struct ipam));
+	sf->routes[0].ea = malloc(sizeof(struct ipam_ea) * sf->ea_nr);
+	if (sf->routes[0].ea == NULL) {
+		fprintf(stderr, "unable to allocate memory for Extended Attributes aborting\n");
+		return  CSV_CATASTROPHIC_FAILURE;
+	}
 	return generic_load_csv(name, &cf, &state, sf);
 }
