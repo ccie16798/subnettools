@@ -18,6 +18,7 @@
 #include "utils.h"
 #include "st_object.h"
 #include "st_handle_csv_files.h"
+#include "ipam.h"
 
 #define ST_VSPRINTF_BUFFER_SIZE 2048
 
@@ -279,6 +280,126 @@ int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt) {
 					copy_ipaddr(&sub.ip_addr, &r->gw);
 					sub.ip_ver = r->subnet.ip_ver;
 					res = subnet2str(&sub, buffer, sizeof(buffer), compression_level);
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+							res, field_width, pad_left, ' ');
+					j += res;
+					break;
+				default:
+					debug(FMT, 2, "%c is not a valid char after a %c\n", fmt[i2], '%');
+					outbuf[j] = '%';
+					outbuf[j + 1] = fmt[i2];
+					j += 2;
+			} /* switch */
+			i += 2;
+		} else if (c == '\\') {
+			BLOCK_ESCAPE_CHAR
+		} else {
+			outbuf[j++] = c;
+			i++;
+		}
+	}
+	outbuf[j++] = '\n';
+	outbuf[j] = '\0';
+	return fputs(outbuf, output);
+}
+ /* a very specialized function to print a struct ipam */
+int fprint_ipam_fmt(FILE *output, const struct ipam *r, const char *fmt) {
+	int i, j, i2, compression_level;
+	int res, pad_left;
+	char c;
+	char outbuf[512 + 140];
+	char buffer[128], buffer2[128];
+	int field_width, ea_num;
+	struct subnet v_sub;
+	char pad_value;
+	/* %I for IP */
+	/* %m for mask */
+	/* %00....9 for extanded attributes */
+	i = 0;
+	j = 0; /* index in outbuf */
+	while (1) {
+		c = fmt[i];
+		debug(FMT, 5, "Still to parse : '%s'\n", fmt + i);
+		if (j >= sizeof(outbuf)) {
+			fprintf(stderr, "BUG in %s, buffer overrun, j=%d len=%d\n", __FUNCTION__, j,
+					 (int)sizeof(outbuf));
+			break;
+		} else if (j == sizeof(outbuf) - 1) {
+			debug(FMT, 2, "Output buffer is full, stopping\n");
+			break;
+		}
+		if (c == '\0')
+			break;
+		if (c == '%') {
+			BLOCK_FIELD_WIDTH
+			pad_value = ' '; /*in fprint_route, pad value is alwys a space */
+			switch (fmt[i2]) {
+				case '\0':
+					outbuf[j] = '%';
+					debug(FMT, 2, "End of String after a %c\n", '%');
+					j++;
+					i--;
+					break;
+				case 'M':
+					PRINT_FILE_HEADER(mask)
+					if (r->subnet.ip_ver == IPV4_A)
+						res = mask2ddn(r->subnet.mask, buffer, sizeof(buffer));
+					else if (r->subnet.ip_ver == IPV6_A)
+						res = sprint_uint(buffer, r->subnet.mask);
+					else {
+						strcpy(buffer, "<Invalid mask>");
+						res = strlen(buffer);
+					}
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+							res, field_width, pad_left, pad_value);
+					j += res;
+					break;
+				case 'm':
+					PRINT_FILE_HEADER(mask)
+					if (r->subnet.ip_ver == IPV4_A || r->subnet.ip_ver == IPV6_A)
+						res = sprint_uint(buffer, r->subnet.mask);
+					else {
+						strcpy(buffer, "<Invalid mask>");
+						res = strlen(buffer);
+					}
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+							res, field_width, pad_left, ' ');
+					j += res;
+					break;
+				case 'I': /* IP address */
+					PRINT_FILE_HEADER(prefix)
+					SET_IP_COMPRESSION_LEVEL(fmt[i2 + 1]);
+					copy_subnet(&v_sub, &r->subnet);
+					res = subnet2str(&v_sub, buffer, sizeof(buffer), compression_level);
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+							res, field_width, pad_left, ' ');
+					j += res;
+					break;
+				case 'P': /* Prefix */
+					PRINT_FILE_HEADER(prefix)
+					SET_IP_COMPRESSION_LEVEL(fmt[i2 + 1]);
+					copy_subnet(&v_sub, &r->subnet);
+					subnet2str(&v_sub, buffer2, sizeof(buffer2), compression_level);
+					res = sprintf(buffer, "%s/%d", buffer2, (int)v_sub.mask);
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+							res, field_width, pad_left, ' ');
+					j += res;
+					break;
+				case 'O': /* Extended Attribute */
+					ea_num = 0;
+					while (isdigit(fmt[i + 2])) {
+						ea_num *= 10;
+						ea_num += fmt[i + 2] - '0';
+						i++;
+					}
+					if (ea_num >= r->ea_nr) {
+						debug(FMT, 3, "Invalid Extended Attribute number #%d, max %d\n",							 ea_num, r->ea_nr);
+						break;
+					}
+					if (r == NULL)
+						res = strxcpy(buffer, r->ea[ea_num].name, sizeof(buffer));
+					else
+						res = strxcpy(buffer, r->ea[ea_num].value, sizeof(buffer));
 					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
 							res, field_width, pad_left, ' ');
 					j += res;
