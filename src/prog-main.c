@@ -45,8 +45,8 @@ struct file_options fileoptions[] = {
 	{ FILEOPT_LINE(ipam_delim, struct st_options, TYPE_STRING),  "IPAM CSV delimitor" },
 	{ FILEOPT_LINE(ipam_EA_name, struct st_options, TYPE_STRING),
 		"IPAM Extended Attributes to collect" },
-	{ "netcsv_delim", TYPE_STRING, sizeofmember(struct st_options, delim), offsetof(struct st_options, delim),
-		"CSV delimitor" },
+	{ "netcsv_delim", TYPE_STRING, sizeofmember(struct st_options, delim),
+		 offsetof(struct st_options, delim), "CSV delimitor" },
 	{ FILEOPT_LINE(netcsv_prefix_field, struct st_options, TYPE_STRING),
 		"Subnet CSV header field describing the prefix" },
 	{ FILEOPT_LINE(netcsv_mask, struct st_options, TYPE_STRING),
@@ -106,6 +106,7 @@ static int run_test2(int argc, char **argv, void *st_options);
 static int option_verbose(int argc, char **argv, void *st_options);
 static int option_verbose2(int argc, char **argv, void *st_options);
 static int option_delim(int argc, char **argv, void *st_options);
+static int option_ipam_ea(int argc, char **argv, void *st_options);
 static int option_grepfield(int argc, char **argv, void *st_options);
 static int option_output(int argc, char **argv, void *st_options);
 static int option_debug(int argc, char **argv, void *st_options);
@@ -169,6 +170,7 @@ struct st_command options[] = {
 	{"-fmt",	&option_fmt,		1},
 	{"-rt",		&option_rt,		0},
 	{"-ecmp",	&option_ecmp,		0},
+	{"-ipamea",	&option_ipam_ea,	1},
 	{NULL, NULL, 0}
 };
 
@@ -1029,6 +1031,7 @@ static int option_fmt(int argc, char **argv, void *st_options) {
 
 	strxcpy(nof->output_fmt, argv[1], sizeof(nof->output_fmt));
 	strxcpy(nof->bgp_output_fmt, argv[1], sizeof(nof->bgp_output_fmt));
+	debug(PARSEOPTS, 3, "Changing default FMT : '%s'\n", argv[1]);
 	return 0;
 }
 
@@ -1036,6 +1039,7 @@ static int option_rt(int argc, char **argv, void *st_options) {
 	struct st_options *nof = st_options;
 
 	nof->rt = 1;
+	debug(PARSEOPTS, 3, "Convert will now print route type as a comment\n");
 	return 0;
 }
 
@@ -1043,8 +1047,18 @@ static int option_ecmp(int argc, char **argv, void *st_options) {
 	struct st_options *nof = st_options;
 
 	nof->ecmp = 1;
+	debug(PARSEOPTS, 3, "Convert will now print 2 routes in case of ECMP\n");
 	return 0;
 }
+
+static int option_ipam_ea(int argc, char **argv, void *st_options) {
+	struct st_options *nof = st_options;
+
+	strxcpy(nof->ipam_EA_name, argv[1], sizeof(nof->ipam_EA_name));
+	debug(PARSEOPTS, 3, "The following Ipam EA will be collected: '%s'\n", argv[1]);
+	return 0;
+}
+
 /* ensure a core dump is generated in case of BUG
  * subnettool is bug free of course :)
  * man page says it is POSIX, let s hope so
