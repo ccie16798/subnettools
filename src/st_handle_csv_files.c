@@ -28,11 +28,12 @@ int alloc_subnet_file(struct subnet_file *sf, unsigned long n) {
 	}
 	sf->routes = malloc(sizeof(struct route) * n);
 	if (sf->routes == NULL) {
-		fprintf(stderr, "Cannot alloc  memory (%lu Kbytes) for sf->routes\n", n * sizeof(struct route));
+		fprintf(stderr, "Cannot alloc  memory (%lu Kbytes) for sf->routes\n",
+				n * sizeof(struct route) / 1024);
 		sf->nr = sf->max_nr = 0;
 		return -1;
 	}
-	debug(MEMORY, 3, "Allocated %lu bytes for subnet_file\n",  sizeof(struct route) * n);
+	debug(MEMORY, 3, "Allocated %lu Kbytes for subnet_file\n",  sizeof(struct route) * n / 1024);
 	sf->nr = 0;
 	sf->max_nr = n;
 	return 0;
@@ -127,7 +128,8 @@ static int netcsv_endofline_callback(struct csv_state *state, void *data) {
 	sf->nr++;
 	if  (sf->nr == sf->max_nr) {
 		sf->max_nr *= 2;
-		debug(MEMORY, 3, "need to reallocate %lu bytes\n", sf->max_nr * sizeof(struct route));
+		debug(MEMORY, 3, "need to reallocate %lu Kbytes\n",
+				sf->max_nr * sizeof(struct route) / 1024);
 		if (sf->max_nr > SIZE_T_MAX / sizeof(struct route)) {
 			fprintf(stderr, "error: too much memory requested for struct route\n");
 			return CSV_CATASTROPHIC_FAILURE;
@@ -248,11 +250,12 @@ int alloc_bgp_file(struct bgp_file *sf, unsigned long n) {
 	sf->routes = malloc(sizeof(struct bgp_route) * n);
 	if (sf->routes == NULL) {
 		fprintf(stderr, "Cannot alloc  memory (%lu Kbytes) for sf->routes\n",
-				n * sizeof(struct bgp_route));
+				n * sizeof(struct bgp_route) / 1024);
 		sf->nr = sf->max_nr = 0;
 		return -1;
 	}
-	debug(MEMORY, 3, "Allocated %lu bytes for subnet_file\n",  sizeof(struct route) * n);
+	debug(MEMORY, 3, "Allocated %lu Kbytes for bgp_file\n",
+			sizeof(struct bgp_route) * n / 1024);
 	sf->nr = 0;
 	sf->max_nr = n;
 	return 0;
@@ -421,7 +424,8 @@ static int bgpcsv_endofline_callback(struct csv_state *state, void *data) {
 	sf->nr++;
 	if  (sf->nr == sf->max_nr) {
 		sf->max_nr *= 2;
-		debug(MEMORY, 3, "need to reallocate %lu bytes\n", sf->max_nr * sizeof(struct bgp_route));
+		debug(MEMORY, 3, "need to reallocate %lu Kbytes\n",
+				sf->max_nr * sizeof(struct bgp_route) / 1024);
 		if (sf->max_nr > SIZE_T_MAX / sizeof(struct bgp_route)) {
 			fprintf(stderr, "error: too much memory requested for struct route\n");
 			return CSV_CATASTROPHIC_FAILURE;
