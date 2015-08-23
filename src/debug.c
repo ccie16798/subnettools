@@ -17,7 +17,7 @@ struct debug debugs[] = {
 	{ "addrcomp",	__D_ADDRCOMP,	"debug subnet file comparison functions"},
 	{ "parseopts",	__D_PARSEOPTS,	"debug command-line and options parsing" },
 	{ "paip",	__D_PAIP,	"debug IPAM parsing" },
-	{ "ipam",	__D_PAIP,	"debug IPAM parsing" },
+	{ "ipam",	__D_IPAM,	"debug IPAM parsing" },
 	{ "loadcsv",	__D_LOAD_CSV,	"debug Generic CSV Body parsing"},
 	{ "csvheader",	__D_CSVHEADER,	"debug CSV header parsing"},
 	{ "grep",	__D_GREP,	"debug network grep"},
