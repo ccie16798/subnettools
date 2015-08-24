@@ -282,6 +282,8 @@ static int ipam_filter(char *s, char *value, char op, void *object) {
 			return 0;
 		}
 		debug(IPAM, 5, "We will filter on EA: '%s'\n", ipam->ea[j].name);
+		if (ipam->ea[j].value == NULL) /* EA Value has not been set */
+			return 0;
 		switch(op) {
 		case '=':
 			return (!strcmp(ipam->ea[j].value, value));
