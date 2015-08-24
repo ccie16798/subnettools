@@ -577,6 +577,7 @@ static int run_ipam_filter(int arc, char **argv, void *st_options) {
 		free_ipam_file(&sf);
 		return res;
 	}
+	fprint_ipam_header(nof->output_file, &sf.routes[0], nof->ipam_output_fmt);
 	fprint_ipam_file_fmt(nof->output_file, &sf, nof->ipam_output_fmt);
 	free_ipam_file(&sf);
 	return 0;
