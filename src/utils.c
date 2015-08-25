@@ -46,6 +46,10 @@ int string2int(const char *s, int *res) {
 		sign = -1;
 		i++;
 	}
+	if (s[i] == '\0') { /* don't interpret '' as zero */
+		*res = -1;
+		return 0;
+	}
 	while (s[i] != '\0') {
 		if (!isdigit(s[i])) {
 			*res = -1;
