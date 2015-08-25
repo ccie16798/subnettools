@@ -196,7 +196,6 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof) {
 	return generic_load_csv(name, &cf, &state, sf);
 }
 
-
 static int __heap_subnet_is_superior(void *v1, void *v2) {
 	struct subnet *s1 = &((struct ipam *)v1)->subnet;
 	struct subnet *s2 = &((struct ipam *)v2)->subnet;
@@ -204,16 +203,27 @@ static int __heap_subnet_is_superior(void *v1, void *v2) {
 	return subnet_is_superior(s1, s2);
 }
 
-void fprint_ipamfilter_help(FILE *out) {
-
-
+int fprint_ipamfilter_help(FILE *out) {
+	return fprintf(out, "IPAM lines can be filtered on :\n"
+			" -prefix\n"
+			" -mask\n"
+			" -Extended Attributes\n"
+			"operator are :\n"
+			"- '=' (EQUALS)\n"
+			"- '#' (DIFFERENT)\n"
+			"- '<' (numerically inferior)\n"
+			"- '>' (numerically superior)\n"
+			"- '{' (is included (for prefixes))\n"
+			"- '}' (includes (for prefixes))\n"
+			"- '~' (st_scanf regular expression)\n");
 }
 
 static int ipam_filter(char *s, char *value, char op, void *object) {
 	struct ipam *ipam = object;
 	struct subnet subnet;
-	int res, j;
+	int res, j, err;
 	int found = 0;
+	int a, b;
 
 	debug(FILTER, 8, "Filtering '%s' %c '%s'\n", s, op, value);
 	if (!strcmp(s, "prefix")) {
@@ -295,6 +305,25 @@ static int ipam_filter(char *s, char *value, char op, void *object) {
 		case '~':
 			res = st_sscanf(ipam->ea[j].value, value);
 			return (res < 0 ? 0 : 1);
+			break;
+		case '<':
+		case '>':
+			b = string2int(value, &err);
+			if (err < 0) {
+				debug(FILTER, 1, "Cannot interpret '%s' as an INT\n", value);
+				return -1;
+			}
+			a = string2int(ipam->ea[j].value, &err);
+			/* if Extended Attribute is null we don't return an error, just no match
+			*/
+			if (err < 0) {
+				debug(FILTER, 2, "Cannot interpret '%s' as an INT\n", ipam->ea[j].value);
+				return 0;
+			}
+			if (op == '>')
+				return (a > b);
+			else
+				return (b > a);
 			break;
 		default:
 			debug(FILTER, 1, "Unsupported op '%c' for Extended Attribute\n", op);
