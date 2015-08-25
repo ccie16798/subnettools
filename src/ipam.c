@@ -211,8 +211,8 @@ int fprint_ipamfilter_help(FILE *out) {
 			"operator are :\n"
 			"- '=' (EQUALS)\n"
 			"- '#' (DIFFERENT)\n"
-			"- '<' (numerically inferior)\n"
-			"- '>' (numerically superior)\n"
+			"- '<' (numerically inferior, if EA is of type INT)\n"
+			"- '>' (numerically superior, if EA is of type INT)\n"
 			"- '{' (is included (for prefixes))\n"
 			"- '}' (includes (for prefixes))\n"
 			"- '~' (st_scanf regular expression)\n");
@@ -336,7 +336,7 @@ static int ipam_filter(char *s, char *value, char op, void *object) {
 }
 
 int ipam_file_filter(struct ipam_file *sf, char *expr) {
-	int i, j, res, len;
+	int i, j, k, res, len;
 	struct generic_expr e;
 	struct ipam *new_ipam;
 
@@ -352,7 +352,7 @@ int ipam_file_filter(struct ipam_file *sf, char *expr) {
 		return -1;
 	}
 	debug(MEMORY, 3, "Allocated %lu Kbytes for struct ipam\n",
-			 sf->max_nr * sizeof(struct ipam) / 1024);
+			sf->max_nr * sizeof(struct ipam) / 1024);
 	j = 0;
 	len = strlen(expr);
 
@@ -369,6 +369,10 @@ int ipam_file_filter(struct ipam_file *sf, char *expr) {
 			st_debug(FILTER, 5, "Matching filter '%s' on %P\n", expr, sf->routes[i].subnet);
 			memcpy(&new_ipam[j], &sf->routes[i], sizeof(struct ipam));
 			j++;
+		} else {
+			for (k = 0; k < sf->ea_nr; k++)
+				free(sf->routes[i].ea[k].value);
+			free(sf->routes[i].ea);
 		}
 	}
 	free(sf->routes);
