@@ -964,8 +964,7 @@ static void fprint_ipam_file(FILE *out, const struct ipam_file *sf) {
 	for (i = 0; i < sf->nr; i++) {
 		st_fprintf(out, "%P;", sf->routes[i].subnet);
 		for (j = 0; j < sf->ea_nr; j++)
-			fprintf(out, "%s=%s;", sf->routes[i].ea[j].name,
-					sf->routes[i].ea[j].value);
+			fprintf(out, "%s;", sf->routes[i].ea[j].value);
 		fprintf(out, "\n");
 	}
 }
