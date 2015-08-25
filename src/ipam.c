@@ -37,14 +37,15 @@ int alloc_ipam_file(struct ipam_file *sf, unsigned long n, int ea_nr) {
 	sf->ea_nr = ea_nr;
 	sf->ea = malloc(ea_nr * sizeof(struct ipam_ea));
 	if (sf->ea == NULL) {
-		fprintf(stderr, "Cannot alloc  memory (%d bytes) for sf->ea\n",
-				ea_nr * sizeof(struct ipam_ea));
+		fprintf(stderr, "Cannot alloc  memory (%lu bytes) for sf->ea\n",
+				(unsigned long)(ea_nr * sizeof(struct ipam_ea)));
 		sf->nr = sf->max_nr = 0;
 		free(sf->routes);
 		sf->routes = NULL;
 		return -1;
 	}
-	debug(MEMORY, 3, "Allocated %d bytes for ipam_ea\n",  sizeof(struct ipam_ea) * ea_nr);
+	debug(MEMORY, 3, "Allocated %lu bytes for ipam_ea\n",
+				(unsigned long)(sizeof(struct ipam_ea) * ea_nr));
 	return 0;
 }
 
@@ -54,11 +55,12 @@ int alloc_ea(struct ipam_file *sf, int i) {
 
 	ea = malloc(sf->ea_nr * sizeof(struct ipam_ea));
 	if (ea == NULL) {
-		fprintf(stderr, "Cannot alloc  memory (%d bytes) for sf->ea\n",
-				sf->ea_nr * sizeof(struct ipam_ea));
+		fprintf(stderr, "Cannot alloc  memory (%lu bytes) for sf->ea\n",
+				(unsigned long)(sf->ea_nr * sizeof(struct ipam_ea)));
 		return -1;
 	}
-	debug(MEMORY, 3, "Allocated %d bytes for ipam_ea\n",  sizeof(struct ipam_ea) * sf->ea_nr);
+	debug(MEMORY, 3, "Allocated %lu bytes for ipam_ea\n",
+			(unsigned long)(sizeof(struct ipam_ea) * sf->ea_nr));
 	for (j = 0; j < sf->ea_nr; j++)
 		ea[j].name = sf->ea[j].name;
 	sf->routes[i].ea    = ea;
