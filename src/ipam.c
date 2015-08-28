@@ -161,6 +161,7 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof) {
 		{ "netmask_dec"	, 0,  0, 1, &ipam_mask_handle },
 		{ NULL, 0,0,0, NULL }
 	};
+	struct csv_field *csv_field_sorted;
 	struct csv_file cf;
 	struct csv_state state;
 	char *s;
@@ -175,7 +176,22 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof) {
 	cf.endofline_callback = ipam_endofline_callback;
 	init_csv_state(&state, name);
 
+	ea_nr = count_char(nof->ipam_ea, ',') + 1;
+	csv_field_sorted = malloc((ea_nr + 4) * sizeof(struct csv_field));
+	if (csv_field_sorted == NULL) {
+		fprintf(stderr, "Cannot alloc  memory (%lu bytes) for csv_field\n",
+				(unsigned long)((ea_nr + 4) * sizeof(struct csv_field)));
+		return -1;
+	}
+	 /*
+	csv_field = malloc((ea_nr + 4) * sizeof(struct csv_field));
+	if (csv_field == NULL) {
+		fprintf(stderr, "Cannot alloc  memory (%lu bytes) for csv_field\n",
+				(unsigned long)((ea_nr + 4) * sizeof(struct csv_field)));
+		return -1;
+	} */
 	debug(IPAM, 3, "Parsing EA : '%s'\n", nof->ipam_ea);
+	ea_nr = 0;
 	s = strtok(nof->ipam_ea, ",");
 	/* getting Extensible attributes from config file of cmd_line */
 	while (s) {
