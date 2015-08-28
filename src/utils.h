@@ -26,6 +26,8 @@ char *remove_space(char *s);
  */
 void remove_ending_space(char *s);
 
+/* count the number of occurence of 'c' in string 's' */
+int count_char(const char *s, char c);
 
 /* strtok variants ; dont treat consecutive delim chars as one */
 char *simple_strtok(char *s, const char *delim);
