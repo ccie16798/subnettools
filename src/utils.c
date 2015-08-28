@@ -123,13 +123,15 @@ int strxcpy(char *dst, const char *src, int size) {
 	int i = 0;
 
 	while (1) {
-		if (src[i] == '\0' || i == size - 1)
-			break;
+		if (src[i] == '\0')
+			return i;
+		if (i == size - 1) {
+			dst[i] = '\0';
+			return i;
+		}
 		dst[i] = src[i];
 		i++;
 	}
-	dst[i] = '\0';
-	return i;
 }
 
 int strxcpy_until(char *dst, const char *src, int n, char end) {
