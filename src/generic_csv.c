@@ -41,7 +41,7 @@ static int sort_csv_header(struct csv_field *csv_field, int n) {
 	while (1) {
 		if (csv_field[i].name == NULL)
 			break;
-		memcpy(&copy[i], &csv_field[i], sizeof(struct  csv_field));
+		memcpy(&copy[i], &csv_field[i], sizeof(struct csv_field));
 		addTAS(&tas, &copy[i]);
 		i++;
 	}
@@ -50,7 +50,7 @@ static int sort_csv_header(struct csv_field *csv_field, int n) {
 		r = popTAS(&tas);
 		if (r == NULL)
 			break;
-		memcpy(&csv_field[i], r, sizeof(struct  csv_field));
+		memcpy(&csv_field[i], r, sizeof(struct csv_field));
 		debug(CSVHEADER, 5, "pos: %d field: %s\n", r->pos, r->name);
 		i++;
 
@@ -191,7 +191,7 @@ static int read_csv_body(FILE *f, char *name, struct csv_file *cf,
 			/* try to find the handler
 			 * we can start  at found_i because cf->csv_filed is sorted
 			 */
-			for (i = found_i; ; i++) {
+			for (i = 0; ; i++) {
 				debug(LOAD_CSV, 9, "Parsing field pos %d %d  : %s\n", pos, cf->csv_field[i].pos, cf->csv_field[i].name);
 				if (cf->csv_field[i].name == NULL)
 					break;
