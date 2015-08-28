@@ -179,6 +179,8 @@ struct st_command options[] = {
 	{"-rt",		&option_rt,		0},
 	{"-ecmp",	&option_ecmp,		0},
 	{"-ipamea",	&option_ipam_ea,	1},
+	{"-ea",		&option_ipam_ea,	1},
+	{"-EA",		&option_ipam_ea,	1},
 	{NULL, NULL, 0}
 };
 
