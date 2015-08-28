@@ -200,14 +200,18 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof) {
 		s = strtok(NULL, ",");
 	}
 	debug(IPAM, 5, "Collected %d Extended Attributes\n", ea_nr);
-	if (alloc_ipam_file(sf, 16192, ea_nr) < 0)
+	if (alloc_ipam_file(sf, 16192, ea_nr) < 0) {
+		free(csv_field);
 		return -2;
+	}
 	for (i = 0; i <  ea_nr; i++)
 		sf->ea[i].name = csv_field[i + 2].name;
 	memset(&sf->routes[0], 0, sizeof(struct ipam));
 	res = alloc_ea(sf, 0);
-	if (res < 0)
+	if (res < 0) {
+		free(csv_field);
 		return res;
+	}
 	res = generic_load_csv(name, &cf, &state, sf);
 	free(csv_field);
 	return res;
