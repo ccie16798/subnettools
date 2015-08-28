@@ -88,6 +88,8 @@ int mylog2(unsigned int x) {
 char *remove_space(char *s) {
 	int i = 0, j = 0;
 
+	while (isspace(*s))
+		s++;
 	while (1) {
 		if (isspace(s[i])) {
 			i++;
