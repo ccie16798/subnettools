@@ -134,6 +134,18 @@ int strxcpy(char *dst, const char *src, int size) {
 	}
 }
 
+int count_char(const char *s, char c) {
+	int i = 0, a = 0;
+
+	while (1) {
+		if (s[i] == '\0')
+			return a;
+		if (s[i] == c)
+			a++;
+		i++;
+	}
+}
+
 int strxcpy_until(char *dst, const char *src, int n, char end) {
 	int i = 0;
 
