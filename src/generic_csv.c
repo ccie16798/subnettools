@@ -1,7 +1,7 @@
 /*
  *  Generic CSV  parser functions
  *
- * Copyright (C) 2014 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ * Copyright (C) 2014, 2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
@@ -12,8 +12,16 @@
 #include <string.h>
 #include <limits.h>
 #include "debug.h"
+#include "heap.h"
 #include "generic_csv.h"
 #include "utils.h"
+
+static int sort_csv_header(struct csv_field *csv_fielf, int n) {
+
+
+	return 0;
+}
+
 
 static int read_csv_header(char *filename, const char *buffer, struct csv_file *cf) {
 	int i, j;
@@ -44,7 +52,7 @@ static int read_csv_header(char *filename, const char *buffer, struct csv_file *
 			}
 			pos++;
 			s = cf->csv_strtok_r(NULL, cf->delim, &save_s);
-		} // while s
+		}
 		debug(CSVHEADER, 3, "found %d fields\n", pos - 1);
 	} else  {
 		debug(CSVHEADER, 2, "file %s doesnt have a CSV header, using default values\n", filename);
@@ -69,7 +77,7 @@ static int read_csv_header(char *filename, const char *buffer, struct csv_file *
 			debug(CSVHEADER, 1, "mandatory CSV field '%s' not found in %s\n", cf->csv_field[i].name, filename);
 		}
 	}
-	/* check for duplicate  field pos */
+	/* check for duplicate field pos */
 	 for (i = 0; ; i++) {
                 if (cf->csv_field[i].name == NULL)
 			break;
@@ -84,7 +92,8 @@ static int read_csv_header(char *filename, const char *buffer, struct csv_file *
 			}
 		}
 	}
-
+	/* sort in increasing pos */
+	sort_csv_header(cf->csv_field, i);
 	if (bad_header) {
 		fprintf(stderr, "file %s doesn't have a valid CSV header\n", filename);
 		return CSV_BAD_HEADER;
