@@ -156,40 +156,39 @@ static int ipam_endofline_callback(struct csv_state *state, void *data) {
 }
 
 int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof) {
-	struct csv_field csv_field[50] = {
-		{ "address*"	, 0,  0, 1, &ipam_prefix_handle },
-		{ "netmask_dec"	, 0,  0, 1, &ipam_mask_handle },
-		{ NULL, 0,0,0, NULL }
-	};
-	struct csv_field *csv_field_sorted;
+	struct csv_field *csv_field;
 	struct csv_file cf;
 	struct csv_state state;
 	char *s;
 	int i, res, ea_nr = 0;
 
-	if (nof->ipam_prefix_field[0])
-		csv_field[0].name = nof->ipam_prefix_field;
-	if (nof->ipam_mask[0])
-		csv_field[1].name = nof->ipam_mask;
-
-	init_csv_file(&cf, name, csv_field, nof->ipam_delim, &simple_strtok_r);
-	cf.endofline_callback = ipam_endofline_callback;
-	init_csv_state(&state, name);
-
 	ea_nr = count_char(nof->ipam_ea, ',') + 1;
-	csv_field_sorted = malloc((ea_nr + 4) * sizeof(struct csv_field));
-	if (csv_field_sorted == NULL) {
-		fprintf(stderr, "Cannot alloc  memory (%lu bytes) for csv_field\n",
-				(unsigned long)((ea_nr + 4) * sizeof(struct csv_field)));
-		return -1;
-	}
-	 /*
 	csv_field = malloc((ea_nr + 4) * sizeof(struct csv_field));
 	if (csv_field == NULL) {
 		fprintf(stderr, "Cannot alloc  memory (%lu bytes) for csv_field\n",
 				(unsigned long)((ea_nr + 4) * sizeof(struct csv_field)));
 		return -1;
-	} */
+	}
+	init_csv_file(&cf, name, csv_field, nof->ipam_delim, &simple_strtok_r);
+	cf.endofline_callback = ipam_endofline_callback;
+	init_csv_state(&state, name);
+
+	csv_field[0].name	 =  "address*";
+	csv_field[0].pos	 =  0;
+	csv_field[0].default_pos =  0;
+	csv_field[0].mandatory	 =  1;
+	csv_field[0].handle	 =  &ipam_prefix_handle;
+	csv_field[1].name	 =  "netmask_dec";
+	csv_field[1].pos	 =  0;
+	csv_field[1].default_pos =  0;
+	csv_field[1].mandatory	 =  1;
+	csv_field[1].handle	 =  &ipam_mask_handle;
+	csv_field[2].name	 = NULL;
+	if (nof->ipam_prefix_field[0])
+		csv_field[0].name = nof->ipam_prefix_field;
+	if (nof->ipam_mask[0])
+		csv_field[1].name = nof->ipam_mask;
+
 	debug(IPAM, 3, "Parsing EA : '%s'\n", nof->ipam_ea);
 	ea_nr = 0;
 	s = strtok(nof->ipam_ea, ",");
@@ -209,7 +208,9 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof) {
 	res = alloc_ea(sf, 0);
 	if (res < 0)
 		return res;
-	return generic_load_csv(name, &cf, &state, sf);
+	res = generic_load_csv(name, &cf, &state, sf);
+	free(csv_field);
+	return res;
 }
 
 static int __heap_subnet_is_superior(void *v1, void *v2) {
