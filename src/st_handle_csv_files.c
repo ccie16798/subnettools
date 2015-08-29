@@ -426,17 +426,13 @@ static int bgpcsv_endofline_callback(struct csv_state *state, void *data) {
 	sf->nr++;
 	if  (sf->nr == sf->max_nr) {
 		sf->max_nr *= 2;
-		debug(MEMORY, 3, "need to reallocate %lu Kbytes\n",
-				sf->max_nr * sizeof(struct bgp_route) / 1024);
 		if (sf->max_nr > SIZE_T_MAX / sizeof(struct bgp_route)) {
 			fprintf(stderr, "error: too much memory requested for struct route\n");
 			return CSV_CATASTROPHIC_FAILURE;
 		}
-		new_r = realloc(sf->routes,  sizeof(struct bgp_route) * sf->max_nr);
-		if (new_r == NULL) {
-			fprintf(stderr, "unable to reallocate, need to abort\n");
+		new_r = st_realloc(sf->routes,  sizeof(struct bgp_route) * sf->max_nr, "bgp_route");
+		if (new_r == NULL)
 			return  CSV_CATASTROPHIC_FAILURE;
-		}
 		sf->routes = new_r;
 	}
 	zero_bgproute(&sf->routes[sf->nr]);
