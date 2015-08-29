@@ -88,12 +88,16 @@ static int netcsv_GW_handle(char *s, void *data, struct csv_state *state) {
 	struct subnet_file *sf = data;
 	struct ip_addr addr;
 	int res;
+	char *z;
 
 	res = string2addr(s, &addr, 41);
 	if (res != IPV4_A && res != IPV6_A) {  /* we accept that there's no gateway but we treat it has a comment instead */
-		strxcpy(sf->routes[sf->nr].comment, s, sizeof(sf->routes[sf->nr].comment));
-		if (strlen(s) >= sizeof(sf->routes[sf->nr].comment))
-			debug(LOAD_CSV, 3, "line %lu STRING comment '%s'  too long, truncating to '%s'\n", state->line, s, sf->routes[sf->nr].comment);
+		z = strdup(s);
+		if (z == NULL)
+			return CSV_CATASTROPHIC_FAILURE;
+
+		sf->routes[sf->nr].ea[0].value = z;
+		sf->routes[sf->nr].ea[0].name  = "comment";
 	} else {
 		if (res == sf->routes[sf->nr].subnet.ip_ver) {/* does the gw have same IPversion*/
 			copy_ipaddr(&sf->routes[sf->nr].gw, &addr);
@@ -107,10 +111,12 @@ static int netcsv_GW_handle(char *s, void *data, struct csv_state *state) {
 
 static int netcsv_comment_handle(char *s, void *data, struct csv_state *state) {
 	struct subnet_file *sf = data;
+	char *z;
 
-	strxcpy(sf->routes[sf->nr].comment, s, sizeof(sf->routes[sf->nr].comment));
-	if (strlen(s) >= sizeof(sf->routes[sf->nr].comment))
-		debug(LOAD_CSV, 3, "line %lu STRING comment '%s'  too long, truncating to '%s'\n", state->line, s, sf->routes[sf->nr].comment);
+	z = strdup(s);
+	if (z == NULL)
+		return CSV_CATASTROPHIC_FAILURE;
+	sf->routes[sf->nr].ea[0].value = z;
 	return CSV_VALID_FIELD;
 }
 
@@ -124,6 +130,7 @@ static int netcsv_is_header(char *s) {
 static int netcsv_endofline_callback(struct csv_state *state, void *data) {
 	struct subnet_file *sf = data;
 	struct route *new_r;
+	int res;
 
 	if (state->badline) {
 		debug(LOAD_CSV, 1, "%s : invalid line %lu\n", state->file_name, state->line);
@@ -142,6 +149,10 @@ static int netcsv_endofline_callback(struct csv_state *state, void *data) {
 		sf->routes = new_r;
 	}
 	zero_route(&sf->routes[sf->nr]);
+	res = alloc_route_ea(&sf->routes[sf->nr], 1);
+	if (res < 0)
+		return CSV_CATASTROPHIC_FAILURE;
+	sf->routes[sf->nr].ea[0].value = NULL;
 	state->state[0] = 0; /* state[0] = we found a mask */
 	return CSV_CONTINUE;
 }
@@ -192,6 +203,8 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 	if (alloc_subnet_file(sf, 4096) < 0)
 		return -2;
 	zero_route(&sf->routes[0]);
+	sf->routes[0].ea = malloc(sizeof(struct ipam_ea));
+	sf->routes[0].ea_nr = 1;
 	return generic_load_csv(name, &cf, &state, sf);
 }
 
