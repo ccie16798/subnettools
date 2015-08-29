@@ -39,6 +39,10 @@ int alloc_subnet_file(struct subnet_file *sf, unsigned long n) {
 }
 
 void free_subnet_file(struct subnet_file *sf) {
+	int i;
+
+	/*for (i = 0; i < sf->nr; i++)
+		free_route(&sf->routes[i]);*/
 	free(sf->routes);
 	sf->routes = NULL;
 	sf->nr = sf->max_nr = 0;
@@ -182,6 +186,7 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 	};
 	struct csv_file cf;
 	struct csv_state state;
+	int res;
 
 	/* netcsv field may have been set by conf file */
 	if (nof->netcsv_prefix_field[0])
@@ -204,18 +209,21 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 	if (alloc_subnet_file(sf, 4096) < 0)
 		return -2;
 	zero_route(&sf->routes[0]);
-	sf->routes[0].ea = malloc(sizeof(struct ipam_ea));
-	sf->routes[0].ea_nr = 1;
+	res = alloc_route_ea(&sf->routes[0], 1);
+	if (res < 0)
+		return res;
 	return generic_load_csv(name, &cf, &state, sf);
 }
 
 static int ipam_comment_handle(char *s, void *data, struct csv_state *state) {
         struct  subnet_file *sf = data;
-
-	if (strlen(s) > 2) /* sometimes comment are fucked and a better one is in EA-Name */
-		strxcpy(sf->routes[sf->nr].comment, s, sizeof(sf->routes[sf->nr].comment));
-	if (strlen(s) >= sizeof(sf->routes[sf->nr].comment))
-                debug(LOAD_CSV, 3, "line %lu STRING comment '%s'  too long, truncating to '%s'\n", state->line, s, sf->routes[sf->nr].comment);
+	char *z;
+	if (strlen(s) > 2) {/* sometimes comment are fucked and a better one is in EA-Name */
+		z = strdup(s);
+		if (z == NULL)
+			return CSV_CATASTROPHIC_FAILURE;
+		sf->routes[sf->nr].ea[0].value = z;
+	}
 	return CSV_VALID_FIELD;
 }
 
@@ -233,6 +241,7 @@ int load_ipam_no_EA(char  *name, struct subnet_file *sf, struct st_options *nof)
 	};
 	struct csv_file cf;
 	struct csv_state state;
+	int res;
 
 	if (nof->ipam_prefix_field[0])
 		csv_field[0].name = nof->ipam_prefix_field;
@@ -253,6 +262,9 @@ int load_ipam_no_EA(char  *name, struct subnet_file *sf, struct st_options *nof)
 	if (alloc_subnet_file(sf, 16192) < 0)
 		return -2;
 	zero_route(&sf->routes[0]);
+	res = alloc_route_ea(&sf->routes[0], 1);
+	if (res < 0)
+		return res;
 	return generic_load_csv(name, &cf, &state, sf);
 }
 
