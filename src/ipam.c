@@ -109,12 +109,24 @@ static int ipam_mask_handle(char *s, void *data, struct csv_state *state) {
 static int ipam_ea_handle(char *s, void *data, struct csv_state *state) {
         struct ipam_file *sf = data;
 	int ea_nr = state->state[0];
+	int found = 0;
 	char *z;
 
 	z = strdup(s); /* s cant be NULL here */
 	if (z == NULL) {
 		fprintf(stderr, "unable to alloc memory, need to abort\n");
 		return CSV_CATASTROPHIC_FAILURE;
+	}
+	for (ea_nr = 0; ea_nr < sf->ea_nr; ea_nr++) {
+		if (!strcmp(state->csv_field, sf->ea[ea_nr].name)) {
+			found = 1;
+			break;
+		}
+
+	}
+	if (found == 0) {
+		debug(IPAM, 2, "No EA match field '%s'\n",  state->csv_field);
+		return CSV_INVALID_FIELD_BREAK;
 	}
 	debug(IPAM, 6, "Found %s = %s\n",  sf->routes[sf->nr].ea[ea_nr].name, z);
 	sf->routes[sf->nr].ea[ea_nr].value = z;
