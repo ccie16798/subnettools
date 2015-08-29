@@ -26,14 +26,11 @@ int alloc_subnet_file(struct subnet_file *sf, unsigned long n) {
 		fprintf(stderr, "error: too much memory requested for struct route\n");
 		return -1;
 	}
-	sf->routes = malloc(sizeof(struct route) * n);
+	sf->routes = st_malloc(sizeof(struct route) * n, "subnet_file");
 	if (sf->routes == NULL) {
-		fprintf(stderr, "Cannot alloc  memory (%lu Kbytes) for sf->routes\n",
-				n * sizeof(struct route) / 1024);
 		sf->nr = sf->max_nr = 0;
 		return -1;
 	}
-	debug(MEMORY, 3, "Allocated %lu Kbytes for subnet_file\n",  sizeof(struct route) * n / 1024);
 	sf->nr = 0;
 	sf->max_nr = n;
 	return 0;
@@ -247,15 +244,11 @@ int alloc_bgp_file(struct bgp_file *sf, unsigned long n) {
 		fprintf(stderr, "error: too much memory requested for struct route\n");
 		return -1;
 	}
-	sf->routes = malloc(sizeof(struct bgp_route) * n);
+	sf->routes = st_malloc(sizeof(struct bgp_route) * n, "bgp_file");
 	if (sf->routes == NULL) {
-		fprintf(stderr, "Cannot alloc  memory (%lu Kbytes) for sf->routes\n",
-				n * sizeof(struct bgp_route) / 1024);
 		sf->nr = sf->max_nr = 0;
 		return -1;
 	}
-	debug(MEMORY, 3, "Allocated %lu Kbytes for bgp_file\n",
-			sizeof(struct bgp_route) * n / 1024);
 	sf->nr = 0;
 	sf->max_nr = n;
 	return 0;
