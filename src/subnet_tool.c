@@ -177,8 +177,8 @@ void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *
 			mask = paip->routes[j].subnet.mask;
 			res = subnet_compare(&sf1->routes[i].subnet, &paip->routes[j].subnet);
 			if (res == EQUALS) {
-				strxcpy(sf1->routes[i].comment, paip->routes[j].comment,
-						sizeof(sf1->routes[i].comment));
+				free(sf1->routes[i].ea[0].value);
+				sf1->routes[i].ea[0].value = strdup(paip->routes[j].ea[0].value);
 				fprint_route_fmt(nof->output_file, &sf1->routes[i], nof->output_fmt);
 				find_equals = 1;
 				break;
@@ -190,7 +190,8 @@ void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *
 		find_included = 0;
 		includes = 0;
 		find_mask = 0;
-		strcpy(sf1->routes[i].comment, "NOT FOUND");
+		free(sf1->routes[i].ea[0].value);
+		sf1->routes[i].ea[0].value = strdup("NOT FOUND");
 		fprint_route_fmt(nof->output_file, &sf1->routes[i], nof->output_fmt);
 
 		/**
@@ -215,13 +216,14 @@ void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *
 				includes++;
 				st_fprintf(nof->output_file, "###%I;%d includes %I;%d;%s\n",
 						sf1->routes[i].subnet, sf1->routes[i].subnet.mask,
-						paip->routes[j].subnet, mask, paip->routes[j].comment);
+						paip->routes[j].subnet, mask, paip->routes[j].ea[0].value);
 			}
 		}
 		if (find_included) {
 			st_fprintf(nof->output_file, "###%I;%d is included in  %I;%d;%s\n",
 					sf1->routes[i].subnet, sf1->routes[i].subnet.mask,
-					paip->routes[find_j].subnet, find_mask, paip->routes[find_j].comment);
+					paip->routes[find_j].subnet, find_mask,
+					paip->routes[find_j].ea[0].value);
 		}
 	}
 	debug_timing_end(2);
