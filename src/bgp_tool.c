@@ -248,7 +248,7 @@ static int __bgp_sort_by(struct bgp_file *sf, int cmpfunc(void *v1, void *v2)) {
 
 	new_r = st_malloc(sf->max_nr * sizeof(struct bgp_route), "new bgp_route");
 	if (new_r == NULL) {
-		free(tas.tab);
+		free_tas(&tas);
 		return -1;
 	}
 	/* basic heapsort */
@@ -258,7 +258,7 @@ static int __bgp_sort_by(struct bgp_file *sf, int cmpfunc(void *v1, void *v2)) {
 		r = popTAS(&tas);
 		copy_bgproute(&new_r[i], r);
 	}
-	free(tas.tab);
+	free_tas(&tas);
 	free(sf->routes);
 	sf->routes = new_r;
 	return 0;
