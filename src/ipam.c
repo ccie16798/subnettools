@@ -24,8 +24,8 @@ int alloc_ipam_file(struct ipam_file *sf, unsigned long n, int ea_nr) {
 		fprintf(stderr, "error: too much memory requested for struct ipam\n");
 		return -1;
 	}
-	sf->routes = st_malloc(sizeof(struct ipam) * n, "ipam_file");
-	if (sf->routes == NULL) {
+	sf->lines = st_malloc(sizeof(struct ipam) * n, "ipam_file");
+	if (sf->lines == NULL) {
 		sf->nr = sf->max_nr = 0;
 		return -1;
 	}
@@ -35,8 +35,8 @@ int alloc_ipam_file(struct ipam_file *sf, unsigned long n, int ea_nr) {
 	sf->ea = st_malloc(ea_nr * sizeof(struct ipam_ea), "ipam_ea");
 	if (sf->ea == NULL) {
 		sf->nr = sf->max_nr = 0;
-		free(sf->routes);
-		sf->routes = NULL;
+		free(sf->lines);
+		sf->lines = NULL;
 		return -1;
 	}
 	return 0;
@@ -51,8 +51,8 @@ int alloc_ea(struct ipam_file *sf, int i) {
 		return -1;
 	for (j = 0; j < sf->ea_nr; j++)
 		ea[j].name = sf->ea[j].name;
-	sf->routes[i].ea    = ea;
-	sf->routes[i].ea_nr = sf->ea_nr;
+	sf->lines[i].ea    = ea;
+	sf->lines[i].ea_nr = sf->ea_nr;
 	return 0;
 }
 
@@ -68,9 +68,9 @@ void free_ipam_file(struct ipam_file *sf) {
 	int i;
 
 	for (i = 0; i < sf->nr; i++)
-		free_ipam_ea(&sf->routes[i]);
+		free_ipam_ea(&sf->lines[i]);
 	free(sf->ea);
-	free(sf->routes);
+	free(sf->lines);
 }
 
 static int ipam_prefix_handle(char *s, void *data, struct csv_state *state) {
@@ -83,7 +83,7 @@ static int ipam_prefix_handle(char *s, void *data, struct csv_state *state) {
 		debug(LOAD_CSV, 2, "invalid IP %s line %lu\n", s, state->line);
 		return CSV_INVALID_FIELD_BREAK;
 	}
-	copy_subnet(&sf->routes[sf->nr].subnet,  &subnet);
+	copy_subnet(&sf->lines[sf->nr].subnet,  &subnet);
 	return CSV_VALID_FIELD;
 }
 
@@ -95,7 +95,7 @@ static int ipam_mask_handle(char *s, void *data, struct csv_state *state) {
 		debug(LOAD_CSV, 2, "invalid mask %s line %lu\n", s, state->line);
 		return CSV_INVALID_FIELD_BREAK;
 	}
-	sf->routes[sf->nr].subnet.mask = mask;
+	sf->lines[sf->nr].subnet.mask = mask;
 	return CSV_VALID_FIELD;
 }
 
@@ -121,8 +121,8 @@ static int ipam_ea_handle(char *s, void *data, struct csv_state *state) {
 		debug(IPAM, 2, "No EA match field '%s'\n",  state->csv_field);
 		return CSV_INVALID_FIELD_BREAK;
 	}
-	debug(IPAM, 6, "Found %s = %s\n",  sf->routes[sf->nr].ea[ea_nr].name, z);
-	sf->routes[sf->nr].ea[ea_nr].value = z;
+	debug(IPAM, 6, "Found %s = %s\n",  sf->lines[sf->nr].ea[ea_nr].name, z);
+	sf->lines[sf->nr].ea[ea_nr].value = z;
 	state->state[0]++;
 	return CSV_VALID_FIELD;
 }
@@ -144,12 +144,12 @@ static int ipam_endofline_callback(struct csv_state *state, void *data) {
 			fprintf(stderr, "error: too much memory requested for struct ipam\n");
 			return CSV_CATASTROPHIC_FAILURE;
 		}
-		new_r = st_realloc(sf->routes,  sizeof(struct ipam) * sf->max_nr, "ipam");
+		new_r = st_realloc(sf->lines,  sizeof(struct ipam) * sf->max_nr, "ipam");
 		if (new_r == NULL)
 			return  CSV_CATASTROPHIC_FAILURE;
-		sf->routes = new_r;
+		sf->lines = new_r;
 	}
-	memset(&sf->routes[sf->nr], 0, sizeof(struct ipam));
+	memset(&sf->lines[sf->nr], 0, sizeof(struct ipam));
 	res = alloc_ea(sf, sf->nr);
 	if (res < 0)
 		return  CSV_CATASTROPHIC_FAILURE;
@@ -206,7 +206,7 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof) {
 	}
 	for (i = 0; i <  ea_nr; i++)
 		sf->ea[i].name = csv_field[i + 2].name;
-	memset(&sf->routes[0], 0, sizeof(struct ipam));
+	memset(&sf->lines[0], 0, sizeof(struct ipam));
 	res = alloc_ea(sf, 0);
 	if (res < 0) {
 		free(csv_field);
@@ -368,7 +368,7 @@ int ipam_file_filter(struct ipam_file *sf, char *expr) {
 	len = strlen(expr);
 
 	for (i = 0; i < sf->nr; i++) {
-		e.object = &sf->routes[i];
+		e.object = &sf->lines[i];
 		res = run_generic_expr(expr, len, &e);
 		if (res < 0) {
 			fprintf(stderr, "Invalid filter '%s'\n", expr);
@@ -377,14 +377,14 @@ int ipam_file_filter(struct ipam_file *sf, char *expr) {
 			return -1;
 		}
 		if (res) {
-			st_debug(FILTER, 5, "Matching filter '%s' on %P\n", expr, sf->routes[i].subnet);
-			memcpy(&new_ipam[j], &sf->routes[i], sizeof(struct ipam));
+			st_debug(FILTER, 5, "Matching filter '%s' on %P\n", expr, sf->lines[i].subnet);
+			memcpy(&new_ipam[j], &sf->lines[i], sizeof(struct ipam));
 			j++;
 		} else
-			free_ipam_ea(&sf->routes[i]);
+			free_ipam_ea(&sf->lines[i]);
 	}
-	free(sf->routes);
-	sf->routes = new_ipam;
+	free(sf->lines);
+	sf->lines = new_ipam;
 	sf->nr = j;
 	debug_timing_end(2);
 	return 0;

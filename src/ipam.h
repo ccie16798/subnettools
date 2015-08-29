@@ -11,7 +11,7 @@
 
 struct  ipam_ea {
 	char *name;
-	char *value;
+	char *value; /* value of EA; MUST be malloc'ed*/
 };
 
 struct ipam {
@@ -22,12 +22,11 @@ struct ipam {
 
 
 struct ipam_file {
-	struct ipam *routes;
+	struct ipam *lines;
 	unsigned long nr;
-	unsigned long max_nr; /* the number of routes that has been malloced */
+	unsigned long max_nr; /* the number of routes that has been malloc'ed */
 	int ea_nr; /* number of Extensible Attributes */
 	struct ipam_ea *ea;
-
 };
 
 int alloc_ipam_file(struct ipam_file *sf, unsigned long n, int ea_nr);
