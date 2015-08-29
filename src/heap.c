@@ -13,6 +13,7 @@
 #include <limits.h>
 #include "heap.h"
 #include "debug.h"
+#include "st_memory.h"
 
 #define swap(a, b) \
 	do { typeof(a) __tmp = (a); (a) = (b); (b) = __tmp; } while (0)

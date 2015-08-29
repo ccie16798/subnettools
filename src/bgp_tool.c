@@ -8,6 +8,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "debug.h"
+#include "st_memory.h"
 #include "iptools.h"
 #include "utils.h"
 #include "generic_csv.h"

@@ -23,6 +23,7 @@
 #include "utils.h"
 #include "generic_csv.h"
 #include "heap.h"
+#include "st_memory.h"
 #include "st_printf.h"
 #include "generic_expr.h"
 #include "st_scanf.h"

@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "debug.h"
+#include "st_memory.h"
 #include "utils.h"
 #include "st_scanf.h"
 #include "st_printf.h"
