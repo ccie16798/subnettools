@@ -17,6 +17,7 @@
 #include "utils.h"
 #include "bitmap.h"
 #include "heap.h"
+#include "st_memory.h"
 #include "st_printf.h"
 
 sprint_hex(short)
@@ -39,6 +40,35 @@ inline void copy_route(struct route *a, const struct route *b) {
 
 inline void zero_route(struct route *a) {
 	memset(a, 0, sizeof(struct route));
+}
+
+inline void zero_route_ea(struct route *a) {
+	int i;
+	void *ea = a->ea;
+	int ea_nr = a->ea_nr;
+
+	zero_route(a);
+	a->ea = ea;
+	a->ea_nr = ea_nr;
+	for (i = 0; i < ea_nr; i++) {
+		a->ea[i].name[0] = '\0';
+		a->ea[i].value[0] = '\0';
+	}
+}
+
+int alloc_route_ea(struct route *r, int n) {
+	r->ea = st_malloc(n, "route ea");
+	if (r->ea == NULL)
+		return -1;
+	return 1;
+}
+
+void free_route(struct route *r) {
+	int i;
+
+	for (i = 0; i < r->ea_nr; i++)
+		free(r->ea[i].value);
+	free(r->ea);
 }
 
 inline void zero_ipaddr(struct ip_addr *a) {
