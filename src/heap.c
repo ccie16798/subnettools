@@ -54,6 +54,12 @@ int alloc_tas(TAS *tas, unsigned long n, int (*compare)(void *v1, void *v2)) {
 	return 1;
 }
 
+void free_tas(TAS *tas) {
+	free(tas->tab);
+	tas->tab = NULL;
+	tas->nr = tas->max_nr = 0;
+}
+
 void addTAS(TAS *tas, void *el) {
 	unsigned long n, n2;
 

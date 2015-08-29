@@ -12,6 +12,7 @@ struct tas {
 typedef struct tas TAS;
 
 int alloc_tas(TAS *tas, unsigned long n, int (*compare)(void *v1, void *v2));
+void free_tas(TAS *tas);
 /* it is up to the caller to make sure t->tab is large enough
  * addTAS itself cannot fail but horrible things could happen if ->tab is not large enough
  */
