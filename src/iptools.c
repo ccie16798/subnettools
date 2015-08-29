@@ -42,22 +42,21 @@ inline void zero_route(struct route *a) {
 	memset(a, 0, sizeof(struct route));
 }
 
-inline void zero_route_ea(struct route *a) {
+void zero_route_ea(struct route *a) {
 	int i;
 	void *ea = a->ea;
 	int ea_nr = a->ea_nr;
 
+	for (i = 0; i < ea_nr; i++)
+		a->ea[i].value[0] = '\0';
 	zero_route(a);
 	a->ea = ea;
 	a->ea_nr = ea_nr;
-	for (i = 0; i < ea_nr; i++) {
-		a->ea[i].name[0] = '\0';
-		a->ea[i].value[0] = '\0';
-	}
 }
 
 int alloc_route_ea(struct route *r, int n) {
 	r->ea = st_malloc(n, "route ea");
+	r->ea_nr = n;
 	if (r->ea == NULL)
 		return -1;
 	return 1;
