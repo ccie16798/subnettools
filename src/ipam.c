@@ -169,6 +169,8 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof) {
 				(unsigned long)((ea_nr + 4) * sizeof(struct csv_field)));
 		return -1;
 	}
+	debug(MEMORY, 3, "Allocated %lu Kbytes for csv_field\n",
+		  sizeof(struct csv_field) * (ea_nr + 4) / 1024);
 	init_csv_file(&cf, name, csv_field, nof->ipam_delim, &simple_strtok_r);
 	cf.endofline_callback = ipam_endofline_callback;
 	init_csv_state(&state, name);
