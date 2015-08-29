@@ -245,13 +245,11 @@ static int __bgp_sort_by(struct bgp_file *sf, int cmpfunc(void *v1, void *v2)) {
 	if (res < 0)
 		return res;
 
-	new_r = malloc(sf->max_nr * sizeof(struct bgp_route));
+	new_r = st_malloc(sf->max_nr * sizeof(struct bgp_route), "new bgp_route");
 	if (new_r == NULL) {
 		free(tas.tab);
-		fprintf(stderr, "%s : no memory\n", __FUNCTION__);
 		return -1;
 	}
-	debug(MEMORY, 3, "Allocated %lu bytes for new struct bgp_route\n", sf->max_nr * sizeof(struct bgp_route));
 	/* basic heapsort */
 	for (i = 0 ; i < sf->nr; i++)
 		addTAS(&tas, &(sf->routes[i]));
@@ -536,13 +534,11 @@ int bgp_file_filter(struct bgp_file *sf, char *expr) {
 	init_generic_expr(&e, expr, bgp_route_filter);
 	debug_timing_start(2);
 
-	new_r = malloc(sf->max_nr * sizeof(struct bgp_route));
+	new_r = st_malloc(sf->max_nr * sizeof(struct bgp_route), "bgp_route");
 	if (new_r == NULL) {
-		fprintf(stderr, "%s : no memory\n", __FUNCTION__);
 		debug_timing_end(2);
 		return -1;
 	}
-	debug(MEMORY, 3, "Allocated %lu bytes for struct bgp_route\n", sf->max_nr * sizeof(struct bgp_route));
 	j = 0;
 	len = strlen(expr);
 
