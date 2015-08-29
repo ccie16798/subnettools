@@ -1152,6 +1152,7 @@ int main(int argc, char **argv) {
 	argv = argv + res;
 	if (argc < 2)
 		exit(1);
+
 	if (nof.config_file == NULL) {
 		/* default config file is $HOME/st.conf */
 		s = getenv("HOME");
