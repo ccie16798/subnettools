@@ -41,13 +41,11 @@ int alloc_tas(TAS *tas, unsigned long n, int (*compare)(void *v1, void *v2)) {
 		return -1;
 	}
 
-	tas->tab = malloc(n * sizeof(void *));
+	tas->tab = st_malloc(n * sizeof(void *), "heap");
 	if (tas->tab == NULL) {
-		fprintf(stderr, "Cannot alloc  memory (%lu Kbytes) for heap\n", n * sizeof(void *));
 		tas->nr = 0;
 		return -1;
 	}
-	debug(MEMORY, 3, "allocated %lu bytes for heap\n", n * sizeof(void *));
 	tas->nr      = 0;
 	tas->max_nr  = n;
 	tas->compare = compare;
