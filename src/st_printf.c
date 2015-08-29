@@ -111,10 +111,13 @@ sprint_unsigned(long)
 void fprint_route(FILE *output, const struct route *r, int compress_level) {
 	char buffer[52];
 	char buffer2[52];
+	int i;
 
 	subnet2str(&r->subnet, buffer, sizeof(buffer), compress_level);
 	addr2str(&r->gw, buffer2, sizeof(buffer2), 2);
 	fprintf(output, "%s;%d;%s;%s;%s\n", buffer, r->subnet.mask, r->device, buffer2, r->comment);
+	for (i = 0; i < r->ea_nr; i++)
+		fprintf(output, "%s%c", r->ea[i].value, (i == r->ea_nr ? '\n' : ';'));
 }
 
 static void inline pad_n(char *s, int n, char c) {
@@ -166,7 +169,7 @@ static inline int pad_buffer_out(char *out, size_t len, const char *buffer, size
  /* a very specialized function to print a struct route */
 int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt) {
 	int i, j, i2, compression_level;
-	int res, pad_left;
+	int res, pad_left, ea_num;
 	char c;
 	char outbuf[512 + 140];
 	char buffer[128], buffer2[128];
@@ -280,6 +283,25 @@ int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt) {
 					copy_ipaddr(&sub.ip_addr, &r->gw);
 					sub.ip_ver = r->subnet.ip_ver;
 					res = subnet2str(&sub, buffer, sizeof(buffer), compression_level);
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+							res, field_width, pad_left, ' ');
+					j += res;
+					break;
+				case 'O': /* Extended Attribute */
+					ea_num = 0;
+					while (isdigit(fmt[i + 2])) {
+						ea_num *= 10;
+						ea_num += fmt[i + 2] - '0';
+						i++;
+					}
+					if (ea_num >= r->ea_nr) {
+						debug(FMT, 3, "Invalid Extended Attribute number #%d, max %d\n",							 ea_num, r->ea_nr);
+						break;
+					}
+					/*if (header) */ if (0)
+						res = strxcpy(buffer, r->ea[ea_num].name, sizeof(buffer));
+					else
+						res = strxcpy(buffer, r->ea[ea_num].value, sizeof(buffer));
 					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
 							res, field_width, pad_left, ' ');
 					j += res;
