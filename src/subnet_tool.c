@@ -20,6 +20,7 @@
 #include <ctype.h>
 #include "debug.h"
 #include "iptools.h"
+#include "st_routes.h"
 #include "utils.h"
 #include "generic_csv.h"
 #include "heap.h"
@@ -516,7 +517,12 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 			copy_ipaddr(&new_r[j].gw, &sf->routes[i].gw);
 		else
 			zero_ipaddr(&new_r[j].gw); /* the aggregate route has null gateway */
-		strcpy(new_r[j].comment, "AGGREGATE");
+		free(new_r[j].ea[0].value);
+		new_r[j].ea[0].value = strdup("AGGREGATE");
+		if (new_r[j].ea[0].value == NULL) {
+			fprintf(stderr, "%s: no memory\n", __FUNCTION__);
+			return -1;
+		}
 		/* rewinding and aggregating backwards as much as we can; the aggregate we just created may aggregate with j - 1 */
 		while (j > 0) {
 			if (mode == 1 && !is_equal_gw(&new_r[j], &new_r[j - 1]))
@@ -530,7 +536,12 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 					copy_ipaddr(&new_r[j].gw, &sf->routes[i].gw);
 				else
 					zero_ipaddr(&new_r[j].gw); /* the aggregate route has null gateway */
-				strcpy(new_r[j].comment, "AGGREGATE");
+				free(new_r[j].ea[0].value);
+				new_r[j].ea[0].value = strdup("AGGREGATE");
+				if (new_r[j].ea[0].value == NULL) {
+					fprintf(stderr, "%s: no memory\n", __FUNCTION__);
+					return -1;
+				}
 			} else
 				break;
 		} /* while j */
@@ -1137,13 +1148,13 @@ static int route_filter(char *s, char *value, char op, void *object) {
 	else if (!strcmp(s, "comment")) {
 		switch (op) {
 		case '=':
-			return !strcmp(route->comment, value);
+			return !strcmp(route->ea[0].value, value);
 			break;
 		case '#':
-			return !!strcmp(route->comment, value);
+			return !!strcmp(route->ea[0].value, value);
 			break;
 		case '~':
-			res = st_sscanf(route->comment, value);
+			res = st_sscanf(route->ea[0].value, value);
 			return (res < 0 ? 0 : 1);
 		default:
 			debug(FILTER, 1, "Unsupported op '%c' for comment\n", op);
