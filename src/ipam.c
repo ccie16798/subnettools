@@ -140,16 +140,13 @@ static int ipam_endofline_callback(struct csv_state *state, void *data) {
 	sf->nr++;
 	if  (sf->nr == sf->max_nr) {
 		sf->max_nr *= 2;
-		debug(MEMORY, 3, "need to reallocate %lu bytes\n", sf->max_nr * sizeof(struct ipam));
 		if (sf->max_nr > SIZE_T_MAX / sizeof(struct ipam)) {
-			fprintf(stderr, "error: too much memory requested for struct route\n");
+			fprintf(stderr, "error: too much memory requested for struct ipam\n");
 			return CSV_CATASTROPHIC_FAILURE;
 		}
-		new_r = realloc(sf->routes,  sizeof(struct ipam) * sf->max_nr);
-		if (new_r == NULL) {
-			fprintf(stderr, "unable to reallocate, need to abort\n");
+		new_r = st_realloc(sf->routes,  sizeof(struct ipam) * sf->max_nr, "ipam");
+		if (new_r == NULL)
 			return  CSV_CATASTROPHIC_FAILURE;
-		}
 		sf->routes = new_r;
 	}
 	memset(&sf->routes[sf->nr], 0, sizeof(struct ipam));
