@@ -16,51 +16,6 @@
 #include "generic_csv.h"
 #include "utils.h"
 
-
-static int __csv_field_is_superior(void *o1, void *o2) {
-	struct csv_field *s1 = (struct csv_field *)o1;
-	struct csv_field *s2 = (struct csv_field *)o2;
-
-	return (s1->pos < s2->pos);
-}
-
-static int sort_csv_header(struct csv_field *csv_field, int n) {
-	TAS tas;
-	int i, res;
-	struct csv_field *copy, *r;
-
-	res = alloc_tas(&tas, n, __csv_field_is_superior);
-	if (res < 0)
-		return res;
-	copy = malloc(n * sizeof(struct csv_field));
-	if (copy == NULL) {
-		free(tas.tab);
-		return -1;
-	}
-	i = 0;
-	while (1) {
-		if (csv_field[i].name == NULL)
-			break;
-		memcpy(&copy[i], &csv_field[i], sizeof(struct csv_field));
-		addTAS(&tas, &copy[i]);
-		i++;
-	}
-	i = 0;
-	while (1) {
-		r = popTAS(&tas);
-		if (r == NULL)
-			break;
-		memcpy(&csv_field[i], r, sizeof(struct csv_field));
-		debug(CSVHEADER, 5, "pos: %d field: %s\n", r->pos, r->name);
-		i++;
-
-	}
-	free(tas.tab);
-	free(copy);
-	return 0;
-}
-
-
 static int read_csv_header(char *filename, const char *buffer, struct csv_file *cf) {
 	int i, j;
 	char *s, *save_s;
@@ -130,8 +85,6 @@ static int read_csv_header(char *filename, const char *buffer, struct csv_file *
 			}
 		}
 	}
-	/* sort in increasing pos */
-	sort_csv_header(cf->csv_field, i);
 	if (bad_header) {
 		fprintf(stderr, "file %s doesn't have a valid CSV header\n", filename);
 		return CSV_BAD_HEADER;
@@ -153,7 +106,7 @@ static int read_csv_body(FILE *f, char *name, struct csv_file *cf,
 		char *init_buffer) {
 	char buffer[1024];
 	struct csv_field *csv_field;
-	int i, found_i, res;
+	int i, res;
 	char *s, *save_s;
 	int pos;
 	unsigned long badlines = 0;
@@ -182,22 +135,19 @@ static int read_csv_body(FILE *f, char *name, struct csv_file *cf,
 		debug(LOAD_CSV, 5, "Parsing line %lu : %s \n", state->line, s);
 		s = cf->csv_strtok_r(s, cf->delim, &save_s);
 		pos  = 0;
-		found_i = 0;
 		state->badline = 0;
 		while (s) {
 			pos++;
 			csv_field = NULL;
 			debug(LOAD_CSV, 5, "Parsing token '%s' pos %d \n", s, pos);
-			/* try to find the handler
-			 * we can start  at found_i because cf->csv_filed is sorted
-			 */
+			/* try to find the handler */
 			for (i = 0; ; i++) {
 				debug(LOAD_CSV, 9, "Parsing field pos %d %d  : %s\n", pos, cf->csv_field[i].pos, cf->csv_field[i].name);
 				if (cf->csv_field[i].name == NULL)
 					break;
 				if (pos == cf->csv_field[i].pos) {
 					csv_field = &cf->csv_field[i];
-					found_i = i;
+					state->csv_field = csv_field->name;
 					debug(LOAD_CSV, 5, "found field handler : %s data : %s\n", csv_field->name, s);
 					break;
 				}
