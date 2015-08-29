@@ -45,8 +45,8 @@ extern char debugs_level [];
 
 void list_debugs();
 void parse_debug (char *string);
-void debug_timing_start();
-void __debug_timing_end();
+void debug_timing_start(int level);
+void __debug_timing_end(const char *s, int level);
 #define debug_timing_end(__level) __debug_timing_end(__FUNCTION__, __level)
 
 #else

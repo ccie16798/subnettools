@@ -58,7 +58,8 @@ void debug_timing_start(int level) {
 	gettimeofday(&tv_start[num_times], NULL);
 	num_times++;
 }
-void __debug_timing_end(char *s, int level) {
+
+void __debug_timing_end(const char *s, int level) {
 	struct timeval tv_end;
 	time_t sec, msec;
 
