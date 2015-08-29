@@ -1,7 +1,7 @@
 /*
  * Code to read IPAM CSV files
  *
- * Copyright (C) 2014,2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ * Copyright (C) 2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
@@ -68,14 +68,19 @@ int alloc_ea(struct ipam_file *sf, int i) {
 	return 0;
 }
 
-void free_ipam_file(struct ipam_file *sf) {
-	int i, j;
+static void free_ipam_ea(struct ipam *ipam) {
+	int i;
 
-	for (i = 0; i < sf->nr; i++) {
-		for (j = 0; j < sf->ea_nr; j++)
-			free(sf->routes[i].ea[j].value);
-		free(sf->routes[i].ea);
-	}
+	for (i = 0; i < ipam->ea_nr; i++)
+		free(ipam->ea[i].value);
+	free(ipam->ea);
+}
+
+void free_ipam_file(struct ipam_file *sf) {
+	int i;
+
+	for (i = 0; i < sf->nr; i++)
+		free_ipam_ea(&sf->routes[i]);
 	free(sf->ea);
 	free(sf->routes);
 }
@@ -365,7 +370,7 @@ static int ipam_filter(char *s, char *value, char op, void *object) {
 }
 
 int ipam_file_filter(struct ipam_file *sf, char *expr) {
-	int i, j, k, res, len;
+	int i, j, res, len;
 	struct generic_expr e;
 	struct ipam *new_ipam;
 
@@ -398,11 +403,8 @@ int ipam_file_filter(struct ipam_file *sf, char *expr) {
 			st_debug(FILTER, 5, "Matching filter '%s' on %P\n", expr, sf->routes[i].subnet);
 			memcpy(&new_ipam[j], &sf->routes[i], sizeof(struct ipam));
 			j++;
-		} else {
-			for (k = 0; k < sf->ea_nr; k++)
-				free(sf->routes[i].ea[k].value);
-			free(sf->routes[i].ea);
-		}
+		} else
+			free_ipam_ea(&sf->routes[i]);
 	}
 	free(sf->routes);
 	sf->routes = new_ipam;
