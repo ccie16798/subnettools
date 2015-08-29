@@ -14,6 +14,7 @@
 #include <stdarg.h>
 #include "debug.h"
 #include "iptools.h"
+#include "st_routes.h"
 #include "bitmap.h"
 #include "utils.h"
 #include "st_object.h"

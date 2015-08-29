@@ -14,6 +14,7 @@
 #include "debug.h"
 #include "routetocsv.h"
 #include "iptools.h"
+#include "st_routes.h"
 #include "utils.h"
 #include "st_memory.h"
 #include "st_printf.h"

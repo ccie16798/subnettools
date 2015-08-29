@@ -15,6 +15,7 @@
 #include <sys/types.h>
 #include <sys/resource.h>
 #include "iptools.h"
+#include "st_routes.h"
 #include "routetocsv.h"
 #include "utils.h"
 #include "generic_csv.h"

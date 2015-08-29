@@ -15,6 +15,7 @@
 #include "debug.h"
 #include "st_memory.h"
 #include "iptools.h"
+#include "st_routes.h"
 #include "utils.h"
 #include "generic_csv.h"
 #include "st_printf.h"

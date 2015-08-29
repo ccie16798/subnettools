@@ -83,28 +83,13 @@ struct subnet {
 	u32 mask;
 };
 
-struct route {
-	struct subnet subnet;
-	char device[32];
-	struct ip_addr gw;
-	char comment[128];
-	int ea_nr; /* number of EA */
-	struct ipam_ea *ea; /* Extended Attributes */
-};
-
 int is_ip_char(char c);
 void copy_ipaddr(struct ip_addr *a, const struct ip_addr *b);
 void copy_subnet(struct subnet *a, const struct subnet *b);
-void copy_route(struct route *a, const struct route *b);
-void zero_route(struct route *a);
-void zero_route_ea(struct route *a);
-int alloc_route_ea(struct route *r, int n);
-void free_route(struct route *r);
 
 void zero_ipaddr(struct ip_addr *a);
 int is_equal_ipv6(ipv6 ip1, ipv6 ip2);
 int is_equal_ip(struct ip_addr *ip1, struct ip_addr *p2);
-int is_equal_gw(struct route *r1, struct route *r2);
 
 int ipv6_is_link_local(ipv6 a);
 int ipv6_is_global(ipv6 a);
