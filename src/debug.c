@@ -119,7 +119,11 @@ void *st_malloc(unsigned long n, char *s) {
 		fprintf(stderr, "Unable to allocate %lu Kbytes for %s\n", n, s);
 		return NULL;
 	}
-	debug(MEMORY, 3, "Allocated %lu Kbytes for %s\n", n, s);
+	if (n > 10 * 1024) {
+		debug(MEMORY, 3, "Allocated %lu Kbytes for %s\n", n / 1024, s);
+	} else {
+		debug(MEMORY, 3, "Allocated %lu bytes for %s\n", n, s);
+	}
 	return ptr;
 }
 
