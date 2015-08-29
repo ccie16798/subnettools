@@ -324,14 +324,14 @@ static int ipam_filter(char *s, char *value, char op, void *object) {
 		case '>':
 			b = string2int(value, &err);
 			if (err < 0) {
-				debug(FILTER, 1, "Cannot interpret '%s' as an INT\n", value);
+				debug(FILTER, 1, "Cannot interpret Field '%s' as an INT\n", value);
 				return -1;
 			}
 			a = string2int(ipam->ea[j].value, &err);
 			/* if Extended Attribute is null we don't return an error, just no match
 			*/
 			if (err < 0) {
-				debug(FILTER, 2, "Cannot interpret '%s' as an INT\n", ipam->ea[j].value);
+				debug(FILTER, 4, "Cannot interpret EA '%s' as an INT\n", ipam->ea[j].value);
 				return 0;
 			}
 			if (op == '>')
