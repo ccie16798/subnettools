@@ -3,5 +3,7 @@
 
 void *st_malloc(unsigned long n, char *s);
 
+void *st_realloc(void *ptr, unsigned long n, char *s);
+
 #else
 #endif
