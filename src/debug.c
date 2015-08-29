@@ -139,8 +139,7 @@ char  try_to_guess_delim(FILE *f) {
 
 	memset(count, 0, sizeof(count));
 	rewind(f);
-	
-	while ((s = fgets(buffer, sizeof(buffer), f)) && maxline++ < 4 ) { 
+	while ((s = fgets(buffer, sizeof(buffer), f)) && maxline++ < 4) {
 		for (j = 0; j < strlen(buffer); j++) {
 			for (i = 0; i < strlen(try); i++)
 				if (try[i] == s[j]) {
@@ -149,8 +148,7 @@ char  try_to_guess_delim(FILE *f) {
 				}
 		}
 	}
-	
-	for (i = 0; i < strlen(try) ; i++) {
+	for (i = 0; i < strlen(try); i++) {
 		debug(TRYGUESS, 1, "%c %d\n", try[i], count[i]);
 		if (count[i] > max_count) {
 			max_count = count[i];
@@ -159,20 +157,3 @@ char  try_to_guess_delim(FILE *f) {
 	}
 	return c;
 }
-#ifdef MAIN
-void test_me() {
-	
-	malloc(104);
-	debug(MEMORY, 1, "%d\n", 100);
-	
-}
-
-int main(int argc, char **argv) {
-	unsigned long long a;
-	char c;
-	parse_debug(argv[1]);
-	test_me();
-	c=try_to_guess_delim(fopen(argv[2],"r"));
-	printf("delim is '%c'\n", c);
-}
-#endif
