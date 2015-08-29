@@ -110,23 +110,6 @@ void parse_debug(char *string) {
 	} while (s);
 } 
 
-
-void *st_malloc(unsigned long n, char *s) {
-	void *ptr;
-
-	ptr = malloc(n);
-	if (ptr == NULL) {
-		fprintf(stderr, "Unable to allocate %lu Kbytes for %s\n", n, s);
-		return NULL;
-	}
-	if (n > 10 * 1024) {
-		debug(MEMORY, 3, "Allocated %lu Kbytes for %s\n", n / 1024, s);
-	} else {
-		debug(MEMORY, 3, "Allocated %lu bytes for %s\n", n, s);
-	}
-	return ptr;
-}
-
 char  try_to_guess_delim(FILE *f) {
 	char try[] = ",;/| &#-";
 	int count[16];
