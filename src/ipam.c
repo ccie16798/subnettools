@@ -112,7 +112,7 @@ static int ipam_ea_handle(char *s, void *data, struct csv_state *state) {
 	int found = 0;
 	char *z;
 
-	z = strdup(s); /* s cant be NULL here */
+	z = strdup(s); /* s cant be NULL here so strdup safe */
 	if (z == NULL) {
 		fprintf(stderr, "unable to alloc memory, need to abort\n");
 		return CSV_CATASTROPHIC_FAILURE;
@@ -214,7 +214,8 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof) {
 		s = strtok(NULL, ",");
 	}
 	debug(IPAM, 5, "Collected %d Extended Attributes\n", ea_nr);
-	if (alloc_ipam_file(sf, 16192, ea_nr) < 0) {
+	res = alloc_ipam_file(sf, 16192, ea_nr);
+	if (res < 0) {
 		free(csv_field);
 		return -2;
 	}
@@ -229,13 +230,6 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof) {
 	res = generic_load_csv(name, &cf, &state, sf);
 	free(csv_field);
 	return res;
-}
-
-static int __heap_subnet_is_superior(void *v1, void *v2) {
-	struct subnet *s1 = &((struct ipam *)v1)->subnet;
-	struct subnet *s2 = &((struct ipam *)v2)->subnet;
-
-	return subnet_is_superior(s1, s2);
 }
 
 int fprint_ipamfilter_help(FILE *out) {
@@ -276,10 +270,10 @@ static int ipam_filter(char *s, char *value, char op, void *object) {
 			return !(res == EQUALS);
 			break;
 		case '<':
-			return __heap_subnet_is_superior(&ipam->subnet, &subnet);
+			return subnet_is_superior(&ipam->subnet, &subnet);
 			break;
 		case '>':
-			return !__heap_subnet_is_superior(&ipam->subnet, &subnet) && res != EQUALS;
+			return !subnet_is_superior(&ipam->subnet, &subnet) && res != EQUALS;
 			break;
 		case '{':
 			return (res == INCLUDED || res == EQUALS);
