@@ -660,14 +660,11 @@ int subnet_file_remove_subnet(const struct subnet_file *sf1, struct subnet_file 
 		/* realloc memory if necessary */
 		if (n + sf2->nr >= sf2->max_nr) {
 			sf2->max_nr *= 2;
-			new_r = realloc(sf2->routes,  sizeof(struct route) * sf2->max_nr);
-			debug(MEMORY, 3, "reallocating %lu bytes for new_r\n", sizeof(struct route) * sf2->max_nr);
-			if (new_r == NULL) {
-				fprintf(stderr, "%s : unable to reallocate, need to abort\n", __FUNCTION__);
+			new_r = st_realloc(sf2->routes,  sizeof(struct route) * sf2->max_nr, "struct route");
+			if (new_r == NULL)
 				return -3;
-			}
 			sf2->routes = new_r;
-		} /* realloc */
+		}
 		for (res = 0; res < n; res++) {
 			copy_route(&sf2->routes[j],  &sf1->routes[i]); /* copy comment, device ... */
 			copy_subnet(&sf2->routes[j].subnet, &r[res]);
