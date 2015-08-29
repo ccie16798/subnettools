@@ -118,7 +118,7 @@ void fprint_route(FILE *output, const struct route *r, int compress_level) {
 	addr2str(&r->gw, buffer2, sizeof(buffer2), 2);
 	fprintf(output, "%s;%d;%s;%s;%s\n", buffer, r->subnet.mask, r->device, buffer2, r->ea[0].value);
 	for (i = 1; i < r->ea_nr; i++)
-		fprintf(output, "%s%c", r->ea[i].value, (i == r->ea_nr ? '\n' : ';'));
+		fprintf(output, "%s%c", r->ea[i].value, (i == r->ea_nr -1 ? '\n' : ';'));
 }
 
 static void inline pad_n(char *s, int n, char c) {
