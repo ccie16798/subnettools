@@ -37,6 +37,12 @@ int alloc_subnet_file(struct subnet_file *sf, unsigned long n) {
 	return 0;
 }
 
+void free_subnet_file(struct subnet_file *sf) {
+	free(sf->routes);
+	sf->routes = NULL;
+	sf->nr = sf->max_nr = 0;
+}
+
 static int netcsv_prefix_handle(char *s, void *data, struct csv_state *state) {
 	struct subnet_file *sf = data;
 	int res;
@@ -249,6 +255,12 @@ int alloc_bgp_file(struct bgp_file *sf, unsigned long n) {
 	sf->nr = 0;
 	sf->max_nr = n;
 	return 0;
+}
+
+void free_bgp_file(struct bgp_file *sf) {
+	free(sf->routes);
+	sf->routes = NULL;
+	sf->nr = sf->max_nr = 0;
 }
 
 static int bgpcsv_prefix_handle(char *s, void *data, struct csv_state *state) {
