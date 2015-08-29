@@ -2,6 +2,20 @@
 #define BGPTOOL_H
 
 #include "st_handle_csv_files.h"
+
+struct bgp_route {
+	struct subnet subnet;
+	struct ip_addr gw;
+	int MED;
+	int LOCAL_PREF;
+	char AS_PATH[256];
+	int type; /* eBGP, iBGP, local, confed, aggregate */
+	int weight;
+	int best;
+	int valid;
+	int origin;
+};
+
 int fprint_bgp_route(FILE *, struct bgp_route *r);
 void zero_bgproute(struct bgp_route *a);
 void copy_bgproute(struct bgp_route *a, const struct bgp_route *b);

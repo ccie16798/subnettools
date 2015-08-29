@@ -90,19 +90,6 @@ struct route {
 	char comment[128];
 };
 
-struct bgp_route {
-	struct subnet subnet;
-	struct ip_addr gw;
-	int MED;
-	int LOCAL_PREF;
-	char AS_PATH[256];
-	int type; /* eBGP, iBGP, local, confed, aggregate */
-	int weight;
-	int best;
-	int valid;
-	int origin;
-};
-
 int is_ip_char(char c);
 void copy_ipaddr(struct ip_addr *a, const struct ip_addr *b);
 void copy_subnet(struct subnet *a, const struct subnet *b);

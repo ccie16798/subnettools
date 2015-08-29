@@ -18,6 +18,7 @@
 #include "utils.h"
 #include "st_object.h"
 #include "st_handle_csv_files.h"
+#include "bgp_tool.h"
 #include "ipam.h"
 
 #define ST_VSPRINTF_BUFFER_SIZE 2048
@@ -962,9 +963,9 @@ static void fprint_ipam_file(FILE *out, const struct ipam_file *sf) {
 	int i, j;
 
 	for (i = 0; i < sf->nr; i++) {
-		st_fprintf(out, "%P;", sf->routes[i].subnet);
+		st_fprintf(out, "%P;", sf->lines[i].subnet);
 		for (j = 0; j < sf->ea_nr; j++)
-			fprintf(out, "%s;", sf->routes[i].ea[j].value);
+			fprintf(out, "%s;", sf->lines[i].ea[j].value);
 		fprintf(out, "\n");
 	}
 }
@@ -976,7 +977,7 @@ void fprint_ipam_file_fmt(FILE *output, const struct ipam_file *sf, const char *
 	if (strlen(fmt) < 2)
 		return fprint_ipam_file(output, sf);
 	for (i = 0; i < sf->nr; i++)
-		fprint_ipam_fmt(output, &sf->routes[i], fmt);
+		fprint_ipam_fmt(output, &sf->lines[i], fmt);
 }
 
 void print_ipam_file_fmt(const struct ipam_file *sf, const char *fmt) {
