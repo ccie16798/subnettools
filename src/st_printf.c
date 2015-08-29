@@ -115,8 +115,8 @@ void fprint_route(FILE *output, const struct route *r, int compress_level) {
 
 	subnet2str(&r->subnet, buffer, sizeof(buffer), compress_level);
 	addr2str(&r->gw, buffer2, sizeof(buffer2), 2);
-	fprintf(output, "%s;%d;%s;%s;%s\n", buffer, r->subnet.mask, r->device, buffer2, r->comment);
-	for (i = 0; i < r->ea_nr; i++)
+	fprintf(output, "%s;%d;%s;%s;%s\n", buffer, r->subnet.mask, r->device, buffer2, r->ea[0].value);
+	for (i = 1; i < r->ea_nr; i++)
 		fprintf(output, "%s%c", r->ea[i].value, (i == r->ea_nr ? '\n' : ';'));
 }
 
@@ -242,8 +242,10 @@ int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt) {
 					break;
 				case 'C':
 					PRINT_FILE_HEADER(comment)
-					res = strlen(r->comment);
-					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, r->comment,
+					if (r->ea[0].value == NULL)
+						break;
+					res = strlen(r->ea[0].value);
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, r->ea[0].value,
 							res, field_width, pad_left, ' ');
 					j += res;
 					break;
