@@ -82,14 +82,10 @@ int addTAS_may_fail(TAS *tas, void *el) {
 			fprintf(stderr, "error: too much memory requested for heap\n");
 			return -1;
 		}
-		truc = realloc(tas->tab, sizeof(void *) * tas->max_nr);
-		if (truc == NULL) {
-			fprintf(stderr, "Cannot realloc  memory (%lu Kbytes) for heap\n",
-					tas->max_nr * sizeof(void *));
+		truc = st_realloc(tas->tab, sizeof(void *) * tas->max_nr, "heap");
+		if (truc == NULL)
 			return -1;
-		}
 		tas->tab = truc;
-		debug(MEMORY, 3, "reallocated %lu bytes for heap\n", tas->max_nr * sizeof(void *));
 	}
 	addTAS(tas, el);
 	return 0;
