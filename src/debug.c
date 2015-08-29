@@ -36,7 +36,7 @@ struct debug debugs[] = {
 	{0, 0}
 };
 
-char debugs_level [sizeof(debugs)/sizeof(struct debug)];
+char debugs_level [__D_MAX];
 struct timeval tv_start[10]; /* nested timer values (10 levels max) */
 int num_times = 0;
 

@@ -26,6 +26,7 @@
 #define __D_BGPCMP	40
 #define __D_GEXPR	50
 #define __D_FILTER	51
+#define __D_MAX		100
 
 #define debug(__EVENT, __DEBUG_LEVEL, __FMT...) \
 	do { \
