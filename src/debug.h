@@ -44,6 +44,7 @@ struct debug {
 extern char debugs_level [];
 
 void list_debugs();
+void *st_malloc(unsigned long n, char *s);
 void parse_debug (char *string);
 void debug_timing_start();
 void __debug_timing_end();

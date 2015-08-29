@@ -379,14 +379,11 @@ int ipam_file_filter(struct ipam_file *sf, char *expr) {
 	init_generic_expr(&e, expr, ipam_filter);
 	debug_timing_start(2);
 
-	new_ipam = malloc(sf->max_nr * sizeof(struct ipam));
+	new_ipam = st_malloc(sf->max_nr * sizeof(struct ipam), "struct ipam");
 	if (new_ipam == NULL) {
-		fprintf(stderr, "%s : no memory\n", __FUNCTION__);
 		debug_timing_end(2);
 		return -1;
 	}
-	debug(MEMORY, 3, "Allocated %lu Kbytes for struct ipam\n",
-			sf->max_nr * sizeof(struct ipam) / 1024);
 	j = 0;
 	len = strlen(expr);
 
