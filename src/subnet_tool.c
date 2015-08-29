@@ -83,7 +83,7 @@ int uniq_routes(const struct subnet_file *sf1, const struct subnet_file *sf2, st
 		return res;
 	res = alloc_tas(&tas, sf3->max_nr, __heap_subnet_is_superior);
 	if (res < 0) { /* out of mem */
-		free(sf3->routes);
+		free_subnet_file(&sf3);
 		return res;
 	}
 
