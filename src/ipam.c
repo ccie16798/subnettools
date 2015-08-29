@@ -23,29 +23,21 @@ int alloc_ipam_file(struct ipam_file *sf, unsigned long n, int ea_nr) {
 		fprintf(stderr, "error: too much memory requested for struct ipam\n");
 		return -1;
 	}
-	sf->routes = malloc(sizeof(struct ipam) * n);
+	sf->routes = st_malloc(sizeof(struct ipam) * n, "ipam_file");
 	if (sf->routes == NULL) {
-		fprintf(stderr, "Cannot alloc  memory (%lu Kbytes) for sf->ipam\n",
-				n * sizeof(struct ipam) / 1024);
 		sf->nr = sf->max_nr = 0;
 		return -1;
 	}
-	debug(MEMORY, 3, "Allocated %lu Kbytes for ipam_file\n",
-		  sizeof(struct ipam) * n / 1024);
 	sf->nr = 0;
 	sf->max_nr = n;
 	sf->ea_nr = ea_nr;
-	sf->ea = malloc(ea_nr * sizeof(struct ipam_ea));
+	sf->ea = st_malloc(ea_nr * sizeof(struct ipam_ea), "ipam_ea");
 	if (sf->ea == NULL) {
-		fprintf(stderr, "Cannot alloc  memory (%lu bytes) for sf->ea\n",
-				(unsigned long)(ea_nr * sizeof(struct ipam_ea)));
 		sf->nr = sf->max_nr = 0;
 		free(sf->routes);
 		sf->routes = NULL;
 		return -1;
 	}
-	debug(MEMORY, 3, "Allocated %lu bytes for ipam_ea\n",
-				(unsigned long)(sizeof(struct ipam_ea) * ea_nr));
 	return 0;
 }
 
@@ -53,14 +45,9 @@ int alloc_ea(struct ipam_file *sf, int i) {
 	struct ipam_ea *ea;
 	int j;
 
-	ea = malloc(sf->ea_nr * sizeof(struct ipam_ea));
-	if (ea == NULL) {
-		fprintf(stderr, "Cannot alloc  memory (%lu bytes) for sf->ea\n",
-				(unsigned long)(sf->ea_nr * sizeof(struct ipam_ea)));
+	ea = st_malloc(sf->ea_nr * sizeof(struct ipam_ea), "ipam_ea");
+	if (ea == NULL)
 		return -1;
-	}
-	debug(MEMORY, 3, "Allocated %lu bytes for ipam_ea\n",
-			(unsigned long)(sizeof(struct ipam_ea) * sf->ea_nr));
 	for (j = 0; j < sf->ea_nr; j++)
 		ea[j].name = sf->ea[j].name;
 	sf->routes[i].ea    = ea;
@@ -180,14 +167,9 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof) {
 	int i, res, ea_nr = 0;
 
 	ea_nr = count_char(nof->ipam_ea, ',') + 1;
-	csv_field = malloc((ea_nr + 4) * sizeof(struct csv_field));
-	if (csv_field == NULL) {
-		fprintf(stderr, "Cannot alloc  memory (%lu bytes) for csv_field\n",
-				(unsigned long)((ea_nr + 4) * sizeof(struct csv_field)));
+	csv_field = st_malloc((ea_nr + 4) * sizeof(struct csv_field), "IPAM CSV field");
+	if (csv_field == NULL)
 		return -1;
-	}
-	debug(MEMORY, 3, "Allocated %lu Kbytes for csv_field\n",
-		  sizeof(struct csv_field) * (ea_nr + 4) / 1024);
 	init_csv_file(&cf, name, csv_field, nof->ipam_delim, &simple_strtok_r);
 	cf.endofline_callback = ipam_endofline_callback;
 	init_csv_state(&state, name);
