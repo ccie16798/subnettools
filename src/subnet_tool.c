@@ -360,13 +360,11 @@ int subnet_file_simplify(struct subnet_file *sf) {
 	res = alloc_tas(&tas, sf->nr, __heap_subnet_is_superior);
 	if (res < 0)
 		return -1;
-	new_r = malloc(sf->nr * sizeof(struct route));
+	new_r = st_malloc(sf->nr * sizeof(struct route), "struct route");
 	if (new_r == NULL) {
 		free(tas.tab);
-		fprintf(stderr, "%s : no memory \n", __FUNCTION__);
 		return -1;
 	}
-	debug(MEMORY, 3, "Allocated %lu bytes for new struct route\n", sf->nr * sizeof(struct route));
 	for (i = 0; i < sf->nr; i++)
 		addTAS(&tas, &sf->routes[i]);
 
@@ -407,20 +405,17 @@ int route_file_simplify(struct subnet_file *sf,  int mode) {
 	res = alloc_tas(&tas, sf->nr, __heap_subnet_is_superior);
 	if (res < 0)
 		return res;
-	new_r   =  malloc(sf->nr * sizeof(struct route)); /* common routes */
+	new_r   =  st_malloc(sf->nr * sizeof(struct route), "struct route"); /* common routes */
 	if (new_r == NULL) {
 		free(tas.tab);
-		fprintf(stderr, "%s : no memory\n", __FUNCTION__);
 		return -1;
 	}
-	discard =  malloc(sf->nr * sizeof(struct route)); /* excluded routes */
+	discard =  st_malloc(sf->nr * sizeof(struct route), "struct route"); /* excluded routes */
 	if (discard == NULL) {
 		free(tas.tab);
 		free(new_r);
-		fprintf(stderr, "%s : no memory\n", __FUNCTION__);
 		return -1;
 	}
-	debug(MEMORY, 3, "Allocated %lu bytes for new struct route\n", 2 * sf->nr * sizeof(struct route));
 
 	for (i = 0; i < sf->nr; i++)
 		addTAS(&tas, &sf->routes[i]);
@@ -490,13 +485,11 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 		debug_timing_end(2);
 		return res;
 	}
-	new_r = malloc(sf->nr * sizeof(struct route));
+	new_r = st_malloc(sf->nr * sizeof(struct route), "struct route");
 	if (new_r == NULL) {
-		fprintf(stderr, "%s : no memory\n", __FUNCTION__);
 		debug_timing_end(2);
 		return -1;
 	}
-	debug(MEMORY, 3, "Allocated %lu bytes for new struct route\n", sf->nr * sizeof(struct route));
 	copy_route(&new_r[0], &sf->routes[0]);
 	j = 0; /* i is the index in the original file, j is the index in the file we are building */
 	for (i = 1; i < sf->nr; i++) {
@@ -954,15 +947,13 @@ static int __subnet_sort_by(struct subnet_file *sf, int cmpfunc(void *v1, void *
 		debug_timing_end(2);
 		return res;
 	}
-	new_r = malloc(sf->max_nr * sizeof(struct route));
+	new_r = st_malloc(sf->max_nr * sizeof(struct route), "struct route");
 	if (new_r == NULL) {
-		fprintf(stderr, "%s : no memory\n", __FUNCTION__);
 		free(tas.tab);
 		debug_timing_end(2);
 		return -1;
 	}
 	tas.print = __heap_print_subnet;
-	debug(MEMORY, 3, "Allocated %lu bytes for new struct route\n", sf->max_nr * sizeof(struct route));
 	/* basic heapsort */
 	for (i = 0 ; i < sf->nr; i++)
 		addTAS(&tas, &(sf->routes[i]));
@@ -1183,13 +1174,11 @@ int subnet_file_filter(struct subnet_file *sf, char *expr) {
 	init_generic_expr(&e, expr, route_filter);
 	debug_timing_start(2);
 
-	new_r = malloc(sf->nr * sizeof(struct route));
+	new_r = st_malloc(sf->nr * sizeof(struct route), "struct route");
 	if (new_r == NULL) {
-		fprintf(stderr, "%s : no memory\n", __FUNCTION__);
 		debug_timing_end(2);
 		return -1;
 	}
-	debug(MEMORY, 3, "Allocated %lu bytes for struct route\n", sf->nr * sizeof(struct route));
 	j = 0;
 	len = strlen(expr);
 
