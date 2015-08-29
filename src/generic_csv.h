@@ -49,9 +49,10 @@
 struct csv_state {
 	unsigned long line; /* current line */
 	char *file_name;
+	char *csv_field; /* name of the field we crossed */
 	int  badline;
 	int skip; /* tell the engine to skip fields without increasing the pos counter */
-	int state[13]; /* generic states table, csv_field->handle can use it as its wants */
+	int state[8]; /* generic states table, csv_field->handle can use it as its wants */
 };
 
 struct csv_field {
