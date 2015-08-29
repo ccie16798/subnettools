@@ -122,7 +122,7 @@ int uniq_routes(const struct subnet_file *sf1, const struct subnet_file *sf2, st
 		copy_route(&sf3->routes[i], r);
 	}
 	sf3->nr = i;
-	free(tas.tab);
+	free_tas(&tas);
 	return 1;
 }
 
@@ -363,7 +363,7 @@ int subnet_file_simplify(struct subnet_file *sf) {
 		return -1;
 	new_r = st_malloc(sf->nr * sizeof(struct route), "struct route");
 	if (new_r == NULL) {
-		free(tas.tab);
+		free_tas(&tas);
 		return -1;
 	}
 	for (i = 0; i < sf->nr; i++)
@@ -387,7 +387,7 @@ int subnet_file_simplify(struct subnet_file *sf) {
         }
 	sf->max_nr = sf->nr;
         sf->nr = i;
-	free(tas.tab);
+	free_tas(&tas);
 	free(sf->routes);
 	sf->routes = new_r;
 	debug_timing_end(2);
@@ -408,12 +408,12 @@ int route_file_simplify(struct subnet_file *sf,  int mode) {
 		return res;
 	new_r   =  st_malloc(sf->nr * sizeof(struct route), "struct route"); /* common routes */
 	if (new_r == NULL) {
-		free(tas.tab);
+		free_tas(&tas);
 		return -1;
 	}
 	discard =  st_malloc(sf->nr * sizeof(struct route), "struct route"); /* excluded routes */
 	if (discard == NULL) {
-		free(tas.tab);
+		free_tas(&tas);
 		free(new_r);
 		return -1;
 	}
@@ -454,7 +454,7 @@ int route_file_simplify(struct subnet_file *sf,  int mode) {
 		else
 			copy_route(&discard[j++], r);
         }
-	free(tas.tab);
+	free_tas(&tas);
 	free(sf->routes);
 	sf->max_nr = sf->nr;
 	if (mode == 0) {
@@ -558,7 +558,7 @@ int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct
 	}
 	res = alloc_subnet_file(sf3, sf1->nr + sf2->nr);
 	if (res < 0) {
-		free(tas.tab);
+		free_tas(&tas);
 		debug_timing_end(2);
 		return res;
 	}
@@ -600,7 +600,7 @@ int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct
 		copy_route(&sf3->routes[i], r);
 	}
 	sf3->nr = i;
-	free(tas.tab);
+	free_tas(&tas);
 	debug_timing_end(2);
 	return 1;
 }
@@ -947,7 +947,7 @@ static int __subnet_sort_by(struct subnet_file *sf, int cmpfunc(void *v1, void *
 	}
 	new_r = st_malloc(sf->max_nr * sizeof(struct route), "struct route");
 	if (new_r == NULL) {
-		free(tas.tab);
+		free_tas(&tas);
 		debug_timing_end(2);
 		return -1;
 	}
@@ -959,7 +959,7 @@ static int __subnet_sort_by(struct subnet_file *sf, int cmpfunc(void *v1, void *
 		r = popTAS(&tas);
 		copy_route(&new_r[i], r);
 	}
-	free(tas.tab);
+	free_tas(&tas);
 	free(sf->routes);
 	sf->routes = new_r;
 	debug_timing_end(2);
