@@ -43,12 +43,39 @@ int alloc_route_ea(struct route *r, int n) {
 	return 1;
 }
 
+int clone_route(struct route *dest, struct route *src) {
+	int i, res;
+
+	copy_route(dest, src);
+	res = alloc_route_ea(dest, src->ea_nr);
+	if (res < 0)
+		return res;
+	for (i = 0; i <	dest->ea_nr; i++) {
+		/* name IS not malloc'ed, only value */
+		dest->ea[i].name  = src->ea[i].name;
+		if (src->ea[i].value) {
+			dest->ea[i].value = strdup(src->ea[i].value);
+			if (dest->ea[i].value == NULL) {
+				fprintf(stderr, "%s : no memory\n", __FUNCTION__);
+				return -1;
+			}
+		}
+		else
+			dest->ea[i].value = NULL;
+	}
+	return 1;
+}
+
 void free_route(struct route *r) {
 	int i;
 
-	for (i = 0; i < r->ea_nr; i++)
+	for (i = 0; i < r->ea_nr; i++) {
 		free(r->ea[i].value);
+		r->ea[i].value = NULL;
+	}
 	free(r->ea);
+	r->ea = NULL;
+	r->ea_nr = 0;
 }
 
 int is_equal_gw(struct route *r1, struct route *r2) {
