@@ -346,7 +346,6 @@ static int ipam_filter(char *s, char *value, char op, void *object) {
 		}
 
 	}
-	return -1;
 }
 
 int ipam_file_filter(struct ipam_file *sf, char *expr) {
