@@ -440,14 +440,14 @@ static int run_missing(int arc, char **argv, void *st_options) {
 
 	res = missing_routes(&sf1, &sf2, &sf3);
 	if (res < 0) {
-		free(sf2.routes);
-		free(sf1.routes);
+		free_subnet_file(&sf2);
+		free_subnet_file(&sf1);
 		return res;
 	}
 	fprint_subnet_file_fmt(nof->output_file, &sf3, nof->output_fmt);
-	free(sf3.routes);
-	free(sf2.routes);
-	free(sf1.routes);
+	free_subnet_file(&sf1);
+	free_subnet_file(&sf2);
+	free_subnet_file(&sf3);
 	return 0;
 }
 
@@ -463,14 +463,14 @@ static int run_uniq(int arc, char **argv, void *st_options) {
 
 	res = uniq_routes(&sf1, &sf2, &sf3);
 	if (res < 0) {
-		free(sf1.routes);
-		free(sf2.routes);
+		free_subnet_file(&sf1);
+		free_subnet_file(&sf2);
 		return res;
 	}
 	fprint_subnet_file_fmt(nof->output_file, &sf3, nof->output_fmt);
-	free(sf1.routes);
-	free(sf2.routes);
-	free(sf3.routes);
+	free_subnet_file(&sf1);
+	free_subnet_file(&sf2);
+	free_subnet_file(&sf3);
 	return 0;
 }
 
@@ -485,8 +485,8 @@ static int run_paip(int arc, char **argv, void *st_options) {
 	DIE_ON_BAD_FILE(argv[3]);
 
 	print_file_against_paip(&sf, &paip, nof);
-	free(sf.routes);
-	free(paip.routes);
+	free_subnet_file(&sf);
+	free_subnet_file(&paip);
 	return 0;
 }
 
@@ -520,11 +520,11 @@ static int run_filter(int arc, char **argv, void *st_options) {
 		res = subnet_file_filter(&sf, argv[3]);
 	}
 	if (res < 0) {
-		free(sf.routes);
+		free_subnet_file(&sf);
 		return res;
 	}
 	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
-	free(sf.routes);
+	free_subnet_file(&sf);
 	return 0;
 }
 
@@ -548,11 +548,11 @@ static int run_bgp_filter(int arc, char **argv, void *st_options) {
 		res = bgp_file_filter(&sf, argv[3]);
 	}
 	if (res < 0) {
-		free(sf.routes);
+		free_bgp_file(&sf);
 		return res;
 	}
 	fprint_bgp_file(nof->output_file, &sf);
-	free(sf.routes);
+	free_bgp_file(&sf);
 	return 0;
 }
 
@@ -603,11 +603,11 @@ static int run_simplify1(int arc, char **argv, void *st_options) {
 
 	res = route_file_simplify(&sf, nof->simplify_mode);
 	if (res < 0) {
-		free(sf.routes);
+		free_subnet_file(&sf);
 		return res;
 	}
 	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
-	free(sf.routes);
+	free_subnet_file(&sf);
 	return 0;
 }
 
@@ -622,11 +622,11 @@ static int run_simplify2(int arc, char **argv, void *st_options) {
 
 	res = route_file_simplify(&sf, nof->simplify_mode);
 	if (res < 0) {
-		free(sf.routes);
+		free_subnet_file(&sf);
 		return res;
 	}
 	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
-	free(sf.routes);
+	free_subnet_file(&sf);
 	return 0;
 }
 
@@ -643,9 +643,9 @@ static int run_common(int arc, char **argv, void *st_options) {
 	res = subnet_file_merge_common_routes(&sf1, &sf2, &sf3);
 	if (res >= 0)
 		fprint_subnet_file_fmt(nof->output_file, &sf3, nof->output_fmt);
-	free(sf3.routes);
-	free(sf2.routes);
-	free(sf1.routes);
+	free_subnet_file(&sf3);
+	free_subnet_file(&sf2);
+	free_subnet_file(&sf1);
 	if (res < 0)
 		return res;
 	return 0;
@@ -664,8 +664,8 @@ static int run_addfiles(int arc, char **argv, void *st_options) {
 
 	res = alloc_subnet_file(&sf3, sf1.nr + sf2.nr);
 	if (res < 0) {
-		free(sf2.routes);
-		free(sf1.routes);
+		free_subnet_file(&sf2);
+		free_subnet_file(&sf1);
 		return res;
 	}
 	debug_timing_start(2);
@@ -677,14 +677,14 @@ static int run_addfiles(int arc, char **argv, void *st_options) {
 	/* since the routes comes from different files, we wont compare the GW */
 	res = subnet_file_simplify(&sf3);
 	if (res < 0) {
-		free(sf2.routes);
-		free(sf1.routes);
+		free_subnet_file(&sf2);
+		free_subnet_file(&sf1);
 		return res;
 	}
 	fprint_subnet_file_fmt(nof->output_file, &sf3, nof->output_fmt);
-	free(sf1.routes);
-	free(sf2.routes);
-	free(sf3.routes);
+	free_subnet_file(&sf3);
+	free_subnet_file(&sf2);
+	free_subnet_file(&sf1);
 	debug_timing_end(2);
 	return 0;
 }
@@ -701,7 +701,7 @@ static int run_sort(int arc, char **argv, void *st_options) {
 	if (res < 0)
 		return res;
 	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
-	free(sf.routes);
+	free_subnet_file(&sf);
 	return 0;
 }
 
@@ -721,12 +721,12 @@ static int run_sortby(int arc, char **argv, void *st_options) {
 	if (res == -1664) {
 		fprintf(stderr, "Cannot sort by '%s'\n", argv[2]);
 		fprintf(stderr, "You can sort by :\n");
-		free(sf1.routes);
+		free_subnet_file(&sf1);
 		subnet_available_cmpfunc(stderr);
 		return res;
 	}
 	fprint_subnet_file(o->output_file, &sf1, 3);
-	free(sf1.routes);
+	free_subnet_file(&sf1);
 	return 0;
 }
 
@@ -741,7 +741,7 @@ static int run_sum(int arc, char **argv, void *st_options) {
 
 	sum = sum_subnet_file(&sf);
 	fprintf(nof->output_file, "Sum : %llu\n", sum);
-	free(sf.routes);
+	free_subnet_file(&sf);
 	return 0;
 }
 
@@ -756,7 +756,7 @@ static int run_subnetagg(int arc, char **argv, void *st_options) {
 	if (res < 0)
 		return res;
 	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
-	free(sf.routes);
+	free_subnet_file(&sf);
 	return 0;
 }
 
@@ -772,7 +772,7 @@ static int run_routeagg(int arc, char **argv, void *st_options) {
 	if (res < 0)
 		return res;
 	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
-	free(sf.routes);
+	free_subnet_file(&sf);
 	return 0;
 }
 
@@ -790,8 +790,8 @@ static int run_remove_file(int arc, char **argv, void *st_options) {
 	if (res < 0)
 		return res;
 	fprint_subnet_file_fmt(nof->output_file, &sf2, nof->output_fmt);
-	free(sf2.routes);
-	free(sf3.routes);
+	free_subnet_file(&sf2);
+	free_subnet_file(&sf3);
 	return 0;
 }
 
@@ -831,8 +831,8 @@ static int run_remove(int arc, char **argv, void *st_options) {
 		}
 		subnet_file_remove_subnet(&sf1, &sf2, &subnet2);
 		fprint_subnet_file_fmt(nof->output_file, &sf2, nof->output_fmt);
-		free(sf1.routes);
-		free(sf2.routes);
+		free_subnet_file(&sf1);
+		free_subnet_file(&sf2);
 		return 0;
 	} else {
 		fprintf(stderr, "invalid objet %s after %s, expecting 'subnet' or 'file'\n", argv[2], argv[1]);
@@ -963,12 +963,12 @@ static int run_bgpsortby(int arc, char **argv, void *st_options) {
 		fprintf(stderr, "Cannot sort by '%s'\n", argv[2]);
 		fprintf(stderr, "You can sort by :\n");
 		bgp_available_cmpfunc(stderr);
-		free(sf1.routes);
+		free_bgp_file(&sf1);
 		return res;
 	}
 	fprint_bgp_file_header(o->output_file);
 	fprint_bgp_file(o->output_file, &sf1);
-	free(sf1.routes);
+	free_bgp_file(&sf1);
 	return 0;
 }
 
