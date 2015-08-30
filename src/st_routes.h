@@ -12,7 +12,13 @@ struct route {
 	int ea_nr; /* number of EA */
 	struct ipam_ea *ea; /* Extended Attributes */
 };
-void copy_route(struct route *a, const struct route *b);
+
+/* copy_route can be used if it is just moving route from one container to another
+ * clone_route MUST BE used if the src route is still referenced
+ */
+void copy_route(struct route *dst, const struct route *src);
+int clone_route(struct route *dst, const struct route *src);
+
 void zero_route(struct route *a);
 void zero_route_ea(struct route *a);
 int alloc_route_ea(struct route *r, int n);
