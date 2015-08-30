@@ -8,7 +8,6 @@ struct route {
 	struct subnet subnet;
 	char device[32];
 	struct ip_addr gw;
-	char comment[128];
 	int ea_nr; /* number of EA */
 	struct ipam_ea *ea; /* Extended Attributes */
 };
