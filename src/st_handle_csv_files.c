@@ -157,7 +157,6 @@ static int netcsv_endofline_callback(struct csv_state *state, void *data) {
 	res = alloc_route_ea(&sf->routes[sf->nr], 1);
 	if (res < 0)
 		return CSV_CATASTROPHIC_FAILURE;
-	sf->routes[sf->nr].ea[0].value = NULL;
 	state->state[0] = 0; /* state[0] = we found a mask */
 	return CSV_CONTINUE;
 }
@@ -212,7 +211,6 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 	res = alloc_route_ea(&sf->routes[0], 1);
 	if (res < 0)
 		return res;
-	sf->routes[0].ea[0].value = NULL;
 	return generic_load_csv(name, &cf, &state, sf);
 }
 
@@ -266,7 +264,6 @@ int load_ipam_no_EA(char  *name, struct subnet_file *sf, struct st_options *nof)
 	res = alloc_route_ea(&sf->routes[0], 1);
 	if (res < 0)
 		return res;
-	sf->routes[0].ea[0].value = NULL;
 	return generic_load_csv(name, &cf, &state, sf);
 }
 

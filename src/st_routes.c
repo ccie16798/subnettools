@@ -36,10 +36,16 @@ void zero_route_ea(struct route *a) {
 }
 
 int alloc_route_ea(struct route *r, int n) {
+	int i;
+
 	r->ea = st_malloc(n, "route ea");
 	r->ea_nr = n;
-	if (r->ea == NULL)
+	if (r->ea == NULL) {
+		r->ea_nr = 0;
 		return -1;
+	}
+	for (i = 0; i < n; i++)
+		r->ea[i].value = NULL;
 	return 1;
 }
 
