@@ -617,7 +617,7 @@ int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct
 		r = popTAS(&tas);
 		if (r == NULL)
 			break;
-		copy_route(&sf3->routes[i], r);
+		clone_route(&sf3->routes[i], r);
 	}
 	sf3->nr = i;
 	free_tas(&tas);
