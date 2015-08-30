@@ -664,7 +664,7 @@ int subnet_file_remove_subnet(const struct subnet_file *sf1, struct subnet_file 
 	for (i = 0; i < sf1->nr; i++) {
 		res = subnet_compare(&sf1->routes[i].subnet, subnet);
 		if (res == NOMATCH || res == INCLUDED) {
-			copy_route(&sf2->routes[j],  &sf1->routes[i]);
+			clone_route(&sf2->routes[j],  &sf1->routes[i]);
 			j++;
 			st_debug(ADDRREMOVE, 4, "%P is not included in %P\n", *subnet, sf1->routes[i]);
 			continue;
@@ -686,7 +686,7 @@ int subnet_file_remove_subnet(const struct subnet_file *sf1, struct subnet_file 
 			sf2->routes = new_r;
 		}
 		for (res = 0; res < n; res++) {
-			copy_route(&sf2->routes[j],  &sf1->routes[i]); /* copy comment, device ... */
+			clone_route(&sf2->routes[j], &sf1->routes[i]); /* copy comment, device ... */
 			copy_subnet(&sf2->routes[j].subnet, &r[res]);
 			j++;
 		}
