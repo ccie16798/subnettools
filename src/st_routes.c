@@ -95,4 +95,3 @@ int is_equal_gw(struct route *r1, struct route *r2) {
 	}
 	return 0;
 }
-
