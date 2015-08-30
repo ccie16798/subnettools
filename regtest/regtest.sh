@@ -237,6 +237,36 @@ reg_test_filter() {
 	done
 }
 
+reg_test_ipamfilter() {
+	local output_file
+	local n
+
+	$PROG -ea EA-Site,EA-Vlan ipamfilter ipam-test "EA-Site=Acheres"  > res/ipamfilter1
+	$PROG -ea EA-Site,EA-Vlan ipamfilter ipam-test "EA-Vlan<4000"  > res/ipamfilter2
+	$PROG -ea EA-Vlan,EA-Name ipamfilter ipam-test "EA-Vlan>400"  > res/ipamfilter3
+	$PROG -ea EA-Vlan,EA-Name,EA-Site,comment ipamfilter ipam-test "comment~.*"  > res/ipamfilter4
+	$PROG -fmt "%20P;%20O0;%20O1;%20O2;%O3" -ea EA-Vlan,EA-Name,EA-Site,comment ipamfilter ipam-test "comment~.*"  > res/ipamfilter5
+
+	n=5
+	for i in `seq 1 $n`; do
+		output_file=ipamfilter$i
+		if [ ! -f ref/$output_file ]; then
+			echo "No ref file found for this test, creating it 'ref/$output_file'"
+			cp res/$output_file ref/$output_file
+		else
+			echo -n "reg test [ipamfilter #$i] :"
+			diff res/$output_file ref/$output_file > /dev/null
+			if [ $? -eq 0 ]; then
+				echo -e "\033[32mOK\033[0m"
+				n_ok=$((n_ok + 1))
+			else
+				n_ko=$((n_ko + 1))
+				echo -e "\033[31mKO\033[0m"
+			fi
+		fi
+	done
+}
+
 result() {
 	echo "Summary : "
 	echo -e "\033[32m$n_ok OK\033[0m"
@@ -336,6 +366,7 @@ reg_test_logic
 # filter
 reg_test_filter
 reg_test_bgpfilter
+reg_test_ipamfilter
 # converter
 reg_test convert CiscoRouterconf	ciscorouteconf_v4
 reg_test convert CiscoRouterconf	ciscorouteconf_v6

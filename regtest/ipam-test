@@ -1,0 +1,11 @@
+id,header-network*,address*,netmask_dec,netmask*,network_container,EA-Owner,EA-Maint,EA-Domain,EA-Subdomain,EA-Site,EA-Scope,EA-Type,EA-Vlan,EA-State,EA-Name,comment,EA-Action,EA-Confiance,EA-FW,network_view*
+16978227227,network,10.40.172.0,27,255.255.255.224,10.40.128.0/18,ROMSO,BT,Hebergement,DC_HR_ADM,Acheres,PFP-Prod,LAN,,Actif,SVGEXTAH1SRV,Sauvegarde Externe,,SVG,,default
+16978278427,network,10.40.174.0,27,255.255.255.224,10.40.128.0/18,ROMSO,BT,Hebergement,DC_HR_ADM,Acheres,PFP-Prod,LAN,1948,Acta Defense - Baobab,PFP-Prod,POOL,,Actif,DIALERMAP2-rc_defense7,Pool DialerMap vers sites MSC/BSC en ISDN rc-defense7,,BUR,,default
+17091788830,network,10.58.0.0,30,255.255.255.252,10.58.0.0/24,ROMSO,BT,Bureautique,Site_BSC_MSC,La Defense - Baobab,PFP-Prod,INTERCO,,Actif,,Interco rc-defense4/rc-lefoullon1,,N/A,,default
+17091789630,network,10.58.0.8,30,255.255.255.252,10.58.0.0/24,ROMSO,BT,Bureautique,Site_BSC_MSC,La Defense - Baobab,PFP-Prod,INTERCO,,Actif,,Interco rc-defense2/rc-valenton1,,N/A,,default
+17091790030,network,10.58.0.12,30,255.255.255.252,10.58.0.0/24,ROMSO,BT,Bureautique,Site_BSC_MSC,La Defense - Baobab,PFP-Prod,INTERCO,,Actif,,Interco rc-defense4/rc-estp1,,N/A,,default
+17091792430,network,10.58.0.36,30,255.255.255.252,10.58.0.0/24,ROMSO,BT,Bureautique,Site_BSC_MSC,La Defense - Baobab,PFP-Prod,INTERCO,,Actif,,Interco rc-defense4/rc-champlan1,,N/A,,default
+17091792830,network,10.58.0.40,30,255.255.255.252,10.58.0.0/24,ROMSO,BT,Bureautique,Site_BSC_MSC,La Defense - Baobab,PFP-Prod,INTERCO,,Actif,,Interco rc-defense4/rc-mitry-mory1,,N/A,,default
+17091793630,network,10.58.0.48,30,255.255.255.252,10.58.0.0/24,ROMSO,BT,Bureautique,Site_BSC_MSC,La Defense - Baobab,PFP-Prod,INTERCO,,Actif,,Interco rc-defense3/rc-defense4,,N/A,,default
+17091795630,network,10.58.0.68,30,255.255.255.252,10.58.0.0/24,ROMSO,BT,Bureautique,Site_BSC_MSC,La Defense - Baobab,PFP-Prod,INTERCO,,Actif,,Interco rc-defense4/rc-bezons3 1,,N/A,,default
+17091796030,network,10.58.0.72,30,255.255.255.252,10.58.0.0/24,ROMSO,BT,Bureautique,Site_BSC_MSC,La Defense - Baobab,PFP-Prod,INTERCO,,Actif,,Interco rc-defense4/rc-bezons3 2,,N/A,,default
