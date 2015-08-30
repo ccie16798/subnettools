@@ -150,7 +150,7 @@ int missing_routes(const struct subnet_file *sf1, const struct subnet_file *sf2,
 			}
 		}
 		if (find == 0) {
-			copy_route(&sf3->routes[k], &sf1->routes[i]);
+			clone_route(&sf3->routes[k], &sf1->routes[i]);
 			k++;
 		}
 	}
@@ -383,6 +383,7 @@ int subnet_file_simplify(struct subnet_file *sf) {
 		res = subnet_compare(&r->subnet, &new_r[i - 1].subnet);
 		if (res == INCLUDED || res == EQUALS ) {
 			st_debug(ADDRCOMP, 3, "%P is included in %P, skipping\n", r->subnet, new_r[i - 1].subnet);
+			free_route(r);
 			continue;
 		}
 		copy_route(&new_r[i], r);
@@ -401,7 +402,7 @@ int subnet_file_simplify(struct subnet_file *sf) {
  * simply_route_file takes GW into account, must be equal
  */
 int route_file_simplify(struct subnet_file *sf,  int mode) {
-	unsigned long i, j ,a;
+	unsigned long i, j, k, a;
 	int res, skip;
 	TAS tas;
 	struct route *new_r, *r, *discard;
@@ -463,10 +464,14 @@ int route_file_simplify(struct subnet_file *sf,  int mode) {
 	if (mode == 0) {
         	sf->nr = i;
 		sf->routes = new_r;
+		for (k = 0; k < j; k++)
+			free_route(&discard[k]);
 		free(discard);
 	} else {
         	sf->nr = j;
 		sf->routes = discard;
+		for (k = 0; k < i; k++)
+			free_route(&new_r[k]);
 		free(new_r);
 	}
 	return 1;
@@ -519,6 +524,7 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 			copy_ipaddr(&new_r[j].gw, &sf->routes[i].gw);
 		else
 			zero_ipaddr(&new_r[j].gw); /* the aggregate route has null gateway */
+		free_route(&sf->routes[i]);
 		free(new_r[j].ea[0].value);
 		new_r[j].ea[0].value = strdup("AGGREGATE");
 		if (new_r[j].ea[0].value == NULL) {
@@ -532,6 +538,7 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 			res = aggregate_subnet(&new_r[j].subnet, &new_r[j - 1].subnet, &s);
 			if (res >= 0) {
 				st_debug(AGGREGATE, 4, "Rewinding, entry %lu [%P] & %lu [%P] can aggregate\n", j - 1, new_r[j - 1].subnet, j, new_r[j].subnet);
+				free_route(&new_r[j]);
 				j--;
 				copy_subnet(&new_r[j].subnet, &s);
 				if (mode == 1)
