@@ -41,8 +41,8 @@ int alloc_subnet_file(struct subnet_file *sf, unsigned long n) {
 void free_subnet_file(struct subnet_file *sf) {
 	int i;
 
-	/*for (i = 0; i < sf->nr; i++)
-		free_route(&sf->routes[i]);*/
+	for (i = 0; i < sf->nr; i++)
+		free_route(&sf->routes[i]);
 	free(sf->routes);
 	sf->routes = NULL;
 	sf->nr = sf->max_nr = 0;
@@ -212,6 +212,7 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 	res = alloc_route_ea(&sf->routes[0], 1);
 	if (res < 0)
 		return res;
+	sf->routes[0].ea[0].value = NULL;
 	return generic_load_csv(name, &cf, &state, sf);
 }
 
@@ -265,6 +266,7 @@ int load_ipam_no_EA(char  *name, struct subnet_file *sf, struct st_options *nof)
 	res = alloc_route_ea(&sf->routes[0], 1);
 	if (res < 0)
 		return res;
+	sf->routes[0].ea[0].value = NULL;
 	return generic_load_csv(name, &cf, &state, sf);
 }
 
