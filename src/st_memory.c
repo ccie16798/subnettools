@@ -59,3 +59,20 @@ void *st_realloc(void *ptr, unsigned long n, char *s) {
 	}
 	return new_ptr;
 }
+
+char *st_strdup(const char *s) {
+	char *broumf;
+	int n;
+
+	if (s == NULL)
+		return NULL;
+	n = strlen(s) + 1;
+	broumf = malloc(n);
+	if (broumf == NULL) {
+		fprintf(stderr, "Unable to allocate %d bytes for '%s'\n", n, s);
+		return NULL;
+	}
+	strcpy(broumf, s);
+	debug(MEMORY, 5, "Reallocated %d bytes for '%s'\n", n, s);
+	return broumf;
+}
