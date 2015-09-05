@@ -34,6 +34,7 @@ void free_ipam_file(struct ipam_file *sf);
 int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof);
 int fprint_ipamfilter_help(FILE *out);
 int ipam_file_filter(struct ipam_file *sf, char *expr);
+int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam);
 
 #else
 #endif

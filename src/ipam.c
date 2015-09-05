@@ -17,6 +17,7 @@
 #include "st_printf.h"
 #include "generic_csv.h"
 #include "generic_expr.h"
+#include "st_routes.h"
 #include "ipam.h"
 
 int alloc_ipam_file(struct ipam_file *sf, unsigned long n, int ea_nr) {
@@ -108,7 +109,7 @@ static int ipam_ea_handle(char *s, void *data, struct csv_state *state) {
 	z = strdup(s); /* s cant be NULL here so strdup safe */
 	if (z == NULL) {
 		fprintf(stderr, "unable to alloc memory, need to abort\n");
-		return CSV_CATASTROPHIC_FAILURE;
+		return CSV_CATASTROPHIC_FAILURE; /* FIXME or not ??? */
 	}
 	for (ea_nr = 0; ea_nr < sf->ea_nr; ea_nr++) {
 		if (!strcmp(state->csv_field, sf->ea[ea_nr].name)) {
@@ -126,7 +127,6 @@ static int ipam_ea_handle(char *s, void *data, struct csv_state *state) {
 	state->state[0]++;
 	return CSV_VALID_FIELD;
 }
-
 
 static int ipam_endofline_callback(struct csv_state *state, void *data) {
 	struct ipam_file *sf = data;
@@ -355,8 +355,8 @@ int ipam_file_filter(struct ipam_file *sf, char *expr) {
 
 	if (sf->nr == 0)
 		return 0;
-	init_generic_expr(&e, expr, ipam_filter);
 	debug_timing_start(2);
+	init_generic_expr(&e, expr, ipam_filter);
 
 	new_ipam = st_malloc(sf->max_nr * sizeof(struct ipam), "struct ipam");
 	if (new_ipam == NULL) {
@@ -387,4 +387,31 @@ int ipam_file_filter(struct ipam_file *sf, char *expr) {
 	sf->nr = j;
 	debug_timing_end(2);
 	return 0;
+}
+
+int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam) {
+	int i, j, res;
+	int found_mask, found_j;
+
+	for (i = 0; i < sf->nr; i++) {
+		found_mask = -1;
+		found_j = 0;
+		for (j = 0; j < ipam->nr; j++) {
+			res = subnet_compare(&sf->routes[i].subnet, &ipam->lines[j].subnet);
+			if (res == EQUALS) {
+				found_mask = ipam->lines[j].subnet.mask;
+				found_j = j;
+				break; /* we break on exact match */
+			} else if (res == INCLUDED) {
+				if (ipam->lines[j].subnet.mask < found_mask)
+					continue; /* we have a better ùask */
+				found_mask = ipam->lines[j].subnet.mask;
+				found_j = j;
+			}
+		}
+		if (found_mask == -1)
+			continue;
+
+	}
+	return 1;
 }
