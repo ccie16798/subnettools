@@ -85,6 +85,6 @@ char *st_strdup(const char *s) {
 void st_free_string(char *s) {
 	if (s == NULL)
 		return;
-	total_memory -= strlen(s) + 1;
+	total_memory -= (strlen(s) + 1);
 	free(s);
 }
