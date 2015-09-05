@@ -31,7 +31,7 @@
 #include "ipam.h"
 #include "prog-main.h"
 
-const char *default_fmt      = "%I;%m;%D;%G;%C";
+const char *default_fmt      = "%I;%m;%D;%G;%O#";
 const char *bgp_default_fmt  = "%v;%5T;%4B;%16P;%16G;%10M;%10L;%10w;%6o;%A";
 const char *ipam_default_fmt = "%I;%m";
 
