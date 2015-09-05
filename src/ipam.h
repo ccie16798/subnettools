@@ -16,7 +16,7 @@ struct  ipam_ea {
 	int len;
 };
 
-struct ipam {
+struct ipam_line {
 	struct subnet subnet;
 	int ea_nr; /* number of Extensible Attributes */
 	struct ipam_ea *ea;
@@ -24,13 +24,19 @@ struct ipam {
 
 
 struct ipam_file {
-	struct ipam *lines;
+	struct ipam_line *lines;
 	unsigned long nr;
 	unsigned long max_nr; /* the number of routes that has been malloc'ed */
 	int ea_nr; /* number of Extensible Attributes */
 	struct ipam_ea *ea;
 };
+/* return the malloc'd size of ea*/
 int ea_size(struct ipam_ea *ea);
+
+/* set value of 'ea' to 'value'
+ * returns : 	-1 if no memory
+ *		1  if SUCCESS
+ **/
 int ea_strdup(struct ipam_ea *ea, const char *value);
 int alloc_ipam_file(struct ipam_file *sf, unsigned long n, int ea_nr);
 void free_ipam_file(struct ipam_file *sf);

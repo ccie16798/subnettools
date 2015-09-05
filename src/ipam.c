@@ -21,11 +21,11 @@
 #include "ipam.h"
 
 int alloc_ipam_file(struct ipam_file *sf, unsigned long n, int ea_nr) {
-	if (n > SIZE_T_MAX / sizeof(struct ipam)) { /* being paranoid */
+	if (n > SIZE_T_MAX / sizeof(struct ipam_line)) { /* being paranoid */
 		fprintf(stderr, "error: too much memory requested for struct ipam\n");
 		return -1;
 	}
-	sf->lines = st_malloc(sizeof(struct ipam) * n, "ipam_file");
+	sf->lines = st_malloc(sizeof(struct ipam_line) * n, "ipam_file");
 	if (sf->lines == NULL) {
 		sf->nr = sf->max_nr = 0;
 		return -1;
@@ -38,7 +38,7 @@ int alloc_ipam_file(struct ipam_file *sf, unsigned long n, int ea_nr) {
 		sf->max_nr = 0;
 		sf->ea_nr  = 0;
 		free(sf->lines);
-		total_memory -= n * sizeof(struct ipam);
+		total_memory -= n * sizeof(struct ipam_line);
 		sf->lines = NULL;
 		return -1;
 	}
@@ -68,7 +68,7 @@ int ea_strdup(struct ipam_ea *ea, const char *value) {
 	strcpy(ea->value, value);
 	total_memory += len;
 	ea->len = len;
-	return 0;
+	return 1;
 }
 
 int alloc_ea(struct ipam_file *sf, int i) {
@@ -85,7 +85,7 @@ int alloc_ea(struct ipam_file *sf, int i) {
 	return 0;
 }
 
-static void free_ipam_ea(struct ipam *ipam) {
+static void free_ipam_ea(struct ipam_line *ipam) {
 	int i;
 
 	for (i = 0; i < ipam->ea_nr; i++) {
@@ -108,7 +108,7 @@ void free_ipam_file(struct ipam_file *sf) {
 	free(sf->ea);
 	total_memory -= sizeof(struct ipam_ea) * sf->ea_nr;
 	free(sf->lines);
-	total_memory -= sizeof(struct ipam) * sf->max_nr;
+	total_memory -= sizeof(struct ipam_line) * sf->max_nr;
 	sf->nr     = 0;
 	sf->max_nr = 0;
 	sf->ea_nr  = 0;
@@ -167,7 +167,7 @@ static int ipam_ea_handle(char *s, void *data, struct csv_state *state) {
 
 static int ipam_endofline_callback(struct csv_state *state, void *data) {
 	struct ipam_file *sf = data;
-	struct ipam *new_r;
+	struct ipam_line *new_r;
 	int res;
 
 	if (state->badline) {
@@ -177,16 +177,16 @@ static int ipam_endofline_callback(struct csv_state *state, void *data) {
 	sf->nr++;
 	if  (sf->nr == sf->max_nr) {
 		sf->max_nr *= 2;
-		if (sf->max_nr > SIZE_T_MAX / sizeof(struct ipam)) {
-			fprintf(stderr, "error: too much memory requested for struct ipam\n");
+		if (sf->max_nr > SIZE_T_MAX / sizeof(struct ipam_line)) {
+			fprintf(stderr, "error: too much memory requested for struct ipam_line\n");
 			return CSV_CATASTROPHIC_FAILURE;
 		}
-		new_r = st_realloc(sf->lines,  sizeof(struct ipam) * sf->max_nr, "ipam");
+		new_r = st_realloc(sf->lines,  sizeof(struct ipam_line) * sf->max_nr, "ipam line");
 		if (new_r == NULL)
 			return  CSV_CATASTROPHIC_FAILURE;
 		sf->lines = new_r;
 	}
-	memset(&sf->lines[sf->nr], 0, sizeof(struct ipam));
+	memset(&sf->lines[sf->nr], 0, sizeof(struct ipam_line));
 	res = alloc_ea(sf, sf->nr);
 	if (res < 0)
 		return  CSV_CATASTROPHIC_FAILURE;
@@ -244,7 +244,7 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof) {
 	}
 	for (i = 0; i < ea_nr; i++)
 		sf->ea[i].name = csv_field[i + 2].name;
-	memset(&sf->lines[0], 0, sizeof(struct ipam));
+	memset(&sf->lines[0], 0, sizeof(struct ipam_line));
 	res = alloc_ea(sf, 0);
 	if (res < 0) {
 		free_ipam_file(sf);
@@ -276,7 +276,7 @@ int fprint_ipamfilter_help(FILE *out) {
 }
 
 static int ipam_filter(char *s, char *value, char op, void *object) {
-	struct ipam *ipam = object;
+	struct ipam_line *ipam = object;
 	struct subnet subnet;
 	int res, j, err;
 	int found = 0;
@@ -393,14 +393,14 @@ static int ipam_filter(char *s, char *value, char op, void *object) {
 int ipam_file_filter(struct ipam_file *sf, char *expr) {
 	int i, j, res, len;
 	struct generic_expr e;
-	struct ipam *new_ipam;
+	struct ipam_line *new_ipam;
 
 	if (sf->nr == 0)
 		return 0;
 	debug_timing_start(2);
 	init_generic_expr(&e, expr, ipam_filter);
 
-	new_ipam = st_malloc(sf->nr * sizeof(struct ipam), "struct ipam");
+	new_ipam = st_malloc(sf->nr * sizeof(struct ipam_line), "struct ipam_line");
 	if (new_ipam == NULL) {
 		debug_timing_end(2);
 		return -1;
@@ -414,19 +414,19 @@ int ipam_file_filter(struct ipam_file *sf, char *expr) {
 		if (res < 0) {
 			fprintf(stderr, "Invalid filter '%s'\n", expr);
 			free(new_ipam);
-			total_memory -= sf->nr * sizeof(struct ipam);
+			total_memory -= sf->nr * sizeof(struct ipam_line);
 			debug_timing_end(2);
 			return -1;
 		}
 		if (res) {
 			st_debug(FILTER, 5, "Matching filter '%s' on %P\n", expr, sf->lines[i].subnet);
-			memcpy(&new_ipam[j], &sf->lines[i], sizeof(struct ipam));
+			memcpy(&new_ipam[j], &sf->lines[i], sizeof(struct ipam_line));
 			j++;
 		} else
 			free_ipam_ea(&sf->lines[i]);
 	}
 	free(sf->lines);
-	total_memory -= sf->max_nr * sizeof(struct ipam);
+	total_memory -= sf->max_nr * sizeof(struct ipam_line);
 	sf->lines  = new_ipam;
 	sf->max_nr = sf->nr;
 	sf->nr     = j;

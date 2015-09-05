@@ -386,7 +386,8 @@ int fprint_route_header(FILE *output, const struct route *r, const char *fmt) {
 	return __fprint_route_fmt(output, r, fmt, 1);
 }
 
-static int __fprint_ipam_fmt(FILE *output, const struct ipam *r, const char *fmt, int header) {
+static int __fprint_ipam_fmt(FILE *output, const struct ipam_line *r,
+		const char *fmt, int header) {
 	int i, j, i2, compression_level;
 	int res, pad_left;
 	char c;
@@ -536,11 +537,11 @@ static int __fprint_ipam_fmt(FILE *output, const struct ipam *r, const char *fmt
 	return fputs(outbuf, output);
 }
 
-int fprint_ipam_fmt(FILE *output, const struct ipam *r, const char *fmt) {
+int fprint_ipam_fmt(FILE *output, const struct ipam_line *r, const char *fmt) {
 	return __fprint_ipam_fmt(output, r, fmt, 0);
 }
 
-int fprint_ipam_header(FILE *output, const struct ipam *r, const char *fmt) {
+int fprint_ipam_header(FILE *output, const struct ipam_line *r, const char *fmt) {
 	int i, a = 0;
 
 	if (strlen(fmt) < 2) {
