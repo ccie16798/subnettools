@@ -14,7 +14,24 @@
 
 unsigned long total_memory = 0;
 
-void *st_malloc(unsigned long n, char *s) {
+void *st_malloc_nodebug(unsigned long n, const char *s) {
+	void *ptr;
+
+	ptr = malloc(n);
+	if (ptr == NULL) {
+		if (n > 10 * 1024 * 1024)
+			fprintf(stderr, "Unable to allocate %lu Mbytes for %s\n",
+					n / (1024 * 1024), s);
+		else if (n > 10 * 1024)
+			fprintf(stderr, "Unable to allocate %lu Kbytes for %s\n", n / 1024, s);
+		else
+			fprintf(stderr, "Unable to allocate %lu bytes for %s\n", n, s);
+	}
+	total_memory += n;
+	return ptr;
+}
+
+void *st_malloc(unsigned long n, const char *s) {
 	void *ptr;
 
 	ptr = malloc(n);
@@ -39,7 +56,7 @@ void *st_malloc(unsigned long n, char *s) {
 	return ptr;
 }
 
-void *st_realloc(void *ptr, unsigned long n, char *s) {
+void *st_realloc(void *ptr, unsigned long n, const char *s) {
 	void *new_ptr;
 
 	new_ptr = realloc(ptr,  n);
