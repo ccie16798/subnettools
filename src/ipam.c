@@ -409,8 +409,19 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam) {
 				found_j = j;
 			}
 		}
-		if (found_mask == -1)
+		if (found_mask == -1) {
+			for (j = 0; j < ipam->ea_nr; j++) {
+				sf->routes[i].ea[j + 1].name  = ipam->ea[j].name;
+				sf->routes[i].ea[j + 1].value = NULL;
+			}
 			continue;
+		} else {
+			for (j = 0; j < ipam->ea_nr; j++) {
+				sf->routes[i].ea[j + 1].name  = ipam->ea[j].name;
+				sf->routes[i].ea[j + 1].value = strdup(ipam->lines[found_j].ea[j].value);
+			}
+			continue;
+		}
 
 	}
 	return 1;

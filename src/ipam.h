@@ -9,6 +9,7 @@
 #define SIZE_T_MAX ((size_t)0 - 1)
 #endif
 
+#include "st_handle_csv_files.h"
 struct  ipam_ea {
 	char *name;
 	char *value; /* value of EA; MUST be malloc'ed*/
