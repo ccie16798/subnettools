@@ -178,7 +178,7 @@ void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *
 			res = subnet_compare(&sf1->routes[i].subnet, &paip->routes[j].subnet);
 			if (res == EQUALS) {
 				free(sf1->routes[i].ea[0].value);
-				sf1->routes[i].ea[0].value = strdup(paip->routes[j].ea[0].value);
+				sf1->routes[i].ea[0].value = st_strdup(paip->routes[j].ea[0].value);
 				fprint_route_fmt(nof->output_file, &sf1->routes[i], nof->output_fmt);
 				find_equals = 1;
 				break;
@@ -191,7 +191,7 @@ void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *
 		includes = 0;
 		find_mask = 0;
 		free(sf1->routes[i].ea[0].value);
-		sf1->routes[i].ea[0].value = strdup("NOT FOUND");
+		sf1->routes[i].ea[0].value = st_strdup("NOT FOUND");
 		fprint_route_fmt(nof->output_file, &sf1->routes[i], nof->output_fmt);
 
 		/**
@@ -526,11 +526,9 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 			zero_ipaddr(&new_r[j].gw); /* the aggregate route has null gateway */
 		free_route(&sf->routes[i]);
 		free(new_r[j].ea[0].value);
-		new_r[j].ea[0].value = strdup("AGGREGATE");
-		if (new_r[j].ea[0].value == NULL) {
-			fprintf(stderr, "%s: no memory\n", __FUNCTION__);
+		new_r[j].ea[0].value = st_strdup("AGGREGATE");
+		if (new_r[j].ea[0].value == NULL)
 			return -1;
-		}
 		/* rewinding and aggregating backwards as much as we can; the aggregate we just created may aggregate with j - 1 */
 		while (j > 0) {
 			if (mode == 1 && !is_equal_gw(&new_r[j], &new_r[j - 1]))
@@ -547,10 +545,8 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 					zero_ipaddr(&new_r[j].gw); /* the aggregate route has null gateway */
 				free(new_r[j].ea[0].value);
 				new_r[j].ea[0].value = strdup("AGGREGATE");
-				if (new_r[j].ea[0].value == NULL) {
-					fprintf(stderr, "%s: no memory\n", __FUNCTION__);
+				if (new_r[j].ea[0].value == NULL)
 					return -1;
-				}
 			} else
 				break;
 		} /* while j */
