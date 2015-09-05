@@ -390,8 +390,9 @@ int ipam_file_filter(struct ipam_file *sf, char *expr) {
 }
 
 int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam) {
-	int i, j, res;
+	int i, j, k, res;
 	int found_mask, found_j;
+	int has_comment = 0;
 
 	for (i = 0; i < sf->nr; i++) {
 		sf->routes[i].ea_nr = ipam->ea_nr + 1;
@@ -416,18 +417,34 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam) {
 				found_j = j;
 			}
 		}
+		k = 1;
 		if (found_mask == -1) {
 			for (j = 0; j < ipam->ea_nr; j++) {
-				sf->routes[i].ea[j + 1].name  = ipam->ea[j].name;
-				sf->routes[i].ea[j + 1].value = NULL;
+				if (!strcasecmp(ipam->ea[j].name, "comment")) {
+					sf->routes[i].ea[0].name  = ipam->ea[j].name;
+					sf->routes[i].ea[0].value = NULL;
+					has_comment = 1;
+				} else {
+					sf->routes[i].ea[k].name  = ipam->ea[j].name;
+					sf->routes[i].ea[k].value = NULL;
+					k++;
+				}
 			}
 		} else {
 			for (j = 0; j < ipam->ea_nr; j++) {
-				sf->routes[i].ea[j + 1].name  = ipam->ea[j].name;
-				sf->routes[i].ea[j + 1].value = st_strdup(ipam->lines[found_j].ea[j].value);
+				if (!strcasecmp(ipam->ea[j].name, "comment")) {
+					sf->routes[i].ea[0].name  = ipam->ea[j].name;
+					sf->routes[i].ea[0].value = st_strdup(ipam->lines[found_j].ea[j].value);
+					has_comment = 1;
+				} else {
+					sf->routes[i].ea[k].name  = ipam->ea[j].name;
+					free(sf->routes[i].ea[k].value);
+					sf->routes[i].ea[k].value = st_strdup(ipam->lines[found_j].ea[j].value);
+					k++;
+				}
 			}
 		}
-
+		sf->routes[i].ea_nr -= has_comment;
 	}
 	return 1;
 }
