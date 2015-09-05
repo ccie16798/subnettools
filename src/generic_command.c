@@ -13,6 +13,7 @@
 #include "generic_command.h"
 #include "debug.h"
 #include "utils.h"
+#include "st_memory.h"
 
 #define MAX_AMBIGUOUS 39
 
@@ -69,6 +70,7 @@ int generic_command_run(int argc, char **argv, char *progname, void *opt) {
 		debug_timing_start(1);
 		res = commands[found_i].run_cmd(argc, argv, opt);
 		debug_timing_end(1);
+		debug(MEMORY, 4, "Total amout of memory still allocated %lu\n", total_memory);
 	} else {
 		debug(PARSEOPTS, 1, "BUG here '%s'\n", argv[1]);
 		res = -1000;
