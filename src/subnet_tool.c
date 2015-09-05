@@ -692,7 +692,7 @@ int subnet_file_remove_subnet(const struct subnet_file *sf1, struct subnet_file 
 			copy_subnet(&sf2->routes[j].subnet, &r[res]);
 			j++;
 		}
-		total_memory -= sizeof(struct route) * n;
+		total_memory -= sizeof(struct subnet) * n;
 		free(r);
 	}
 	sf2->nr = j;
