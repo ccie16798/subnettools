@@ -106,11 +106,8 @@ static int ipam_ea_handle(char *s, void *data, struct csv_state *state) {
 	int found = 0;
 	char *z;
 
-	z = strdup(s); /* s cant be NULL here so strdup safe */
-	if (z == NULL) {
-		fprintf(stderr, "unable to alloc memory, need to abort\n");
-		return CSV_CATASTROPHIC_FAILURE; /* FIXME or not ??? */
-	}
+	z = st_strdup(s); /* s cant be NULL here so strdup safe */
+	/* we dont care if memory failed on strdup; we continue */
 	for (ea_nr = 0; ea_nr < sf->ea_nr; ea_nr++) {
 		if (!strcmp(state->csv_field, sf->ea[ea_nr].name)) {
 			found = 1;

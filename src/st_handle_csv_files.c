@@ -97,10 +97,8 @@ static int netcsv_GW_handle(char *s, void *data, struct csv_state *state) {
 
 	res = string2addr(s, &addr, 41);
 	if (res != IPV4_A && res != IPV6_A) {  /* we accept that there's no gateway but we treat it has a comment instead */
-		z = strdup(s);
-		if (z == NULL)
-			return CSV_CATASTROPHIC_FAILURE;
-
+		z = st_strdup(s);
+		/* we dont care if memory alloc failed here */
 		sf->routes[sf->nr].ea[0].value = z;
 		sf->routes[sf->nr].ea[0].name  = "comment";
 	} else {
@@ -118,9 +116,7 @@ static int netcsv_comment_handle(char *s, void *data, struct csv_state *state) {
 	struct subnet_file *sf = data;
 	char *z;
 
-	z = strdup(s);
-	if (z == NULL)
-		return CSV_CATASTROPHIC_FAILURE;
+	z = st_strdup(s);
 	sf->routes[sf->nr].ea[0].value = z;
 	return CSV_VALID_FIELD;
 }
@@ -220,9 +216,7 @@ static int ipam_comment_handle(char *s, void *data, struct csv_state *state) {
         struct  subnet_file *sf = data;
 	char *z;
 	if (strlen(s) > 2) {/* sometimes comment are fucked and a better one is in EA-Name */
-		z = strdup(s);
-		if (z == NULL)
-			return CSV_CATASTROPHIC_FAILURE;
+		z = st_strdup(s); /* no worry if memory fails here */
 		sf->routes[sf->nr].ea[0].value = z;
 	}
 	return CSV_VALID_FIELD;
