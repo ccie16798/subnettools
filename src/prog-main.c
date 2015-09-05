@@ -75,6 +75,7 @@ static int run_compare(int argc, char **argv, void *st_options);
 static int run_missing(int argc, char **argv, void *st_options);
 static int run_uniq(int argc, char **argv, void *st_options);
 static int run_paip(int argc, char **argv, void *st_options);
+static int run_ipam_getea(int argc, char **argv, void *st_options);
 static int run_grep(int argc, char **argv, void *st_options);
 static int run_convert(int argc, char **argv, void *st_options);
 static int run_simplify1(int argc, char **argv, void *st_options);
@@ -137,6 +138,7 @@ struct st_command commands[] = {
 	{ "uniq",	&run_uniq,	2},
 	{ "paip",	&run_paip,	1},
 	{ "ipam",	&run_paip,	1},
+	{ "getea",	&run_ipam_getea,1},
 	{ "grep",	&run_grep,	2},
 	{ "convert",	&run_convert,	1},
 	{ "simplify1",	&run_simplify1,	1},
@@ -226,6 +228,7 @@ void usage() {
 	printf("ipam <IPAM> FILE1   : load IPAM, and print FILE1 subnets with comment extracted from IPAM\n");
 	printf("ipamfilter FILE EXPR: load IPAM, and filter using regexp EXPR\n");
 	printf("ipamprint FILE      : print IPAM; use option -ipamea to select Extended Attributes\n");
+	printf("getea <IPAM> FILE   : print FILE with Extended Attributes retrieved from IPAM\n");
 	printf("\n");
 	printf("Miscellaneous route file tools\n");
 	printf("------------------------------\n");
@@ -488,6 +491,28 @@ static int run_paip(int arc, char **argv, void *st_options) {
 	print_file_against_paip(&sf, &paip, nof);
 	free_subnet_file(&sf);
 	free_subnet_file(&paip);
+	return 0;
+}
+
+static int run_ipam_getea(int arc, char **argv, void *st_options) {
+	int res;
+	struct subnet_file sf;
+	struct ipam_file  ipam;
+	struct st_options *nof = st_options;
+
+	res = load_ipam(argv[2], &ipam, nof);
+	DIE_ON_BAD_FILE(argv[2]);
+	res = load_netcsv_file(argv[3], &sf, nof);
+	DIE_ON_BAD_FILE(argv[3]);
+
+	res = populate_sf_from_ipam(&sf, &ipam);
+	if (res < 0) {
+		free_ipam_file(&ipam);
+		return 1;
+	}
+	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
+	free_subnet_file(&sf);
+	free_ipam_file(&ipam);
 	return 0;
 }
 
