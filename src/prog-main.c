@@ -731,8 +731,10 @@ static int run_sort(int arc, char **argv, void *st_options) {
 	DIE_ON_BAD_FILE(argv[2]);
 
 	res = subnet_sort_by(&sf, "prefix");
-	if (res < 0)
+	if (res < 0) {
+		free_subnet_file(&sf);
 		return res;
+	}
 	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
 	free_subnet_file(&sf);
 	return 0;
