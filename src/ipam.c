@@ -48,7 +48,7 @@ int alloc_ipam_file(struct ipam_file *sf, unsigned long n, int ea_nr) {
 int ea_size(struct ipam_ea *ea) {
 	if (ea->value == NULL)
 		return 0;
-	return strlen(ea->value) + 1;
+	return ea->len;
 }
 
 int ea_strdup(struct ipam_ea *ea, const char *value) {
@@ -84,9 +84,10 @@ static void free_ipam_ea(struct ipam *ipam) {
 	int i;
 
 	for (i = 0; i < ipam->ea_nr; i++) {
-		total_memory -= ipam->ea[i].len;
+		total_memory -= ea_size(&ipam->ea[i]);
 		free(ipam->ea[i].value);
 		ipam->ea[i].value = NULL;
+		ipam->ea[i].len   = 0;
 	}
 	free(ipam->ea);
 	total_memory -= sizeof(struct ipam_ea) * ipam->ea_nr;
