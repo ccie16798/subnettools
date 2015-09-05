@@ -84,7 +84,7 @@ static void free_ipam_ea(struct ipam *ipam) {
 	int i;
 
 	for (i = 0; i < ipam->ea_nr; i++) {
-		total_memory -= ea_size(&ipam->ea[i]);
+		total_memory -= ipam->ea[i].len;
 		free(ipam->ea[i].value);
 		ipam->ea[i].value = NULL;
 	}
@@ -140,9 +140,7 @@ static int ipam_ea_handle(char *s, void *data, struct csv_state *state) {
         struct ipam_file *sf = data;
 	int ea_nr = state->state[0];
 	int found = 0;
-	char *z;
 
-	z = st_strdup(s);
 	/* we dont care if memory failed on strdup; we continue */
 	for (ea_nr = 0; ea_nr < sf->ea_nr; ea_nr++) {
 		if (!strcmp(state->csv_field, sf->ea[ea_nr].name)) {
@@ -155,8 +153,8 @@ static int ipam_ea_handle(char *s, void *data, struct csv_state *state) {
 		debug(IPAM, 2, "No EA match field '%s'\n",  state->csv_field);
 		return CSV_INVALID_FIELD_BREAK;
 	}
-	debug(IPAM, 6, "Found %s = %s\n",  sf->lines[sf->nr].ea[ea_nr].name, z);
-	ea_strdup(&sf->lines[sf->nr].ea[ea_nr],  z);
+	debug(IPAM, 6, "Found %s = %s\n",  sf->lines[sf->nr].ea[ea_nr].name, s);
+	ea_strdup(&sf->lines[sf->nr].ea[ea_nr], s);
 	state->state[0]++;
 	return CSV_VALID_FIELD;
 }
@@ -383,7 +381,6 @@ static int ipam_filter(char *s, char *value, char op, void *object) {
 			return -1;
 			break;
 		}
-
 	}
 }
 
