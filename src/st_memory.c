@@ -12,6 +12,8 @@
 #include <string.h>
 #include "debug.h"
 
+unsigned long total_memory = 0;
+
 void *st_malloc(unsigned long n, char *s) {
 	void *ptr;
 
@@ -26,6 +28,7 @@ void *st_malloc(unsigned long n, char *s) {
 			fprintf(stderr, "Unable to allocate %lu bytes for %s\n", n, s);
 		return NULL;
 	}
+	total_memory += n;
 	if (n > 10 * 1024 * 1024) {
 		debug(MEMORY, 3, "Allocated %lu Mbytes for %s\n", n / (1024 * 1024), s);
 	} else if (n > 10 * 1024) {
@@ -50,6 +53,7 @@ void *st_realloc(void *ptr, unsigned long n, char *s) {
 			fprintf(stderr, "Unable to reallocate %lu bytes for %s\n", n, s);
 		return  NULL;
 	}
+	total_memory += n/2; /* FIXME */
 	if (n > 10 * 1024 * 1024) {
 		debug(MEMORY, 3, "Reallocated %lu Mbytes for %s\n", n / (1024 * 1024), s);
 	} else if (n > 10 * 1024) {
@@ -72,6 +76,7 @@ char *st_strdup(const char *s) {
 		fprintf(stderr, "Unable to allocate %d bytes for '%s'\n", n, s);
 		return NULL;
 	}
+	total_memory += n;
 	strcpy(broumf, s);
 	debug(MEMORY, 5, "Reallocated %d bytes for '%s'\n", n, s);
 	return broumf;
