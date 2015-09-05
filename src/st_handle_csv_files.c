@@ -119,6 +119,7 @@ static int netcsv_comment_handle(char *s, void *data, struct csv_state *state) {
 
 	z = st_strdup(s);
 	sf->routes[sf->nr].ea[0].value = z;
+	sf->routes[sf->nr].ea[0].name  = "comment";
 	return CSV_VALID_FIELD;
 }
 
@@ -152,9 +153,9 @@ static int netcsv_endofline_callback(struct csv_state *state, void *data) {
 	}
 	zero_route(&sf->routes[sf->nr]);
 	res = alloc_route_ea(&sf->routes[sf->nr], 1);
-	sf->routes[sf->nr].ea[0].name = "comment";
 	if (res < 0)
 		return CSV_CATASTROPHIC_FAILURE;
+	sf->routes[sf->nr].ea[0].name = "comment";
 	state->state[0] = 0; /* state[0] = we found a mask */
 	return CSV_CONTINUE;
 }
@@ -177,8 +178,8 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 		{ "prefix"	, 0, 1, 1, &netcsv_prefix_handle },
 		{ "mask"	, 0, 2, 0, &netcsv_mask_handle },
 		{ "device"	, 0, 0, 0, &netcsv_device_handle },
-		{ "GW"		, 0, 0, 0, &netcsv_GW_handle },
-		{ "comment"	, 0, 3, 0, &netcsv_comment_handle },
+		{ "GW"		, 0, 3, 0, &netcsv_GW_handle },
+		{ "comment"	, 0, 4, 0, &netcsv_comment_handle },
 		{ NULL, 0,0,0, NULL }
 	};
 	struct csv_file cf;
