@@ -389,10 +389,11 @@ int subnet_file_simplify(struct subnet_file *sf) {
 		copy_route(&new_r[i], r);
 		i++;
         }
+	free(sf->routes);
+	total_memory -= sf->max_nr * sizeof(struct route);
 	sf->max_nr = sf->nr;
         sf->nr = i;
 	free_tas(&tas);
-	free(sf->routes);
 	sf->routes = new_r;
 	debug_timing_end(2);
 	return 1;
@@ -548,7 +549,7 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 				else
 					zero_ipaddr(&new_r[j].gw); /* the aggregate route has null gateway */
 				st_free_string(new_r[j].ea[0].value);
-				new_r[j].ea[0].value = strdup("AGGREGATE");
+				new_r[j].ea[0].value = st_strdup("AGGREGATE");
 				if (new_r[j].ea[0].value == NULL)
 					return -1;
 			} else
@@ -556,7 +557,7 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 		} /* while j */
 	} /* for i */
 	free(sf->routes);
-	total_memory -= sizeof(struct route) * sf->nr;
+	total_memory -= sizeof(struct route) * sf->max_nr;
 	sf->routes = new_r;
 	sf->max_nr = sf->nr;
 	sf->nr = j + 1;
