@@ -402,6 +402,7 @@ static int run_bgpprint(int arc, char **argv, void *st_options) {
 
 	fprint_bgproute_fmt(nof->output_file, NULL, nof->bgp_output_fmt);
 	fprint_bgp_file_fmt(nof->output_file, &sf, nof->bgp_output_fmt);
+	free_bgp_file(&sf);
 	return 0;
 }
 
@@ -979,6 +980,8 @@ static int run_bgpcmp(int arc, char **argv, void *st_options) {
 	DIE_ON_BAD_FILE(argv[3]);
 
 	compare_bgp_file(&sf1, &sf2, st_options);
+	free_bgp_file(&sf1);
+	free_bgp_file(&sf2);
 	return 0;
 }
 
