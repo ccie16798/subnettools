@@ -260,6 +260,7 @@ static int __bgp_sort_by(struct bgp_file *sf, int cmpfunc(void *v1, void *v2)) {
 	}
 	free_tas(&tas);
 	free(sf->routes);
+	total_memory -= sf->max_nr * sizeof(struct bgp_route);
 	sf->routes = new_r;
 	return 0;
 }
@@ -549,6 +550,7 @@ int bgp_file_filter(struct bgp_file *sf, char *expr) {
 		if (res < 0) {
 			fprintf(stderr, "Invalid filter '%s'\n", expr);
 			free(new_r);
+			total_memory -= sf->max_nr * sizeof(struct bgp_route);
 			debug_timing_end(2);
 			return -1;
 		}
@@ -559,6 +561,7 @@ int bgp_file_filter(struct bgp_file *sf, char *expr) {
 		}
 	}
 	free(sf->routes);
+	total_memory -= sf->max_nr * sizeof(struct bgp_route);
 	sf->routes = new_r;
 	sf->nr = j;
 	debug_timing_end(2);
