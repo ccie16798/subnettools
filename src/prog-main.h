@@ -3,6 +3,6 @@
 
 
 #define PROG_NAME "subnet-tools"
-#define PROG_VERS "1.3"
+#define PROG_VERS "1.4"
 #else
 #endif
