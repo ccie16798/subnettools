@@ -131,6 +131,7 @@ int run_csvconverter(char *name, char *filename, struct st_options *o) {
 	if (res < 0) \
 		return res; \
 	route.ea[0].value = st_malloc(____x, "route"); \
+	route.ea[0].len   = ____x; \
 	if (route.ea[0].value == NULL) {\
 		free(route.ea); \
 		total_memory -= sizeof(struct ipam_ea); \
