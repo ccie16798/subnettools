@@ -38,7 +38,7 @@ void zero_route_ea(struct route *a) {
 int alloc_route_ea(struct route *r, int n) {
 	int i;
 
-	r->ea = st_malloc(n, "route ea");
+	r->ea = st_malloc(n * sizeof(struct ipam_ea), "route ea");
 	r->ea_nr = n;
 	if (r->ea == NULL) {
 		r->ea_nr = 0;
@@ -74,12 +74,12 @@ void free_route(struct route *r) {
 	int i;
 
 	for (i = 0; i < r->ea_nr; i++) {
-		total_memory -= ea_size(&r->ea[i].value);
+		total_memory -= ea_size(&r->ea[i]);
 		free(r->ea[i].value);
 		r->ea[i].value = NULL;
 	}
 	free(r->ea);
-	total_memory -= sizeof(r->ea);
+	total_memory -= sizeof(struct ipam_ea) * r->ea_nr;
 	r->ea = NULL;
 	r->ea_nr = 0;
 }
