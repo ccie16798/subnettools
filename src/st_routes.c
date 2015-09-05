@@ -60,11 +60,9 @@ int clone_route(struct route *dest, const struct route *src) {
 		/* name IS not malloc'ed, only value */
 		dest->ea[i].name  = src->ea[i].name;
 		if (src->ea[i].value) {
-			dest->ea[i].value = strdup(src->ea[i].value);
-			if (dest->ea[i].value == NULL) {
-				fprintf(stderr, "%s : no memory\n", __FUNCTION__);
+			dest->ea[i].value = st_strdup(src->ea[i].value);
+			if (dest->ea[i].value == NULL)
 				return -1;
-			}
 		}
 		else
 			dest->ea[i].value = NULL;
@@ -76,10 +74,12 @@ void free_route(struct route *r) {
 	int i;
 
 	for (i = 0; i < r->ea_nr; i++) {
+		total_memory -= ea_size(&r->ea[i].value);
 		free(r->ea[i].value);
 		r->ea[i].value = NULL;
 	}
 	free(r->ea);
+	total_memory -= sizeof(r->ea);
 	r->ea = NULL;
 	r->ea_nr = 0;
 }
