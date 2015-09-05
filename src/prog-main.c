@@ -388,6 +388,7 @@ static int run_print(int arc, char **argv, void *st_options) {
 	res = load_netcsv_file(argv[2], &sf, nof);
 	DIE_ON_BAD_FILE(argv[2]);
 	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
+	free_subnet_file(&sf);
 	return 0;
 }
 
