@@ -408,15 +408,18 @@ int ipam_file_filter(struct ipam_file *sf, char *expr) {
 
 int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam) {
 	int i, j, k, res;
-	int found_mask, found_j;
+	int found_mask, mask, found_j;
 	int has_comment = 0;
 
 	for (i = 0; i < sf->nr; i++) {
-		sf->routes[i].ea_nr = ipam->ea_nr + 1;
+		j = sf->routes[i].ea_nr;
+		sf->routes[i].ea_nr += ipam->ea_nr;
 		sf->routes[i].ea = st_realloc(sf->routes[i].ea,
-				(ipam->ea_nr + 1) * sizeof(struct ipam_ea), "routes EA");
+				(sf->routes[i].ea_nr) * sizeof(struct ipam_ea), "routes EA");
 		if (sf->routes[i].ea == NULL)
 			return -1;
+		for (k = j; k < sf->routes[i].ea_nr; k++)
+			sf->routes[i].ea[k].value = NULL;
 		found_mask = -1;
 		found_j = 0;
 		for (j = 0; j < ipam->nr; j++) {
@@ -428,9 +431,10 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam) {
 				break; /* we break on exact match */
 			} else if (res == INCLUDED) {
 				st_debug(IPAM, 4, "found included match %P\n", ipam->lines[j].subnet);
-				if (ipam->lines[j].subnet.mask < found_mask)
+				mask = ipam->lines[j].subnet.mask;
+				if (mask < found_mask)
 					continue; /* we have a better ùask */
-				found_mask = ipam->lines[j].subnet.mask;
+				found_mask = mask;
 				found_j = j;
 			}
 		}
