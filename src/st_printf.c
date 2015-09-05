@@ -306,6 +306,35 @@ static int __fprint_route_fmt(FILE *output, const struct route *r, const char *f
 					break;
 				case 'O': /* Extended Attribute */
 					ea_num = 0;
+					if (fmt[i + 2] == '#') {
+						int k;
+						char sep = fmt[i + 3];
+
+						for (k = 0; k < r->ea_nr; k++) {
+							if (header)
+								res = strxcpy(buffer,
+										r->ea[k].name,
+										sizeof(buffer));
+							else {
+								if (r->ea[k].value == NULL) {
+									buffer[0] = '\0';
+									res = 0;
+								} else
+									res = strxcpy(buffer,
+											r->ea[k].value,
+											sizeof(buffer));
+							}
+							res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j,
+									buffer, res, field_width, pad_left, ' ');
+							j += res;
+							if (k != r->ea_nr - 1) {
+								outbuf[j] = sep;
+								j++;
+							}
+						}
+						i++;
+						break;
+					}
 					while (isdigit(fmt[i + 2])) {
 						ea_num *= 10;
 						ea_num += fmt[i + 2] - '0';
@@ -315,12 +344,15 @@ static int __fprint_route_fmt(FILE *output, const struct route *r, const char *f
 						debug(FMT, 3, "Invalid Extended Attribute number #%d, max %d\n",							 ea_num, r->ea_nr);
 						break;
 					}
-					/*if (header) FIXME */ if (0)
+					if (header)
 						res = strxcpy(buffer, r->ea[ea_num].name, sizeof(buffer));
 					else {
-						if ( r->ea[ea_num].value == NULL)
-							break;
-						res = strxcpy(buffer, r->ea[ea_num].value, sizeof(buffer));
+						if (r->ea[ea_num].value == NULL) {
+							buffer[0] = '\0';
+							res = 0;
+						} else
+							res = strxcpy(buffer, r->ea[ea_num].value,
+									sizeof(buffer));
 					}
 					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
 							res, field_width, pad_left, ' ');
