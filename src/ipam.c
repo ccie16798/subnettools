@@ -52,17 +52,21 @@ int ea_size(struct ipam_ea *ea) {
 }
 
 int ea_strdup(struct ipam_ea *ea, const char *value) {
+	int len;
+
 	if (value == NULL) {
 		ea->len   = 0;
 		ea->value = NULL;
 		return 1;
 	}
-	ea->value = st_strdup(value); /* FIXME, double strlen */
+	len = strlen(value) + 1;
+	ea->value = strdup(value); /* FIXME, double strlen */
 	if (ea->value == NULL) {
 		ea->len = 0;
 		return -1;
 	}
-	ea->len = strlen(ea->value) + 1;
+	total_memory += len;
+	ea->len = len;
 	return 0;
 }
 
