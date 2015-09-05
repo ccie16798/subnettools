@@ -36,11 +36,18 @@ int alloc_ipam_file(struct ipam_file *sf, unsigned long n, int ea_nr) {
 	sf->ea = st_malloc(ea_nr * sizeof(struct ipam_ea), "ipam_ea");
 	if (sf->ea == NULL) {
 		sf->nr = sf->max_nr = 0;
+		total_memory -= n * sizeof(struct ipam);
 		free(sf->lines);
 		sf->lines = NULL;
 		return -1;
 	}
 	return 0;
+}
+
+int ea_size(struct ipam_ea *ea) {
+	if (ea->value == NULL)
+		return 0;
+	return strlen(ea->value) + 1;
 }
 
 int alloc_ea(struct ipam_file *sf, int i) {
@@ -60,8 +67,11 @@ int alloc_ea(struct ipam_file *sf, int i) {
 static void free_ipam_ea(struct ipam *ipam) {
 	int i;
 
-	for (i = 0; i < ipam->ea_nr; i++)
+	for (i = 0; i < ipam->ea_nr; i++) {
+		total_memory -= ea_size(&ipam->ea[i]);
 		free(ipam->ea[i].value);
+	}
+	total_memory -= sizeof(struct ipam_ea) * ipam->ea_nr;
 	free(ipam->ea);
 }
 

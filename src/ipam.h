@@ -29,7 +29,7 @@ struct ipam_file {
 	int ea_nr; /* number of Extensible Attributes */
 	struct ipam_ea *ea;
 };
-
+int ea_size(struct ipam_ea *ea);
 int alloc_ipam_file(struct ipam_file *sf, unsigned long n, int ea_nr);
 void free_ipam_file(struct ipam_file *sf);
 int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof);
