@@ -983,7 +983,8 @@ static int __subnet_sort_by(struct subnet_file *sf, int cmpfunc(void *v1, void *
 	}
 	free_tas(&tas);
 	free(sf->routes);
-	total_memory -= sizeof(struct route) * sf->nr;
+	sf->max_nr = sf->nr;
+	total_memory -= sizeof(struct route) * sf->max_nr;
 	sf->routes = new_r;
 	debug_timing_end(2);
 	return 0;
