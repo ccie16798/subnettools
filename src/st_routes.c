@@ -38,7 +38,7 @@ void zero_route_ea(struct route *a) {
 int alloc_route_ea(struct route *r, int n) {
 	int i;
 
-	r->ea = st_malloc(n * sizeof(struct ipam_ea), "route ea");
+	r->ea = st_malloc_nodebug(n * sizeof(struct ipam_ea), "route ea");
 	if (r->ea == NULL) {
 		r->ea_nr = 0;
 		return -1;
