@@ -101,7 +101,6 @@ static int netcsv_GW_handle(char *s, void *data, struct csv_state *state) {
 		z = st_strdup(s);
 		/* we dont care if memory alloc failed here */
 		sf->routes[sf->nr].ea[0].value = z;
-		sf->routes[sf->nr].ea[0].name  = "comment";
 	} else {
 		if (res == sf->routes[sf->nr].subnet.ip_ver) {/* does the gw have same IPversion*/
 			copy_ipaddr(&sf->routes[sf->nr].gw, &addr);
@@ -119,7 +118,6 @@ static int netcsv_comment_handle(char *s, void *data, struct csv_state *state) {
 
 	z = st_strdup(s);
 	sf->routes[sf->nr].ea[0].value = z;
-	sf->routes[sf->nr].ea[0].name  = "comment";
 	return CSV_VALID_FIELD;
 }
 
@@ -209,9 +207,18 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 	zero_route(&sf->routes[0]);
 	res = alloc_route_ea(&sf->routes[0], 1);
 	sf->routes[0].ea[0].name = "comment";
-	if (res < 0)
+	if (res < 0) {
+		free_subnet_file(sf);
 		return res;
-	return generic_load_csv(name, &cf, &state, sf);
+	}
+	res = generic_load_csv(name, &cf, &state, sf);
+	if (res < 0) {
+		free_subnet_file(sf);
+		return res;
+	}
+	/* we allocated one more route */
+	free_route(&sf->routes[sf->nr]);
+	return res;
 }
 
 static int ipam_comment_handle(char *s, void *data, struct csv_state *state) {
@@ -260,9 +267,18 @@ int load_ipam_no_EA(char  *name, struct subnet_file *sf, struct st_options *nof)
 		return -2;
 	zero_route(&sf->routes[0]);
 	res = alloc_route_ea(&sf->routes[0], 1);
-	if (res < 0)
+	if (res < 0) {
+		free_subnet_file(sf);
 		return res;
-	return generic_load_csv(name, &cf, &state, sf);
+	}
+	res = generic_load_csv(name, &cf, &state, sf);
+	if (res < 0) {
+		free_subnet_file(sf);
+		return res;
+	}
+	/* we allocated one more route */
+	free_route(&sf->routes[sf->nr]);
+	return res;
 }
 
 int alloc_bgp_file(struct bgp_file *sf, unsigned long n) {
