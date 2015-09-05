@@ -381,6 +381,9 @@ int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt) {
 	return __fprint_route_fmt(output, r, fmt, 0);
 }
 
+int fprint_route_header(FILE *output, const struct route *r, const char *fmt) {
+	return __fprint_route_fmt(output, r, fmt, 1);
+}
 
 static int __fprint_ipam_fmt(FILE *output, const struct ipam *r, const char *fmt, int header) {
 	int i, j, i2, compression_level;

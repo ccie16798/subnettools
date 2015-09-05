@@ -8,9 +8,9 @@
 void fprint_route(FILE *output, const struct route *r, int compress_level);
 /*
  * print struct route 'r' with format 'fmt' to 'output'
- * if route == NULL, it will prints subnet_file HEADER
  */
 int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt);
+int fprint_route_header(FILE *output, const struct route *r, const char *fmt);
 
 /*
  * print bgp_route 'r' with format 'fmt' to 'output'
