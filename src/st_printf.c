@@ -303,8 +303,11 @@ int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt) {
 					}
 					/*if (header) */ if (0)
 						res = strxcpy(buffer, r->ea[ea_num].name, sizeof(buffer));
-					else
+					else {
+						if ( r->ea[ea_num].value == NULL)
+							break;
 						res = strxcpy(buffer, r->ea[ea_num].value, sizeof(buffer));
+					}
 					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
 							res, field_width, pad_left, ' ');
 					j += res;
