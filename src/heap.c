@@ -57,6 +57,7 @@ int alloc_tas(TAS *tas, unsigned long n, int (*compare)(void *v1, void *v2)) {
 void free_tas(TAS *tas) {
 	free(tas->tab);
 	total_memory -= tas->max_nr * sizeof(struct tas);
+	debug(MEMORY, 5, "Total memory: %lu\n", total_memory);
 	tas->tab = NULL;
 	tas->nr = tas->max_nr = 0;
 }
