@@ -243,11 +243,15 @@ int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt) {
 					break;
 				case 'C':
 					PRINT_FILE_HEADER(comment)
-					if (r->ea[0].value == NULL)
-						break;
-					res = strlen(r->ea[0].value);
-					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, r->ea[0].value,
+					if (r->ea[0].value == NULL) {
+						buffer[0] = '\0';
+						res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+							0, field_width, pad_left, ' ');
+					} else {
+						res = strlen(r->ea[0].value);
+						res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, r->ea[0].value,
 							res, field_width, pad_left, ' ');
+					}
 					j += res;
 					break;
 				case 'U': /* upper subnet */
@@ -301,7 +305,7 @@ int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt) {
 						debug(FMT, 3, "Invalid Extended Attribute number #%d, max %d\n",							 ea_num, r->ea_nr);
 						break;
 					}
-					/*if (header) */ if (0)
+					/*if (header) FIXME */ if (0)
 						res = strxcpy(buffer, r->ea[ea_num].name, sizeof(buffer));
 					else {
 						if ( r->ea[ea_num].value == NULL)
