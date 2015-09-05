@@ -424,7 +424,7 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam) {
 		} else {
 			for (j = 0; j < ipam->ea_nr; j++) {
 				sf->routes[i].ea[j + 1].name  = ipam->ea[j].name;
-				sf->routes[i].ea[j + 1].value = strdup(ipam->lines[found_j].ea[j].value);
+				sf->routes[i].ea[j + 1].value = st_strdup(ipam->lines[found_j].ea[j].value);
 			}
 		}
 
