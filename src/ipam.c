@@ -30,12 +30,13 @@ int alloc_ipam_file(struct ipam_file *sf, unsigned long n, int ea_nr) {
 		sf->nr = sf->max_nr = 0;
 		return -1;
 	}
-	sf->nr = 0;
+	sf->nr     = 0;
 	sf->max_nr = n;
-	sf->ea_nr = ea_nr;
-	sf->ea = st_malloc(ea_nr * sizeof(struct ipam_ea), "ipam_ea");
+	sf->ea_nr  = ea_nr;
+	sf->ea     = st_malloc(ea_nr * sizeof(struct ipam_ea), "ipam_ea");
 	if (sf->ea == NULL) {
-		sf->nr = sf->max_nr = 0;
+		sf->max_nr = 0;
+		sf->ea_nr  = 0;
 		free(sf->lines);
 		total_memory -= n * sizeof(struct ipam);
 		sf->lines = NULL;
@@ -54,7 +55,7 @@ int alloc_ea(struct ipam_file *sf, int i) {
 	struct ipam_ea *ea;
 	int j;
 
-	ea = st_malloc(sf->ea_nr * sizeof(struct ipam_ea), "ipam_ea");
+	ea = st_malloc_nodebug(sf->ea_nr * sizeof(struct ipam_ea), "ipam_ea");
 	if (ea == NULL)
 		return -1;
 	for (j = 0; j < sf->ea_nr; j++)
@@ -70,10 +71,12 @@ static void free_ipam_ea(struct ipam *ipam) {
 	for (i = 0; i < ipam->ea_nr; i++) {
 		total_memory -= ea_size(&ipam->ea[i]);
 		free(ipam->ea[i].value);
+		ipam->ea[i].value = NULL;
 	}
 	free(ipam->ea);
 	total_memory -= sizeof(struct ipam_ea) * ipam->ea_nr;
-	ipam->ea = NULL;
+	ipam->ea    = NULL;
+	ipam->ea_nr = 0;
 }
 
 void free_ipam_file(struct ipam_file *sf) {
@@ -85,6 +88,11 @@ void free_ipam_file(struct ipam_file *sf) {
 	total_memory -= sizeof(struct ipam_ea) * sf->ea_nr;
 	free(sf->lines);
 	total_memory -= sizeof(struct ipam) * sf->max_nr;
+	sf->nr     = 0;
+	sf->max_nr = 0;
+	sf->ea_nr  = 0;
+	sf->lines  = NULL;
+	sf->ea     = NULL;
 }
 
 static int ipam_prefix_handle(char *s, void *data, struct csv_state *state) {
@@ -119,7 +127,7 @@ static int ipam_ea_handle(char *s, void *data, struct csv_state *state) {
 	int found = 0;
 	char *z;
 
-	z = st_strdup(s); /* s cant be NULL here so strdup safe */
+	z = st_strdup(s);
 	/* we dont care if memory failed on strdup; we continue */
 	for (ea_nr = 0; ea_nr < sf->ea_nr; ea_nr++) {
 		if (!strcmp(state->csv_field, sf->ea[ea_nr].name)) {
@@ -215,12 +223,14 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof) {
 		total_memory -= (ea_nr + 4) * sizeof(struct csv_field);
 		return -2;
 	}
-	for (i = 0; i <  ea_nr; i++)
+	for (i = 0; i < ea_nr; i++)
 		sf->ea[i].name = csv_field[i + 2].name;
 	memset(&sf->lines[0], 0, sizeof(struct ipam));
 	res = alloc_ea(sf, 0);
 	if (res < 0) {
+		free_ipam_file(sf);
 		free(csv_field);
+		total_memory -= (ea_nr + 4) * sizeof(struct csv_field);
 		return res;
 	}
 	res = generic_load_csv(name, &cf, &state, sf);
@@ -399,9 +409,9 @@ int ipam_file_filter(struct ipam_file *sf, char *expr) {
 	}
 	free(sf->lines);
 	total_memory -= sf->max_nr * sizeof(struct ipam);
-	sf->lines = new_ipam;
+	sf->lines  = new_ipam;
 	sf->max_nr = sf->nr;
-	sf->nr = j;
+	sf->nr     = j;
 	debug_timing_end(2);
 	return 0;
 }
@@ -413,6 +423,7 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam) {
 
 	for (i = 0; i < sf->nr; i++) {
 		j = sf->routes[i].ea_nr;
+		/* allocating new EA and setting value to NULL */
 		sf->routes[i].ea_nr += ipam->ea_nr;
 		sf->routes[i].ea = st_realloc(sf->routes[i].ea,
 				(sf->routes[i].ea_nr) * sizeof(struct ipam_ea), "routes EA");
@@ -421,7 +432,7 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam) {
 		for (k = j; k < sf->routes[i].ea_nr; k++)
 			sf->routes[i].ea[k].value = NULL;
 		found_mask = -1;
-		found_j = 0;
+		found_j    = 0;
 		for (j = 0; j < ipam->nr; j++) {
 			res = subnet_compare(&sf->routes[i].subnet, &ipam->lines[j].subnet);
 			if (res == EQUALS) {
@@ -433,9 +444,9 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam) {
 				st_debug(IPAM, 4, "found included match %P\n", ipam->lines[j].subnet);
 				mask = ipam->lines[j].subnet.mask;
 				if (mask < found_mask)
-					continue; /* we have a better ùask */
+					continue; /* we have a better mask */
 				found_mask = mask;
-				found_j = j;
+				found_j    = j;
 			}
 		}
 		k = 1;
@@ -459,7 +470,7 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam) {
 					has_comment = 1;
 				} else {
 					sf->routes[i].ea[k].name  = ipam->ea[j].name;
-					free(sf->routes[i].ea[k].value);
+					st_free_string(sf->routes[i].ea[k].value);
 					sf->routes[i].ea[k].value = st_strdup(ipam->lines[found_j].ea[j].value);
 					k++;
 				}
