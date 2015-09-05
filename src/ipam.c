@@ -51,6 +51,21 @@ int ea_size(struct ipam_ea *ea) {
 	return strlen(ea->value) + 1;
 }
 
+int ea_strdup(struct ipam_ea *ea, const char *value) {
+	if (value == NULL) {
+		ea->len   = 0;
+		ea->value = NULL;
+		return 1;
+	}
+	ea->value = st_strdup(value); /* FIXME, double strlen */
+	if (ea->value == NULL) {
+		ea->len = 0;
+		return -1;
+	}
+	ea->len = strlen(ea->value) + 1;
+	return 0;
+}
+
 int alloc_ea(struct ipam_file *sf, int i) {
 	struct ipam_ea *ea;
 	int j;
@@ -141,7 +156,7 @@ static int ipam_ea_handle(char *s, void *data, struct csv_state *state) {
 		return CSV_INVALID_FIELD_BREAK;
 	}
 	debug(IPAM, 6, "Found %s = %s\n",  sf->lines[sf->nr].ea[ea_nr].name, z);
-	sf->lines[sf->nr].ea[ea_nr].value = z;
+	ea_strdup(&sf->lines[sf->nr].ea[ea_nr],  z);
 	state->state[0]++;
 	return CSV_VALID_FIELD;
 }
@@ -466,12 +481,12 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam) {
 			for (j = 0; j < ipam->ea_nr; j++) {
 				if (!strcasecmp(ipam->ea[j].name, "comment")) {
 					sf->routes[i].ea[0].name  = ipam->ea[j].name;
-					sf->routes[i].ea[0].value = st_strdup(ipam->lines[found_j].ea[j].value);
+					ea_strdup(&sf->routes[i].ea[0], ipam->lines[found_j].ea[j].value);
 					has_comment = 1;
 				} else {
 					sf->routes[i].ea[k].name  = ipam->ea[j].name;
 					st_free_string(sf->routes[i].ea[k].value);
-					sf->routes[i].ea[k].value = st_strdup(ipam->lines[found_j].ea[j].value);
+					ea_strdup(&sf->routes[i].ea[k], ipam->lines[found_j].ea[j].value);
 					k++;
 				}
 			}

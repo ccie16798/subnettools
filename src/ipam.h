@@ -13,6 +13,7 @@
 struct  ipam_ea {
 	char *name;
 	char *value; /* value of EA; MUST be malloc'ed*/
+	int len;
 };
 
 struct ipam {
@@ -30,6 +31,7 @@ struct ipam_file {
 	struct ipam_ea *ea;
 };
 int ea_size(struct ipam_ea *ea);
+int ea_strdup(struct ipam_ea *ea, const char *value);
 int alloc_ipam_file(struct ipam_file *sf, unsigned long n, int ea_nr);
 void free_ipam_file(struct ipam_file *sf);
 int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof);
