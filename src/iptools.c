@@ -1054,7 +1054,7 @@ struct subnet *subnet_remove(const struct subnet *s1, const struct subnet *s2, i
 		*n = 0;
 		return NULL;
 	} else if (res == NOMATCH || res == INCLUDED) {
-		news = malloc(sizeof(struct subnet));
+		news = st_malloc_nodebug(sizeof(struct subnet), "subnet");
 		if (news == NULL) {
 			*n = -1;
 			return NULL;
@@ -1066,7 +1066,7 @@ struct subnet *subnet_remove(const struct subnet *s1, const struct subnet *s2, i
 	}
 	/* s2 in included in s1 */
 	res = s2->mask - s1->mask;
-	news = malloc(sizeof(struct subnet) * res);
+	news = st_malloc_nodebug(sizeof(struct subnet) * res, "subnet");
 	if (news == NULL) {
 		*n = -1;
 		return NULL;
