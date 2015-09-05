@@ -394,15 +394,22 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam) {
 	int found_mask, found_j;
 
 	for (i = 0; i < sf->nr; i++) {
+		sf->routes[i].ea_nr = ipam->ea_nr + 1;
+		sf->routes[i].ea = st_realloc(sf->routes[i].ea,
+				(ipam->ea_nr + 1) * sizeof(struct ipam_ea), "routes EA");
+		if (sf->routes[i].ea == NULL)
+			return -1;
 		found_mask = -1;
 		found_j = 0;
 		for (j = 0; j < ipam->nr; j++) {
 			res = subnet_compare(&sf->routes[i].subnet, &ipam->lines[j].subnet);
 			if (res == EQUALS) {
 				found_mask = ipam->lines[j].subnet.mask;
+				st_debug(IPAM, 4, "found exact match %P\n", ipam->lines[j].subnet);
 				found_j = j;
 				break; /* we break on exact match */
 			} else if (res == INCLUDED) {
+				st_debug(IPAM, 4, "found included match %P\n", ipam->lines[j].subnet);
 				if (ipam->lines[j].subnet.mask < found_mask)
 					continue; /* we have a better ùask */
 				found_mask = ipam->lines[j].subnet.mask;
@@ -414,13 +421,11 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam) {
 				sf->routes[i].ea[j + 1].name  = ipam->ea[j].name;
 				sf->routes[i].ea[j + 1].value = NULL;
 			}
-			continue;
 		} else {
 			for (j = 0; j < ipam->ea_nr; j++) {
 				sf->routes[i].ea[j + 1].name  = ipam->ea[j].name;
 				sf->routes[i].ea[j + 1].value = strdup(ipam->lines[found_j].ea[j].value);
 			}
-			continue;
 		}
 
 	}
