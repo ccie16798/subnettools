@@ -1218,11 +1218,13 @@ int subnet_file_filter(struct subnet_file *sf, char *expr) {
 			st_debug(FILTER, 5, "Matching filter '%s' on %P\n", expr, sf->routes[i].subnet);
 			copy_route(&new_r[j], &sf->routes[i]);
 			j++;
-		}
+		} else
+			free_route(&sf->routes[i]);
 	}
 	free(sf->routes);
 	total_memory -= sf->max_nr * sizeof(struct route);
 	sf->routes = new_r;
+	sf->max_nr = sf->nr;
 	sf->nr = j;
 	debug_timing_end(2);
 	return 0;
