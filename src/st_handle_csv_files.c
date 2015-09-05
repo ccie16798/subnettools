@@ -44,6 +44,7 @@ void free_subnet_file(struct subnet_file *sf) {
 	for (i = 0; i < sf->nr; i++)
 		free_route(&sf->routes[i]);
 	free(sf->routes);
+	total_memory -= sf->max_nr * sizeof(struct route);
 	sf->routes = NULL;
 	sf->nr = sf->max_nr = 0;
 }
@@ -280,6 +281,7 @@ int alloc_bgp_file(struct bgp_file *sf, unsigned long n) {
 
 void free_bgp_file(struct bgp_file *sf) {
 	free(sf->routes);
+	total_memory -= sf->max_nr * sizeof(struct bgp_route);
 	sf->routes = NULL;
 	sf->nr = sf->max_nr = 0;
 }
