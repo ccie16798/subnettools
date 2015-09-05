@@ -127,10 +127,15 @@ int run_csvconverter(char *name, char *filename, struct st_options *o) {
 	}
 #define INIT_ROUTE(____x) \
 	zero_route(&route); \
-	alloc_route_ea(&route, 1); \
+	res = alloc_route_ea(&route, 1); \
+	if (res < 0) \
+		return res; \
 	route.ea[0].value = st_malloc(____x, "route"); \
-	if (route.ea[0].value == NULL) \
+	if (route.ea[0].value == NULL) {\
+		free(route.ea); \
+		total_memory -= sizeof(struct ipam_ea); \
 		return -1; \
+	} \
 	route.ea[0].name    = "comment"; \
 /*
  * output of 'show routing route' on Palo alto
