@@ -78,6 +78,13 @@ char *st_strdup(const char *s) {
 	}
 	total_memory += n;
 	strcpy(broumf, s);
-	debug(MEMORY, 5, "Reallocated %d bytes for '%s'\n", n, s);
+	debug(MEMORY, 5, "Allocated %d bytes for '%s'\n", n, s);
 	return broumf;
+}
+
+void st_free_string(char *s) {
+	if (s == NULL)
+		return;
+	total_memory -= strlen(s) + 1;
+	free(s);
 }
