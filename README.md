@@ -109,6 +109,8 @@ Some theory first, next some examples :)
 - %M  : for IPv4, the mask in Dotted Decimal Notation; for IPv6 I DO REFUSE and print prefix length
 - %D  : the device
 - %C  : the comment
+- %On : (where n is a digit) : Extensible Attribute 'n'
+- %O#c: prints all Extensible Attributes, separated by char 'c'
 - %U  : upper subnet of %I (lower subnet of 10.1.3.0/24 is 10.1.2.0/24)
 - %L  : lower subnet 
 - %P  : prefix/mask
