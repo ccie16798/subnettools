@@ -504,12 +504,19 @@ static int run_ipam_getea(int arc, char **argv, void *st_options) {
 	DIE_ON_BAD_FILE(argv[2]);
 	res = load_netcsv_file(argv[3], &sf, nof);
 	DIE_ON_BAD_FILE(argv[3]);
+	if (sf.nr == 0) {
+		fprintf(stderr, "empty file %s\n", (argv[3] == NULL ? "<stdin>" : argv[3]));
+		free_subnet_file(&sf);
+		free_ipam_file(&ipam);
+		return 1;
+	}
 
 	res = populate_sf_from_ipam(&sf, &ipam);
 	if (res < 0) {
 		free_ipam_file(&ipam);
 		return 1;
 	}
+	fprint_route_header(nof->output_file, &sf.routes[0], nof->output_fmt);
 	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
 	free_subnet_file(&sf);
 	free_ipam_file(&ipam);
