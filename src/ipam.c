@@ -60,11 +60,12 @@ int ea_strdup(struct ipam_ea *ea, const char *value) {
 		return 1;
 	}
 	len = strlen(value) + 1;
-	ea->value = strdup(value); /* FIXME, double strlen */
+	ea->value = malloc(len);
 	if (ea->value == NULL) {
 		ea->len = 0;
 		return -1;
 	}
+	strcpy(ea->value, value);
 	total_memory += len;
 	ea->len = len;
 	return 0;
