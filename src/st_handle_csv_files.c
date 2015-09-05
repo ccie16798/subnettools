@@ -155,6 +155,7 @@ static int netcsv_endofline_callback(struct csv_state *state, void *data) {
 	}
 	zero_route(&sf->routes[sf->nr]);
 	res = alloc_route_ea(&sf->routes[sf->nr], 1);
+	sf->routes[sf->nr].ea[0].name = "comment";
 	if (res < 0)
 		return CSV_CATASTROPHIC_FAILURE;
 	state->state[0] = 0; /* state[0] = we found a mask */
@@ -209,6 +210,7 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 		return -2;
 	zero_route(&sf->routes[0]);
 	res = alloc_route_ea(&sf->routes[0], 1);
+	sf->routes[0].ea[0].name = "comment";
 	if (res < 0)
 		return res;
 	return generic_load_csv(name, &cf, &state, sf);
