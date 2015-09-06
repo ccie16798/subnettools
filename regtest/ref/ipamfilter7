@@ -1,0 +1,5 @@
+prefix;mask;device;GW;comment;EA-Site
+10.58.0.29;32;;0.0.0.0;;
+10.58.0.72;30;;0.0.0.0;Interco rc-defense4/rc-bezons3 2;La Defense - Baobab
+10.128.0.1;32;;0.0.0.0;Zob;Saint Denis
+10.128.1.1;32;;0.0.0.0;Zob intensif;Saint Denis

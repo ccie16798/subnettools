@@ -247,8 +247,14 @@ reg_test_ipamfilter() {
 	$PROG -ea EA-Vlan,EA-Name ipamfilter ipam-test "EA-Vlan>400"  > res/ipamfilter3
 	$PROG -ea EA-Vlan,EA-Name,EA-Site,comment ipamfilter ipam-test "comment~.*"  > res/ipamfilter4
 	$PROG -fmt "%20P;%20O0;%20O1;%20O2;%O3" -ea EA-Vlan,EA-Name,EA-Site,comment ipamfilter ipam-test "comment~.*"  > res/ipamfilter5
-
-	n=5
+	$PROG -ea comment,EA-Site,EA-Vlan getea ipam-test toto > res/ipamfilter6
+	$PROG -ea comment,EA-Site getea ipam-test toto > res/ipamfilter7
+	$PROG -ea EA-Site getea ipam-test toto > res/ipamfilter8
+	$PROG -fmt "%P;%O#" -ea EA-Site,EA-Vlan getea ipam-test toto  > res/ipamfilter9
+	$PROG -fmt "%P;%O1" -ea EA-Site,EA-Vlan getea ipam-test toto  > res/ipamfilter10
+	$PROG -fmt "%P;%O0" -ea EA-Site,EA-Vlan getea ipam-test toto  > res/ipamfilter11
+	$PROG -fmt "%P;%O10" -ea EA-Site,EA-Vlan getea ipam-test toto  > res/ipamfilter12
+	n=12
 	for i in `seq 1 $n`; do
 		output_file=ipamfilter$i
 		if [ ! -f ref/$output_file ]; then

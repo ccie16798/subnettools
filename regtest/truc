@@ -1,0 +1,415 @@
+st_malloc : Allocated 352 Kbytes for subnet_file
+generic_command_run : Total amout of memory still allocated 0; print
+st_malloc : Allocated 352 Kbytes for subnet_file
+generic_command_run : Total amout of memory still allocated 0; print
+st_malloc : Allocated 352 Kbytes for subnet_file
+generic_command_run : Total amout of memory still allocated 0; print
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 32 bytes for heap
+st_malloc : Allocated 352 Kbytes for struct route
+generic_command_run : Total amout of memory still allocated 0; sort
+st_malloc : Allocated 352 Kbytes for subnet_file
+generic_command_run : Total amout of memory still allocated 0; print
+st_malloc : Allocated 352 Kbytes for subnet_file
+generic_command_run : Total amout of memory still allocated 0; print
+st_malloc : Allocated 352 Kbytes for subnet_file
+generic_command_run : Total amout of memory still allocated 0; print
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 32 bytes for heap
+st_malloc : Allocated 352 Kbytes for struct route
+generic_command_run : Total amout of memory still allocated 0; sort
+st_malloc : Allocated 352 Kbytes for subnet_file
+generic_command_run : Total amout of memory still allocated 0; print
+st_malloc : Allocated 352 Kbytes for subnet_file
+generic_command_run : Total amout of memory still allocated 0; print
+st_malloc : Allocated 352 Kbytes for subnet_file
+generic_command_run : Total amout of memory still allocated 0; print
+st_malloc : Allocated 5186 Kbytes for bgp_file
+generic_command_run : Total amout of memory still allocated 0; bgpprint
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 32 bytes for heap
+st_malloc : Allocated 352 Kbytes for struct route
+generic_command_run : Total amout of memory still allocated 0; sort
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 32 bytes for heap
+st_malloc : Allocated 352 Kbytes for struct route
+generic_command_run : Total amout of memory still allocated 0; sort
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 352 Kbytes for subnet_file
+generic_command_run : Total amout of memory still allocated 0; missing
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 15 Kbytes for subnet_file
+st_malloc : Allocated 1488 bytes for heap
+generic_command_run : Total amout of memory still allocated 0; uniq
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 1056 bytes for subnet_file
+st_malloc : Allocated 96 bytes for heap
+generic_command_run : Total amout of memory still allocated 0; uniq
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 1488 bytes for heap
+st_malloc : Allocated 15 Kbytes for subnet_file
+generic_command_run : Total amout of memory still allocated 0; common
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 96 bytes for heap
+st_malloc : Allocated 1056 bytes for struct route
+st_malloc : Allocated 1056 bytes for struct route
+generic_command_run : Total amout of memory still allocated 0; subnetagg
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 80 bytes for heap
+st_malloc : Allocated 880 bytes for struct route
+st_malloc : Allocated 880 bytes for struct route
+generic_command_run : Total amout of memory still allocated 0; subnetagg
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_realloc : Reallocated 704 Kbytes for struct route
+st_realloc : Reallocated 1408 Kbytes for struct route
+st_realloc : Reallocated 2816 Kbytes for struct route
+st_realloc : Reallocated 5632 Kbytes for struct route
+st_realloc : Reallocated 11 Mbytes for struct route
+st_malloc : Allocated 781 Kbytes for heap
+st_malloc : Allocated 8593 Kbytes for struct route
+st_malloc : Allocated 8593 Kbytes for struct route
+generic_command_run : Total amout of memory still allocated 0; subnetagg
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 88 bytes for heap
+st_malloc : Allocated 968 bytes for struct route
+st_malloc : Allocated 968 bytes for struct route
+generic_command_run : Total amout of memory still allocated 0; routeagg
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 88 bytes for heap
+st_malloc : Allocated 968 bytes for struct route
+st_malloc : Allocated 968 bytes for struct route
+generic_command_run : Total amout of memory still allocated 0; routeagg
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 64 bytes for heap
+st_malloc : Allocated 704 bytes for struct route
+st_malloc : Allocated 704 bytes for struct route
+generic_command_run : Total amout of memory still allocated 0; routeagg
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 1448 bytes for heap
+st_malloc : Allocated 15 Kbytes for struct route
+st_malloc : Allocated 15 Kbytes for struct route
+generic_command_run : Total amout of memory still allocated 0; simplify1
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 1448 bytes for heap
+st_malloc : Allocated 15 Kbytes for struct route
+st_malloc : Allocated 15 Kbytes for struct route
+generic_command_run : Total amout of memory still allocated 0; simplify2
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 112 bytes for heap
+st_malloc : Allocated 1232 bytes for struct route
+st_malloc : Allocated 1232 bytes for struct route
+generic_command_run : Total amout of memory still allocated 0; simplify1
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 112 bytes for heap
+st_malloc : Allocated 1232 bytes for struct route
+st_malloc : Allocated 1232 bytes for struct route
+generic_command_run : Total amout of memory still allocated 0; simplify2
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 96 bytes for heap
+st_malloc : Allocated 352 Kbytes for struct route
+generic_command_run : Total amout of memory still allocated 0; sort
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 104 bytes for heap
+st_malloc : Allocated 352 Kbytes for struct route
+generic_command_run : Total amout of memory still allocated 0; sortby
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 104 bytes for heap
+st_malloc : Allocated 352 Kbytes for struct route
+generic_command_run : Total amout of memory still allocated 0; sortby
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 104 bytes for heap
+st_malloc : Allocated 352 Kbytes for struct route
+generic_command_run : Total amout of memory still allocated 0; sortby
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 104 bytes for heap
+st_malloc : Allocated 1144 bytes for struct route
+st_malloc : Allocated 1144 bytes for struct route
+generic_command_run : Total amout of memory still allocated 0; simplify1
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 104 bytes for heap
+st_malloc : Allocated 1144 bytes for struct route
+st_malloc : Allocated 1144 bytes for struct route
+generic_command_run : Total amout of memory still allocated 0; simplify2
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 80 bytes for heap
+st_malloc : Allocated 352 Kbytes for struct route
+generic_command_run : Total amout of memory still allocated 0; sort
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 72 bytes for heap
+st_malloc : Allocated 352 Kbytes for struct route
+generic_command_run : Total amout of memory still allocated 0; sort
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 48 bytes for heap
+st_malloc : Allocated 352 Kbytes for struct route
+generic_command_run : Total amout of memory still allocated 0; sort
+generic_command_run : Total amout of memory still allocated 0; removesubnet
+generic_command_run : Total amout of memory still allocated 0; removesubnet
+generic_command_run : Total amout of memory still allocated 0; removesubnet
+generic_command_run : Total amout of memory still allocated 0; removesubnet
+generic_command_run : Total amout of memory still allocated 0; removesubnet
+generic_command_run : Total amout of memory still allocated 0; removesubnet
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 352 Kbytes for subnet_file
+generic_command_run : Total amout of memory still allocated 0; removesubnet
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 352 Kbytes for subnet_file
+generic_command_run : Total amout of memory still allocated 0; removesubnet
+generic_command_run : Total amout of memory still allocated 0; split
+generic_command_run : Total amout of memory still allocated 0; split
+generic_command_run : Total amout of memory still allocated 0; split
+generic_command_run : Total amout of memory still allocated 0; scanf
+generic_command_run : Total amout of memory still allocated 0; scanf
+generic_command_run : Total amout of memory still allocated 0; scanf
+generic_command_run : Total amout of memory still allocated 0; scanf
+generic_command_run : Total amout of memory still allocated 0; scanf
+generic_command_run : Total amout of memory still allocated 0; scanf
+generic_command_run : Total amout of memory still allocated 0; scanf
+generic_command_run : Total amout of memory still allocated 0; scanf
+generic_command_run : Total amout of memory still allocated 0; scanf
+generic_command_run : Total amout of memory still allocated 0; scanf
+generic_command_run : Total amout of memory still allocated 0; scanf
+generic_command_run : Total amout of memory still allocated 0; scanf
+generic_command_run : Total amout of memory still allocated 0; scanf
+generic_command_run : Total amout of memory still allocated 0; scanf
+generic_command_run : Total amout of memory still allocated 0; scanf
+generic_command_run : Total amout of memory still allocated 0; scanf
+generic_command_run : Total amout of memory still allocated 0; scanf
+generic_command_run : Total amout of memory still allocated 0; scanf
+generic_command_run : Total amout of memory still allocated 0; scanf
+generic_command_run : Total amout of memory still allocated 0; scanf
+generic_command_run : Total amout of memory still allocated 0; scanf
+generic_command_run : Total amout of memory still allocated 0; scanf
+generic_command_run : Total amout of memory still allocated 0; scan
+generic_command_run : Total amout of memory still allocated 0; scan
+generic_command_run : Total amout of memory still allocated 0; scan
+generic_command_run : Total amout of memory still allocated 0; scan
+generic_command_run : Total amout of memory still allocated 0; scan
+generic_command_run : Total amout of memory still allocated 0; scan
+no match
+generic_command_run : Total amout of memory still allocated 0; scan
+generic_command_run : Total amout of memory still allocated 0; scan
+generic_command_run : Total amout of memory still allocated 0; exprtest
+generic_command_run : Total amout of memory still allocated 0; exprtest
+generic_command_run : Total amout of memory still allocated 0; exprtest
+generic_command_run : Total amout of memory still allocated 0; exprtest
+generic_command_run : Total amout of memory still allocated 0; exprtest
+generic_command_run : Total amout of memory still allocated 0; exprtest
+generic_command_run : Total amout of memory still allocated 0; exprtest
+generic_command_run : Total amout of memory still allocated 0; exprtest
+generic_command_run : Total amout of memory still allocated 0; exprtest
+generic_command_run : Total amout of memory still allocated 0; exprtest
+generic_command_run : Total amout of memory still allocated 0; exprtest
+generic_command_run : Total amout of memory still allocated 0; exprtest
+generic_command_run : Total amout of memory still allocated 0; exprtest
+generic_command_run : Total amout of memory still allocated 0; exprtest
+generic_command_run : Total amout of memory still allocated 0; exprtest
+generic_command_run : Total amout of memory still allocated 0; exprtest
+generic_command_run : Total amout of memory still allocated 0; exprtest
+generic_command_run : Total amout of memory still allocated 0; exprtest
+generic_command_run : Total amout of memory still allocated 0; exprtest
+generic_command_run : Total amout of memory still allocated 0; exprtest
+generic_command_run : Total amout of memory still allocated 0; exprtest
+generic_command_run : Total amout of memory still allocated 0; exprtest
+generic_command_run : Total amout of memory still allocated 0; exprtest
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 792 bytes for struct route
+generic_command_run : Total amout of memory still allocated 0; filter
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 792 bytes for struct route
+generic_command_run : Total amout of memory still allocated 0; filter
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 792 bytes for struct route
+generic_command_run : Total amout of memory still allocated 0; filter
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 792 bytes for struct route
+generic_command_run : Total amout of memory still allocated 0; filter
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 792 bytes for struct route
+generic_command_run : Total amout of memory still allocated 0; filter
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 792 bytes for struct route
+generic_command_run : Total amout of memory still allocated 0; filter
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 792 bytes for struct route
+generic_command_run : Total amout of memory still allocated 0; filter
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 792 bytes for struct route
+generic_command_run : Total amout of memory still allocated 0; filter
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 792 bytes for struct route
+generic_command_run : Total amout of memory still allocated 0; filter
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 792 bytes for struct route
+generic_command_run : Total amout of memory still allocated 0; filter
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 792 bytes for struct route
+generic_command_run : Total amout of memory still allocated 0; filter
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 792 bytes for struct route
+generic_command_run : Total amout of memory still allocated 0; filter
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 792 bytes for struct route
+generic_command_run : Total amout of memory still allocated 0; filter
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 792 bytes for struct route
+generic_command_run : Total amout of memory still allocated 0; filter
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 792 bytes for struct route
+generic_command_run : Total amout of memory still allocated 0; filter
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 792 bytes for struct route
+generic_command_run : Total amout of memory still allocated 0; filter
+st_malloc : Allocated 352 Kbytes for subnet_file
+st_malloc : Allocated 792 bytes for struct route
+generic_command_run : Total amout of memory still allocated 0; filter
+st_malloc : Allocated 5186 Kbytes for bgp_file
+st_malloc : Allocated 5186 Kbytes for bgp_route
+generic_command_run : Total amout of memory still allocated 0; bgpfilter
+st_malloc : Allocated 5186 Kbytes for bgp_file
+st_malloc : Allocated 5186 Kbytes for bgp_route
+generic_command_run : Total amout of memory still allocated 0; bgpfilter
+st_malloc : Allocated 5186 Kbytes for bgp_file
+st_malloc : Allocated 5186 Kbytes for bgp_route
+generic_command_run : Total amout of memory still allocated 0; bgpfilter
+st_malloc : Allocated 5186 Kbytes for bgp_file
+st_malloc : Allocated 5186 Kbytes for bgp_route
+generic_command_run : Total amout of memory still allocated 0; bgpfilter
+st_malloc : Allocated 5186 Kbytes for bgp_file
+st_malloc : Allocated 5186 Kbytes for bgp_route
+generic_command_run : Total amout of memory still allocated 0; bgpfilter
+st_malloc : Allocated 5186 Kbytes for bgp_file
+st_malloc : Allocated 5186 Kbytes for bgp_route
+generic_command_run : Total amout of memory still allocated 0; bgpfilter
+st_malloc : Allocated 5186 Kbytes for bgp_file
+st_malloc : Allocated 5186 Kbytes for bgp_route
+generic_command_run : Total amout of memory still allocated 0; bgpfilter
+st_malloc : Allocated 5186 Kbytes for bgp_file
+st_malloc : Allocated 5186 Kbytes for bgp_route
+generic_command_run : Total amout of memory still allocated 0; bgpfilter
+st_malloc : Allocated 5186 Kbytes for bgp_file
+st_malloc : Allocated 5186 Kbytes for bgp_route
+generic_command_run : Total amout of memory still allocated 0; bgpfilter
+st_malloc : Allocated 5186 Kbytes for bgp_file
+st_malloc : Allocated 5186 Kbytes for bgp_route
+generic_command_run : Total amout of memory still allocated 0; bgpfilter
+st_malloc : Allocated 5186 Kbytes for bgp_file
+st_malloc : Allocated 5186 Kbytes for bgp_route
+generic_command_run : Total amout of memory still allocated 0; bgpfilter
+st_malloc : Allocated 5186 Kbytes for bgp_file
+st_malloc : Allocated 5186 Kbytes for bgp_route
+generic_command_run : Total amout of memory still allocated 0; bgpfilter
+st_malloc : Allocated 5186 Kbytes for bgp_file
+st_malloc : Allocated 5186 Kbytes for bgp_route
+generic_command_run : Total amout of memory still allocated 0; bgpfilter
+st_malloc : Allocated 5186 Kbytes for bgp_file
+st_malloc : Allocated 5186 Kbytes for bgp_route
+generic_command_run : Total amout of memory still allocated 0; bgpfilter
+st_malloc : Allocated 5186 Kbytes for bgp_file
+st_malloc : Allocated 5186 Kbytes for bgp_route
+generic_command_run : Total amout of memory still allocated 0; bgpfilter
+st_malloc : Allocated 192 bytes for IPAM CSV field
+st_malloc : Allocated 632 Kbytes for ipam_file
+st_malloc : Allocated 48 bytes for ipam_ea
+st_malloc : Allocated 480 bytes for struct ipam_line
+generic_command_run : Total amout of memory still allocated 0; ipamfilter
+st_malloc : Allocated 192 bytes for IPAM CSV field
+st_malloc : Allocated 632 Kbytes for ipam_file
+st_malloc : Allocated 48 bytes for ipam_ea
+st_malloc : Allocated 480 bytes for struct ipam_line
+generic_command_run : Total amout of memory still allocated 0; ipamfilter
+st_malloc : Allocated 192 bytes for IPAM CSV field
+st_malloc : Allocated 632 Kbytes for ipam_file
+st_malloc : Allocated 48 bytes for ipam_ea
+st_malloc : Allocated 480 bytes for struct ipam_line
+generic_command_run : Total amout of memory still allocated 0; ipamfilter
+st_malloc : Allocated 256 bytes for IPAM CSV field
+st_malloc : Allocated 632 Kbytes for ipam_file
+st_malloc : Allocated 96 bytes for ipam_ea
+st_malloc : Allocated 480 bytes for struct ipam_line
+generic_command_run : Total amout of memory still allocated 0; ipamfilter
+st_malloc : Allocated 256 bytes for IPAM CSV field
+st_malloc : Allocated 632 Kbytes for ipam_file
+st_malloc : Allocated 96 bytes for ipam_ea
+st_malloc : Allocated 480 bytes for struct ipam_line
+generic_command_run : Total amout of memory still allocated 0; ipamfilter
+st_malloc : Allocated 128 bytes for route
+generic_command_run : Total amout of memory still allocated 0; convert
+st_malloc : Allocated 128 bytes for route
+generic_command_run : Total amout of memory still allocated 0; convert
+st_malloc : Allocated 128 bytes for route
+generic_command_run : Total amout of memory still allocated 0; convert
+st_malloc : Allocated 128 bytes for route
+generic_command_run : Total amout of memory still allocated 0; convert
+st_malloc : Allocated 128 bytes for route
+generic_command_run : Total amout of memory still allocated 0; convert
+st_malloc : Allocated 128 bytes for route
+generic_command_run : Total amout of memory still allocated 0; convert
+st_malloc : Allocated 128 bytes for route
+generic_command_run : Total amout of memory still allocated 0; convert
+st_malloc : Allocated 128 bytes for route
+generic_command_run : Total amout of memory still allocated 0; convert
+st_malloc : Allocated 128 bytes for route
+generic_command_run : Total amout of memory still allocated 0; convert
+st_malloc : Allocated 128 bytes for route
+generic_command_run : Total amout of memory still allocated 0; convert
+st_malloc : Allocated 128 bytes for route
+generic_command_run : Total amout of memory still allocated 0; convert
+st_malloc : Allocated 128 bytes for route
+generic_command_run : Total amout of memory still allocated 0; convert
+st_malloc : Allocated 128 bytes for route
+generic_command_run : Total amout of memory still allocated 0; convert
+st_malloc : Allocated 128 bytes for route
+generic_command_run : Total amout of memory still allocated 0; convert
+st_malloc : Allocated 128 bytes for route
+generic_command_run : Total amout of memory still allocated 0; convert
+st_malloc : Allocated 128 bytes for route
+generic_command_run : Total amout of memory still allocated 0; convert
+st_malloc : Allocated 128 bytes for route
+generic_command_run : Total amout of memory still allocated 0; convert
+st_malloc : Allocated 128 bytes for route
+generic_command_run : Total amout of memory still allocated 0; convert
+st_malloc : Allocated 128 bytes for route
+generic_command_run : Total amout of memory still allocated 0; convert
+st_malloc : Allocated 128 bytes for route
+generic_command_run : Total amout of memory still allocated 0; convert
+st_malloc : Allocated 128 bytes for route
+generic_command_run : Total amout of memory still allocated 0; convert
+st_malloc : Allocated 128 bytes for route
+generic_command_run : Total amout of memory still allocated 0; convert
+st_malloc : Allocated 128 bytes for route
+generic_command_run : Total amout of memory still allocated 0; convert
+st_malloc : Allocated 128 bytes for route
+generic_command_run : Total amout of memory still allocated 0; convert
+generic_command_run : Total amout of memory still allocated 0; convert
+st_malloc : Allocated 5186 Kbytes for bgp_file
+st_malloc : Allocated 5186 Kbytes for bgp_file
+generic_command_run : Total amout of memory still allocated 0; bgpcmp
+st_malloc : Allocated 5186 Kbytes for bgp_file
+st_malloc : Allocated 160 bytes for heap
+st_malloc : Allocated 5186 Kbytes for new bgp_route
+generic_command_run : Total amout of memory still allocated 0; bgpsortby
+st_malloc : Allocated 5186 Kbytes for bgp_file
+st_malloc : Allocated 160 bytes for heap
+st_malloc : Allocated 5186 Kbytes for new bgp_route
+generic_command_run : Total amout of memory still allocated 0; bgpsortby
+st_malloc : Allocated 5186 Kbytes for bgp_file
+st_malloc : Allocated 160 bytes for heap
+st_malloc : Allocated 5186 Kbytes for new bgp_route
+generic_command_run : Total amout of memory still allocated 0; bgpsortby
+st_malloc : Allocated 5186 Kbytes for bgp_file
+st_malloc : Allocated 160 bytes for heap
+st_malloc : Allocated 5186 Kbytes for new bgp_route
+generic_command_run : Total amout of memory still allocated 0; bgpsortby
+generic_command_run : Total amout of memory still allocated 0; grep
+generic_command_run : Total amout of memory still allocated 0; ipinfo
+generic_command_run : Total amout of memory still allocated 0; ipinfo
+generic_command_run : Total amout of memory still allocated 0; ipinfo
+generic_command_run : Total amout of memory still allocated 0; ipinfo
+generic_command_run : Total amout of memory still allocated 0; ipinfo
+generic_command_run : Total amout of memory still allocated 0; ipinfo
+generic_command_run : Total amout of memory still allocated 0; ipinfo
+generic_command_run : Total amout of memory still allocated 0; ipinfo
