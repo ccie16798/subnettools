@@ -81,6 +81,24 @@ void *st_realloc(void *ptr, unsigned long new, unsigned long old, const char *s)
 	return new_ptr;
 }
 
+void *st_realloc_nodebug(void *ptr, unsigned long new, unsigned long old, const char *s) {
+	void *new_ptr;
+
+	new_ptr = realloc(ptr,  new);
+	if (new_ptr == NULL) {
+		if (new > 10 * 1024 * 1024)
+			fprintf(stderr, "Unable to reallocate %lu Mbytes for %s\n",
+					 new / (1024 * 1024), s);
+		else if (new > 10 * 1024)
+			fprintf(stderr, "Unable to reallocate %lu Kbytes for %s\n", new / 1024, s);
+		else
+			fprintf(stderr, "Unable to reallocate %lu bytes for %s\n", new, s);
+		return  NULL;
+	}
+	total_memory += (new - old);
+	return new_ptr;
+}
+
 char *st_strdup(const char *s) {
 	char *broumf;
 	int n;
