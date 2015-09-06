@@ -41,7 +41,7 @@ int ea_strdup(struct ipam_ea *ea, const char *value) {
 	return 1;
 }
 
-void free_ea(struct ipam_ea *ea, int n) {
+void free_ea_array(struct ipam_ea *ea, int n) {
 	int i;
 
 	for (i = 0; i < n; i++) {
@@ -54,3 +54,17 @@ void free_ea(struct ipam_ea *ea, int n) {
 	free(ea);
 }
 
+struct ipam_ea *alloc_ea_array(int n) {
+	int j;
+	struct ipam_ea *ea;
+
+	ea = st_malloc_nodebug(n * sizeof(struct ipam_ea), "ipam_ea");
+	if (ea == NULL)
+		return NULL;
+
+	for (j = 0; j < n; j++) {
+		ea[j].value = NULL;
+		ea[j].len   = 0;
+	}
+	return ea;
+}

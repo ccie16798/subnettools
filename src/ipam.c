@@ -45,22 +45,28 @@ int alloc_ipam_file(struct ipam_file *sf, unsigned long n, int ea_nr) {
 	return 0;
 }
 
-int alloc_ea(struct ipam_file *sf, int i) {
+int alloc_ipam_ea(struct ipam_file *sf, int i) {
 	struct ipam_ea *ea;
 	int j;
 
 	ea = st_malloc_nodebug(sf->ea_nr * sizeof(struct ipam_ea), "ipam_ea");
-	if (ea == NULL)
+	if (ea == NULL) {
+		sf->lines[i].ea    = NULL;
+		sf->lines[i].ea_nr = 0;
 		return -1;
-	for (j = 0; j < sf->ea_nr; j++)
-		ea[j].name = sf->ea[j].name;
+	}
+	for (j = 0; j < sf->ea_nr; j++) {
+		ea[j].name  = sf->ea[j].name;
+		ea[j].value = NULL;
+		ea[j].len   = 0;
+	}
 	sf->lines[i].ea    = ea;
 	sf->lines[i].ea_nr = sf->ea_nr;
 	return 0;
 }
 
 static void free_ipam_ea(struct ipam_line *ipam) {
-	free_ea(ipam->ea, ipam->ea_nr);
+	free_ea_array(ipam->ea, ipam->ea_nr);
 	ipam->ea    = NULL;
 	ipam->ea_nr = 0;
 }
@@ -112,7 +118,6 @@ static int ipam_ea_handle(char *s, void *data, struct csv_state *state) {
 	int ea_nr = state->state[0];
 	int found = 0;
 
-	/* we dont care if memory failed on strdup; we continue */
 	for (ea_nr = 0; ea_nr < sf->ea_nr; ea_nr++) {
 		if (!strcmp(state->csv_field, sf->ea[ea_nr].name)) {
 			found = 1;
@@ -125,6 +130,7 @@ static int ipam_ea_handle(char *s, void *data, struct csv_state *state) {
 		return CSV_INVALID_FIELD_BREAK;
 	}
 	debug(IPAM, 6, "Found %s = %s\n",  sf->lines[sf->nr].ea[ea_nr].name, s);
+	/* we dont care if memory failed on strdup; we continue */
 	ea_strdup(&sf->lines[sf->nr].ea[ea_nr], s);
 	state->state[0]++;
 	return CSV_VALID_FIELD;
@@ -152,7 +158,7 @@ static int ipam_endofline_callback(struct csv_state *state, void *data) {
 		sf->lines = new_r;
 	}
 	memset(&sf->lines[sf->nr], 0, sizeof(struct ipam_line));
-	res = alloc_ea(sf, sf->nr);
+	res = alloc_ipam_ea(sf, sf->nr);
 	if (res < 0)
 		return  CSV_CATASTROPHIC_FAILURE;
 	state->state[0] = 0; /* state[0] holds the num of the EA */
@@ -210,7 +216,7 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof) {
 	for (i = 0; i < ea_nr; i++)
 		sf->ea[i].name = csv_field[i + 2].name;
 	memset(&sf->lines[0], 0, sizeof(struct ipam_line));
-	res = alloc_ea(sf, 0);
+	res = alloc_ipam_ea(sf, 0);
 	if (res < 0) {
 		free_ipam_file(sf);
 		free(csv_field);

@@ -65,7 +65,7 @@ int clone_route(struct route *dest, const struct route *src) {
 }
 
 void free_route(struct route *r) {
-	free_ea(r->ea, r->ea_nr);
+	free_ea_array(r->ea, r->ea_nr);
 	r->ea = NULL;
 	r->ea_nr = 0;
 }
