@@ -58,6 +58,10 @@ struct ipam_ea *alloc_ea_array(int n) {
 	int j;
 	struct ipam_ea *ea;
 
+	if (n <= 0) {
+		fprintf(stderr, "BUG, alloc_ea_array called with %d size\n", n);
+		return NULL;
+	}
 	ea = st_malloc_nodebug(n * sizeof(struct ipam_ea), "ipam_ea");
 	if (ea == NULL)
 		return NULL;

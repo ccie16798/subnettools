@@ -49,17 +49,14 @@ int alloc_ipam_ea(struct ipam_file *sf, int i) {
 	struct ipam_ea *ea;
 	int j;
 
-	ea = st_malloc_nodebug(sf->ea_nr * sizeof(struct ipam_ea), "ipam_ea");
+	ea = alloc_ea_array(sf->ea_nr);
 	if (ea == NULL) {
 		sf->lines[i].ea    = NULL;
 		sf->lines[i].ea_nr = 0;
 		return -1;
 	}
-	for (j = 0; j < sf->ea_nr; j++) {
+	for (j = 0; j < sf->ea_nr; j++)
 		ea[j].name  = sf->ea[j].name;
-		ea[j].value = NULL;
-		ea[j].len   = 0;
-	}
 	sf->lines[i].ea    = ea;
 	sf->lines[i].ea_nr = sf->ea_nr;
 	return 0;

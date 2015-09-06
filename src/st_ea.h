@@ -17,5 +17,6 @@ int ea_strdup(struct ipam_ea *ea, const char *value);
 
 void free_ea_array(struct ipam_ea *ea, int n);
 struct ipam_ea *alloc_ea_array(int n);
+
 #else
 #endif
