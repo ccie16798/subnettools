@@ -48,6 +48,7 @@ int alloc_route_ea(struct route *r, int n) {
 int clone_route(struct route *dest, const struct route *src) {
 	int i, res;
 
+	free_route(dest);
 	copy_route(dest, src);
 	res = alloc_route_ea(dest, src->ea_nr);
 	if (res < 0)
