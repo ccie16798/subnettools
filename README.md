@@ -239,6 +239,10 @@ For BGP, it can filter on :
 - Valid, Best
 - AS_PATH (=, <, > and # compare AS_PATH length; to compare actual AS_PATH, use '~')
 
+For IPAM, it can filter on :
+- prefix
+- mask
+- any Extended Attribute
 
 operator are :
 - '=' (EQUALS)
@@ -260,12 +264,12 @@ some examples :
 ---------------
 	Find any subnet included in 2001:db8::/48
 
-	[etienne@ARODEF subnet_tools]$ ./subnet-tools   filter filter1 "prefix{2001:db8::0/48"
+	[etienne@ARODEF subnet_tools]$ ./subnet-tools filter filter1 "prefix{2001:db8::0/48"
 	2001:db8::;64;Ethernet1/0;2001::1;test1
 	2001:db8::;128;Lo0;::;test1
 
 	Find anything routed through Ethernet1/0
-	etienne@ARODEF subnet_tools]$ ./subnet-tools   filter filter1 "device=Ethernet1/0"
+	etienne@ARODEF subnet_tools]$ ./subnet-tools filter filter1 "device=Ethernet1/0"
 	2001:db8::;64;Ethernet1/0;2001::1;test1
 	2001:db8:1::;64;Ethernet1/0;2001::1;test1
 	2001:db8:2::;64;Ethernet1/0;2001::2;test2
@@ -287,7 +291,11 @@ some examples :
 	AND
 	[etienne@ARODEF subnet_tools]$ ./subnet-tools   filter filter1 "device=Ethernet1/0&prefix{2001:db8::0/48"
 	2001:db8::;64;Ethernet1/0;2001::1;test1
-	
+
+	Finding something in your IPAM :
+	[etienne@ARODEF subnet_tools]$ ./subnet-tools -ipamea EA-Vlan,EA-Site ipamfilter ./ipam-test 'EA-Vlan<4000'
+	prefix;EA-Vlan;EA-Site;
+	10.40.174.0/27;1948;Acheres;
 	
 CODING
 ======
