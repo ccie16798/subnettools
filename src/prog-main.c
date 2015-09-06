@@ -29,6 +29,7 @@
 #include "subnet_tool.h"
 #include "bgp_tool.h"
 #include "ipam.h"
+#include "st_memory.h"
 #include "prog-main.h"
 
 const char *default_fmt      = "%I;%m;%D;%G;%O#";
@@ -856,6 +857,7 @@ static int run_remove(int arc, char **argv, void *st_options) {
 		for (i = 0; i < n; i++)
 			st_printf("%P\n", r[i]);
 		free(r);
+		total_memory -= n * sizeof(struct subnet);
 		return 0;
 	} else  if (!strcasecmp(argv[2], "file")) {
 		res = load_netcsv_file(argv[3], &sf1, nof);
