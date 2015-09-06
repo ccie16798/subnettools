@@ -15,7 +15,6 @@
 #include "utils.h"
 #include "st_ea.h"
 
-
 int ea_size(struct ipam_ea *ea) {
 	if (ea->value == NULL)
 		return 0;
@@ -40,5 +39,18 @@ int ea_strdup(struct ipam_ea *ea, const char *value) {
 	total_memory += len;
 	ea->len = len;
 	return 1;
+}
+
+void free_ea(struct ipam_ea *ea, int n) {
+	int i;
+
+	for (i = 0; i < n; i++) {
+		total_memory -= ea_size(&ea[i]);
+		free(ea[i].value);
+		ea[i].value = NULL;
+		ea[i].len   = 0;
+	}
+	total_memory -= sizeof(struct ipam_ea) * n;
+	free(ea);
 }
 

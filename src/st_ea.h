@@ -15,5 +15,6 @@ int ea_size(struct ipam_ea *ea);
  **/
 int ea_strdup(struct ipam_ea *ea, const char *value);
 
+void free_ea(struct ipam_ea *ea, int n);
 #else
 #endif

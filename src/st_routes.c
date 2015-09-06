@@ -65,15 +65,7 @@ int clone_route(struct route *dest, const struct route *src) {
 }
 
 void free_route(struct route *r) {
-	int i;
-
-	for (i = 0; i < r->ea_nr; i++) {
-		total_memory -= ea_size(&r->ea[i]);
-		free(r->ea[i].value);
-		r->ea[i].value = NULL;
-	}
-	free(r->ea);
-	total_memory -= sizeof(struct ipam_ea) * r->ea_nr;
+	free_ea(r->ea, r->ea_nr);
 	r->ea = NULL;
 	r->ea_nr = 0;
 }

@@ -60,16 +60,7 @@ int alloc_ea(struct ipam_file *sf, int i) {
 }
 
 static void free_ipam_ea(struct ipam_line *ipam) {
-	int i;
-
-	for (i = 0; i < ipam->ea_nr; i++) {
-		total_memory -= ea_size(&ipam->ea[i]);
-		free(ipam->ea[i].value);
-		ipam->ea[i].value = NULL;
-		ipam->ea[i].len   = 0;
-	}
-	free(ipam->ea);
-	total_memory -= sizeof(struct ipam_ea) * ipam->ea_nr;
+	free_ea(ipam->ea, ipam->ea_nr);
 	ipam->ea    = NULL;
 	ipam->ea_nr = 0;
 }
