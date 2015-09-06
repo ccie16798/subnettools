@@ -11,6 +11,7 @@ information from it; subnettools has :
 - native IPv6 & IPv4 support
 - IPv4 & IPv6 address information (known subnet membership, decoding of embedded IPs like Teredo)
 - Powerfull pattern matching engine
+- route CSV files, bgp route CSV files, IPAM csv files
 
 Subnet arithmetic
 -----------------
@@ -35,7 +36,6 @@ Route file comparison
 - compare FILE1 FILE2 : compare FILE1 & FILE2, printing subnets in FILE1 INCLUDED in FILE2
 - missing FILE1 FILE2 : prints subnets from FILE1 that are not covered by FILE2; GW is not checked
 - uniq FILE1 FILE2    : prints unique subnets from FILE1 and FILE2
-- ipam <IPAM> FILE1   : load IPAM, and print FILE1 subnets with comment extracted from IPAM
 - common FILE1 FILE2  : merge CSV subnet files FILE1 & FILE2; prints common routes only; GW isn't checked
 - addfiles FILE1 FILE2: merge CSV subnet files FILE1 & FILE2; prints the sum of both files
 - grep FILE prefix    : grep FILE for prefix/mask
@@ -43,6 +43,13 @@ Route file comparison
 - filter help         : prints help about bgp filters
 - bgpfilter FILE EXPR : grep bgp_file FILE using regexp EXPR
 - bgpfilter help      : prints help about bgp filters
+
+IPAM tools
+----------
+- ipam <IPAM> FILE1   : load IPAM, and print FILE1 subnets with comment extracted from IPAM (legacy)
+- ipamfilter FILE EXPR: load IPAM, and filter using regexp EXPR
+- ipamprint FILE      : print IPAM; use option -ipamea to select Extended Attributes
+- getea <IPAM> FILE   : print FILE with Extended Attributes retrieved from IPAM
 
 Miscellaneous route file tools
 ------------------------------
