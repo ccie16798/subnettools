@@ -409,14 +409,14 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam) {
 	int has_comment = 0;
 
 	for (i = 0; i < sf->nr; i++) {
-		j = sf->routes[i].ea_nr;
 		/* allocating new EA and setting value to NULL */
-		sf->routes[i].ea = st_realloc(sf->routes[i].ea,
+		sf->routes[i].ea = st_realloc_nodebug(sf->routes[i].ea,
 				(sf->routes[i].ea_nr + ipam->ea_nr) * sizeof(struct ipam_ea),
 				sf->routes[i].ea_nr * sizeof(struct ipam_ea),
 				"routes EA");
 		if (sf->routes[i].ea == NULL)
 			return -1;
+		j = sf->routes[i].ea_nr;
 		sf->routes[i].ea_nr += ipam->ea_nr;
 		for (k = j; k < sf->routes[i].ea_nr; k++) {
 			sf->routes[i].ea[k].value = NULL;
@@ -467,7 +467,12 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam) {
 				}
 			}
 		}
-		sf->routes[i].ea_nr -= has_comment;
+		if (has_comment) {
+			sf->routes[i].ea = st_realloc_nodebug(sf->routes[i].ea,
+					(sf->routes[i].ea_nr - 1) * sizeof(struct ipam_ea),
+					sf->routes[i].ea_nr * sizeof(struct ipam_ea), "ipam ea");
+			sf->routes[i].ea_nr -= has_comment;
+		}
 	}
 	return 1;
 }
