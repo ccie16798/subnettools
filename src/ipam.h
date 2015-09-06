@@ -10,11 +10,6 @@
 #endif
 
 #include "st_handle_csv_files.h"
-struct  ipam_ea {
-	char *name;
-	char *value; /* value of EA; MUST be malloc'ed*/
-	int len;
-};
 
 struct ipam_line {
 	struct subnet subnet;
@@ -30,14 +25,7 @@ struct ipam_file {
 	int ea_nr; /* number of Extensible Attributes */
 	struct ipam_ea *ea;
 };
-/* return the malloc'd size of ea*/
-int ea_size(struct ipam_ea *ea);
 
-/* set value of 'ea' to 'value'
- * returns : 	-1 if no memory
- *		1  if SUCCESS
- **/
-int ea_strdup(struct ipam_ea *ea, const char *value);
 int alloc_ipam_file(struct ipam_file *sf, unsigned long n, int ea_nr);
 void free_ipam_file(struct ipam_file *sf);
 int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof);

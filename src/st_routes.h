@@ -2,7 +2,7 @@
 #define ST_ROUTE_H
 
 #include "iptools.h"
-#include "ipam.h"
+#include "st_ea.h"
 
 struct route {
 	struct subnet subnet;

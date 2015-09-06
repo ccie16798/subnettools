@@ -45,32 +45,6 @@ int alloc_ipam_file(struct ipam_file *sf, unsigned long n, int ea_nr) {
 	return 0;
 }
 
-int ea_size(struct ipam_ea *ea) {
-	if (ea->value == NULL)
-		return 0;
-	return ea->len;
-}
-
-int ea_strdup(struct ipam_ea *ea, const char *value) {
-	int len;
-
-	if (value == NULL) {
-		ea->len   = 0;
-		ea->value = NULL;
-		return 1;
-	}
-	len = strlen(value) + 1;
-	ea->value = malloc(len);
-	if (ea->value == NULL) {
-		ea->len = 0;
-		return -1;
-	}
-	strcpy(ea->value, value);
-	total_memory += len;
-	ea->len = len;
-	return 1;
-}
-
 int alloc_ea(struct ipam_file *sf, int i) {
 	struct ipam_ea *ea;
 	int j;
