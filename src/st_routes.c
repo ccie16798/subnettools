@@ -59,10 +59,7 @@ int clone_route(struct route *dest, const struct route *src) {
 	for (i = 0; i <	dest->ea_nr; i++) {
 		/* name IS not malloc'ed, only value */
 		dest->ea[i].name  = src->ea[i].name;
-		if (src->ea[i].value)
-			ea_strdup(&dest->ea[i], src->ea[i].value);
-		else
-			dest->ea[i].value = NULL;
+		ea_strdup(&dest->ea[i], src->ea[i].value);
 	}
 	return 1;
 }
