@@ -135,14 +135,16 @@ static int netcsv_endofline_callback(struct csv_state *state, void *data) {
 	}
 	sf->nr++;
 	if  (sf->nr == sf->max_nr) {
-		sf->max_nr *= 2;
-		if (sf->max_nr > SIZE_T_MAX / sizeof(struct route)) {
+		if (sf->max_nr * 2 > SIZE_T_MAX / sizeof(struct route)) {
 			fprintf(stderr, "error: too much memory requested for struct route\n");
 			return CSV_CATASTROPHIC_FAILURE;
 		}
-		new_r = st_realloc(sf->routes,  sizeof(struct route) * sf->max_nr, "struct route");
+		new_r = st_realloc(sf->routes, sizeof(struct route) * 2 * sf->max_nr,
+				sizeof(struct route) * sf->max_nr,
+				"struct route");
 		if (new_r == NULL)
 			return  CSV_CATASTROPHIC_FAILURE;
+		sf->max_nr *= 2;
 		sf->routes = new_r;
 	}
 	zero_route(&sf->routes[sf->nr]);
@@ -459,14 +461,16 @@ static int bgpcsv_endofline_callback(struct csv_state *state, void *data) {
 	}
 	sf->nr++;
 	if  (sf->nr == sf->max_nr) {
-		sf->max_nr *= 2;
-		if (sf->max_nr > SIZE_T_MAX / sizeof(struct bgp_route)) {
+		if (sf->max_nr * 2 > SIZE_T_MAX / sizeof(struct bgp_route)) {
 			fprintf(stderr, "error: too much memory requested for struct route\n");
 			return CSV_CATASTROPHIC_FAILURE;
 		}
-		new_r = st_realloc(sf->routes,  sizeof(struct bgp_route) * sf->max_nr, "bgp_route");
+		new_r = st_realloc(sf->routes, sizeof(struct bgp_route) * sf->max_nr * 2,
+				sizeof(struct bgp_route) * sf->max_nr,
+				"bgp_route");
 		if (new_r == NULL)
 			return  CSV_CATASTROPHIC_FAILURE;
+		sf->max_nr *= 2;
 		sf->routes = new_r;
 	}
 	zero_bgproute(&sf->routes[sf->nr]);

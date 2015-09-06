@@ -144,14 +144,15 @@ static int ipam_endofline_callback(struct csv_state *state, void *data) {
 	}
 	sf->nr++;
 	if  (sf->nr == sf->max_nr) {
-		sf->max_nr *= 2;
-		if (sf->max_nr > SIZE_T_MAX / sizeof(struct ipam_line)) {
+		if (sf->max_nr * 2 > SIZE_T_MAX / sizeof(struct ipam_line)) {
 			fprintf(stderr, "error: too much memory requested for struct ipam_line\n");
 			return CSV_CATASTROPHIC_FAILURE;
 		}
-		new_r = st_realloc(sf->lines,  sizeof(struct ipam_line) * sf->max_nr, "ipam line");
+		new_r = st_realloc(sf->lines,  sizeof(struct ipam_line) * sf->max_nr * 2,
+					sizeof(struct ipam_line) * sf->max_nr, "ipam line");
 		if (new_r == NULL)
 			return  CSV_CATASTROPHIC_FAILURE;
+		sf->max_nr *= 2;
 		sf->lines = new_r;
 	}
 	memset(&sf->lines[sf->nr], 0, sizeof(struct ipam_line));
@@ -410,13 +411,17 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam) {
 	for (i = 0; i < sf->nr; i++) {
 		j = sf->routes[i].ea_nr;
 		/* allocating new EA and setting value to NULL */
-		sf->routes[i].ea_nr += ipam->ea_nr;
 		sf->routes[i].ea = st_realloc(sf->routes[i].ea,
-				(sf->routes[i].ea_nr) * sizeof(struct ipam_ea), "routes EA");
+				(sf->routes[i].ea_nr + ipam->ea_nr) * sizeof(struct ipam_ea),
+				sf->routes[i].ea_nr * sizeof(struct ipam_ea),
+				"routes EA");
 		if (sf->routes[i].ea == NULL)
 			return -1;
-		for (k = j; k < sf->routes[i].ea_nr; k++)
+		sf->routes[i].ea_nr += ipam->ea_nr;
+		for (k = j; k < sf->routes[i].ea_nr; k++) {
 			sf->routes[i].ea[k].value = NULL;
+			sf->routes[i].ea[k].len   = 0;
+		}
 		found_mask = -1;
 		found_j    = 0;
 		for (j = 0; j < ipam->nr; j++) {

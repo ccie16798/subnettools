@@ -85,14 +85,16 @@ int addTAS_may_fail(TAS *tas, void *el) {
 	void **truc;
 
 	if (tas->nr == tas->max_nr - 1) {
-		tas->max_nr *= 2;
-		if (tas->max_nr >  (SIZE_T_MAX / sizeof(void *))) {
+		if (tas->max_nr * 2 >  (SIZE_T_MAX / sizeof(void *))) {
 			fprintf(stderr, "error: too much memory requested for heap\n");
 			return -1;
 		}
-		truc = st_realloc(tas->tab, sizeof(void *) * tas->max_nr, "heap");
+		truc = st_realloc(tas->tab, sizeof(void *) * tas->max_nr * 2,
+				sizeof(void *) * tas->max_nr,
+				 "heap");
 		if (truc == NULL)
 			return -1;
+		tas->max_nr *= 2;
 		tas->tab = truc;
 	}
 	addTAS(tas, el);

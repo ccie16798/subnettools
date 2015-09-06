@@ -681,11 +681,12 @@ int subnet_file_remove_subnet(const struct subnet_file *sf1, struct subnet_file 
 		}
 		/* realloc memory if necessary */
 		if (n + sf2->nr >= sf2->max_nr) {
-			sf2->max_nr *= 2;
-			new_r = st_realloc(sf2->routes,  sizeof(struct route) * sf2->max_nr, "struct route");
+			new_r = st_realloc(sf2->routes, sizeof(struct route) * sf2->max_nr * 2,
+					sizeof(struct route) * sf2->max_nr, "struct route");
 			if (new_r == NULL)
 				return -3;
 			sf2->routes = new_r;
+			sf2->max_nr *= 2;
 		}
 		for (res = 0; res < n; res++) {
 			clone_route(&sf2->routes[j], &sf1->routes[i]); /* copy comment, device ... */

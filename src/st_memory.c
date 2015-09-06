@@ -56,27 +56,27 @@ void *st_malloc(unsigned long n, const char *s) {
 	return ptr;
 }
 
-void *st_realloc(void *ptr, unsigned long n, const char *s) {
+void *st_realloc(void *ptr, unsigned long new, unsigned long old, const char *s) {
 	void *new_ptr;
 
-	new_ptr = realloc(ptr,  n);
+	new_ptr = realloc(ptr,  new);
 	if (new_ptr == NULL) {
-		if (n > 10 * 1024 * 1024)
+		if (new > 10 * 1024 * 1024)
 			fprintf(stderr, "Unable to reallocate %lu Mbytes for %s\n",
-					 n / (1024 * 1024), s);
-		else if (n > 10 * 1024)
-			fprintf(stderr, "Unable to reallocate %lu Kbytes for %s\n", n / 1024, s);
+					 new / (1024 * 1024), s);
+		else if (new > 10 * 1024)
+			fprintf(stderr, "Unable to reallocate %lu Kbytes for %s\n", new / 1024, s);
 		else
-			fprintf(stderr, "Unable to reallocate %lu bytes for %s\n", n, s);
+			fprintf(stderr, "Unable to reallocate %lu bytes for %s\n", new, s);
 		return  NULL;
 	}
-	total_memory += n/2; /* FIXME */
-	if (n > 10 * 1024 * 1024) {
-		debug(MEMORY, 3, "Reallocated %lu Mbytes for %s\n", n / (1024 * 1024), s);
-	} else if (n > 10 * 1024) {
-		debug(MEMORY, 3, "Reallocated %lu Kbytes for %s\n", n / 1024, s);
+	total_memory += (new - old);
+	if (new > 10 * 1024 * 1024) {
+		debug(MEMORY, 3, "Reallocated %lu Mbytes for %s\n", new / (1024 * 1024), s);
+	} else if (new > 10 * 1024) {
+		debug(MEMORY, 3, "Reallocated %lu Kbytes for %s\n", new / 1024, s);
 	} else {
-		debug(MEMORY, 3, "Reallocated %lu bytes for %s\n", n, s);
+		debug(MEMORY, 3, "Reallocated %lu bytes for %s\n", new, s);
 	}
 	return new_ptr;
 }
