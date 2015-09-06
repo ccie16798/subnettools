@@ -267,7 +267,7 @@ void usage() {
 	printf("-grep_field N   : grep field N only\n");
 	printf("-D <debug>      : DEBUG MODE ; use '%s -D help' for more info\n", PROG_NAME);
 	printf("-fmt            : change the output format (default :%s)\n", default_fmt);
-	printf("-V              : verbose mode; same as '-D all:1'\n\n");
+	printf("-V              : verbose mode; same as '-D all:1'\n");
 	printf("-VV             : more verbose mode; same as '-D all:1'\n\n");
 	printf("INPUT CSV format :=\n");
 	printf("- Input subnet/routes files SHOULD have a CSV header describing its structure (prefix, mask,, GW, comment, etc...)\n");
