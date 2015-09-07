@@ -24,6 +24,8 @@
 
 #define SIZE_T_MAX ((size_t)0 - 1)
 int alloc_subnet_file(struct subnet_file *sf, unsigned long n) {
+	int i;
+
 	if (n > SIZE_T_MAX / sizeof(struct route)) { /* being paranoid */
 		fprintf(stderr, "error: too much memory requested for struct route\n");
 		return -1;
@@ -32,6 +34,10 @@ int alloc_subnet_file(struct subnet_file *sf, unsigned long n) {
 	if (sf->routes == NULL) {
 		sf->nr = sf->max_nr = 0;
 		return -1;
+	}
+	for (i = 0; i < n; i++) {
+		sf->routes[i].ea    = NULL;
+		sf->routes[i].ea_nr = 0;
 	}
 	sf->nr = 0;
 	sf->max_nr = n;
