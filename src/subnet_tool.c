@@ -120,7 +120,8 @@ int uniq_routes(const struct subnet_file *sf1, const struct subnet_file *sf2, st
 		r = popTAS(&tas);
 		if (r == NULL)
 			break;
-		clone_route(&sf3->routes[i], r);
+		/* sf3 had not EA alloced, so dont use cloen_route */
+		clone_route_nofree(&sf3->routes[i], r);
 	}
 	sf3->nr = i;
 	free_tas(&tas);
@@ -150,7 +151,7 @@ int missing_routes(const struct subnet_file *sf1, const struct subnet_file *sf2,
 			}
 		}
 		if (find == 0) {
-			clone_route(&sf3->routes[k], &sf1->routes[i]);
+			clone_route_nofree(&sf3->routes[k], &sf1->routes[i]);
 			k++;
 		}
 	}
@@ -619,7 +620,7 @@ int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct
 		r = popTAS(&tas);
 		if (r == NULL)
 			break;
-		clone_route(&sf3->routes[i], r);
+		clone_route_nofree(&sf3->routes[i], r);
 	}
 	sf3->nr = i;
 	free_tas(&tas);
@@ -666,7 +667,7 @@ int subnet_file_remove_subnet(const struct subnet_file *sf1, struct subnet_file 
 	for (i = 0; i < sf1->nr; i++) {
 		res = subnet_compare(&sf1->routes[i].subnet, subnet);
 		if (res == NOMATCH || res == INCLUDED) {
-			clone_route(&sf2->routes[j],  &sf1->routes[i]);
+			clone_route_nofree(&sf2->routes[j],  &sf1->routes[i]);
 			j++;
 			st_debug(ADDRREMOVE, 4, "%P is not included in %P\n", *subnet, sf1->routes[i]);
 			continue;
@@ -689,7 +690,7 @@ int subnet_file_remove_subnet(const struct subnet_file *sf1, struct subnet_file 
 			sf2->max_nr *= 2;
 		}
 		for (res = 0; res < n; res++) {
-			clone_route(&sf2->routes[j], &sf1->routes[i]); /* copy comment, device ... */
+			clone_route_nofree(&sf2->routes[j], &sf1->routes[i]); /* copy comment, device ... */
 			copy_subnet(&sf2->routes[j].subnet, &r[res]);
 			j++;
 		}
