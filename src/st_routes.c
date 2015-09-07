@@ -61,6 +61,20 @@ int clone_route(struct route *dest, const struct route *src) {
 	return 1;
 }
 
+int clone_route_nofree(struct route *dest, const struct route *src) {
+	int i, res;
+
+	copy_route(dest, src);
+	res = alloc_route_ea(dest, src->ea_nr);
+	if (res < 0)
+		return res;
+	for (i = 0; i <	dest->ea_nr; i++) {
+		dest->ea[i].name  = src->ea[i].name;
+		ea_strdup(&dest->ea[i], src->ea[i].value);
+	}
+	return 1;
+}
+
 void free_route(struct route *r) {
 	free_ea_array(r->ea, r->ea_nr);
 	r->ea = NULL;
