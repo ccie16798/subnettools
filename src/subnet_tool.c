@@ -320,17 +320,17 @@ int network_grep_file(char *name, struct st_options *nof, char *ip) {
 				 switch (subnet_compare(&subnet,  &subnet1)) {
 					case EQUALS:
 						fprintf(nof->output_file, "%s", save_buffer);
-						debug(GREP, 1, "field %s line %lu equals\n",  s, line);
+						debug(GREP, 5, "field %s line %lu equals\n",  s, line);
 						do_compare = 2;
 						break;
 					case INCLUDES:
 						fprintf(nof->output_file, "%s", save_buffer);
-						debug(GREP, 1, "field %s line %lu includes\n",  s, line);
+						debug(GREP, 5, "field %s line %lu includes\n",  s, line);
 						do_compare = 2;
 						break;
 					case INCLUDED:
 						fprintf(nof->output_file, "%s", save_buffer);
-						debug(GREP, 1, "field %s line %lu included\n",  s, line);
+						debug(GREP, 5, "field %s line %lu included\n",  s, line);
 						do_compare = 2;
 						break;
 					default:
