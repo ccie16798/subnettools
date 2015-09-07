@@ -242,18 +242,18 @@ reg_test_ipamfilter() {
 	local output_file
 	local n
 
-	$PROG -ea EA-Site,EA-Vlan ipamfilter ipam-test "EA-Site=Acheres"  > res/ipamfilter1
-	$PROG -ea EA-Site,EA-Vlan ipamfilter ipam-test "EA-Vlan<4000"  > res/ipamfilter2
-	$PROG -ea EA-Vlan,EA-Name ipamfilter ipam-test "EA-Vlan>400"  > res/ipamfilter3
-	$PROG -ea EA-Vlan,EA-Name,EA-Site,comment ipamfilter ipam-test "comment~.*"  > res/ipamfilter4
-	$PROG -fmt "%20P;%20O0;%20O1;%20O2;%O3" -ea EA-Vlan,EA-Name,EA-Site,comment ipamfilter ipam-test "comment~.*"  > res/ipamfilter5
-	$PROG -ea comment,EA-Site,EA-Vlan getea ipam-test toto > res/ipamfilter6
-	$PROG -ea comment,EA-Site getea ipam-test toto > res/ipamfilter7
-	$PROG -ea EA-Site getea ipam-test toto > res/ipamfilter8
-	$PROG -fmt "%P;%O#" -ea EA-Site,EA-Vlan getea ipam-test toto  > res/ipamfilter9
-	$PROG -fmt "%P;%O1" -ea EA-Site,EA-Vlan getea ipam-test toto  > res/ipamfilter10
-	$PROG -fmt "%P;%O0" -ea EA-Site,EA-Vlan getea ipam-test toto  > res/ipamfilter11
-	$PROG -fmt "%P;%O10" -ea EA-Site,EA-Vlan getea ipam-test toto  > res/ipamfilter12
+	$PROG -c st.conf -ea EA-Site,EA-Vlan ipamfilter ipam-test "EA-Site=Acheres"  > res/ipamfilter1
+	$PROG -c st.conf -ea EA-Site,EA-Vlan ipamfilter ipam-test "EA-Vlan<4000"  > res/ipamfilter2
+	$PROG -c st.conf -ea EA-Vlan,EA-Name ipamfilter ipam-test "EA-Vlan>400"  > res/ipamfilter3
+	$PROG -c st.conf -ea EA-Vlan,EA-Name,EA-Site,comment ipamfilter ipam-test "comment~.*"  > res/ipamfilter4
+	$PROG -c st.conf -fmt "%20P;%20O0;%20O1;%20O2;%O3" -ea EA-Vlan,EA-Name,EA-Site,comment ipamfilter ipam-test "comment~.*"  > res/ipamfilter5
+	$PROG -c st.conf -ea comment,EA-Site,EA-Vlan getea ipam-test toto > res/ipamfilter6
+	$PROG -c st.conf -ea comment,EA-Site getea ipam-test toto > res/ipamfilter7
+	$PROG -c st.conf -ea EA-Site getea ipam-test toto > res/ipamfilter8
+	$PROG -c st.conf -fmt "%P;%O#" -ea EA-Site,EA-Vlan getea ipam-test toto  > res/ipamfilter9
+	$PROG -c st.conf -fmt "%P;%O1" -ea EA-Site,EA-Vlan getea ipam-test toto  > res/ipamfilter10
+	$PROG -c st.conf -fmt "%P;%O0" -ea EA-Site,EA-Vlan getea ipam-test toto  > res/ipamfilter11
+	$PROG -c st.conf -fmt "%P;%O10" -ea EA-Site,EA-Vlan getea ipam-test toto  > res/ipamfilter12
 	n=12
 	for i in `seq 1 $n`; do
 		output_file=ipamfilter$i
