@@ -388,6 +388,8 @@ static int run_print(int arc, char **argv, void *st_options) {
 
 	res = load_netcsv_file(argv[2], &sf, nof);
 	DIE_ON_BAD_FILE(argv[2]);
+	if (nof->print_header)
+		fprint_route_header(nof->output_file, &sf.routes[0], nof->output_fmt);
 	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
 	free_subnet_file(&sf);
 	return 0;
@@ -559,6 +561,8 @@ static int run_filter(int arc, char **argv, void *st_options) {
 		free_subnet_file(&sf);
 		return res;
 	}
+	if (nof->print_header)
+		fprint_route_header(nof->output_file, &sf.routes[0], nof->output_fmt);
 	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
 	free_subnet_file(&sf);
 	return 0;
@@ -587,6 +591,7 @@ static int run_bgp_filter(int arc, char **argv, void *st_options) {
 		free_bgp_file(&sf);
 		return res;
 	}
+	fprint_bgproute_fmt(nof->output_file, NULL, nof->bgp_output_fmt);
 	fprint_bgp_file(nof->output_file, &sf);
 	free_bgp_file(&sf);
 	return 0;
@@ -738,33 +743,37 @@ static int run_sort(int arc, char **argv, void *st_options) {
 		free_subnet_file(&sf);
 		return res;
 	}
+	if (nof->print_header)
+		fprint_route_header(nof->output_file, &sf.routes[0], nof->output_fmt);
 	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
 	free_subnet_file(&sf);
 	return 0;
 }
 
 static int run_sortby(int arc, char **argv, void *st_options) {
-	struct subnet_file sf1;
+	struct subnet_file sf;
 	int res;
-	struct st_options *o = st_options;
+	struct st_options *nof = st_options;
 
 	if (!strncmp(argv[2], "help", strlen(argv[2]))) {
 		subnet_available_cmpfunc(stderr);
 		return 0;
 	}
-	res = load_netcsv_file(argv[3], &sf1, st_options);
+	res = load_netcsv_file(argv[3], &sf, st_options);
 	DIE_ON_BAD_FILE(argv[3]);
 
-	res = subnet_sort_by(&sf1, argv[2]);
+	res = subnet_sort_by(&sf, argv[2]);
 	if (res == -1664) {
 		fprintf(stderr, "Cannot sort by '%s'\n", argv[2]);
 		fprintf(stderr, "You can sort by :\n");
-		free_subnet_file(&sf1);
+		free_subnet_file(&sf);
 		subnet_available_cmpfunc(stderr);
 		return res;
 	}
-	fprint_subnet_file(o->output_file, &sf1, 3);
-	free_subnet_file(&sf1);
+	if (nof->print_header)
+		fprint_route_header(nof->output_file, &sf.routes[0], nof->output_fmt);
+	fprint_subnet_file(nof->output_file, &sf, 3);
+	free_subnet_file(&sf);
 	return 0;
 }
 
