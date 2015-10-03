@@ -124,6 +124,7 @@ static int option_addr_compress(int argc, char **argv, void *st_options);
 static int option_fmt(int argc, char **argv, void *st_options);
 static int option_rt(int argc, char **argv, void *st_options);
 static int option_ecmp(int argc, char **argv, void *st_options);
+static int option_noheader(int argc, char **argv, void *st_options);
 
 struct st_command commands[] = {
 	{ "echo",	&run_echo,	2},
@@ -185,6 +186,8 @@ struct st_command options[] = {
 	{"-ipamea",	&option_ipam_ea,	1},
 	{"-ea",		&option_ipam_ea,	1},
 	{"-EA",		&option_ipam_ea,	1},
+	{"-noheader",	&option_noheader,	0},
+	{"-nh",		&option_noheader,	0},
 	{NULL, NULL, 0}
 };
 
@@ -264,6 +267,7 @@ void usage() {
 	printf("-o <file >      : write output in <file> \n");
 	printf("-rt		: when converting routing table, set route type as comment\n");
 	printf("-ecmp		: when converting routing table, print all routes in case of ECMP\n");
+	printf("-noheader|-nh	: dont print netcsv header file\n");
 	printf("-grep_field N   : grep field N only\n");
 	printf("-D <debug>      : DEBUG MODE ; use '%s -D help' for more info\n", PROG_NAME);
 	printf("-fmt            : change the output format (default :%s)\n", default_fmt);
@@ -1166,6 +1170,14 @@ static int option_ipam_ea(int argc, char **argv, void *st_options) {
 
 	strxcpy(nof->ipam_ea, argv[1], sizeof(nof->ipam_ea));
 	debug(PARSEOPTS, 3, "The following Ipam EA will be collected: '%s'\n", argv[1]);
+	return 0;
+}
+
+static int option_noheader(int argc, char **argv, void *st_options) {
+	struct st_options *nof = st_options;
+
+	nof->print_header = 0;
+	debug(PARSEOPTS, 3, "Netcsv header wont be printed\n");
 	return 0;
 }
 
