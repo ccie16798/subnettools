@@ -1191,8 +1191,9 @@ int main(int argc, char **argv) {
 	char conf_abs_path[256];
 
 	memset(&nof, 0 , sizeof(nof));
-	nof.output_file = stdout;
+	nof.output_file      = stdout;
 	nof.ip_compress_mode = 3; /* full IPv6 address compression  with IPv4 mapped/compatible support*/
+	nof.print_header     = 1;
 	allow_core_dumps();
 	res = generic_parse_options(argc, argv, PROG_NAME, &nof);
 	if (res < 0)
