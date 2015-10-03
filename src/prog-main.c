@@ -447,7 +447,7 @@ static int run_missing(int arc, char **argv, void *st_options) {
 	struct st_options *nof = st_options;
 
 	res = load_netcsv_file(argv[2], &sf1, nof);
-	DIE_ON_BAD_FILE(argv[3]);
+	DIE_ON_BAD_FILE(argv[2]);
 	res = load_netcsv_file(argv[3], &sf2, nof);
 	DIE_ON_BAD_FILE(argv[3]);
 
@@ -525,7 +525,8 @@ static int run_ipam_getea(int arc, char **argv, void *st_options) {
 		free_ipam_file(&ipam);
 		return 1;
 	}
-	fprint_route_header(nof->output_file, &sf.routes[0], nof->output_fmt);
+	if (nof->print_header)
+		fprint_route_header(nof->output_file, &sf.routes[0], nof->output_fmt);
 	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
 	free_subnet_file(&sf);
 	free_ipam_file(&ipam);
