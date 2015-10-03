@@ -1,1 +1,2 @@
+prefix;mask;device;GW;comment
 2001:db8::;32;Ethernet1/1;2001:1::1;test100

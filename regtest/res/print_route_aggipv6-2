@@ -1,3 +1,4 @@
+         prefix/mask : [prefix          - prefix] device: device GW : GW
        2000:1::/32 : [2000:1::        - 2000:1:ffff:ffff:ffff:ffff:ffff:ffff] device: eth0/1 GW : fe80::254
      2001:db8::/32 : [2001:db8::      - 2001:db8:ffff:ffff:ffff:ffff:ffff:ffff] device: eth0/2 GW : fe80::251
      2001:db9::/32 : [2001:db9::      - 2001:db9:ffff:ffff:ffff:ffff:ffff:ffff] device: eth0/1 GW : fe80::251
