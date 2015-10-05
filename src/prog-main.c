@@ -619,13 +619,13 @@ static int run_ipam_filter(int arc, char **argv, void *st_options) {
 	} else {
 		res = load_ipam(argv[2], &sf, nof);
 		DIE_ON_BAD_FILE(argv[2]);
+		fprint_ipam_header(nof->output_file, &sf.lines[0], nof->ipam_output_fmt);
 		res = ipam_file_filter(&sf, argv[3]);
 	}
 	if (res < 0) {
 		free_ipam_file(&sf);
 		return res;
 	}
-	fprint_ipam_header(nof->output_file, &sf.lines[0], nof->ipam_output_fmt);
 	fprint_ipam_file_fmt(nof->output_file, &sf, nof->ipam_output_fmt);
 	free_ipam_file(&sf);
 	return 0;
