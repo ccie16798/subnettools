@@ -1083,6 +1083,7 @@ static int option_delim(int argc, char **argv, void *st_options) {
 static int option_grepfield(int argc, char **argv, void *st_options) {
 	struct st_options *nof = st_options;
 	int a, res;
+
 	debug(PARSEOPTS, 3, "grepping only field %s\n", argv[1]);
 	if (!isUnsignedInt(argv[1])) {
 		fprintf(stderr, "invalid grep_field %s\n", argv[1]);
