@@ -1002,7 +1002,7 @@ static int run_bgpcmp(int arc, char **argv, void *st_options) {
 }
 
 static int run_bgpsortby(int arc, char **argv, void *st_options) {
-	struct bgp_file sf1;
+	struct bgp_file sf;
 	int res;
 	struct st_options *o = st_options;
 
@@ -1010,20 +1010,20 @@ static int run_bgpsortby(int arc, char **argv, void *st_options) {
 		bgp_available_cmpfunc(stderr);
 		return 0;
 	}
-	res = load_bgpcsv(argv[3], &sf1, st_options);
+	res = load_bgpcsv(argv[3], &sf, st_options);
 	DIE_ON_BAD_FILE(argv[3]);
 
-	res = bgp_sort_by(&sf1, argv[2]);
+	res = bgp_sort_by(&sf, argv[2]);
 	if (res == -1664) {
 		fprintf(stderr, "Cannot sort by '%s'\n", argv[2]);
 		fprintf(stderr, "You can sort by :\n");
 		bgp_available_cmpfunc(stderr);
-		free_bgp_file(&sf1);
+		free_bgp_file(&sf);
 		return res;
 	}
 	fprint_bgp_file_header(o->output_file);
-	fprint_bgp_file(o->output_file, &sf1);
-	free_bgp_file(&sf1);
+	fprint_bgp_file(o->output_file, &sf);
+	free_bgp_file(&sf);
 	return 0;
 }
 
