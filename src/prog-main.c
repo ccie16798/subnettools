@@ -1207,6 +1207,7 @@ int main(int argc, char **argv) {
 	nof.output_file      = stdout;
 	nof.ip_compress_mode = 3; /* full IPv6 address compression  with IPv4 mapped/compatible support*/
 	nof.print_header     = 1;
+	strcpy(nof.ipam_ea, "comment");
 	allow_core_dumps();
 	res = generic_parse_options(argc, argv, PROG_NAME, &nof);
 	if (res < 0)
