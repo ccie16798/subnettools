@@ -560,14 +560,14 @@ static int run_filter(int arc, char **argv, void *st_options) {
 	} else {
 		res = load_netcsv_file(argv[2], &sf, nof);
 		DIE_ON_BAD_FILE(argv[2]);
+		if (nof->print_header)
+			fprint_route_header(nof->output_file, &sf.routes[0], nof->output_fmt);
 		res = subnet_file_filter(&sf, argv[3]);
 	}
 	if (res < 0) {
 		free_subnet_file(&sf);
 		return res;
 	}
-	if (nof->print_header)
-		fprint_route_header(nof->output_file, &sf.routes[0], nof->output_fmt);
 	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
 	free_subnet_file(&sf);
 	return 0;
