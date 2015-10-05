@@ -216,12 +216,12 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof) {
 		register_csv_field(csv_field, s, 0, ipam_ea_handle);
 		s = strtok(NULL, ",");
 	}
-	debug(IPAM, 5, "Collected %d Extended Attributes\n", i);
 	if (i == 0) {
 		fprintf(stderr, "Please specify at least one Extended Attribute\n");
 		free(csv_field);
 		return -1;
 	}
+	debug(IPAM, 5, "Collected %d Extended Attributes\n", i);
 	res = alloc_ipam_file(sf, 16192, i);
 	if (res < 0) {
 		free(csv_field);
