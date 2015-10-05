@@ -455,6 +455,10 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam) {
 		k = 1;
 		if (found_mask == -1) {
 			for (j = 0; j < ipam->ea_nr; j++) {
+				/* 'comment' EA has a special treatment; it is included in struct route
+				 * by default as routes->ea[0]; so if we get 'comment' EA from ipam
+				 *  we need to overwrite it with IPAM value
+				 * and free some memory (we reserve 1 more struct ea) */
 				if (!strcasecmp(ipam->ea[j].name, "comment")) {
 					sf->routes[i].ea[0].name  = ipam->ea[j].name;
 					sf->routes[i].ea[0].value = NULL;
