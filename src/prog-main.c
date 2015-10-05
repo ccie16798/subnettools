@@ -1125,13 +1125,15 @@ static int option_config(int argc, char **argv, void *st_options) {
 
 static int option_addr_compress(int argc, char **argv, void *st_options) {
 	struct st_options *nof = st_options;
-	int a;
+	int a, res;
 
 	if (!isUnsignedInt(argv[1])) {
 		fprintf(stderr, "expected an unsigned int after option '-p', but got '%s'\n", argv[1]);
 		return 0;
 	}
-	a = atoi(argv[1]);
+	a = string2int(argv[1], &res);
+	if (res < 0)
+		return -1;
 	if (a < 0 || a > 3) {
 		fprintf(stderr, "out of bound value for option '-p', [0-3], got '%s'\n", argv[1]);
 		return 0;
