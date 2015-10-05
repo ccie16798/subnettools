@@ -163,6 +163,17 @@ static int ipam_endofline_callback(struct csv_state *state, void *data) {
 	return CSV_CONTINUE;
 }
 
+static int ipam_endoffile_callback(struct csv_state *state, void *data) {
+	struct ipam_file *sf = data;
+
+	if (sf->nr == 0) {
+		fprintf(stderr, "IPAM file %s has %lu lines, none is valid\n",
+				state->file_name, state->line);
+		return CSV_INVALID_FILE;
+	}
+	return CSV_VALID_FILE;
+}
+
 int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof) {
 	struct csv_field *csv_field;
 	struct csv_file cf;
@@ -176,6 +187,7 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof) {
 		return -1;
 	init_csv_file(&cf, name, csv_field, nof->ipam_delim, &simple_strtok_r);
 	cf.endofline_callback = ipam_endofline_callback;
+	cf.endoffile_callback = ipam_endoffile_callback;
 	init_csv_state(&state, name);
 
 	csv_field[0].name	 =  "address*";
