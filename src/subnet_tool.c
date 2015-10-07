@@ -35,7 +35,8 @@
  * compare 2 CSV files sf1 and sf1
  * prints sf1 subnets, and subnet from sf2 that are equals or included
  */
-void compare_files(struct subnet_file *sf1, struct subnet_file *sf2, struct st_options *nof) {
+void compare_files(struct subnet_file *sf1, struct subnet_file *sf2, struct st_options *nof)
+{
 	unsigned long i, j;
 	int res;
 	int find = 0;
@@ -59,13 +60,15 @@ void compare_files(struct subnet_file *sf1, struct subnet_file *sf2, struct st_o
 	}
 }
 
-static int __heap_subnet_is_superior(void *v1, void *v2) {
+static int __heap_subnet_is_superior(void *v1, void *v2)
+{
 	struct subnet *s1 = &((struct route *)v1)->subnet;
 	struct subnet *s2 = &((struct route *)v2)->subnet;
 	return subnet_is_superior(s1, s2);
 }
 
-static void __heap_print_subnet(void *v) {
+static void __heap_print_subnet(void *v)
+{
 	struct subnet *s = &((struct route*)v)->subnet;
 
 	st_printf("%P", *s);
@@ -73,7 +76,9 @@ static void __heap_print_subnet(void *v) {
 /*
  * get uniques routes from sf1 and sf2 INTO sf3
  **/
-int uniq_routes(const struct subnet_file *sf1, const struct subnet_file *sf2, struct subnet_file *sf3) {
+int uniq_routes(const struct subnet_file *sf1, const struct subnet_file *sf2,
+		struct subnet_file *sf3)
+{
 	unsigned long i, j;
 	int res, find;
 	TAS tas;
@@ -131,7 +136,9 @@ int uniq_routes(const struct subnet_file *sf1, const struct subnet_file *sf2, st
 /*
  * get routes from sf1 not covered by sf2 INTO sf3
  **/
-int missing_routes(const struct subnet_file *sf1, const struct subnet_file *sf2, struct subnet_file *sf3) {
+int missing_routes(const struct subnet_file *sf1, const struct subnet_file *sf2,
+		struct subnet_file *sf3)
+{
 	unsigned long i, j, k;
 	int res, find;
 	
@@ -162,7 +169,9 @@ int missing_routes(const struct subnet_file *sf1, const struct subnet_file *sf2,
 /*
  *  loop through sf1 and match against PAIP/ IPAM
  */
-void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *paip, struct st_options *nof) {
+void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *paip,
+		struct st_options *nof)
+{
 	int mask;
 	int res;
 	unsigned long i, j;
@@ -230,7 +239,8 @@ void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *
 	debug_timing_end(2);
 }
 
-int network_grep_file(char *name, struct st_options *nof, char *ip) {
+int network_grep_file(char *name, struct st_options *nof, char *ip)
+{
 	char *s;
 	char buffer[1024];
 	char save_buffer[1024];
@@ -353,7 +363,8 @@ int network_grep_file(char *name, struct st_options *nof, char *ip) {
  * simplify subnet file (removes redundant entries)
  * GW is not taken into account
  */
-int subnet_file_simplify(struct subnet_file *sf) {
+int subnet_file_simplify(struct subnet_file *sf)
+{
 	unsigned long i;
 	int  res;
 	TAS tas;
@@ -403,7 +414,8 @@ int subnet_file_simplify(struct subnet_file *sf) {
 /*
  * simply_route_file takes GW into account, must be equal
  */
-int route_file_simplify(struct subnet_file *sf,  int mode) {
+int route_file_simplify(struct subnet_file *sf,  int mode)
+{
 	unsigned long i, j, k, a;
 	int res, skip;
 	TAS tas;
@@ -487,7 +499,8 @@ int route_file_simplify(struct subnet_file *sf,  int mode) {
  * mode == 1 means we take the GW into acoount
  * mode == 0 means we dont take the GW into account
  */
-int aggregate_route_file(struct subnet_file *sf, int mode) {
+int aggregate_route_file(struct subnet_file *sf, int mode)
+{
 	unsigned long i, j;
 	int res;
 	struct subnet s;
@@ -567,7 +580,8 @@ int aggregate_route_file(struct subnet_file *sf, int mode) {
 }
 
 int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct subnet_file *sf2,
-		struct subnet_file *sf3) {
+		struct subnet_file *sf3)
+{
 	unsigned long  i, j, can_add;
 	int res;
 	struct route *r;
@@ -628,7 +642,8 @@ int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct
 	return 1;
 }
 
-unsigned long long sum_subnet_file(struct subnet_file *sf) {
+unsigned long long sum_subnet_file(struct subnet_file *sf)
+{
 	unsigned long i;
 	int res;
 	unsigned long long sum = 0;
@@ -705,7 +720,9 @@ int subnet_file_remove_subnet(const struct subnet_file *sf1, struct subnet_file 
  * subnets from sf3 are removed from sf1
  * result is stored in *sf2 BUGGED
  */
-int subnet_file_remove_file(struct subnet_file *sf1, struct subnet_file *sf2, const struct subnet_file *sf3) {
+int subnet_file_remove_file(struct subnet_file *sf1, struct subnet_file *sf2,
+		const struct subnet_file *sf3)
+{
 	unsigned long i;
 	int res;
 	struct subnet_file sf;
@@ -732,7 +749,8 @@ int subnet_file_remove_file(struct subnet_file *sf1, struct subnet_file *sf2, co
  * parse splits levels
  * levels are M,N,O like 2,4,8 meaning split in 2, then split the result in 4, then split the result in 8
  */
-static int split_parse_levels(char *s, int *levels) {
+static int split_parse_levels(char *s, int *levels)
+{ 
 	int i = 0, current = 0;
 	int n_levels = 0;
 
@@ -782,7 +800,8 @@ static int split_parse_levels(char *s, int *levels) {
 	return n_levels;
 }
 
-static int sum_log_to(int *level, int n, int max_n) {
+static int sum_log_to(int *level, int n, int max_n)
+{
 	int i, res = 0;
 
 	for (i = n; i < max_n; i++)
@@ -792,7 +811,8 @@ static int sum_log_to(int *level, int n, int max_n) {
 
 /* split subnet 's' 'string_levels' times
  * split n,m means split 's' n times, and each resulting subnet m times */
-int subnet_split(FILE *out, const struct subnet *s, char *string_levels) {
+int subnet_split(FILE *out, const struct subnet *s, char *string_levels)
+{
 	int k, res;
 	int levels[12];
 	int n_levels;
@@ -838,7 +858,8 @@ int subnet_split(FILE *out, const struct subnet *s, char *string_levels) {
  * levels are M,N,O like 24,28,30 meaning split in /24, then split the result in /28, then split the result in 
  * /30
  */
-static int split_parse_levels_2(char *s, int *levels) {
+static int split_parse_levels_2(char *s, int *levels)
+{
 	int i = 0, current = 0;
 	int n_levels = 0;
 
@@ -889,7 +910,8 @@ static int split_parse_levels_2(char *s, int *levels) {
 }
 
 /* split n,m means split 's' n times, and each resulting subnet m times */
-int subnet_split_2(FILE *out, const struct subnet *s, char *string_levels) {
+int subnet_split_2(FILE *out, const struct subnet *s, char *string_levels)
+{
 	unsigned long int i = 0;
 	int k, res;
 	int levels[12];
@@ -931,7 +953,8 @@ int subnet_split_2(FILE *out, const struct subnet *s, char *string_levels) {
 	return 1;
 }
 
-static int __heap_gw_is_superior(void *v1, void *v2) {
+static int __heap_gw_is_superior(void *v1, void *v2)
+{
 	struct subnet *s1 = &((struct route *)v1)->subnet;
 	struct subnet *s2 = &((struct route *)v2)->subnet;
 	struct ip_addr *gw1 = &((struct route *)v1)->gw;
@@ -943,7 +966,8 @@ static int __heap_gw_is_superior(void *v1, void *v2) {
 		return addr_is_superior(gw1, gw2);
 }
 
-static int __heap_mask_is_superior(void *v1, void *v2) {
+static int __heap_mask_is_superior(void *v1, void *v2)
+{
 	struct subnet *s1 = &((struct route *)v1)->subnet;
 	struct subnet *s2 = &((struct route *)v2)->subnet;
 
@@ -956,7 +980,8 @@ static int __heap_mask_is_superior(void *v1, void *v2) {
 /* sort a subnet file 'sf' with a custom cmp function
  *
  */
-static int __subnet_sort_by(struct subnet_file *sf, int cmpfunc(void *v1, void *v2)) {
+static int __subnet_sort_by(struct subnet_file *sf, int cmpfunc(void *v1, void *v2))
+{
 	unsigned long i;
 	int res;
 	TAS tas;
@@ -1004,7 +1029,8 @@ static const struct subnetsort subnetsort[] = {
 	{NULL,		NULL}
 };
 
-void subnet_available_cmpfunc(FILE *out) {
+void subnet_available_cmpfunc(FILE *out)
+{
 	int i = 0;
 
 	while (1) {
@@ -1015,7 +1041,8 @@ void subnet_available_cmpfunc(FILE *out) {
 	}
 }
 
-int subnet_sort_by(struct subnet_file *sf, char *name) {
+int subnet_sort_by(struct subnet_file *sf, char *name)
+{
 	int i = 0;
 
 	while (1) {
@@ -1028,7 +1055,8 @@ int subnet_sort_by(struct subnet_file *sf, char *name) {
 	return -1664;
 }
 
-int fprint_routefilter_help(FILE *out) {
+int fprint_routefilter_help(FILE *out)
+{
 
 	return fprintf(out, "Routes can be filtered on :\n"
 			" -prefix\n"
@@ -1054,7 +1082,8 @@ int fprint_routefilter_help(FILE *out) {
  * op     : the operator
  * object : a struct route; input string 's' will tell which field to test
  */
-static int route_filter(char *s, char *value, char op, void *object) {
+static int route_filter(char *s, char *value, char op, void *object)
+{
 	struct route *route = object;
 	struct subnet subnet;
 	int res;
@@ -1188,8 +1217,10 @@ static int route_filter(char *s, char *value, char op, void *object) {
  * 0  on SUCCESS
  * -1 on ERROR
  */
-int subnet_file_filter(struct subnet_file *sf, char *expr) {
-	int i, j, res, len;
+int subnet_file_filter(struct subnet_file *sf, char *expr)
+{
+	int i, j;
+	int res, len;
 	struct generic_expr e;
 	struct route *new_r;
 
