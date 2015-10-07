@@ -21,20 +21,24 @@
 /* 3 not used functions, commented to silence warnings
  * But i prefer to let them here
  *x/
-static inline void *father(TAS t, int n) {
+static inline void *father(TAS t, int n)
+{
 	return t.tab[(n - 1) / 2];
 }
-static inline void *leftSon(TAS t, int n) {
+static inline void *leftSon(TAS t, int n)
+{
 	return t.tab[2 * n + 1];
 }
-static inline void *rightSon(TAS t, int n) {
+static inline void *rightSon(TAS t, int n)
+{
 	return t.tab[2 * n + 2];
 }
 */
 #ifndef SIZE_T_MAX
 #define SIZE_T_MAX ((size_t)0 - 1)
 #endif
-int alloc_tas(TAS *tas, unsigned long n, int (*compare)(void *v1, void *v2)) {
+int alloc_tas(TAS *tas, unsigned long n, int (*compare)(void *v1, void *v2))
+{
 	if (n > (SIZE_T_MAX / sizeof(void *) - 1)) {
 		fprintf(stderr, "error: too much memory requested for heap\n");
 		tas->tab = NULL;
@@ -54,7 +58,8 @@ int alloc_tas(TAS *tas, unsigned long n, int (*compare)(void *v1, void *v2)) {
 	return 1;
 }
 
-void free_tas(TAS *tas) {
+void free_tas(TAS *tas)
+{
 	free(tas->tab);
 	total_memory -= tas->max_nr * sizeof(void *);
 	debug(MEMORY, 5, "Total memory: %lu\n", total_memory);
@@ -62,7 +67,8 @@ void free_tas(TAS *tas) {
 	tas->nr = tas->max_nr = 0;
 }
 
-void addTAS(TAS *tas, void *el) {
+void addTAS(TAS *tas, void *el)
+{
 	unsigned long n, n2;
 
 	n = tas->nr++;
@@ -81,7 +87,8 @@ void addTAS(TAS *tas, void *el) {
 	}
 }
 
-int addTAS_may_fail(TAS *tas, void *el) {
+int addTAS_may_fail(TAS *tas, void *el)
+{
 	void **truc;
 
 	if (tas->nr == tas->max_nr - 1) {
@@ -101,7 +108,8 @@ int addTAS_may_fail(TAS *tas, void *el) {
 	return 0;
 }
 
-void *popTAS(TAS *tas) {
+void *popTAS(TAS *tas)
+{
 	unsigned long n, i = 0, i2;
 	void *res = tas->tab[0];
 
@@ -139,7 +147,8 @@ void *popTAS(TAS *tas) {
 	return res;
 }
 
-void print_tas(TAS tas) {
+void print_tas(TAS tas)
+{
 	unsigned long i;
 
 	if (tas.print == NULL)
@@ -158,18 +167,21 @@ void print_tas(TAS tas) {
 	printf("\n");
 }
 #ifdef TEST_TAS
-static int compare_int(void *a, void *b) {
+static int compare_int(void *a, void *b)
+{
 	int a1, b1;
 	a1 = *((int *)a);
 	b1 = *((int *)b);
 	return (a1 < b1);
 }
 
-static void printint(void *i) {
+static void printint(void *i)
+{
 	printf("%d", *((int *)i));
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
 	TAS t;
 	int i;
 	int truc [] = {1008, 45, 56,76, 7 , 5, 8, 127, 129, 2, 5, 8, 8, 1, 2, 9, 25, 48 ,3, 2, 100, 200, 41, 50, 54, 67,88, 89, 101, 150, 123, 45, 67};
