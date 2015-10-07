@@ -21,7 +21,8 @@
 
 #define SIZE_T_MAX ((size_t)0 - 1)
 
-int fprint_bgp_route(FILE *output, struct bgp_route *route) {
+int fprint_bgp_route(FILE *output, struct bgp_route *route)
+{
 	return st_fprintf(output, "%d;%s;%s;%16P;%16a;%10d;%10d;%10d;     %c;%s\n",
 			route->valid,
 			(route->type == 'i' ? " iBGP" : " eBGP"),
@@ -32,25 +33,31 @@ int fprint_bgp_route(FILE *output, struct bgp_route *route) {
 			route->AS_PATH);
 }
 
-void fprint_bgp_file(FILE *output, struct bgp_file *bf) {
+void fprint_bgp_file(FILE *output, struct bgp_file *bf)
+{
 	int i = 0;
 
 	for (i = 0; i < bf->nr; i++)
 		fprint_bgp_route(output, &bf->routes[i]);
 }
-void fprint_bgp_file_header(FILE *out) {
+
+void fprint_bgp_file_header(FILE *out)
+{
 	fprintf(out, "V;Proto;BEST;          prefix;              GW;       MED;LOCAL_PREF;    WEIGHT;ORIGIN;AS_PATH;\n");
 }
 
-void copy_bgproute(struct bgp_route *a, const struct bgp_route *b) {
+void copy_bgproute(struct bgp_route *a, const struct bgp_route *b)
+{
 	memcpy(a, b, sizeof(struct bgp_route));
 }
 
-void zero_bgproute(struct bgp_route *a) {
+void zero_bgproute(struct bgp_route *a)
+{
 	memset(a, 0, sizeof(struct bgp_route));
 }
 
-int compare_bgp_file(const struct bgp_file *sf1, const struct bgp_file *sf2, struct st_options *o) {
+int compare_bgp_file(const struct bgp_file *sf1, const struct bgp_file *sf2, struct st_options *o)
+{
 	int i, j;
 	int found, changed, changed_j;
 
@@ -112,7 +119,8 @@ int compare_bgp_file(const struct bgp_file *sf1, const struct bgp_file *sf2, str
 	return 1;
 }
 
-int as_path_length(const char *s) {
+int as_path_length(const char *s)
+{
 	int i = 0;
 	int num = 0;
 	int in_confed = 0;
@@ -158,14 +166,16 @@ int as_path_length(const char *s) {
 	return num;
 }
 
-static int __heap_subnet_is_superior(void *v1, void *v2) {
+static int __heap_subnet_is_superior(void *v1, void *v2)
+{
 	struct subnet *s1 = &((struct bgp_route *)v1)->subnet;
 	struct subnet *s2 = &((struct bgp_route *)v2)->subnet;
 
 	return subnet_is_superior(s1, s2);
 }
 
-static int __heap_gw_is_superior(void *v1, void *v2) {
+static int __heap_gw_is_superior(void *v1, void *v2)
+{
 	struct subnet *s1 = &((struct bgp_route *)v1)->subnet;
 	struct subnet *s2 = &((struct bgp_route *)v2)->subnet;
 	struct ip_addr *gw1 = &((struct bgp_route *)v1)->gw;
@@ -177,7 +187,8 @@ static int __heap_gw_is_superior(void *v1, void *v2) {
 		return addr_is_superior(gw1, gw2);
 }
 
-static int __heap_med_is_superior(void *v1, void *v2) {
+static int __heap_med_is_superior(void *v1, void *v2)
+{
 	struct subnet *s1 = &((struct bgp_route *)v1)->subnet;
 	struct subnet *s2 = &((struct bgp_route *)v2)->subnet;
 	int MED1 = ((struct bgp_route *)v1)->MED;
@@ -189,7 +200,8 @@ static int __heap_med_is_superior(void *v1, void *v2) {
 		return (MED1 < MED2);
 }
 
-static int __heap_mask_is_superior(void *v1, void *v2) {
+static int __heap_mask_is_superior(void *v1, void *v2)
+{
 	struct subnet *s1 = &((struct bgp_route *)v1)->subnet;
 	struct subnet *s2 = &((struct bgp_route *)v2)->subnet;
 
@@ -199,7 +211,8 @@ static int __heap_mask_is_superior(void *v1, void *v2) {
 		return (s1->mask < s2->mask);
 }
 
-static int __heap_localpref_is_superior(void *v1, void *v2) {
+static int __heap_localpref_is_superior(void *v1, void *v2)
+{
 	struct subnet *s1 = &((struct bgp_route *)v1)->subnet;
 	struct subnet *s2 = &((struct bgp_route *)v2)->subnet;
 	int LOCAL_PREF1 = ((struct bgp_route *)v1)->LOCAL_PREF;
@@ -211,7 +224,8 @@ static int __heap_localpref_is_superior(void *v1, void *v2) {
 		return (LOCAL_PREF1 > LOCAL_PREF2);
 }
 
-static int __heap_aspath_is_superior(void *v1, void *v2) {
+static int __heap_aspath_is_superior(void *v1, void *v2)
+{
 	char *s1 = ((struct bgp_route *)v1)->AS_PATH;
 	char *s2 = ((struct bgp_route *)v2)->AS_PATH;
 	int l1, l2;
@@ -234,7 +248,8 @@ static int __heap_aspath_is_superior(void *v1, void *v2) {
 }
 
 
-static int __bgp_sort_by(struct bgp_file *sf, int cmpfunc(void *v1, void *v2)) {
+static int __bgp_sort_by(struct bgp_file *sf, int cmpfunc(void *v1, void *v2))
+{
 	unsigned long i;
 	TAS tas;
 	struct bgp_route *new_r, *r;
@@ -280,7 +295,8 @@ static const struct bgpsort bgpsort[] = {
 	{NULL,		NULL}
 };
 
-void bgp_available_cmpfunc(FILE *out) {
+void bgp_available_cmpfunc(FILE *out)
+{
 	int i = 0;
 
 	while (1) {
@@ -291,7 +307,8 @@ void bgp_available_cmpfunc(FILE *out) {
 	}
 }
 
-int bgp_sort_by(struct bgp_file *sf, char *name) {
+int bgp_sort_by(struct bgp_file *sf, char *name)
+{
 	int i = 0, res;
 
 	while (1) {
@@ -329,7 +346,8 @@ int bgp_sort_by(struct bgp_file *sf, char *name) {
 			return -1; \
 		} \
 
-int fprint_bgpfilter_help(FILE *out) {
+int fprint_bgpfilter_help(FILE *out)
+{
 
 	return fprintf(out, "BGP routes can be filtered on :\n"
 			" -prefix\n"
@@ -349,7 +367,8 @@ int fprint_bgpfilter_help(FILE *out) {
 }
 
 
-static int bgp_route_filter(char *s, char *value, char op, void *object) {
+static int bgp_route_filter(char *s, char *value, char op, void *object)
+{
 	struct bgp_route *route = object;
 	struct subnet subnet;
 	int res;
@@ -526,7 +545,8 @@ static int bgp_route_filter(char *s, char *value, char op, void *object) {
 	return 0;
 }
 
-int bgp_file_filter(struct bgp_file *sf, char *expr) {
+int bgp_file_filter(struct bgp_file *sf, char *expr)
+{
 	int i, j, res, len;
 	struct generic_expr e;
 	struct bgp_route *new_r;
