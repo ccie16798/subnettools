@@ -16,7 +16,8 @@
 #include "generic_csv.h"
 #include "utils.h"
 
-static int read_csv_header(char *filename, const char *buffer, struct csv_file *cf) {
+static int read_csv_header(char *filename, const char *buffer, struct csv_file *cf)
+{
 	int i, j;
 	char *s, *save_s;
 	int pos = 1;
@@ -103,7 +104,8 @@ static int read_csv_header(char *filename, const char *buffer, struct csv_file *
  */
 static int read_csv_body(FILE *f, char *name, struct csv_file *cf,
 		struct csv_state *state, void *data,
-		char *init_buffer) {
+		char *init_buffer)
+{
 	char buffer[1024];
 	struct csv_field *csv_field;
 	int i, res;
@@ -207,7 +209,8 @@ static int read_csv_body(FILE *f, char *name, struct csv_file *cf,
 	return res;
 }
 
-int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state* state, void *data) {
+int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state* state, void *data)
+{
 	FILE *f;
 	char buffer[1024];
 	char *s;
@@ -264,12 +267,14 @@ int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state* stat
 }
 
 /* strcmp could be inlined so we need this */
-int generic_header_cmp(const char *s1, const char *s2) {
+int generic_header_cmp(const char *s1, const char *s2)
+{
 	return strcmp(s1, s2);
 }
 
 void init_csv_file(struct csv_file *cf, char *file_name, struct csv_field *csv_field,
-		char *delim, char * (*func)(char *s, const char *delim, char **save_ptr)) {
+		char *delim, char * (*func)(char *s, const char *delim, char **save_ptr))
+{
 	if (cf == NULL)
 		return;
 	/* mandatory fields */
@@ -285,13 +290,15 @@ void init_csv_file(struct csv_file *cf, char *file_name, struct csv_field *csv_f
 	cf->header_field_compare = generic_header_cmp;
 }
 
-void init_csv_state(struct csv_state *cs, char *name) {
+void init_csv_state(struct csv_state *cs, char *name)
+{
 	memset(cs, 0, sizeof(struct csv_state));
 	cs->file_name = name;
 }
 
 int register_csv_field(struct csv_field *cf, char *name, int mandatory,
-	int (*handle)(char *token, void *data, struct csv_state *state)) {
+	int (*handle)(char *token, void *data, struct csv_state *state))
+{
 	int i = 0;
 
 	while (1) {
@@ -309,62 +316,3 @@ int register_csv_field(struct csv_field *cf, char *name, int mandatory,
 	}
 	return 0;
 }
-
-#ifdef GENERICCSV_TEST
-struct networks {
-	char net[100][25];
-	char mask[100][25];
-	int nr;
-} ;
-void print_networks(struct networks *n) {
-	int i;
-	for (i=0;i<n->nr;i++)
-		printf("%d : %s/%s\n", i, n->net[i], n->mask[i]);
-}
-int network_handle(char * token, void *data, struct csv_state *state) {
-	struct networks *n = data;
-	strcpy(n->net[n->nr], token);
-	if (!strcmp(token, "BAD"))
-		return INVALID_CSV_FIELD_BREAK;
-	return 1;
-}
-int mask_handle(char * token, void *data, struct csv_state *state) {
-	struct networks *n = data;
-	strcpy(n->mask[n->nr], token);
-	return 1;
-}
-int truc(struct csv_state *state, void *data) {
-	struct networks *n = data;
-	if (badline) {
-		printf("line bad\n");
-	}
-	else {
-		n->nr++;
-		printf("good\n");
-	}
-}
-
-int main(int argc, char **argv) {
-	FILE *f;
-	char buffer[51];
-
-	struct csv_field csv_field[] = {
-		{ "network", 0, 0 , 1, &network_handle },
-		{ "mask", 0, 0 , 1, &mask_handle },
-		{ NULL, 0,0,0, NULL }
-	};
-	struct csv_file cf ;
-	struct networks n;
-
-	n.nr = 0;
-	cf.csv_field = csv_field;
-	cf.endofline_callback = truc;
-	cf.delim = ";\n";
-	cf.is_header = NULL;
-	cf.strtok_r = &strtok_r;
-	parse_debug(argv[1]);
-	generic_load_csv(argv[2], &cf, &n);
-	print_networks(&n);
-}
-
-#endif
