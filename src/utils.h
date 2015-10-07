@@ -68,7 +68,8 @@ char *fgets_truncate_buffer(char *buffer, int size, FILE *stream, int *res);
  * Strings ARE NOT Nul-terminated
  */
 #define sprint_hex(__type) \
-static inline int  sprint_hex##__type(char *s, unsigned __type a) { \
+static inline int  sprint_hex##__type(char *s, unsigned __type a) \
+{ \
         char c[32]; \
         int j, i = 0; \
 \
@@ -86,7 +87,8 @@ static inline int  sprint_hex##__type(char *s, unsigned __type a) { \
 }
 
 #define sprint_unsigned(__type) \
-static inline int sprint_u##__type(char *s, unsigned __type a) { \
+static inline int sprint_u##__type(char *s, unsigned __type a) \
+{ \
 	char c[32]; \
 	int j, i = 0; \
 \
@@ -101,7 +103,8 @@ static inline int sprint_u##__type(char *s, unsigned __type a) { \
 }
 
 #define  sprint_signed(__type) \
-static inline int sprint_##__type (char *s, __type b) { \
+static inline int sprint_##__type (char *s, __type b) \
+{ \
 	char c[32]; \
 	int j, i = 0; \
 	unsigned __type a = b; \
@@ -124,7 +127,8 @@ static inline int sprint_##__type (char *s, __type b) { \
 }
 
 #define snprint_hex(__type) \
-static inline int  snprint_hex##__type(char *s, unsigned __type a, size_t __len) { \
+static inline int  snprint_hex##__type(char *s, unsigned __type a, size_t __len) \
+{ \
         char c[32]; \
         int j, i = 0; \
 \
@@ -142,7 +146,8 @@ static inline int  snprint_hex##__type(char *s, unsigned __type a, size_t __len)
 }
 
 #define snprint_unsigned(__type) \
-static inline int snprint_u##__type(char *s, unsigned __type a, size_t __len) { \
+static inline int snprint_u##__type(char *s, unsigned __type a, size_t __len) \
+{ \
 	char c[32]; \
 	int j, i = 0; \
 \
@@ -157,7 +162,8 @@ static inline int snprint_u##__type(char *s, unsigned __type a, size_t __len) { 
 }
 
 #define snprint_signed(__type) \
-static inline int snprint_##__type (char *s, __type b, size_t __len) { \
+static inline int snprint_##__type (char *s, __type b, size_t __len) \
+{ \
 	char c[32]; \
 	int j, i = 0; \
 	unsigned __type a = b; \
