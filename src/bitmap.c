@@ -8,13 +8,13 @@
  * under the terms of version 2 of the GNU General Public License
  * as published by the Free Software Foundation.
  */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "bitmap.h"
 
-void shift_right(MYTYPE *buffer, int len, int shift) {
+void shift_right(MYTYPE *buffer, int len, int shift)
+{
 	int shift1, shift2;
 	int i;
 	unsigned short reminder;
@@ -37,7 +37,8 @@ void shift_right(MYTYPE *buffer, int len, int shift) {
 	buffer[0] >>= shift2;
 }
 
-void shift_left(MYTYPE *buffer, int len, int shift) {
+void shift_left(MYTYPE *buffer, int len, int shift)
+{
 	int shift1, shift2;
 	int i;
 	unsigned short reminder;
@@ -59,7 +60,8 @@ void shift_left(MYTYPE *buffer, int len, int shift) {
 	buffer[len - 1] <<= shift2;
 }
 
-void print_bitmap(MYTYPE *buffer, int len) {
+void print_bitmap(MYTYPE *buffer, int len)
+{
 	int i;
 	int i1, i2;
 	int a;
@@ -72,7 +74,8 @@ void print_bitmap(MYTYPE *buffer, int len) {
 	printf("\n");
 }
 
-int sprint_bitmap(char *outbuf, MYTYPE *buffer, int len) {
+int sprint_bitmap(char *outbuf, MYTYPE *buffer, int len)
+{
 	int i;
 	int i1, i2;
 	int a, b = 0;
@@ -87,7 +90,8 @@ int sprint_bitmap(char *outbuf, MYTYPE *buffer, int len) {
 	return b;
 }
 
-void increase_bitmap(MYTYPE *buffer, int len) {
+void increase_bitmap(MYTYPE *buffer, int len)
+{
 	int i = len - 1;
 
 	for (  ; i >= 0; i--) {
@@ -100,7 +104,8 @@ void increase_bitmap(MYTYPE *buffer, int len) {
 		buffer[i]++;
 }
 
-void decrease_bitmap(MYTYPE *buffer, int len) {
+void decrease_bitmap(MYTYPE *buffer, int len)
+{
 	int i = len - 1;
 
 	for (  ; i >= 0; i--) {
@@ -113,7 +118,8 @@ void decrease_bitmap(MYTYPE *buffer, int len) {
 		buffer[i]--;
 }
 /*
-   int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
 	unsigned short  *buffer;
 	int i;
 	int len = strlen(argv[1])/2;
@@ -131,7 +137,5 @@ void decrease_bitmap(MYTYPE *buffer, int len) {
 	}
 	shift_right(buffer, len, atoi(argv[2]) );
 	print_bitmap(buffer, len);
-
-
 }
 */
