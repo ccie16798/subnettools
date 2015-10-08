@@ -669,7 +669,8 @@ unsigned long long sum_subnet_file(struct subnet_file *sf)
 /*
  * result is stored in *sf2
  */
-int subnet_file_remove_subnet(const struct subnet_file *sf1, struct subnet_file *sf2, const struct subnet *subnet) {
+int subnet_file_remove_subnet(const struct subnet_file *sf1, struct subnet_file *sf2,
+		const struct subnet *subnet) {
 	unsigned long i, j;
 	int res, n;
 	struct subnet *r;
@@ -1219,7 +1220,7 @@ static int route_filter(char *s, char *value, char op, void *object)
  */
 int subnet_file_filter(struct subnet_file *sf, char *expr)
 {
-	int i, j;
+	unsigned long i, j;
 	int res, len;
 	struct generic_expr e;
 	struct route *new_r;
@@ -1258,7 +1259,7 @@ int subnet_file_filter(struct subnet_file *sf, char *expr)
 	total_memory -= sf->max_nr * sizeof(struct route);
 	sf->routes = new_r;
 	sf->max_nr = sf->nr;
-	sf->nr = j;
+	sf->nr     = j;
 	debug_timing_end(2);
 	return 0;
 }
