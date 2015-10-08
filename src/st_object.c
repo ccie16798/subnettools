@@ -28,11 +28,13 @@ snprint_unsigned(int)
 snprint_unsigned(long)
 
 
-int sto_is_string(struct sto *o) {
+int sto_is_string(struct sto *o)
+{
 	return (o->type == 's' || o->type == 'S' || o->type == 'W' || o->type == '[');
 }
 
-int sto2string(char *s, const struct sto *o, size_t len, int comp_level) {
+int sto2string(char *s, const struct sto *o, size_t len, int comp_level)
+{
 	char buffer[128];
 	int res;
 
