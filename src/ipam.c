@@ -73,7 +73,7 @@ static void free_ipam_ea(struct ipam_line *ipam)
 
 void free_ipam_file(struct ipam_file *sf)
 {
-	int i;
+	unsigned long i;
 
 	for (i = 0; i < sf->nr; i++)
 		free_ipam_ea(&sf->lines[i]);
@@ -390,7 +390,8 @@ static int ipam_filter(char *s, char *value, char op, void *object)
 
 int ipam_file_filter(struct ipam_file *sf, char *expr)
 {
-	int i, j, res, len;
+	unsigned long i, j;
+	int res, len;
 	struct generic_expr e;
 	struct ipam_line *new_ipam;
 
@@ -435,7 +436,8 @@ int ipam_file_filter(struct ipam_file *sf, char *expr)
 
 int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 {
-	int i, j, k, res;
+	unsigned long i, j;
+	int k, res;
 	int found_mask, mask, found_j;
 	int has_comment = 0;
 
