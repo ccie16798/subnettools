@@ -1272,9 +1272,9 @@ end_nomatch:
 int st_vscanf(char *in, const char *fmt, va_list ap)
 {
 	int res;
-	struct sto o[40];
+	struct sto o[ST_VSCANF_MAX_OBJECTS];
 
-	res = sto_sscanf(in, fmt, o, 40);
+	res = sto_sscanf(in, fmt, o, ST_VSCANF_MAX_OBJECTS);
 	consume_valist_from_object(o, res, ap);
 	return res;
 }
