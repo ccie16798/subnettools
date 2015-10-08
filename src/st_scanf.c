@@ -36,7 +36,8 @@ struct expr {
 
 
 /* return the escaped char */
-static inline char escape_char(char input_c) {
+static inline char escape_char(char input_c)
+{
 	char c;
 
 	c = input_c;
@@ -56,7 +57,8 @@ static inline char escape_char(char input_c) {
 	return c;
 }
 
-static inline int is_multiple_char(char c) {
+static inline int is_multiple_char(char c)
+{
 	return (c == '*' || c == '+' || c == '?' || c == '{');
 }
 
@@ -64,7 +66,8 @@ static inline int is_multiple_char(char c) {
  * find the conversion specifier char after a '%'
  * (since it can the followed by a max_field_length)
  */
-static inline char conversion_specifier(const char *fmt) {
+static inline char conversion_specifier(const char *fmt)
+ {
 	int i = 0;
 
 	while (1) {
@@ -79,7 +82,8 @@ static inline char conversion_specifier(const char *fmt) {
 	return '\0';
 }
 
-static inline int max_match(char c) {
+static inline int max_match(char c)
+{
 	if (c == '*') return ST_STRING_INFINITY;
 	if (c == '+') return ST_STRING_INFINITY;
 	if (c == '?') return 1;
@@ -87,7 +91,8 @@ static inline int max_match(char c) {
 	return 0;
 }
 
-static inline int min_match(char c) {
+static inline int min_match(char c)
+{
 	if (c == '*') return 0;
 	if (c == '+') return 1;
 	if (c == '?') return 0;
@@ -102,7 +107,8 @@ static inline int min_match(char c) {
  * 	-1 if string is invalid
  * 	number of matched chars
  */
-static int parse_brace_multiplier(const char *s, int *min, int *max) {
+static int parse_brace_multiplier(const char *s, int *min, int *max)
+{
 	int i = 1;
 
 	*min = 0;
@@ -152,7 +158,8 @@ static int parse_brace_multiplier(const char *s, int *min, int *max) {
 /* count number of consersion specifier in an expr
  * doesnt validate CS are valid
  */
-static int count_cs(const char *expr) {
+static int count_cs(const char *expr)
+{
 	int i;
 	int n = 0;
 
@@ -171,23 +178,28 @@ static int count_cs(const char *expr) {
  * try to determine if the remaining chars match their type
  * for exemple, find_int will match on the first digit found
 */
-static int find_int(char *remain, struct expr *e) {
+static int find_int(char *remain, struct expr *e)
+{
 	return isdigit(*remain) || (*remain == '-' && isdigit(remain[1]));
 }
 
-static int find_uint(char *remain, struct expr *e) {
+static int find_uint(char *remain, struct expr *e)
+{
 	return isdigit(*remain);
 }
 
-static int find_word(char *remain, struct expr *e) {
+static int find_word(char *remain, struct expr *e)
+{
 	return isalpha(*remain);
 }
 
-static int find_string(char *remain, struct expr *e) {
+static int find_string(char *remain, struct expr *e)
+{
 	return !isspace(*remain);
 }
 
-static int find_hex(char *remain, struct expr *e) {
+static int find_hex(char *remain, struct expr *e)
+{
 	if (remain[0] == '0' && remain[1] == 'x' && isxdigit(remain[2]))
 		return 1;
 	return isxdigit(*remain);
@@ -195,9 +207,10 @@ static int find_hex(char *remain, struct expr *e) {
 
 /*
  * from fmt string starting with '[', fill expr with the range
- * a bit like strxpy_until, but not quite since a ']' is allowed right after the opeing '[' or a '^' if present
+ * a bit like strxpy_until, but not quite since a ']' is allowed right after the opening '[' or a '^' if present
  */
-static int fill_char_range(char *expr, const char *fmt, int n) {
+static int fill_char_range(char *expr, const char *fmt, int n)
+{
 	int i = 1;
 
 	/* to include a ']' in a range, it must be right after the opening ']' or after '^'
@@ -230,7 +243,8 @@ static int fill_char_range(char *expr, const char *fmt, int n) {
  *    0 if no match
  *    -1 if range is invalid
  */
-static int match_char_against_range(char c, const char *expr, int *i) {
+static int match_char_against_range(char c, const char *expr, int *i)
+{
 	int res = 0;
 	char low, high;
 	int invert = 0;
@@ -281,7 +295,8 @@ static int match_char_against_range(char c, const char *expr, int *i) {
    *i and *j are updated if a CS is found
 */
 static int parse_conversion_specifier(const char *in, const char *fmt,
-		int *i, int *j, struct sto *o) {
+		int *i, int *j, struct sto *o)
+{
 	int n_found = 0; /* number of CS found */
 	int i2, j2, res;
 	int max_field_length;
@@ -633,7 +648,8 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
  * return -1 if none found, the next expression if one is found
  * if expr = AB | CD | EF, expr_try_again will return '4' (index of the space char after '|')
  */
-static inline int expr_try_again(const char *expr) {
+static inline int expr_try_again(const char *expr)
+{
 	int i;
 
 	for (i = 0; ; i++) {
@@ -653,7 +669,8 @@ static inline int expr_try_again(const char *expr) {
  *
  * if 'expr' includes conversion specifiers, put the result in 'o' and update 'num_o'
  */
-static int match_expr_single(const char *expr, char *in, struct sto *o, int *num_o) {
+static int match_expr_single(const char *expr, char *in, struct sto *o, int *num_o)
+{
 	int i, j, res;
 	char c;
 	int saved_num_o = *num_o;
@@ -723,12 +740,14 @@ static int match_expr_single(const char *expr, char *in, struct sto *o, int *num
 			debug(SCANF, 4, "We have been given another chance, remaing expr '%s'\n", expr + i);
 	}
 }
+
 /* match expression 'e' against input buffer 'in'
  * will return :
  * 0 if it doesnt match (or if e->early_stop allows)
  * number of matched chars otherwise
  */
-static int match_expr(struct expr *e, char *in, struct sto *o, int *num_o) {
+static int match_expr(struct expr *e, char *in, struct sto *o, int *num_o)
+{
 	int res = 0;
 	int res2;
 	int saved_num_o = *num_o;
@@ -775,7 +794,8 @@ static int match_expr(struct expr *e, char *in, struct sto *o, int *num_o) {
 	return res;
 }
 
-static int find_not_ip(char *remain, struct expr *e) {
+static int find_not_ip(char *remain, struct expr *e)
+{
 	char buffer[64];
 	int i = 0;
 	struct subnet s;
@@ -797,7 +817,8 @@ static int find_not_ip(char *remain, struct expr *e) {
 		return 1;
 }
 
-static int find_ip(char *remain, struct expr *e) {
+static int find_ip(char *remain, struct expr *e)
+{
 	char buffer[64];
 	int i = 0;
 	struct subnet s;
@@ -817,7 +838,8 @@ static int find_ip(char *remain, struct expr *e) {
 		return 0;
 }
 
-static int find_classfull_subnet(char *remain, struct expr *e) {
+static int find_classfull_subnet(char *remain, struct expr *e)
+{
 	char buffer[64];
 	int i = 0;
 	struct subnet s;
@@ -837,7 +859,8 @@ static int find_classfull_subnet(char *remain, struct expr *e) {
 		return 0;
 }
 
-static int find_mask(char *remain, struct expr *e) {
+static int find_mask(char *remain, struct expr *e)
+{
 	int i = 0;
 	int res;
 
@@ -852,7 +875,8 @@ static int find_mask(char *remain, struct expr *e) {
 	return res;
 }
 
-static int find_expr(char *remain, struct expr *e) {
+static int find_expr(char *remain, struct expr *e)
+{
 	int i = 0;
 	int res;
 
@@ -861,7 +885,7 @@ static int find_expr(char *remain, struct expr *e) {
 }
 
 /*
- * parse_multiplier starts when fmt[*i] is a st_scanf multiplier char (*, +, ?, {a,b} )
+ * parse_multiplier starts when fmt[*i] is a st_scanf multiplier char (*, +, ?, {a,b})
  * it will try to consume as many bytes as possible from 'in' and put objects
  * found in a struct sto *
  * parse_multiplier updates offset into 'in', 'fmt', the number of objects found (n_found)
@@ -879,7 +903,8 @@ static int find_expr(char *remain, struct expr *e) {
  *
  */
 static int parse_multiplier(char *in, const char *fmt, int *i, int in_length, int *j, char *expr,
-			struct sto *o, int max_o, int *n_found) {
+			struct sto *o, int max_o, int *n_found)
+{
 
 	char c;
 	int res, k;
@@ -1090,7 +1115,8 @@ static int parse_multiplier(char *in, const char *fmt, int *i, int in_length, in
  * 	number of objects found
  * 	-1 if no match and no conversion specifier found
  */
-int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o) {
+int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o)
+{
 	int i, j;
 	int res;
 	int n_found;
@@ -1243,7 +1269,8 @@ end_nomatch:
 		return n_found;
 }
 
-int st_vscanf(char *in, const char *fmt, va_list ap) {
+int st_vscanf(char *in, const char *fmt, va_list ap)
+{
 	int res;
 	struct sto o[40];
 
@@ -1252,7 +1279,8 @@ int st_vscanf(char *in, const char *fmt, va_list ap) {
 	return res;
 }
 
-int st_sscanf(char *in, const char *fmt, ...) {
+int st_sscanf(char *in, const char *fmt, ...)
+{
 	va_list ap;
 	int ret;
 
