@@ -4,7 +4,8 @@
 #include "iptools.h"
 #include "st_printf.h"
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
 	int 		a1 = 1000;
 	unsigned 	a2 = 4000000000UL;
 	int 		a3 = 4000000000UL;
