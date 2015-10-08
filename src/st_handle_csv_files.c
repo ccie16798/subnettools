@@ -41,7 +41,7 @@ int alloc_subnet_file(struct subnet_file *sf, unsigned long n)
 
 void free_subnet_file(struct subnet_file *sf)
 {
-	int i;
+	unsigned long i;
 
 	for (i = 0; i < sf->nr; i++)
 		free_route(&sf->routes[i]);
