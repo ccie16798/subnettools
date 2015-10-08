@@ -15,13 +15,15 @@
 #include "utils.h"
 #include "st_ea.h"
 
-int ea_size(struct ipam_ea *ea) {
+int ea_size(struct ipam_ea *ea)
+{
 	if (ea->value == NULL)
 		return 0;
 	return ea->len;
 }
 
-int ea_strdup(struct ipam_ea *ea, const char *value) {
+int ea_strdup(struct ipam_ea *ea, const char *value)
+{
 	int len;
 
 	if (value == NULL) {
@@ -41,7 +43,8 @@ int ea_strdup(struct ipam_ea *ea, const char *value) {
 	return 1;
 }
 
-void free_ea_array(struct ipam_ea *ea, int n) {
+void free_ea_array(struct ipam_ea *ea, int n)
+{
 	int i;
 
 	for (i = 0; i < n; i++) {
@@ -54,7 +57,8 @@ void free_ea_array(struct ipam_ea *ea, int n) {
 	free(ea);
 }
 
-struct ipam_ea *alloc_ea_array(int n) {
+struct ipam_ea *alloc_ea_array(int n)
+{
 	int j;
 	struct ipam_ea *ea;
 
