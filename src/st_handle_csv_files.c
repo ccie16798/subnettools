@@ -23,7 +23,8 @@
 #include "st_handle_csv_files.h"
 
 #define SIZE_T_MAX ((size_t)0 - 1)
-int alloc_subnet_file(struct subnet_file *sf, unsigned long n) {
+int alloc_subnet_file(struct subnet_file *sf, unsigned long n)
+{
 	if (n > SIZE_T_MAX / sizeof(struct route)) { /* being paranoid */
 		fprintf(stderr, "error: too much memory requested for struct route\n");
 		return -1;
@@ -33,12 +34,13 @@ int alloc_subnet_file(struct subnet_file *sf, unsigned long n) {
 		sf->nr = sf->max_nr = 0;
 		return -1;
 	}
-	sf->nr = 0;
+	sf->nr     = 0;
 	sf->max_nr = n;
 	return 0;
 }
 
-void free_subnet_file(struct subnet_file *sf) {
+void free_subnet_file(struct subnet_file *sf)
+{
 	int i;
 
 	for (i = 0; i < sf->nr; i++)
@@ -49,7 +51,8 @@ void free_subnet_file(struct subnet_file *sf) {
 	sf->nr = sf->max_nr = 0;
 }
 
-static int netcsv_prefix_handle(char *s, void *data, struct csv_state *state) {
+static int netcsv_prefix_handle(char *s, void *data, struct csv_state *state)
+{
 	struct subnet_file *sf = data;
 	int res;
 	struct subnet subnet;
@@ -68,7 +71,8 @@ static int netcsv_prefix_handle(char *s, void *data, struct csv_state *state) {
 	return CSV_VALID_FIELD;
 }
 
-static int netcsv_mask_handle(char *s, void *data, struct csv_state *state) {
+static int netcsv_mask_handle(char *s, void *data, struct csv_state *state)
+{
 	struct subnet_file *sf = data;
 	int mask = string2mask(s, 21);
 
@@ -81,7 +85,8 @@ static int netcsv_mask_handle(char *s, void *data, struct csv_state *state) {
 	return CSV_VALID_FIELD;
 }
 
-static int netcsv_device_handle(char *s, void *data, struct csv_state *state) {
+static int netcsv_device_handle(char *s, void *data, struct csv_state *state)
+{
 	struct subnet_file *sf = data;
 
 	strxcpy(sf->routes[sf->nr].device, s, sizeof(sf->routes[sf->nr].device));
@@ -110,21 +115,24 @@ static int netcsv_GW_handle(char *s, void *data, struct csv_state *state) {
 	return CSV_VALID_FIELD;
 }
 
-static int netcsv_comment_handle(char *s, void *data, struct csv_state *state) {
+static int netcsv_comment_handle(char *s, void *data, struct csv_state *state)
+{
 	struct subnet_file *sf = data;
 
 	ea_strdup(&sf->routes[sf->nr].ea[0], s);
 	return CSV_VALID_FIELD;
 }
 
-static int netcsv_is_header(char *s) {
+static int netcsv_is_header(char *s)
+{
 	if (isalpha(s[0]))
 		return 1;
 	else
 		return 0;
 }
 
-static int netcsv_endofline_callback(struct csv_state *state, void *data) {
+static int netcsv_endofline_callback(struct csv_state *state, void *data)
+{
 	struct subnet_file *sf = data;
 	struct route *new_r;
 	int res;
@@ -156,7 +164,8 @@ static int netcsv_endofline_callback(struct csv_state *state, void *data) {
 	return CSV_CONTINUE;
 }
 
-static int netcsv_validate_header(struct csv_field *field) {
+static int netcsv_validate_header(struct csv_field *field)
+{
 	int i;
 	/* ENHANCE ME
 	 * we could check if ( (prefix AND mask) OR (prefix/mask) )
@@ -168,7 +177,8 @@ static int netcsv_validate_header(struct csv_field *field) {
 	return 1;
 }
 
-int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof) {
+int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
+{
 	/* default netcsv fields */
 	struct csv_field csv_field[] = {
 		{ "prefix"	, 0, 1, 1, &netcsv_prefix_handle },
@@ -219,7 +229,8 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 	return res;
 }
 
-static int ipam_comment_handle(char *s, void *data, struct csv_state *state) {
+static int ipam_comment_handle(char *s, void *data, struct csv_state *state)
+{
         struct  subnet_file *sf = data;
 
 	if (strlen(s) > 2)/* sometimes comment are fucked and a better one is in EA-Name */
@@ -227,7 +238,11 @@ static int ipam_comment_handle(char *s, void *data, struct csv_state *state) {
 	return CSV_VALID_FIELD;
 }
 
-int load_ipam_no_EA(char  *name, struct subnet_file *sf, struct st_options *nof) {
+/*
+ * legacy IPAM loading function
+ */
+int load_ipam_no_EA(char  *name, struct subnet_file *sf, struct st_options *nof)
+{
 	/*
 	 * default IPAM fields (Infoblox)
   	 * obviously if you have a different IPAM please describe it in the config file
@@ -277,7 +292,8 @@ int load_ipam_no_EA(char  *name, struct subnet_file *sf, struct st_options *nof)
 	return res;
 }
 
-int alloc_bgp_file(struct bgp_file *sf, unsigned long n) {
+int alloc_bgp_file(struct bgp_file *sf, unsigned long n)
+{
 	if (n > SIZE_T_MAX / sizeof(struct bgp_route)) { /* being paranoid */
 		fprintf(stderr, "error: too much memory requested for struct route\n");
 		return -1;
@@ -287,19 +303,21 @@ int alloc_bgp_file(struct bgp_file *sf, unsigned long n) {
 		sf->nr = sf->max_nr = 0;
 		return -1;
 	}
-	sf->nr = 0;
+	sf->nr     = 0;
 	sf->max_nr = n;
 	return 0;
 }
 
-void free_bgp_file(struct bgp_file *sf) {
+void free_bgp_file(struct bgp_file *sf)
+{
 	free(sf->routes);
 	total_memory -= sf->max_nr * sizeof(struct bgp_route);
 	sf->routes = NULL;
 	sf->nr = sf->max_nr = 0;
 }
 
-static int bgpcsv_prefix_handle(char *s, void *data, struct csv_state *state) {
+static int bgpcsv_prefix_handle(char *s, void *data, struct csv_state *state)
+{
 	struct bgp_file *sf = data;
 	int res, i = 0;
 	struct subnet subnet;
@@ -312,11 +330,11 @@ static int bgpcsv_prefix_handle(char *s, void *data, struct csv_state *state) {
 		return CSV_INVALID_FIELD_BREAK;
 	}
 	copy_subnet(&sf->routes[sf->nr].subnet,  &subnet);
-
 	return CSV_VALID_FIELD;
 }
 
-static int bgpcsv_GW_handle(char *s, void *data, struct csv_state *state) {
+static int bgpcsv_GW_handle(char *s, void *data, struct csv_state *state)
+{
 	struct bgp_file *sf = data;
 	struct ip_addr addr;
 	int res, i = 0;
@@ -333,7 +351,8 @@ static int bgpcsv_GW_handle(char *s, void *data, struct csv_state *state) {
 	return CSV_VALID_FIELD;
 }
 
-static int bgpcsv_med_handle(char *s, void *data, struct csv_state *state) {
+static int bgpcsv_med_handle(char *s, void *data, struct csv_state *state)
+{
 	struct bgp_file *sf = data;
 	int res = 0;
 	int i = 0;
@@ -353,7 +372,8 @@ static int bgpcsv_med_handle(char *s, void *data, struct csv_state *state) {
 	return CSV_VALID_FIELD;
 }
 
-static int bgpcsv_localpref_handle(char *s, void *data, struct csv_state *state) {
+static int bgpcsv_localpref_handle(char *s, void *data, struct csv_state *state)
+{
 	struct bgp_file *sf = data;
 	int res = 0;
 	int i = 0;
@@ -373,7 +393,8 @@ static int bgpcsv_localpref_handle(char *s, void *data, struct csv_state *state)
 	return CSV_VALID_FIELD;
 }
 
-static int bgpcsv_weight_handle(char *s, void *data, struct csv_state *state) {
+static int bgpcsv_weight_handle(char *s, void *data, struct csv_state *state)
+{
 	struct bgp_file *sf = data;
 	int res = 0;
 	int i = 0;
@@ -393,7 +414,8 @@ static int bgpcsv_weight_handle(char *s, void *data, struct csv_state *state) {
 	return CSV_VALID_FIELD;
 }
 
-static int bgpcsv_aspath_handle(char *s, void *data, struct csv_state *state) {
+static int bgpcsv_aspath_handle(char *s, void *data, struct csv_state *state)
+{
 	struct bgp_file *sf = data;
 
 	strxcpy(sf->routes[sf->nr].AS_PATH, s, sizeof(sf->routes[sf->nr].AS_PATH));
@@ -402,7 +424,8 @@ static int bgpcsv_aspath_handle(char *s, void *data, struct csv_state *state) {
 	return CSV_VALID_FIELD;
 }
 
-static int bgpcsv_best_handle(char *s, void *data, struct csv_state *state) {
+static int bgpcsv_best_handle(char *s, void *data, struct csv_state *state)
+{
 	struct bgp_file *sf = data;
 
 	while (isspace(*s))
@@ -414,7 +437,8 @@ static int bgpcsv_best_handle(char *s, void *data, struct csv_state *state) {
 	return CSV_VALID_FIELD;
 }
 
-static int bgpcsv_type_handle(char *s, void *data, struct csv_state *state) {
+static int bgpcsv_type_handle(char *s, void *data, struct csv_state *state)
+{
 	struct bgp_file *sf = data;
 
 	while (isspace(*s))
@@ -426,7 +450,8 @@ static int bgpcsv_type_handle(char *s, void *data, struct csv_state *state) {
 	return CSV_VALID_FIELD;
 }
 
-static int bgpcsv_origin_handle(char *s, void *data, struct csv_state *state) {
+static int bgpcsv_origin_handle(char *s, void *data, struct csv_state *state)
+{
 	struct bgp_file *sf = data;
 	int i = 0;
 
@@ -441,7 +466,8 @@ static int bgpcsv_origin_handle(char *s, void *data, struct csv_state *state) {
 	}
 }
 
-static int bgpcsv_valid_handle(char *s, void *data, struct csv_state *state) {
+static int bgpcsv_valid_handle(char *s, void *data, struct csv_state *state)
+{
 	struct bgp_file *sf = data;
 
 	if (!strcmp(s, "1"))
@@ -451,7 +477,8 @@ static int bgpcsv_valid_handle(char *s, void *data, struct csv_state *state) {
 	return CSV_VALID_FIELD;
 }
 
-static int bgpcsv_endofline_callback(struct csv_state *state, void *data) {
+static int bgpcsv_endofline_callback(struct csv_state *state, void *data)
+{
 	struct bgp_file *sf = data;
 	struct bgp_route *new_r;
 
@@ -477,7 +504,8 @@ static int bgpcsv_endofline_callback(struct csv_state *state, void *data) {
 	return CSV_CONTINUE;
 }
 
-static int bgp_field_compare(const char *s1, const char *s2) {
+static int bgp_field_compare(const char *s1, const char *s2)
+{
 	int i = 0;
 
 	while (isspace(s1[i]))
@@ -485,7 +513,8 @@ static int bgp_field_compare(const char *s1, const char *s2) {
 	return strcmp(s1 + i, s2);
 }
 
-int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof) {
+int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof)
+{
 	struct csv_field csv_field[] = {
 		{ "prefix"	, 0, 0, 1, &bgpcsv_prefix_handle },
 		{ "GW"		, 0, 0, 1, &bgpcsv_GW_handle },
