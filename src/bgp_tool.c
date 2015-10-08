@@ -35,7 +35,7 @@ int fprint_bgp_route(FILE *output, struct bgp_route *route)
 
 void fprint_bgp_file(FILE *output, struct bgp_file *bf)
 {
-	int i = 0;
+	unsigned long i = 0;
 
 	for (i = 0; i < bf->nr; i++)
 		fprint_bgp_route(output, &bf->routes[i]);
@@ -58,7 +58,7 @@ void zero_bgproute(struct bgp_route *a)
 
 int compare_bgp_file(const struct bgp_file *sf1, const struct bgp_file *sf2, struct st_options *o)
 {
-	int i, j;
+	unsigned long i, j;
 	int found, changed, changed_j;
 
 	debug(BGPCMP, 6, "file1 : %ld routes, file2 : %ld routes\n", sf1->nr, sf2->nr);
@@ -547,7 +547,8 @@ static int bgp_route_filter(char *s, char *value, char op, void *object)
 
 int bgp_file_filter(struct bgp_file *sf, char *expr)
 {
-	int i, j, res, len;
+	unsigned long i, j;
+	int res, len;
 	struct generic_expr e;
 	struct bgp_route *new_r;
 
