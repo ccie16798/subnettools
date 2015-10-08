@@ -17,6 +17,8 @@ int isUnsignedInt(const char *s)
 {
 	int i;
 
+	if (*s == '\0')
+		return 0;
 	for (i = 0; i < strlen(s); i++) {
 		if (!isdigit(s[i]))
 			return 0;
@@ -27,6 +29,9 @@ int isUnsignedInt(const char *s)
 int isInt(const char *s)
 {
 	int i;
+
+	if (*s == '\0')
+		return 0;
 	if (*s != '-' && !isdigit(*s))
 		return 0;
 	for (i = 1; i < strlen(s); i++) {
