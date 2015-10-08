@@ -14,7 +14,8 @@
 
 unsigned long total_memory = 0;
 
-void *st_malloc_nodebug(unsigned long n, const char *s) {
+void *st_malloc_nodebug(unsigned long n, const char *s)
+{
 	void *ptr;
 
 	ptr = malloc(n);
@@ -31,7 +32,8 @@ void *st_malloc_nodebug(unsigned long n, const char *s) {
 	return ptr;
 }
 
-void *st_malloc(unsigned long n, const char *s) {
+void *st_malloc(unsigned long n, const char *s)
+{
 	void *ptr;
 
 	ptr = malloc(n);
@@ -56,7 +58,8 @@ void *st_malloc(unsigned long n, const char *s) {
 	return ptr;
 }
 
-void *st_realloc(void *ptr, unsigned long new, unsigned long old, const char *s) {
+void *st_realloc(void *ptr, unsigned long new, unsigned long old, const char *s)
+{
 	void *new_ptr;
 
 	new_ptr = realloc(ptr,  new);
@@ -81,7 +84,8 @@ void *st_realloc(void *ptr, unsigned long new, unsigned long old, const char *s)
 	return new_ptr;
 }
 
-void *st_realloc_nodebug(void *ptr, unsigned long new, unsigned long old, const char *s) {
+void *st_realloc_nodebug(void *ptr, unsigned long new, unsigned long old, const char *s)
+{
 	void *new_ptr;
 
 	new_ptr = realloc(ptr,  new);
@@ -99,7 +103,8 @@ void *st_realloc_nodebug(void *ptr, unsigned long new, unsigned long old, const 
 	return new_ptr;
 }
 
-char *st_strdup(const char *s) {
+char *st_strdup(const char *s)
+{
 	char *broumf;
 	int n;
 
@@ -117,7 +122,8 @@ char *st_strdup(const char *s) {
 	return broumf;
 }
 
-void st_free_string(char *s) {
+void st_free_string(char *s)
+{
 	if (s == NULL)
 		return;
 	total_memory -= (strlen(s) + 1);

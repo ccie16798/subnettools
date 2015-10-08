@@ -109,7 +109,8 @@ sprint_unsigned(long)
 		break; \
 	}
 
-void fprint_route(FILE *output, const struct route *r, int compress_level) {
+void fprint_route(FILE *output, const struct route *r, int compress_level)
+{
 	char buffer[52];
 	char buffer2[52];
 	int i;
@@ -121,7 +122,8 @@ void fprint_route(FILE *output, const struct route *r, int compress_level) {
 		fprintf(output, "%s%c", r->ea[i].value, (i == r->ea_nr -1 ? '\n' : ';'));
 }
 
-static void inline pad_n(char *s, int n, char c) {
+static void inline pad_n(char *s, int n, char c)
+{
 	int i;
 	for (i = 0; i < n; i++)
 		s[i] = c;
@@ -134,7 +136,8 @@ static void inline pad_n(char *s, int n, char c) {
  * 'out' wont have a terminating Nul-byte
  */
 static inline int pad_buffer_out(char *out, size_t len, const char *buffer, size_t buff_size,
-		int field_width, int pad_left, char c) {
+		int field_width, int pad_left, char c)
+{
 	int res;
 
 	debug(FMT, 7, "Padding : len=%d, buff_size=%d, field_width=%d\n", (int)len, (int)buff_size, field_width);
@@ -176,9 +179,10 @@ static inline int pad_buffer_out(char *out, size_t len, const char *buffer, size
 		j += res; \
 		break; \
 	}
-/* a very specialized function to print a struct ipam */
- /* a very specialized function to print a struct route */
-static int __fprint_route_fmt(FILE *output, const struct route *r, const char *fmt, int header) {
+
+/* a very specialized function to print a struct route */
+static int __fprint_route_fmt(FILE *output, const struct route *r, const char *fmt, int header)
+{
 	int i, j, i2, compression_level;
 	int res, pad_left, ea_num;
 	char c;
@@ -342,7 +346,7 @@ static int __fprint_route_fmt(FILE *output, const struct route *r, const char *f
 						i++;
 					}
 					if (ea_num >= r->ea_nr) {
-						debug(FMT, 3, "Invalid Extended Attribute number #%d, max %d\n",							 ea_num, r->ea_nr);
+						debug(FMT, 3, "Invalid Extended Attribute number #%d, max %d\n", ea_num, r->ea_nr);
 						break;
 					}
 					if (header)
@@ -378,16 +382,19 @@ static int __fprint_route_fmt(FILE *output, const struct route *r, const char *f
 	return fputs(outbuf, output);
 }
 
-int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt) {
+int fprint_route_fmt(FILE *output, const struct route *r, const char *fmt)
+{
 	return __fprint_route_fmt(output, r, fmt, 0);
 }
 
-int fprint_route_header(FILE *output, const struct route *r, const char *fmt) {
+int fprint_route_header(FILE *output, const struct route *r, const char *fmt)
+{
 	return __fprint_route_fmt(output, r, fmt, 1);
 }
 
 static int __fprint_ipam_fmt(FILE *output, const struct ipam_line *r,
-		const char *fmt, int header) {
+		const char *fmt, int header)
+{
 	int i, j, i2, compression_level;
 	int res, pad_left;
 	char c;
@@ -507,7 +514,7 @@ static int __fprint_ipam_fmt(FILE *output, const struct ipam_line *r,
 						i++;
 					}
 					if (ea_num >= r->ea_nr) {
-						debug(FMT, 3, "Invalid Extended Attribute number #%d, max %d\n",							 ea_num, r->ea_nr);
+						debug(FMT, 3, "Invalid Extended Attribute number #%d, max %d\n", ea_num, r->ea_nr);
 						break;
 					}
 					if (header)
@@ -537,11 +544,13 @@ static int __fprint_ipam_fmt(FILE *output, const struct ipam_line *r,
 	return fputs(outbuf, output);
 }
 
-int fprint_ipam_fmt(FILE *output, const struct ipam_line *r, const char *fmt) {
+int fprint_ipam_fmt(FILE *output, const struct ipam_line *r, const char *fmt)
+{
 	return __fprint_ipam_fmt(output, r, fmt, 0);
 }
 
-int fprint_ipam_header(FILE *output, const struct ipam_line *r, const char *fmt) {
+int fprint_ipam_header(FILE *output, const struct ipam_line *r, const char *fmt)
+{
 	int i, a = 0;
 
 	if (strlen(fmt) < 2) {
@@ -553,9 +562,10 @@ int fprint_ipam_header(FILE *output, const struct ipam_line *r, const char *fmt)
 	}
 	return __fprint_ipam_fmt(output, r, fmt, 1);
 }
-/*
- * a very specialized function to print a struct bgp_route */
-int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt) {
+
+/* a very specialized function to print a struct bgp_route */
+int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt)
+{
 	int i, j, i2, compression_level;
 	int res, pad_left;
 	char c;
@@ -733,7 +743,8 @@ int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt
  * sadly a lot of code if common with fprint_route_fmt
  * But this cannot really be avoided
  */
-static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, struct sto *o, int max_o)  {
+static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, struct sto *o, int max_o)
+{
 	int i, j, i2, compression_level;
 	int res;
 	char c;
@@ -974,7 +985,8 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 	return j;
 }
 
-int st_snprintf(char *out, size_t len, const char *fmt, ...) {
+int st_snprintf(char *out, size_t len, const char *fmt, ...)
+{
 	va_list ap;
 	int ret;
 
@@ -984,7 +996,8 @@ int st_snprintf(char *out, size_t len, const char *fmt, ...) {
 	return ret;
 }
 
-int st_fprintf(FILE *f, const char *fmt, ...) {
+int st_fprintf(FILE *f, const char *fmt, ...)
+{
 	char buffer[ST_VSPRINTF_BUFFER_SIZE];
 	va_list ap;
 
@@ -994,7 +1007,8 @@ int st_fprintf(FILE *f, const char *fmt, ...) {
 	return fputs(buffer, f);
 }
 
-int st_printf(const char *fmt, ...) {
+int st_printf(const char *fmt, ...)
+{
 	char buffer[ST_VSPRINTF_BUFFER_SIZE];
 	va_list ap;
 
@@ -1004,7 +1018,8 @@ int st_printf(const char *fmt, ...) {
 	return fputs(buffer, stdout);
 }
 
-int sto_snprintf(char *out, size_t len, const char *fmt, struct sto *o, int max_o, ...) {
+int sto_snprintf(char *out, size_t len, const char *fmt, struct sto *o, int max_o, ...)
+{
 	va_list ap;
 	int ret;
 
@@ -1014,7 +1029,8 @@ int sto_snprintf(char *out, size_t len, const char *fmt, struct sto *o, int max_
 	return ret;
 }
 
-int sto_fprintf(FILE *f, const char *fmt, struct sto *o, int max_o, ...) {
+int sto_fprintf(FILE *f, const char *fmt, struct sto *o, int max_o, ...)
+{
 	char buffer[ST_VSPRINTF_BUFFER_SIZE];
 	va_list ap;
 
@@ -1024,7 +1040,8 @@ int sto_fprintf(FILE *f, const char *fmt, struct sto *o, int max_o, ...) {
 	return fprintf(f, "%s", buffer);
 }
 
-void sto_printf(const char *fmt, struct sto *o, int max_o, ...) {
+void sto_printf(const char *fmt, struct sto *o, int max_o, ...)
+{
 	char buffer[ST_VSPRINTF_BUFFER_SIZE];
 	va_list ap;
 
@@ -1034,37 +1051,43 @@ void sto_printf(const char *fmt, struct sto *o, int max_o, ...) {
 	printf("%s", buffer);
 }
 
-void fprint_subnet_file(FILE *output, const struct subnet_file *sf, int compress_level) {
+void fprint_subnet_file(FILE *output, const struct subnet_file *sf, int compress_level)
+{
 	unsigned long i;
 
 	for (i = 0; i < sf->nr; i++)
 		fprint_route(output, &sf->routes[i], compress_level);
 }
 
-void fprint_subnet_file_fmt(FILE *output, const struct subnet_file *sf, const char *fmt) {
+void fprint_subnet_file_fmt(FILE *output, const struct subnet_file *sf, const char *fmt)
+{
 	unsigned long i;
 
 	for (i = 0; i < sf->nr; i++)
 		fprint_route_fmt(output, &sf->routes[i], fmt);
 }
 
-void print_subnet_file(const struct subnet_file *sf, int compress_level) {
+void print_subnet_file(const struct subnet_file *sf, int compress_level)
+{
 	fprint_subnet_file(stdout, sf, compress_level);
 }
 
-void fprint_bgp_file_fmt(FILE *output, const struct bgp_file *sf, const char *fmt) {
+void fprint_bgp_file_fmt(FILE *output, const struct bgp_file *sf, const char *fmt)
+{
 	unsigned long i;
 
 	for (i = 0; i < sf->nr; i++)
 		fprint_bgproute_fmt(output, &sf->routes[i], fmt);
 }
 
-void print_bgp_file_fmt(const struct bgp_file *sf, const char *fmt) {
+void print_bgp_file_fmt(const struct bgp_file *sf, const char *fmt)
+{
 	fprint_bgp_file_fmt(stdout, sf, fmt);
 }
 
-static void fprint_ipam_file(FILE *out, const struct ipam_file *sf) {
-	int i, j;
+static void fprint_ipam_file(FILE *out, const struct ipam_file *sf)
+{
+	unsigned long i, j;
 
 	for (i = 0; i < sf->nr; i++) {
 		st_fprintf(out, "%P;", sf->lines[i].subnet);
@@ -1074,7 +1097,8 @@ static void fprint_ipam_file(FILE *out, const struct ipam_file *sf) {
 	}
 }
 
-void fprint_ipam_file_fmt(FILE *output, const struct ipam_file *sf, const char *fmt) {
+void fprint_ipam_file_fmt(FILE *output, const struct ipam_file *sf, const char *fmt)
+{
 	unsigned long i;
 
 	/* if user didnt provide a fmt, just use the simple fprint_ipam_file */
@@ -1084,6 +1108,7 @@ void fprint_ipam_file_fmt(FILE *output, const struct ipam_file *sf, const char *
 		fprint_ipam_fmt(output, &sf->lines[i], fmt);
 }
 
-void print_ipam_file_fmt(const struct ipam_file *sf, const char *fmt) {
+void print_ipam_file_fmt(const struct ipam_file *sf, const char *fmt)
+{
 	fprint_ipam_file_fmt(stdout, sf, fmt);
 }

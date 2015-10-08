@@ -40,7 +40,8 @@ char debugs_level [__D_MAX];
 struct timeval tv_start[10]; /* nested timer values (10 levels max) */
 int num_times = 0;
 
-void list_debugs() {
+void list_debugs()
+{
 	int i;
 	char *zorglub;
 
@@ -52,14 +53,16 @@ void list_debugs() {
 	}
 }
 
-void debug_timing_start(int level) {
+void debug_timing_start(int level)
+{
 	if (debugs_level[__D_TIMING] < level || num_times == 10)
 		return;
 	gettimeofday(&tv_start[num_times], NULL);
 	num_times++;
 }
 
-void __debug_timing_end(const char *s, int level) {
+void __debug_timing_end(const char *s, int level)
+{
 	struct timeval tv_end;
 	time_t sec, msec;
 
@@ -78,7 +81,8 @@ void __debug_timing_end(const char *s, int level) {
 	fprintf(stderr, "%s : elapsed time %lu sec %lu millisec\n", s, sec, msec);
 }
 
-void parse_debug(char *string) {
+void parse_debug(char *string)
+{
 	int i, len;
 	char *s, *save_s1;
 	char s2[52];
@@ -111,7 +115,8 @@ void parse_debug(char *string) {
 	} while (s);
 } 
 
-char  try_to_guess_delim(FILE *f) {
+char  try_to_guess_delim(FILE *f)
+{
 	char try[] = ",;/| &#-";
 	int count[16];
 	int i, j;

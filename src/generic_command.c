@@ -29,7 +29,8 @@ static void enough_args(int argc, int value, char *com, char *progname) {
 extern struct st_command commands[];
 extern struct st_command options[];
 
-int generic_command_run(int argc, char **argv, char *progname, void *opt) {
+int generic_command_run(int argc, char **argv, char *progname, void *opt)
+{
 	int i, res;
 	int found = 0, found_i = 0;
 	int founds[MAX_AMBIGUOUS];
@@ -88,7 +89,8 @@ int generic_command_run(int argc, char **argv, char *progname, void *opt) {
  *  new_argv = argv + offset
  *  new_argc = argc - offset
  */
-int generic_parse_options(int argc, char **argv, char *progname, void *opt) {
+int generic_parse_options(int argc, char **argv, char *progname, void *opt)
+{
 	int i, res, loop = 1;
 	int a = 1;
 

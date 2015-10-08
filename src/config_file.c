@@ -14,7 +14,8 @@
 #include "utils.h"
 #include "config_file.h"
 
-int open_config_file(char *name, void *nof) {
+int open_config_file(char *name, void *nof)
+{
 	FILE *f;
 	char buffer[1024];
 	char *s;
@@ -94,7 +95,8 @@ int open_config_file(char *name, void *nof) {
 	return 0;
 }
 
-void config_file_describe() {
+void config_file_describe()
+{
 	int i;
 	char *s;
 
@@ -109,7 +111,8 @@ void config_file_describe() {
 	}
 }
 #ifdef TEST_CONFIGFILE
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
 	struct st_options opt;
 	debugs_level[__D_CONFIGFILE] = 6;
 	open_config_file("st.conf", &opt);

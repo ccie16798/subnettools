@@ -22,19 +22,23 @@
 
 sprint_hex(short)
 
-inline int is_ip_char(char c) {
+inline int is_ip_char(char c)
+{
 	return isxdigit(c) || c == ':' || c == '.';
 }
 
-inline void copy_ipaddr(struct ip_addr *a, const struct ip_addr *b) {
+inline void copy_ipaddr(struct ip_addr *a, const struct ip_addr *b)
+{
 	memcpy(a, b, sizeof(struct ip_addr));
 }
 
-inline void copy_subnet(struct subnet *a, const struct subnet *b) {
+inline void copy_subnet(struct subnet *a, const struct subnet *b)
+{
 	memcpy(a, b, sizeof(struct subnet));
 }
 
-inline void zero_ipaddr(struct ip_addr *a) {
+inline void zero_ipaddr(struct ip_addr *a)
+{
 	memset(a, 0, sizeof(struct ip_addr));
 }
 /*
@@ -45,7 +49,8 @@ inline void zero_ipaddr(struct ip_addr *a) {
  * EQUALS   if  sub1 equals sub2
  * -1 otherwise
  */
-int subnet_compare(const struct subnet *sub1, const struct subnet *sub2) {
+int subnet_compare(const struct subnet *sub1, const struct subnet *sub2)
+{
 	if (sub1->ip_ver != sub2->ip_ver) {
 		debug(ADDRCOMP, 1, "different address FAMILY : %d, %d\n", sub1->ip_ver, sub2->ip_ver);
 		return -1;
@@ -58,7 +63,8 @@ int subnet_compare(const struct subnet *sub1, const struct subnet *sub2) {
 	return -1;
 }
 
-int is_equal_ipv6(ipv6 ip1, ipv6 ip2) {
+int is_equal_ipv6(ipv6 ip1, ipv6 ip2)
+{
 	int i;
 
 	for (i = 0; i < 4; i++)
@@ -67,7 +73,8 @@ int is_equal_ipv6(ipv6 ip1, ipv6 ip2) {
 	return 1;
 }
 
-int is_equal_ip(struct ip_addr *ip1, struct ip_addr *ip2) {
+int is_equal_ip(struct ip_addr *ip1, struct ip_addr *ip2)
+{
 	if (ip1->ip_ver != ip2->ip_ver)
 		return 0;
 	if (ip1->ip_ver == IPV4_A && ip1->ip == ip2->ip)
@@ -77,30 +84,35 @@ int is_equal_ip(struct ip_addr *ip1, struct ip_addr *ip2) {
 	return 0;
 }
 
-int ipv6_is_link_local(ipv6 a) {
+int ipv6_is_link_local(ipv6 a)
+{
 	unsigned short x = block(a, 0);
 /* link_local address is FE80::/10 */
 	return ((x >> 6) == (0xFE80 >> 6));
 }
 
-int ipv6_is_global(ipv6 a) {
+int ipv6_is_global(ipv6 a)
+{
 	unsigned short x = block(a, 0);
 /* global address is 2000::/3 */
 	return ((x >> 13) == (0x2000 >> 13));
 }
 
-int ipv6_is_ula(ipv6 a) {
+int ipv6_is_ula(ipv6 a)
+{
 	unsigned short x = block(a, 0);
 /* ula address is FC00::/7 */
 	return ((x >> 9)  == (0xFC00 >> 9));
 }
 
-int ipv6_is_multicast(ipv6 a) {
+int ipv6_is_multicast(ipv6 a)
+{
 	/* IPv6 Multicast is FF00/8 */
 	return ((block(a, 0) >> 8) == (0xFF00 >> 8));
 }
 
-int subnet_compare_ipv6(ipv6 ip1, u32 mask1, ipv6 ip2, u32 mask2) {
+int subnet_compare_ipv6(ipv6 ip1, u32 mask1, ipv6 ip2, u32 mask2)
+{
 	if (mask1 > mask2) {
 		shift_ipv6_right(ip1, (128 - mask2));
 		shift_ipv6_right(ip2, (128 - mask2));
@@ -129,7 +141,8 @@ int subnet_compare_ipv6(ipv6 ip1, u32 mask1, ipv6 ip2, u32 mask2) {
         }
 }
 
-int subnet_compare_ipv4(ipv4 prefix1, u32 mask1, ipv4 prefix2, u32 mask2) {
+int subnet_compare_ipv4(ipv4 prefix1, u32 mask1, ipv4 prefix2, u32 mask2)
+{
 	ipv4 a, b;
 
 	if (mask1 > mask2) {
@@ -156,7 +169,8 @@ int subnet_compare_ipv4(ipv4 prefix1, u32 mask1, ipv4 prefix2, u32 mask2) {
 	}
 }
 
-int addrv42str(ipv4 z, char *out_buffer, size_t len) {
+int addrv42str(ipv4 z, char *out_buffer, size_t len)
+{
 	unsigned int a, b, c, d;
 
 	/*
@@ -184,7 +198,8 @@ int addrv42str(ipv4 z, char *out_buffer, size_t len) {
  * compress = 2 ==> FULL compression but doesnt convert Embedded IPv4
  * compress = 3 ==> FULL compression and convert Embedded IPv4
  */
-int addrv62str(ipv6 z, char *out_buffer, size_t len, int compress) {
+int addrv62str(ipv6 z, char *out_buffer, size_t len, int compress)
+{
 	int a, i, j;
 	int skip = 0, max_skip = 0;
 	int skip_index = 0, max_skip_index = 0;
@@ -272,7 +287,8 @@ int addrv62str(ipv6 z, char *out_buffer, size_t len, int compress) {
 }
 
 /* outbuffer must be large enough **/
-int subnet2str(const struct subnet *s, char *out_buffer, size_t len, int comp_level) {
+int subnet2str(const struct subnet *s, char *out_buffer, size_t len, int comp_level)
+{
 	if (s->ip_ver == IPV4_A)
 		return addrv42str(s->ip, out_buffer, len);
 	if (s->ip_ver == IPV6_A)
@@ -282,7 +298,8 @@ int subnet2str(const struct subnet *s, char *out_buffer, size_t len, int comp_le
 }
 
 /* outbuffer must be large enough **/
-int addr2str(const struct ip_addr *a, char *out_buffer, size_t len, int comp_level) {
+int addr2str(const struct ip_addr *a, char *out_buffer, size_t len, int comp_level)
+{
 	if (a->ip_ver == IPV4_A)
 		return addrv42str(a->ip, out_buffer, len);
 	if (a->ip_ver == IPV6_A)
@@ -291,7 +308,8 @@ int addr2str(const struct ip_addr *a, char *out_buffer, size_t len, int comp_lev
 	return -1;
 }
 /* IPv4 only, mask to Dot Decimal Notation */
-int mask2ddn(u32 mask, char *out, size_t len) {
+int mask2ddn(u32 mask, char *out, size_t len)
+{
 	int i;
 	unsigned int s[4];
 
@@ -310,7 +328,8 @@ int mask2ddn(u32 mask, char *out, size_t len) {
 	return  sprintf(out, "%d.%d.%d.%d", s[0], s[1], s[2], s[3]);
 }
 
-int string2mask(const char *s, int len) {
+int string2mask(const char *s, int len)
+{
 	int i = 0, ddn_mask = 0;
 	u32 a = 0, prev_a = 0;
 	int count_dot = 0;
@@ -407,7 +426,8 @@ int string2mask(const char *s, int len) {
 	return ddn_mask;
 }
 
-static int string2addrv4(const char *s, struct ip_addr *addr, int len) {
+static int string2addrv4(const char *s, struct ip_addr *addr, int len)
+{
 	int i;
 	int count_dot = 0;
 	int truc[4];
@@ -467,7 +487,8 @@ static int string2addrv4(const char *s, struct ip_addr *addr, int len) {
 	return IPV4_A;
 }
 
-static int string2addrv6(const char *s, struct ip_addr *addr, int len) {
+static int string2addrv6(const char *s, struct ip_addr *addr, int len)
+{
 	int i, j, k;
 	int do_skip = 0;
 	int out_i = 0;
@@ -623,7 +644,8 @@ static int string2addrv6(const char *s, struct ip_addr *addr, int len) {
 	return IPV6_A;
 }
 
-int string2addr(const char *s, struct ip_addr *addr, int len) {
+int string2addr(const char *s, struct ip_addr *addr, int len)
+{
 	int i;
 	int may_ipv4 = 0, may_ipv6 = 0;
 
@@ -663,7 +685,8 @@ int string2addr(const char *s, struct ip_addr *addr, int len) {
  *    IPV6_N : IPv6 +  mask
  *    BAD_IP, BAD_MASK on error
  */
-int get_subnet_or_ip(const char *s, struct subnet *subnet) {
+int get_subnet_or_ip(const char *s, struct subnet *subnet)
+{
 	int i, a;
 	u32 mask;
 	int count_slash = 0;
@@ -711,7 +734,8 @@ int get_subnet_or_ip(const char *s, struct subnet *subnet) {
 }
 
 
-int ipv4_get_classfull_mask(const struct subnet *s) {
+int ipv4_get_classfull_mask(const struct subnet *s)
+{
 	if (s->ip == 0)
 		return 0;
 	if ((s->ip >> 31) == 0)
@@ -731,7 +755,8 @@ int ipv4_get_classfull_mask(const struct subnet *s) {
  * or sh ip bgp will not print the mask in case of a classfull subnet
  * thanks CISCO for keeping that 1980's crap into our memories ...
  * ... */
-int classfull_get_subnet(const char *s, struct subnet *subnet) {
+int classfull_get_subnet(const char *s, struct subnet *subnet)
+{
 	int truc[4];
 	int i;
 	u32 mask = 0;
@@ -818,7 +843,8 @@ int classfull_get_subnet(const char *s, struct subnet *subnet) {
 	return IPV4_N;
 }
 
-int addr_is_superior(const struct ip_addr *ip1, const struct ip_addr *ip2) {
+int addr_is_superior(const struct ip_addr *ip1, const struct ip_addr *ip2)
+{
 	int i, res;
 
 	if (ip1->ip_ver != ip2->ip_ver) {
@@ -844,7 +870,8 @@ int addr_is_superior(const struct ip_addr *ip1, const struct ip_addr *ip2) {
 	return -1;
 }
 
-int subnet_is_superior(const struct subnet *s1, const struct subnet *s2) {
+int subnet_is_superior(const struct subnet *s1, const struct subnet *s2)
+{
 	int i, res;
 
 	if (s1->ip_ver != s2->ip_ver) {
@@ -892,7 +919,8 @@ int subnet_is_superior(const struct subnet *s1, const struct subnet *s2) {
 
 /* try to aggregate s1 & s2, putting the result in s3 if possible
  * returns negative if impossible to aggregate, positive if possible */
-static int aggregate_subnet_ipv4(const struct subnet *s1, const struct subnet *s2, struct subnet *s3) {
+static int aggregate_subnet_ipv4(const struct subnet *s1, const struct subnet *s2, struct subnet *s3)
+{
 	ipv4 a, b;
 
 	if (s1->mask != s2->mask) {
@@ -919,7 +947,8 @@ static int aggregate_subnet_ipv4(const struct subnet *s1, const struct subnet *s
 	return 1;
 }
 
-static int aggregate_subnet_ipv6(const struct subnet *s1, const struct subnet *s2, struct subnet *s3) {
+static int aggregate_subnet_ipv6(const struct subnet *s1, const struct subnet *s2, struct subnet *s3)
+{
 	ipv6 a, b;
 
 	if (s1->mask != s2->mask) {
@@ -949,7 +978,8 @@ static int aggregate_subnet_ipv6(const struct subnet *s1, const struct subnet *s
 	return 1;
 }
 
-int aggregate_subnet(const struct subnet *s1, const struct subnet *s2, struct subnet *s3) {
+int aggregate_subnet(const struct subnet *s1, const struct subnet *s2, struct subnet *s3)
+{
 	if (s1->ip_ver != s2->ip_ver)
 		return -4;
 
@@ -960,7 +990,9 @@ int aggregate_subnet(const struct subnet *s1, const struct subnet *s2, struct su
 	return -3;
 }
 
-void first_ip(struct subnet *s) {
+/* network address of a prefix; named first_ip becoz in IPv6 ... well network address is a regular address  */
+void first_ip(struct subnet *s)
+{
 	if (s->ip_ver == IPV4_A) {
 		s->ip >>= (32 - s->mask);
 		s->ip <<= (32 - s->mask);
@@ -970,7 +1002,9 @@ void first_ip(struct subnet *s) {
 	}
 }
 
-void last_ip(struct subnet *s) {
+/* broadcast address of a prefix; except broadcast doesnt exist in IPv6 :) */
+void last_ip(struct subnet *s)
+{
 	int i, j;
 
 	if (s->ip_ver == IPV4_A) {
@@ -984,7 +1018,8 @@ void last_ip(struct subnet *s) {
 	}
 }
 
-void next_subnet(struct subnet *s) {
+void next_subnet(struct subnet *s)
+{
 	if (s->ip_ver == IPV4_A) {
 		s->ip >>= (32 - s->mask);
 		s->ip += 1;
@@ -996,7 +1031,8 @@ void next_subnet(struct subnet *s) {
 	}
 }
 
-void previous_subnet(struct subnet *s) {
+void previous_subnet(struct subnet *s)
+{
 	if (s->ip_ver == IPV4_A) {
 		s->ip >>= (32 - s->mask);
 		s->ip -= 1;
@@ -1008,7 +1044,8 @@ void previous_subnet(struct subnet *s) {
 	}
 }
 
-int can_decrease_mask(const struct subnet *s) {
+int can_decrease_mask(const struct subnet *s)
+{
 	ipv4 a;
 	ipv6 b;
 	int i = 0;
@@ -1042,7 +1079,8 @@ int can_decrease_mask(const struct subnet *s) {
  * alloc a new struct subnet *
  * number of element is stored in *n
  */
-struct subnet *subnet_remove(const struct subnet *s1, const struct subnet *s2, int *n) {
+struct subnet *subnet_remove(const struct subnet *s1, const struct subnet *s2, int *n)
+{
 	int res;
 	struct subnet *news;
 	struct subnet test;

@@ -15,15 +15,18 @@
 #include "st_memory.h"
 #include "st_routes.h"
 
-inline void copy_route(struct route *a, const struct route *b) {
+inline void copy_route(struct route *a, const struct route *b)
+{
 	memcpy(a, b, sizeof(struct route));
 }
 
-inline void zero_route(struct route *a) {
+inline void zero_route(struct route *a)
+{
 	memset(a, 0, sizeof(struct route));
 }
 
-void zero_route_ea(struct route *a) {
+void zero_route_ea(struct route *a)
+{
 	int i;
 	void *ea = a->ea;
 	int ea_nr = a->ea_nr;
@@ -35,7 +38,8 @@ void zero_route_ea(struct route *a) {
 	a->ea_nr = ea_nr;
 }
 
-int alloc_route_ea(struct route *r, int n) {
+int alloc_route_ea(struct route *r, int n)
+{
 	r->ea = alloc_ea_array(n);
 	if (r->ea == NULL) {
 		r->ea_nr = 0;
@@ -45,7 +49,8 @@ int alloc_route_ea(struct route *r, int n) {
 	return 1;
 }
 
-int clone_route(struct route *dest, const struct route *src) {
+int clone_route(struct route *dest, const struct route *src)
+{
 	int i, res;
 
 	free_route(dest);
@@ -61,7 +66,8 @@ int clone_route(struct route *dest, const struct route *src) {
 	return 1;
 }
 
-int clone_route_nofree(struct route *dest, const struct route *src) {
+int clone_route_nofree(struct route *dest, const struct route *src)
+{
 	int i, res;
 
 	copy_route(dest, src);
@@ -75,13 +81,15 @@ int clone_route_nofree(struct route *dest, const struct route *src) {
 	return 1;
 }
 
-void free_route(struct route *r) {
+void free_route(struct route *r)
+{
 	free_ea_array(r->ea, r->ea_nr);
 	r->ea = NULL;
 	r->ea_nr = 0;
 }
 
-int is_equal_gw(struct route *r1, struct route *r2) {
+int is_equal_gw(struct route *r1, struct route *r2)
+{
 	if (r1->gw.ip_ver != r2->gw.ip_ver)
 		return 0;
 	if (r1->gw.ip_ver == 0) /* unset GW*/

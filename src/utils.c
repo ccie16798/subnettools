@@ -13,7 +13,8 @@
 #include <ctype.h>
 #include "utils.h"
 
-int isUnsignedInt(const char *s) {
+int isUnsignedInt(const char *s)
+{
 	int i;
 
 	for (i = 0; i < strlen(s); i++) {
@@ -23,7 +24,8 @@ int isUnsignedInt(const char *s) {
 	return 1;
 }
 
-int isInt(const char *s) {
+int isInt(const char *s)
+{
 	int i;
 	if (*s != '-' && !isdigit(*s))
 		return 0;
@@ -34,7 +36,8 @@ int isInt(const char *s) {
 	return 1;
 }
 
-int string2int(const char *s, int *res) {
+int string2int(const char *s, int *res)
+{
 	int i = 0, a = 0;
 	int sign = 1;
 
@@ -63,20 +66,23 @@ int string2int(const char *s, int *res) {
 	return a * sign;
 }
 
-inline int char2int(char c) {
+inline int char2int(char c)
+{
 	if (c >= 'A' && c <= 'F') return (10 + c - 'A');
 	if (c >= 'a' && c <= 'f') return (10 + c - 'a');
 	if (c >= '0' && c <= '9') return (c - '0');
 	return 0;
 }
 
-int isPower2(unsigned int x) {
+int isPower2(unsigned int x)
+{
 	while (((x % 2) == 0) && x > 1) /* if each time we divide x%2 == 0, x is power of two */
 		x /= 2;
 	return (x == 1);
 }
 /* x must be power of 2 */
-int mylog2(unsigned int x) {
+int mylog2(unsigned int x)
+{
 	int a = 0;
 	while (x > 1) {
 		x /= 2;
@@ -85,7 +91,8 @@ int mylog2(unsigned int x) {
 	return a;
 }
 
-char *remove_space(char *s) {
+char *remove_space(char *s)
+{
 	int i = 0, j = 0;
 
 	while (isspace(*s))
@@ -108,7 +115,8 @@ char *remove_space(char *s) {
 	}
 }
 
-void remove_ending_space(char *s) {
+void remove_ending_space(char *s)
+{
 	int j;
 
 	for (j = strlen(s) - 1; j >= 0; j--) {
@@ -119,7 +127,8 @@ void remove_ending_space(char *s) {
 }
 
 /* strlcpy */
-int strxcpy(char *dst, const char *src, int size) {
+int strxcpy(char *dst, const char *src, int size)
+{
 	int i = 0;
 
 	while (1) {
@@ -132,7 +141,8 @@ int strxcpy(char *dst, const char *src, int size) {
 	}
 }
 
-int count_char(const char *s, char c) {
+int count_char(const char *s, char c)
+{
 	int i = 0, a = 0;
 
 	while (1) {
@@ -144,7 +154,8 @@ int count_char(const char *s, char c) {
 	}
 }
 
-int strxcpy_until(char *dst, const char *src, int n, char end) {
+int strxcpy_until(char *dst, const char *src, int n, char end)
+{
 	int i = 0;
 
 	while (1) {
@@ -165,7 +176,8 @@ int strxcpy_until(char *dst, const char *src, int n, char end) {
 
 /* strtok variant ; treat consecutive delims one by one
  * standard strtok treats n successives delims as one, which is not always what we want in CSV files*/
-char *simple_strtok(char *s, const char *delim) {
+char *simple_strtok(char *s, const char *delim)
+{
 	int i;
 	static char *s2;
 	char *s3;
@@ -192,7 +204,8 @@ char *simple_strtok(char *s, const char *delim) {
 	return NULL;
 }
 
-char *simple_strtok_r(char *s, const char *delim, char **s2) {
+char *simple_strtok_r(char *s, const char *delim, char **s2)
+{
 	int i;
 	char *s3;
 
@@ -218,7 +231,8 @@ char *simple_strtok_r(char *s, const char *delim, char **s2) {
 	return NULL;
 }
 
-char *fgets_truncate_buffer(char *buffer, int size, FILE *stream, int *res) {
+char *fgets_truncate_buffer(char *buffer, int size, FILE *stream, int *res)
+{
 	char *s;
 	int a, i;
 

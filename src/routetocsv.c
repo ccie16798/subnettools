@@ -50,7 +50,8 @@ struct csvconverter csvconverters[] = {
 	{ NULL, NULL }
 };
 
-void csvconverter_help(FILE *output) {
+void csvconverter_help(FILE *output)
+{
 	int i = 0;
 
 	fprintf(output, "Available converters : \n");
@@ -65,7 +66,8 @@ void csvconverter_help(FILE *output) {
 /*
  * execute converter "name" on input file "filename"
  */
-int run_csvconverter(char *name, char *filename, struct st_options *o) {
+int run_csvconverter(char *name, char *filename, struct st_options *o)
+{
 	int i = 0;
 	FILE *f;
 
@@ -137,11 +139,13 @@ int run_csvconverter(char *name, char *filename, struct st_options *o) {
 		total_memory -= sizeof(struct ipam_ea); \
 		return -1; \
 	} \
-	route.ea[0].name    = "comment"; \
+	route.ea[0].name = "comment"; \
+
 /*
  * output of 'show routing route' on Palo alto
  */
-int palo_to_csv(char *name, FILE *f, struct st_options *o) {
+int palo_to_csv(char *name, FILE *f, struct st_options *o)
+{
 	char buffer[1024];
 	char *s;
 	unsigned long line = 0;
@@ -152,7 +156,6 @@ int palo_to_csv(char *name, FILE *f, struct st_options *o) {
 
 	INIT_ROUTE(128);
 	fprintf(o->output_file, "prefix;mask;device;GW;comment\n");
-
         while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
 		if (res)
@@ -177,7 +180,8 @@ int palo_to_csv(char *name, FILE *f, struct st_options *o) {
 /*
  * output of 'show route' on IPSO or GAIA
  */
-int ipso_route_to_csv(char *name, FILE *f, struct st_options *o) {
+int ipso_route_to_csv(char *name, FILE *f, struct st_options *o)
+{
 	char buffer[1024];
 	char *s;
 	unsigned long line = 0;
@@ -190,7 +194,6 @@ int ipso_route_to_csv(char *name, FILE *f, struct st_options *o) {
 
 	INIT_ROUTE(128);
 	fprintf(o->output_file, "prefix;mask;device;GW;comment\n");
-
         while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
 		if (res)
@@ -240,7 +243,8 @@ int ipso_route_to_csv(char *name, FILE *f, struct st_options *o) {
 	return 1;
 }
 
-int cisco_nexus_to_csv(char *name, FILE *f, struct st_options *o) {
+int cisco_nexus_to_csv(char *name, FILE *f, struct st_options *o)
+{
 	char buffer[1024];
 	char poubelle[128];
 	char *s;
@@ -253,7 +257,6 @@ int cisco_nexus_to_csv(char *name, FILE *f, struct st_options *o) {
 
 	INIT_ROUTE(128);
 	fprintf(o->output_file, "prefix;mask;device;GW;comment\n");
-
         while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
 		if (res)
@@ -300,7 +303,8 @@ int cisco_nexus_to_csv(char *name, FILE *f, struct st_options *o) {
  * cisco IOS, IOS-XE
  * please take a coffee before reading
  */
-int cisco_route_to_csv(char *name, FILE *f, struct st_options *o) {
+int cisco_route_to_csv(char *name, FILE *f, struct st_options *o)
+{
         char buffer[1024];
         char *s;
         unsigned long line = 0;
@@ -315,7 +319,6 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o) {
 
 	INIT_ROUTE(128);
 	fprintf(o->output_file, "prefix;mask;device;GW;comment\n");
-
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
 		if (res)
@@ -429,7 +432,8 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o) {
 /*
  * input from ASA firewall or FWSM
  **/
-int cisco_fw_to_csv(char *name, FILE *f, struct st_options *o) {
+int cisco_fw_to_csv(char *name, FILE *f, struct st_options *o)
+{
 	char buffer[1024];
 	char *s;
 	unsigned long line = 0;
@@ -442,7 +446,6 @@ int cisco_fw_to_csv(char *name, FILE *f, struct st_options *o) {
 
 	INIT_ROUTE(128);
 	fprintf(o->output_file, "prefix;mask;device;GW;comment\n");
-
         while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
 		if (res)
@@ -489,10 +492,12 @@ int cisco_fw_to_csv(char *name, FILE *f, struct st_options *o) {
 	free_route(&route);
 	return 1;
 }
+
 /*
  * input from ASA firewall or FWSM
  **/
-int cisco_fw_conf_to_csv(char *name, FILE *f, struct st_options *o) {
+int cisco_fw_conf_to_csv(char *name, FILE *f, struct st_options *o)
+{
 	char buffer[1024];
 	char *s;
 	unsigned long line = 0;
@@ -503,7 +508,6 @@ int cisco_fw_conf_to_csv(char *name, FILE *f, struct st_options *o) {
 
 	INIT_ROUTE(128);
 	fprintf(o->output_file, "prefix;mask;device;GW;comment\n");
-
 	zero_route_ea(&route);
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
@@ -523,7 +527,8 @@ int cisco_fw_conf_to_csv(char *name, FILE *f, struct st_options *o) {
 	return 1;
 }
 
-int cisco_routeconf_to_csv(char *name, FILE *f, struct st_options *o) {
+int cisco_routeconf_to_csv(char *name, FILE *f, struct st_options *o)
+{
 	char buffer[1024];
 	char *s;
 	unsigned long line = 0;
@@ -563,7 +568,8 @@ int cisco_routeconf_to_csv(char *name, FILE *f, struct st_options *o) {
 	return 1;
 }
 
-int ciscobgp_to_csv(char *name, FILE *f, struct st_options *o) {
+int ciscobgp_to_csv(char *name, FILE *f, struct st_options *o)
+{
 	char buffer[1024];
 	char *s, *s2;
 	unsigned long line = 0;

@@ -3,6 +3,9 @@
 
 extern unsigned long total_memory;
 
+/* st_malloc, st_realloc will print debug MSG if debug memory level > 3
+ * this is unsuitable for small allocations
+ */
 void *st_malloc_nodebug(unsigned long n, const char *s); 
 void *st_malloc(unsigned long n, const char *s);
 

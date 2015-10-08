@@ -16,12 +16,14 @@
 #include "utils.h"
 
 
-static inline int is_comp(char c) {
+static inline int is_comp(char c)
+{
 	return ((c == '=') | (c == '<') | (c == '>') | (c == '~') | (c == '{') | (c == '}') | (c == '#'));
 }
 
 void init_generic_expr(struct generic_expr *e, const char *s,
-		int (*compare)(char *, char *, char, void *)) {
+		int (*compare)(char *, char *, char, void *))
+{
 	e->pattern = s;
 	if (s == NULL)
 		return;
@@ -30,7 +32,8 @@ void init_generic_expr(struct generic_expr *e, const char *s,
 	e->compare = compare;
 }
 
-static int simple_expr(char *pattern, int len, struct generic_expr *e) {
+static int simple_expr(char *pattern, int len, struct generic_expr *e)
+{
 	int i = 0, j = 0;
 	char operator, c;
 	int res;
@@ -76,8 +79,8 @@ static int simple_expr(char *pattern, int len, struct generic_expr *e) {
 	return res;
 }
 
-
-int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
+int run_generic_expr(char *pattern, int len, struct generic_expr *e)
+{
 	int i = 0;
 	char buffer[256];
 	int res1, res2;
@@ -193,7 +196,8 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e) {
 }
 
 /* used for testing purposes */
-int int_compare(char *s1, char *s2, char o, void *object) {
+int int_compare(char *s1, char *s2, char o, void *object)
+{
 	int l1 = atoi(s1);
 	int l2 = atoi(s2);
 
