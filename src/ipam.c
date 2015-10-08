@@ -20,7 +20,8 @@
 #include "st_routes.h"
 #include "ipam.h"
 
-int alloc_ipam_file(struct ipam_file *sf, unsigned long n, int ea_nr) {
+int alloc_ipam_file(struct ipam_file *sf, unsigned long n, int ea_nr)
+{
 	if (n > SIZE_T_MAX / sizeof(struct ipam_line)) { /* being paranoid */
 		fprintf(stderr, "error: too much memory requested for struct ipam\n");
 		return -1;
@@ -45,7 +46,8 @@ int alloc_ipam_file(struct ipam_file *sf, unsigned long n, int ea_nr) {
 	return 0;
 }
 
-static int alloc_ipam_ea(struct ipam_file *sf, int i) {
+static int alloc_ipam_ea(struct ipam_file *sf, int i)
+{
 	struct ipam_ea *ea;
 	int j;
 
@@ -62,13 +64,15 @@ static int alloc_ipam_ea(struct ipam_file *sf, int i) {
 	return 0;
 }
 
-static void free_ipam_ea(struct ipam_line *ipam) {
+static void free_ipam_ea(struct ipam_line *ipam)
+{
 	free_ea_array(ipam->ea, ipam->ea_nr);
 	ipam->ea    = NULL;
 	ipam->ea_nr = 0;
 }
 
-void free_ipam_file(struct ipam_file *sf) {
+void free_ipam_file(struct ipam_file *sf)
+{
 	int i;
 
 	for (i = 0; i < sf->nr; i++)
@@ -84,7 +88,8 @@ void free_ipam_file(struct ipam_file *sf) {
 	sf->ea     = NULL;
 }
 
-static int ipam_prefix_handle(char *s, void *data, struct csv_state *state) {
+static int ipam_prefix_handle(char *s, void *data, struct csv_state *state)
+{
 	struct ipam_file *sf = data;
 	int res;
 	struct subnet subnet;
@@ -98,7 +103,8 @@ static int ipam_prefix_handle(char *s, void *data, struct csv_state *state) {
 	return CSV_VALID_FIELD;
 }
 
-static int ipam_mask_handle(char *s, void *data, struct csv_state *state) {
+static int ipam_mask_handle(char *s, void *data, struct csv_state *state)
+{
 	struct ipam_file *sf = data;
 	int mask = string2mask(s, 21);
 
@@ -110,7 +116,8 @@ static int ipam_mask_handle(char *s, void *data, struct csv_state *state) {
 	return CSV_VALID_FIELD;
 }
 
-static int ipam_ea_handle(char *s, void *data, struct csv_state *state) {
+static int ipam_ea_handle(char *s, void *data, struct csv_state *state)
+{
         struct ipam_file *sf = data;
 	int ea_nr = state->state[0];
 	int found = 0;
@@ -133,7 +140,8 @@ static int ipam_ea_handle(char *s, void *data, struct csv_state *state) {
 	return CSV_VALID_FIELD;
 }
 
-static int ipam_endofline_callback(struct csv_state *state, void *data) {
+static int ipam_endofline_callback(struct csv_state *state, void *data)
+{
 	struct ipam_file *sf = data;
 	struct ipam_line *new_r;
 	int res;
@@ -163,7 +171,8 @@ static int ipam_endofline_callback(struct csv_state *state, void *data) {
 	return CSV_CONTINUE;
 }
 
-static int ipam_endoffile_callback(struct csv_state *state, void *data) {
+static int ipam_endoffile_callback(struct csv_state *state, void *data)
+{
 	struct ipam_file *sf = data;
 
 	if (sf->nr == 0) {
@@ -174,7 +183,8 @@ static int ipam_endoffile_callback(struct csv_state *state, void *data) {
 	return CSV_VALID_FILE;
 }
 
-int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof) {
+int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
+{
 	struct csv_field *csv_field;
 	struct csv_file cf;
 	struct csv_state state;
@@ -246,7 +256,8 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof) {
 	return res;
 }
 
-int fprint_ipamfilter_help(FILE *out) {
+int fprint_ipamfilter_help(FILE *out)
+{
 	return fprintf(out, "IPAM lines can be filtered on :\n"
 			" -prefix\n"
 			" -mask\n"
@@ -261,7 +272,8 @@ int fprint_ipamfilter_help(FILE *out) {
 			"- '~' (st_scanf regular expression)\n");
 }
 
-static int ipam_filter(char *s, char *value, char op, void *object) {
+static int ipam_filter(char *s, char *value, char op, void *object)
+{
 	struct ipam_line *ipam = object;
 	struct subnet subnet;
 	int res, j, err;
@@ -376,7 +388,8 @@ static int ipam_filter(char *s, char *value, char op, void *object) {
 	}
 }
 
-int ipam_file_filter(struct ipam_file *sf, char *expr) {
+int ipam_file_filter(struct ipam_file *sf, char *expr)
+{
 	int i, j, res, len;
 	struct generic_expr e;
 	struct ipam_line *new_ipam;
@@ -420,7 +433,8 @@ int ipam_file_filter(struct ipam_file *sf, char *expr) {
 	return 0;
 }
 
-int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam) {
+int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
+{
 	int i, j, k, res;
 	int found_mask, mask, found_j;
 	int has_comment = 0;
