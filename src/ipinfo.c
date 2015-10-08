@@ -61,12 +61,14 @@ const struct subnet ipv6_mcast_sn	= {.ip_ver = 6, block(.ip6, 0) = 0xFF02, block
 const struct subnet ipv6_compat_ipv4	= {.ip_ver = 6, .mask = 96}; /* ::/96 */
 const struct subnet ipv6_loopback 	= {.ip_ver = 6, block(.ip6, 7) = 1, .mask = 128}; /* ::1/128 */
 
-static void decode_6to4(FILE *out, const struct subnet *s) {
+static void decode_6to4(FILE *out, const struct subnet *s)
+{
 	fprintf(out, "6to4 IPv4 destination address : %d.%d.%d.%d\n", block(s->ip6, 1) >> 8, block(s->ip6, 1) & 0xFF,
 			block(s->ip6, 2) >> 8, block(s->ip6, 2) & 0xFF);
 }
 
-static void decode_teredo(FILE *out, const struct subnet *s) {
+static void decode_teredo(FILE *out, const struct subnet *s)
+{
 	fprintf(out, "Teredo server : %d.%d.%d.%d\n", block(s->ip6, 2) >> 8, block(s->ip6, 2) & 0xFF,
 			block(s->ip6, 3) >> 8, block(s->ip6, 3) & 0xFF);
 	fprintf(out, "Client IP     : %d.%d.%d.%d\n", (block(s->ip6, 6) >> 8) ^ 0xFF,
@@ -75,17 +77,20 @@ static void decode_teredo(FILE *out, const struct subnet *s) {
 	fprintf(out, "UDP port      : %d\n", block(s->ip6, 5) ^ 0xFFFF);
 }
 
-static void decode_rfc6052(FILE *out, const struct subnet *s) {
+static void decode_rfc6052(FILE *out, const struct subnet *s)
+{
 	fprintf(out, "IPv4-Embedded IPv6 address : 64:ff9b::%d.%d.%d.%d\n", block(s->ip6, 6) >> 8,
 			block(s->ip6, 6) & 0xFF, block(s->ip6, 7) >> 8, block(s->ip6, 7) & 0xFF);
 }
 
-static void decode_isatap_ll(FILE *out, const struct subnet *s) {
+static void decode_isatap_ll(FILE *out, const struct subnet *s)
+{
 	fprintf(out, "ISATAP IPv4 destination address : %d.%d.%d.%d\n", block(s->ip6, 6) >> 8,
 			block(s->ip6, 6) & 0xFF, block(s->ip6, 7) >> 8, block(s->ip6, 7) & 0xFF);
 }
 
-static void decode_ipv4_multicast(FILE *out, const struct subnet *s) {
+static void decode_ipv4_multicast(FILE *out, const struct subnet *s)
+{
 	int i, res;
 	const struct known_subnet_desc *k = ipv4_mcast_known_subnets;
 	int found_mask, found_i;
@@ -110,7 +115,8 @@ static void decode_ipv4_multicast(FILE *out, const struct subnet *s) {
 	}
 }
 
-static void decode_ipv6_embedded_rp(FILE *out, const struct subnet *s) {
+static void decode_ipv6_embedded_rp(FILE *out, const struct subnet *s)
+{
 	struct subnet rp;
 	int rp_id;
 	int Plen;
@@ -138,13 +144,15 @@ static void decode_ipv6_embedded_rp(FILE *out, const struct subnet *s) {
 }
 
 /* solicitted node address */
-static void decode_ipv6_multicast_sn(FILE *out, const struct subnet *s) {
+static void decode_ipv6_multicast_sn(FILE *out, const struct subnet *s)
+{
 	fprintf(out, "Sollicited Address for any address like : XX:XX:XX:XX:XX:XX:X%02x:%x\n", 
 			block(s->ip6, 6) & 0xFF, block(s->ip6, 7));
 }
 
 /* generic IPv6 multicast decoding */
-static void decode_ipv6_multicast(FILE *out, const struct subnet *s) {
+static void decode_ipv6_multicast(FILE *out, const struct subnet *s)
+{
 	int scope, flag;
 	scope = block(s->ip6, 0) & 0xf;
 	flag  = (block(s->ip6, 0) >> 4) & 0xf;
@@ -226,7 +234,8 @@ const struct known_subnet_desc ipv6_known_subnets[] = {
 	{NULL, NULL}
 };
 
-static void decode_mcast_glop(FILE *out, const struct subnet *s) {
+static void decode_mcast_glop(FILE *out, const struct subnet *s)
+{
 	fprintf(out, "Glop AS : %d\n", (s->ip >> 8) & 0xFFFF);
 }
 
@@ -241,7 +250,8 @@ const struct known_subnet_desc ipv4_mcast_known_subnets[] = {
 /*
  * try to find a known subnet where s is included
  */
-static void fprint_ip_membership(FILE *out, const struct subnet *s) {
+static void fprint_ip_membership(FILE *out, const struct subnet *s)
+{
 	int i, res;
 	int found_i, found_mask;
 	const struct known_subnet_desc *k;
@@ -272,7 +282,8 @@ static void fprint_ip_membership(FILE *out, const struct subnet *s) {
 	}
 }
 
-char ipv4_get_class(const struct subnet *s) {
+char ipv4_get_class(const struct subnet *s)
+{
 	if ((s->ip >> 31) == 0)
 		return 'a';
 	if ((s->ip >> 30) == 2)
@@ -287,7 +298,8 @@ char ipv4_get_class(const struct subnet *s) {
 }
 
 /* IPv4 specific information : classfull info */
-static void fprint_ipv4_info(FILE *out, const struct subnet *subnet) {
+static void fprint_ipv4_info(FILE *out, const struct subnet *subnet)
+{
 	char c;
 
 	c = ipv4_get_class(subnet);
@@ -297,7 +309,8 @@ static void fprint_ipv4_info(FILE *out, const struct subnet *subnet) {
 }
 
 /* IPv6 specific information EUI-64 etc */
-static void fprint_ipv6_info(FILE *out, const struct subnet *s) {
+static void fprint_ipv6_info(FILE *out, const struct subnet *s)
+{
 	/*int ul_bit; */
 	unsigned short middle;
 	unsigned char mac[8];
@@ -318,13 +331,14 @@ static void fprint_ipv6_info(FILE *out, const struct subnet *s) {
 			mac[5] = (block(s->ip6, 7) & 0xFF);
 			fprintf(out, "MAC address : %02x:%02x:%02x:%02x:%02x:%02x\n", mac[0], mac[1], mac[2],
 					mac[3], mac[4], mac[5]);
-		} else {
+		} else
 			fprintf(out, "Not in EUI-64 format\n");
-		}
 	}
 }
+
 /* general information about the subnet */
-void fprint_ip_info(FILE *out, const struct subnet *subnet) {
+void fprint_ip_info(FILE *out, const struct subnet *subnet)
+{
 	fprintf(out, "IP version : %d\n", subnet->ip_ver);
 	st_fprintf(out, "Network Address : %N/%m\n", *subnet, *subnet);
 	st_fprintf(out, "Address   Range : %N - %B\n", *subnet, *subnet);
@@ -336,7 +350,8 @@ void fprint_ip_info(FILE *out, const struct subnet *subnet) {
 		fprint_ipv6_info(out, subnet);
 }
 
-static void fprint_ipv4_known_mcast_subnets(FILE *out) {
+static void fprint_ipv4_known_mcast_subnets(FILE *out)
+{
 	const struct known_subnet_desc *k;
 	int i;
 
@@ -348,7 +363,8 @@ static void fprint_ipv4_known_mcast_subnets(FILE *out) {
 	}
 }
 
-void fprint_ipv4_known_subnets(FILE *out) {
+void fprint_ipv4_known_subnets(FILE *out)
+{
 	const struct known_subnet_desc *k = ipv4_known_subnets;
 	int i;
 
@@ -360,7 +376,8 @@ void fprint_ipv4_known_subnets(FILE *out) {
 	fprint_ipv4_known_mcast_subnets(out);
 }
 
-void fprint_ipv6_known_subnets(FILE *out) {
+void fprint_ipv6_known_subnets(FILE *out)
+{
 	const struct known_subnet_desc *k = ipv6_known_subnets;
 	int i;
 
