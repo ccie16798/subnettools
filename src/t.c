@@ -32,7 +32,8 @@ snprint_signed(int)
 #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 
 #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
 	char buff[32];
 	struct subnet s;
 	short a;
