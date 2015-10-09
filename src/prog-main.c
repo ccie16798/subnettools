@@ -855,7 +855,8 @@ static int run_routeagg(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_remove_file(int arc, char **argv, void *st_options) {
+static int run_remove_file(int arc, char **argv, void *st_options)
+{
 	struct subnet_file sf1, sf2, sf3;
 	struct st_options *nof = st_options;
 	int res;
@@ -997,7 +998,8 @@ static int run_help(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_version(int arc, char **argv, void *st_options) {
+static int run_version(int arc, char **argv, void *st_options)
+{
 	printf("%s version %s by Mahmoud Basset\n", PROG_NAME, PROG_VERS);
 #ifdef __DATE__
 	printf("Compiled %s\n", __DATE__);
