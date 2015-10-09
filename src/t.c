@@ -34,26 +34,13 @@ snprint_signed(int)
 #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 int main(int argc, char **argv)
 {
-	char buff[32];
+	char buff[8];
 	struct subnet s;
 	short a;
 	int b = -1234;
 	int res;
 
-	printf("%d\n", my_atoi(argv[1], &b));
-	remove_ending_space(argv[1]);
-	printf("'%s'\n", argv[1]);
-	strxcpy(buff, argv[1], 4);
-	printf("'%s'\n", buff);
-	memset(buff, 0, 28);
-	sscanf(argv[1], "%x", &a);
-	res = snprint_hexshort(buff, a, 12);
-	buff[res] = '\0';
-	printf("%s\n", buff);
-	res = snprint_int(buff, b, 3);
-	buff[res] = '\0';
-	printf("%s\n", buff);
-
-//	printf("%d %d %d \n", offsetof(struct options, delim),  offsetof(struct options, delim2),  offsetof(struct options, delim4));
+	res = strxcpy(buff, argv[1], sizeof(buff));
+	printf("'%s' '%s' res=%d\n", argv[1], buff, res);
 	printf("%d %d\n", sizeof(long), sizeof(unsigned long long));
 }
