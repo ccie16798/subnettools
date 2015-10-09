@@ -143,8 +143,14 @@ int strxcpy(char *dst, const char *src, int size)
 	int i = 0;
 
 	while (1) {
-		if (src[i] == '\0' || i == size - 1) {
+		if (src[i] == '\0') {
 			dst[i] = '\0';
+			return i;
+		}
+		if (i == size - 1) {
+			dst[i] = '\0';
+			while (src[i] != '\0')
+				i++;
 			return i;
 		}
 		dst[i] = src[i];
