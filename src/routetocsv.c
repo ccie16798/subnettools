@@ -411,7 +411,7 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o)
 			SET_COMMENT
 			continue;
 		} else  if (res == 3) {
-			st_debug(PARSEROUTE, 4, "line %lu no device found for prefix %P\n", line, route.subnet);
+			st_debug(PARSEROUTE, 5, "line %lu no device found for prefix %P\n", line, route.subnet);
 			strcpy(route.device, "NA");
 		}
 		find_hop = 0;
