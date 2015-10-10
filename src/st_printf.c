@@ -329,6 +329,11 @@ static int __fprint_route_fmt(FILE *output, const struct route *r, const char *f
 											r->ea[k].value,
 											sizeof(buffer));
 							}
+							if (res >= sizeof(buffer)) {
+								debug(FMT, 1, "Warning, '%s' is truncated\n",
+									buffer);
+								res = sizeof(buffer);
+							}
 							res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j,
 									buffer, res, field_width, pad_left, ' ');
 							j += res;
@@ -358,6 +363,11 @@ static int __fprint_route_fmt(FILE *output, const struct route *r, const char *f
 						} else
 							res = strxcpy(buffer, r->ea[ea_num].value,
 									sizeof(buffer));
+					}
+					if (res >= sizeof(buffer)) {
+						debug(FMT, 1, "Warning, '%s' is truncated\n",
+								buffer);
+						res = sizeof(buffer);
 					}
 					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
 							res, field_width, pad_left, ' ');
@@ -497,6 +507,11 @@ static int __fprint_ipam_fmt(FILE *output, const struct ipam_line *r,
 											r->ea[k].value,
 											sizeof(buffer));
 							}
+							if (res >= sizeof(buffer)) {
+								debug(FMT, 1, "Warning, '%s' is truncated\n",
+										buffer);
+								res = sizeof(buffer);
+							}
 							res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j,
 									buffer, res, field_width, pad_left, ' ');
 							j += res;
@@ -521,6 +536,11 @@ static int __fprint_ipam_fmt(FILE *output, const struct ipam_line *r,
 						res = strxcpy(buffer, r->ea[ea_num].name, sizeof(buffer));
 					else
 						res = strxcpy(buffer, r->ea[ea_num].value, sizeof(buffer));
+					if (res >= sizeof(buffer)) {
+						debug(FMT, 1, "Warning, '%s' is truncated\n",
+								buffer);
+						res = sizeof(buffer);
+					}
 					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
 							res, field_width, pad_left, ' ');
 					j += res;
@@ -819,8 +839,10 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 					v_s = va_arg(ap, char *);
 					res = strxcpy(buffer, v_s, sizeof(buffer) - 1);
 
-					if (strlen(v_s) >= sizeof(buffer) - 1)
+					if (res >= sizeof(buffer) - 1) {
 						debug(FMT, 3, "truncating string '%s' to %d bytes\n", v_s, (int)(sizeof(buffer) - 1));
+						res = sizeof(buffer) - 1;
+					}
 					res = pad_buffer_out(outbuf + j, len - j, buffer, res,
 							field_width, pad_left, ' ');
 					j += res;
