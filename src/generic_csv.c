@@ -26,7 +26,12 @@ static int read_csv_header(char *filename, const char *buffer, struct csv_file *
 	int no_header = 0;
 	char buffer2[1024];
 
-	strxcpy(buffer2, buffer, sizeof(buffer2));
+	i = strxcpy(buffer2, buffer, sizeof(buffer2));
+	if (i >= sizeof(buffer2)) {
+		fprintf(stderr, "CSV header is too large (%d bytes), max %d bytes\n",
+			i, (int)sizeof(buffer2));
+		return -1;
+	}
 	s = buffer2;
 	debug(CSVHEADER, 3, "Trying to parse header in %s\n", filename);
 	debug(CSVHEADER, 5, "CSV header : '%s'\n", s);
