@@ -6,9 +6,10 @@ EXEC=subnet-tools
 
 OBJS =  subnet_tool.o debug.o iptools.o bitmap.o routetocsv.o utils.o heap.o generic_csv.o \
 		prog-main.o generic_command.o config_file.o st_printf.o ipinfo.o st_scanf.o st_object.o \
-		bgp_tool.o generic_expr.o st_handle_csv_files.o ipam.o st_memory.o st_routes.o st_ea.o
+		bgp_tool.o generic_expr.o st_handle_csv_files.o ipam.o st_memory.o st_routes.o st_ea.o \
+		st_help.o
 
-%.o: %.c %.h
+%.o: %.c %.h st_options.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 all: $(EXEC)
 
