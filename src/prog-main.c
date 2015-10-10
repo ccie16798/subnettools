@@ -1091,10 +1091,18 @@ static int option_addr_compress(int argc, char **argv, void *st_options)
 static int option_fmt(int argc, char **argv, void *st_options)
 {
 	struct st_options *nof = st_options;
+	int res;
 
-	strxcpy(nof->output_fmt, argv[1], sizeof(nof->output_fmt));
-	strxcpy(nof->bgp_output_fmt, argv[1], sizeof(nof->bgp_output_fmt));
-	strxcpy(nof->ipam_output_fmt, argv[1], sizeof(nof->ipam_output_fmt));
+	res = strxcpy(nof->output_fmt, argv[1], sizeof(nof->output_fmt));
+	if (res >= sizeof(nof->output_fmt)) {
+		fprintf(stderr, "cannot change FMT, '%s' is too long, max '%d' char\n",
+			argv[1], (int)sizeof(nof->output_fmt));
+		return -1;
+	}
+	/* sizeof(xxx_output_fmt) are the same, no need to check return value */
+	res = strxcpy(nof->bgp_output_fmt, argv[1], sizeof(nof->bgp_output_fmt));
+	res = strxcpy(nof->ipam_output_fmt, argv[1], sizeof(nof->ipam_output_fmt));
+
 	debug(PARSEOPTS, 3, "Changing default FMT : '%s'\n", argv[1]);
 	return 0;
 }
