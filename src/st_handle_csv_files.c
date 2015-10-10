@@ -88,9 +88,10 @@ static int netcsv_mask_handle(char *s, void *data, struct csv_state *state)
 static int netcsv_device_handle(char *s, void *data, struct csv_state *state)
 {
 	struct subnet_file *sf = data;
+	int res;
 
-	strxcpy(sf->routes[sf->nr].device, s, sizeof(sf->routes[sf->nr].device));
-	if (strlen(s) >= sizeof(sf->routes[sf->nr].device))
+	res = strxcpy(sf->routes[sf->nr].device, s, sizeof(sf->routes[sf->nr].device));
+	if (res >= sizeof(sf->routes[sf->nr].device))
 		debug(LOAD_CSV, 2, "line %lu STRING device '%s'  too long, truncating to '%s'\n", state->line, s, sf->routes[sf->nr].device);
 	return CSV_VALID_FIELD;
 }
@@ -417,10 +418,11 @@ static int bgpcsv_weight_handle(char *s, void *data, struct csv_state *state)
 static int bgpcsv_aspath_handle(char *s, void *data, struct csv_state *state)
 {
 	struct bgp_file *sf = data;
+	int res;
 
-	strxcpy(sf->routes[sf->nr].AS_PATH, s, sizeof(sf->routes[sf->nr].AS_PATH));
-	if (strlen(s) >= sizeof(sf->routes[sf->nr].AS_PATH))
-		debug(LOAD_CSV, 2, "line %lu STRING AS_PATH '%s'  too long, truncating to '%s'\n", state->line, s, sf->routes[sf->nr].AS_PATH);
+	res = strxcpy(sf->routes[sf->nr].AS_PATH, s, sizeof(sf->routes[sf->nr].AS_PATH));
+	if (res >= sizeof(sf->routes[sf->nr].AS_PATH))
+		debug(LOAD_CSV, 1, "line %lu STRING AS_PATH '%s'  too long, truncating to '%s'\n", state->line, s, sf->routes[sf->nr].AS_PATH);
 	return CSV_VALID_FIELD;
 }
 
