@@ -20,7 +20,7 @@ int open_config_file(char *name, void *nof)
 	char buffer[1024];
 	char *s;
 	unsigned long line = 0;
-	int i, found;
+	int i, found, res;
 	size_t offset;
 	char *object;
 
@@ -71,8 +71,8 @@ int open_config_file(char *name, void *nof)
 			switch (fileoptions[i].type) {
 				case TYPE_STRING:
 					debug(CONFIGFILE, 5, "line %lu copying STRING '%s' at offset %d, size %d\n", line, s, (int)offset, (int)fileoptions[i].size);
-					strxcpy(object + offset, s,  fileoptions[i].size);
-					if (strlen(s) >= fileoptions[i].size) {
+					res = strxcpy(object + offset, s,  fileoptions[i].size);
+					if (res >= fileoptions[i].size) {
 						debug(CONFIGFILE, 2, "%s line %lu STRING '%s' is too long,  truncated to '%s'\n", name, line, s, object + offset);
 					}
 					break;
