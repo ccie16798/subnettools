@@ -436,9 +436,9 @@ int ipam_file_filter(struct ipam_file *sf, char *expr)
 
 int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 {
-	unsigned long i, j;
+	unsigned long i, j, found_j;
 	int k, res;
-	int found_mask, mask, found_j;
+	int found_mask, mask;
 	int has_comment = 0;
 
 	for (i = 0; i < sf->nr; i++) {
