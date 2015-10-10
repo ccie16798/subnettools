@@ -1128,8 +1128,13 @@ static int option_ecmp(int argc, char **argv, void *st_options)
 static int option_ipam_ea(int argc, char **argv, void *st_options)
 {
 	struct st_options *nof = st_options;
+	int res;
 
-	strxcpy(nof->ipam_ea, argv[1], sizeof(nof->ipam_ea));
+	res = strxcpy(nof->ipam_ea, argv[1], sizeof(nof->ipam_ea));
+	if (res >= sizeof(nof->ipam_ea)) {
+		fprintf(stderr, "too many EA, size must be < %d\n", (int)sizeof(nof->ipam_ea));
+		return -1;
+	}
 	debug(PARSEOPTS, 3, "The following Ipam EA will be collected: '%s'\n", argv[1]);
 	return 0;
 }
