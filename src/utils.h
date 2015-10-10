@@ -33,7 +33,9 @@ int count_char(const char *s, char c);
 char *simple_strtok(char *s, const char *delim);
 char *simple_strtok_r(char *s, const char *delim, char **save_ptr) ;
 
-/* equivalent to strlcpy on some platforms */
+/* equivalent to strlcpy on some platforms
+ * returns strlen(src) so truncation occur if (return value >= size)
+ */
 int strxcpy(char *dest, const char *src, int size);
 
 /* copy src into dst as long as src!= end
