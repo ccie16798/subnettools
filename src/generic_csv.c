@@ -24,13 +24,13 @@ static int read_csv_header(char *filename, const char *buffer, struct csv_file *
 	int bad_header = 0;
 	int max_mandatory_pos = 1;
 	int no_header = 0;
-	char buffer2[1024];
+	char buffer2[CSV_MAX_LINE_LEN];
 
 	i = strxcpy(buffer2, buffer, sizeof(buffer2));
 	if (i >= sizeof(buffer2)) {
 		fprintf(stderr, "CSV header is too large (%d bytes), max %d bytes\n",
 			i, (int)sizeof(buffer2));
-		return -1;
+		return CSV_HEADER_TOOLONG;
 	}
 	s = buffer2;
 	debug(CSVHEADER, 3, "Trying to parse header in %s\n", filename);
@@ -111,7 +111,7 @@ static int read_csv_body(FILE *f, char *name, struct csv_file *cf,
 		struct csv_state *state, void *data,
 		char *init_buffer)
 {
-	char buffer[1024];
+	char buffer[CSV_MAX_LINE_LEN];
 	struct csv_field *csv_field;
 	int i, res;
 	char *s, *save_s;
@@ -217,7 +217,7 @@ static int read_csv_body(FILE *f, char *name, struct csv_file *cf,
 int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state* state, void *data)
 {
 	FILE *f;
-	char buffer[1024];
+	char buffer[CSV_MAX_LINE_LEN];
 	char *s;
 	int res, res2 = 0;
 
