@@ -264,11 +264,13 @@ int addrv62str(ipv6 z, char *out_buffer, size_t len, int compress)
 			if (block(z, 6) == 0 && block(z, 7) == 1) /** the loopback address */
 				return sprintf(out_buffer, "::1");
 			else
-				return sprintf(out_buffer, "::%d.%d.%d.%d", block(z, 6) >> 8, block(z, 6) & 0xff,
+				return sprintf(out_buffer, "::%d.%d.%d.%d",
+						block(z, 6) >> 8, block(z, 6) & 0xff,
 						block(z, 7) >> 8, block(z, 7) & 0xff);
 		}
 		if (block(z, 5) == 0xffff)
-			return sprintf(out_buffer, "::ffff:%d.%d.%d.%d", block(z, 6) >> 8, block(z, 6) & 0xff,
+			return sprintf(out_buffer, "::ffff:%d.%d.%d.%d",
+					block(z, 6) >> 8, block(z, 6) & 0xff,
 					block(z, 7) >> 8, block(z, 7) & 0xff);
 	}
 	j = 0;
