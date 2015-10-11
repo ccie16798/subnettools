@@ -34,7 +34,7 @@ void zero_route_ea(struct route *a)
 	for (i = 0; i < ea_nr; i++)
 		a->ea[i].value[0] = '\0';
 	zero_route(a);
-	a->ea = ea;
+	a->ea    = ea;
 	a->ea_nr = ea_nr;
 }
 
@@ -49,6 +49,13 @@ int alloc_route_ea(struct route *r, int n)
 	return 1;
 }
 
+/* clone src into dest
+ * if dest had alloc'ed buffer, free tham
+ *
+ * returns:
+ * 	1  on success
+ * 	-1 on failure (ENOMEM)
+ */
 int clone_route(struct route *dest, const struct route *src)
 {
 	int i, res;
@@ -66,6 +73,13 @@ int clone_route(struct route *dest, const struct route *src)
 	return 1;
 }
 
+/* clone src into dest
+ * doesnt free dest buffers, so make sure it hasnt
+ *
+ * returns:
+ * 	1  on success
+ * 	-1 on failure (ENOMEM)
+ */
 int clone_route_nofree(struct route *dest, const struct route *src)
 {
 	int i, res;
@@ -84,7 +98,7 @@ int clone_route_nofree(struct route *dest, const struct route *src)
 void free_route(struct route *r)
 {
 	free_ea_array(r->ea, r->ea_nr);
-	r->ea = NULL;
+	r->ea    = NULL;
 	r->ea_nr = 0;
 }
 
