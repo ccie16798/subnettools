@@ -441,18 +441,9 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 
 	for (i = 0; i < sf->nr; i++) {
 		/* allocating new EA and setting value to NULL */
-		sf->routes[i].ea = st_realloc_nodebug(sf->routes[i].ea,
-				(sf->routes[i].ea_nr + ipam->ea_nr) * sizeof(struct ipam_ea),
-				sf->routes[i].ea_nr * sizeof(struct ipam_ea),
-				"routes EA");
-		if (sf->routes[i].ea == NULL)
-			return -1;
-		j = sf->routes[i].ea_nr;
-		sf->routes[i].ea_nr += ipam->ea_nr;
-		for (k = j; k < sf->routes[i].ea_nr; k++) {
-			sf->routes[i].ea[k].value = NULL;
-			sf->routes[i].ea[k].len   = 0;
-		}
+		res = realloc_route_ea(&sf->routes[i], sf->routes[i].ea_nr + ipam->ea_nr);
+		if (res < 0)
+			return res;
 		found_mask = -1;
 		found_j    = 0;
 		for (j = 0; j < ipam->nr; j++) {
