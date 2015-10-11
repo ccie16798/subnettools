@@ -125,6 +125,7 @@ void fprint_route(FILE *output, const struct route *r, int compress_level)
 static void inline pad_n(char *s, int n, char c)
 {
 	int i;
+
 	for (i = 0; i < n; i++)
 		s[i] = c;
 }
@@ -170,6 +171,90 @@ static inline int pad_buffer_out(char *out, size_t len, const char *buffer, size
 	}
 	return res;
 }
+
+/*
+ * helper to print Extended Attributes
+ * @outbuf, @buffer_len : the output buffer and its length
+ * @fmt, @i  : the Format Buffer and its index
+ * @field_width, @pad_left : how to pad
+ * @ea, @ea_nr : pointer to Extended Attributes and number
+ * @header : do we want to print EA or EA names
+ * returns :
+ * 	number of printed chars in outbuf
+ */
+
+static inline int __print_ea(char *outbuf, size_t buffer_len,
+			const char *fmt, int *i,
+			int field_width, int pad_left,
+			struct ipam_ea *ea, int ea_nr,
+			int header) {
+	int k, res;
+	char sep;
+	char buffer[256];
+	int ea_num;
+	int j = 0;
+
+	/* print all extended attributes */
+	if (fmt[*i + 2] == '#') {
+		sep = fmt[*i + 3];
+		if (sep == '\0') /* set the default separator */
+			sep = ';';
+		for (k = 0; k < ea_nr; k++) {
+			if (header)
+				res = strxcpy(buffer, ea[k].name,
+						sizeof(buffer));
+			else {
+				if (ea[k].value == NULL) {
+					buffer[0] = '\0';
+					res = 0;
+				} else
+					res = strxcpy(buffer, ea[k].value,
+							sizeof(buffer));
+			}
+			if (res >= sizeof(buffer)) {
+				debug(FMT, 1, "Warning, '%s' is truncated\n",
+						buffer);
+				res = sizeof(buffer);
+			}
+			res = pad_buffer_out(outbuf + j, buffer_len - j,
+					buffer, res, field_width, pad_left, ' ');
+			j += res;
+			if (k != ea_nr - 1) {
+				outbuf[j] = sep;
+				j++;
+			}
+		}
+		*i += 1;
+		return j;
+	}
+	while (isdigit(fmt[*i + 2])) {
+		ea_num *= 10;
+		ea_num += fmt[*i + 2] - '0';
+		*i += 1;
+	}
+	if (ea_num >= ea_nr) {
+		debug(FMT, 3, "Invalid Extended Attribute number #%d, max %d\n", ea_num, ea_nr);
+		return 0;
+	}
+	if (header)
+		res = strxcpy(buffer, ea[ea_num].name, sizeof(buffer));
+	else {
+		if (ea[ea_num].value == NULL) {
+			buffer[0] = '\0';
+			res = 0;
+		} else
+			res = strxcpy(buffer, ea[ea_num].value,
+					sizeof(buffer));
+	}
+	if (res >= sizeof(buffer)) {
+		debug(FMT, 1, "Warning, '%s' is truncated\n", buffer);
+		res = sizeof(buffer);
+	}
+	res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+			res, field_width, pad_left, ' ');
+	return res;
+}
+
 #define IPAM_HEADER(__val)			\
 	if (header) { \
 		strcpy(buffer, __val); \
