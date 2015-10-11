@@ -60,7 +60,7 @@ void compare_files(struct subnet_file *sf1, struct subnet_file *sf2, struct st_o
 	}
 }
 
-int subnet_files_diff(const struct subnet_file *before, const struct subnet_file *after,
+int subnet_file_cmp(const struct subnet_file *before, const struct subnet_file *after,
 			struct subnet_file *sf)
 {
 	unsigned long i, j, k;
