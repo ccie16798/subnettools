@@ -15,7 +15,7 @@
 #include "utils.h"
 #include "st_ea.h"
 
-int ea_size(struct ipam_ea *ea)
+int ea_size(const struct ipam_ea *ea)
 {
 	if (ea->value == NULL)
 		return 0;

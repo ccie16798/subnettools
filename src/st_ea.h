@@ -8,7 +8,7 @@ struct  ipam_ea {
 };
 
 /* return the malloc'd size of ea*/
-int ea_size(struct ipam_ea *ea);
+int ea_size(const struct ipam_ea *ea);
 
 /* set value of 'ea' to 'value'
  * returns : 	-1 if no memory
