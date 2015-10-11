@@ -420,7 +420,7 @@ static int __fprint_route_fmt(FILE *output, const struct route *r, const char *f
 					j += res;
 					break;
 				case 'O': /* Extended Attribute */
-					res = __print_ea(outbuf + j, sizeof(outbuf) -j,
+					res = __print_ea(outbuf + j, sizeof(outbuf) -j - 1,
 							fmt, &i,
 							field_width, pad_left,
 							r->ea, r->ea_nr,
@@ -478,11 +478,11 @@ static int __fprint_ipam_fmt(FILE *output, const struct ipam_line *r,
 	while (1) {
 		c = fmt[i];
 		debug(FMT, 5, "Still to parse : '%s'\n", fmt + i);
-		if (j >= sizeof(outbuf)) {
+		if (j >= sizeof(outbuf) - 1) {
 			fprintf(stderr, "BUG in %s, buffer overrun, j=%d len=%d\n", __FUNCTION__, j,
 					 (int)sizeof(outbuf));
 			break;
-		} else if (j == sizeof(outbuf) - 1) {
+		} else if (j == sizeof(outbuf) - 2) {
 			debug(FMT, 2, "Output buffer is full, stopping\n");
 			break;
 		}
@@ -508,7 +508,8 @@ static int __fprint_ipam_fmt(FILE *output, const struct ipam_line *r,
 						strcpy(buffer, "<Invalid mask>");
 						res = strlen(buffer);
 					}
-					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j - 1,
+							buffer,
 							res, field_width, pad_left, pad_value);
 					j += res;
 					break;
@@ -520,7 +521,8 @@ static int __fprint_ipam_fmt(FILE *output, const struct ipam_line *r,
 						strcpy(buffer, "<Invalid mask>");
 						res = strlen(buffer);
 					}
-					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j - 1,
+							buffer,
 							res, field_width, pad_left, ' ');
 					j += res;
 					break;
@@ -529,7 +531,8 @@ static int __fprint_ipam_fmt(FILE *output, const struct ipam_line *r,
 					SET_IP_COMPRESSION_LEVEL(fmt[i2 + 1]);
 					copy_subnet(&v_sub, &r->subnet);
 					res = subnet2str(&v_sub, buffer, sizeof(buffer), compression_level);
-					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j - 1,
+							buffer,
 							res, field_width, pad_left, ' ');
 					j += res;
 					break;
@@ -539,12 +542,13 @@ static int __fprint_ipam_fmt(FILE *output, const struct ipam_line *r,
 					copy_subnet(&v_sub, &r->subnet);
 					subnet2str(&v_sub, buffer2, sizeof(buffer2), compression_level);
 					res = sprintf(buffer, "%s/%d", buffer2, (int)v_sub.mask);
-					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j - 1,
+							buffer,
 							res, field_width, pad_left, ' ');
 					j += res;
 					break;
 				case 'O': /* Extended Attribute */
-					res = __print_ea(outbuf + j, sizeof(outbuf) -j,
+					res = __print_ea(outbuf + j, sizeof(outbuf) -j - 1,
 							fmt, &i,
 							field_width, pad_left,
 							r->ea, r->ea_nr,
