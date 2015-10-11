@@ -42,7 +42,7 @@ int alloc_tas(TAS *tas, unsigned long n, int (*compare)(void *v1, void *v2))
 	if (n > (SIZE_T_MAX / sizeof(void *) - 1)) {
 		fprintf(stderr, "error: too much memory requested for heap\n");
 		tas->tab = NULL;
-		tas->nr = 0;
+		tas->nr  = 0;
 		return -1;
 	}
 
@@ -77,7 +77,7 @@ void addTAS(TAS *tas, void *el)
 
 	while (n) { /* move it up */
 		n2--;
-		n2 /= 2;
+		n2 >>= 1;
 		if (tas->compare(tas->tab[n], tas->tab[n2])) { /* if son  better than father swap */
 			swap(tas->tab[n2], tas->tab[n]);
 			n = n2; /* move to father */
@@ -115,12 +115,13 @@ void *popTAS(TAS *tas)
 
 	if (tas->nr == 0)
 		return NULL;
-	n = tas->nr - 1;
 	tas->nr--;
+	n = tas->nr;
 	tas->tab[0] = tas->tab[n]; /* first replace head with last element, then lets get it down */
 
 	while (1) { /* move down */
-		i2 = 2 * i + 1;
+		i2 =  i << 1;
+		i2++; /* i2 = 2 * i + 1, i2 = left son of i  */
 		if (i2 == n) { /* empty right son */
 			if (tas->compare(tas->tab[i], tas->tab[i2])) /* if father is better, stop */
                                 break;
@@ -140,7 +141,7 @@ void *popTAS(TAS *tas)
 		} else {
 			if (tas->compare(tas->tab[i], tas->tab[i2 + 1]))/* if father is better, stop */
 				break;
-			swap(tas->tab[i2+1], tas->tab[i]); /* wap father & right son */
+			swap(tas->tab[i2 + 1], tas->tab[i]); /* swap father & right son */
 			i = i2 + 1;
 		}
 	}
