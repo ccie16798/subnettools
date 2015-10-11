@@ -555,7 +555,6 @@ static int __fprint_ipam_fmt(FILE *output, const struct ipam_line *r,
 					break;
 				default:
 					debug(FMT, 2, "%c is not a valid char after a %c\n", fmt[i2], '%');
-					outbuf[j] = '%';
 					outbuf[j++] = '%';
 					if (j < sizeof(outbuf) - 2)
 						outbuf[j++] = fmt[i2];
@@ -775,7 +774,8 @@ int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt
  * sadly a lot of code if common with fprint_route_fmt
  * But this cannot really be avoided
  */
-static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, struct sto *o, int max_o)
+static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap,
+		struct sto *o, int max_o)
 {
 	int i, j, i2, compression_level;
 	int res;
