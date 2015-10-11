@@ -440,7 +440,7 @@ static int __fprint_ipam_fmt(FILE *output, const struct ipam_line *r,
 	char c;
 	char outbuf[512 + 140];
 	char buffer[128], buffer2[128];
-	int field_width, ea_num;
+	int field_width;
 	struct subnet v_sub;
 	char pad_value;
 	/* %I for IP */
@@ -517,62 +517,11 @@ static int __fprint_ipam_fmt(FILE *output, const struct ipam_line *r,
 					j += res;
 					break;
 				case 'O': /* Extended Attribute */
-					ea_num = 0;
-					if (fmt[i + 2] == '#') {
-						int k;
-						char sep = fmt[i + 3];
-						if (sep == '\0') /* set the default separator */
-							sep = ';';
-						for (k = 0; k < r->ea_nr; k++) {
-							if (header)
-								res = strxcpy(buffer,
-										r->ea[k].name,
-										sizeof(buffer));
-							else {
-								if (r->ea[k].value == NULL) {
-									buffer[0] = '\0';
-									res = 0;
-								} else
-									res = strxcpy(buffer,
-											r->ea[k].value,
-											sizeof(buffer));
-							}
-							if (res >= sizeof(buffer)) {
-								debug(FMT, 1, "Warning, '%s' is truncated\n",
-										buffer);
-								res = sizeof(buffer);
-							}
-							res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j,
-									buffer, res, field_width, pad_left, ' ');
-							j += res;
-							if (k != r->ea_nr - 1) {
-								outbuf[j] = sep;
-								j++;
-							}
-						}
-						i++;
-						break;
-					}
-					while (isdigit(fmt[i + 2])) {
-						ea_num *= 10;
-						ea_num += fmt[i + 2] - '0';
-						i++;
-					}
-					if (ea_num >= r->ea_nr) {
-						debug(FMT, 3, "Invalid Extended Attribute number #%d, max %d\n", ea_num, r->ea_nr);
-						break;
-					}
-					if (header)
-						res = strxcpy(buffer, r->ea[ea_num].name, sizeof(buffer));
-					else
-						res = strxcpy(buffer, r->ea[ea_num].value, sizeof(buffer));
-					if (res >= sizeof(buffer)) {
-						debug(FMT, 1, "Warning, '%s' is truncated\n",
-								buffer);
-						res = sizeof(buffer);
-					}
-					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
-							res, field_width, pad_left, ' ');
+					res = __print_ea(outbuf + j, sizeof(outbuf) -j,
+							fmt, &i,
+							field_width, pad_left,
+							r->ea, r->ea_nr,
+							header);
 					j += res;
 					break;
 				default:
