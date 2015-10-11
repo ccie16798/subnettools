@@ -221,7 +221,7 @@ static int __print_ea(char *outbuf, size_t buffer_len,
 				debug(FMT, 1, "Stopping after %d Extended Attributes\n", k + 1);
 				break;
 			} else if (j >= buffer_len) {
-				fprintf(stderr, "BUG in %s, buffer overrun %d > %d\n", __FUNCTION__,
+				fprintf(stderr, "BUG in %s, buffer overflow %d > %d\n", __FUNCTION__,
 					j, (int)buffer_len);
 				break;
 			}
