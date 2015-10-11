@@ -429,12 +429,10 @@ static int __fprint_route_fmt(FILE *output, const struct route *r, const char *f
 					break;
 				default:
 					debug(FMT, 2, "%c is not a valid char after a %c\n", fmt[i2], '%');
-					outbuf[j] = '%';
-					j++;
-					if (j < sizeof(outbuf) - 2) {
-						outbuf[j] = fmt[i2];
-						j++;
-					}
+					outbuf[j++] = '%';
+					if (j < sizeof(outbuf) - 2)
+						outbuf[j++] = fmt[i2];
+					break;
 			} /* switch */
 			i += 2;
 		} else if (c == '\\') {
@@ -558,8 +556,10 @@ static int __fprint_ipam_fmt(FILE *output, const struct ipam_line *r,
 				default:
 					debug(FMT, 2, "%c is not a valid char after a %c\n", fmt[i2], '%');
 					outbuf[j] = '%';
-					outbuf[j + 1] = fmt[i2];
-					j += 2;
+					outbuf[j++] = '%';
+					if (j < sizeof(outbuf) - 2)
+						outbuf[j++] = fmt[i2];
+					break;
 			} /* switch */
 			i += 2;
 		} else if (c == '\\') {
@@ -624,11 +624,11 @@ int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt
 	while (1) {
 		c = fmt[i];
 		debug(FMT, 5, "Still to parse : '%s'\n", fmt + i);
-		if (j >= sizeof(outbuf)) {
+		if (j >= sizeof(outbuf) - 1) {
 			fprintf(stderr, "BUG in %s, buffer overrun, j=%d len=%d\n", __FUNCTION__, j,
 					 (int)sizeof(outbuf));
 			break;
-		} else if (j == sizeof(outbuf) - 1) {
+		} else if (j == sizeof(outbuf) - 2) {
 			debug(FMT, 2, "Output buffer is full, stopping\n");
 			break;
 		}
@@ -647,28 +647,29 @@ int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt
 				case 'w':
 					PRINT_FILE_HEADER(WEIGHT)
 					res = sprint_uint(buffer, r->weight);
-					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j - 1, buffer,
 							res, field_width, pad_left, pad_value);
 					j += res;
 					break;
 				case 'L':
 					PRINT_FILE_HEADER(LOCAL_PREF)
 					res = sprint_uint(buffer, r->LOCAL_PREF);
-					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j -1, buffer,
 							res, field_width, pad_left, pad_value);
 					j += res;
 					break;
 				case 'A':
 					PRINT_FILE_HEADER(AS_PATH)
 					res = strlen(r->AS_PATH);
-					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, r->AS_PATH,
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j - 1,
+							r->AS_PATH,
 							res, field_width, pad_left, ' ');
 					j += res;
 					break;
 				case 'M':
 					PRINT_FILE_HEADER(MED)
 					res = sprint_uint(buffer, r->MED);
-					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j - 1, buffer,
 							res, field_width, pad_left, pad_value);
 					j += res;
 					break;
@@ -676,7 +677,7 @@ int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt
 					PRINT_FILE_HEADER(ORIGIN)
 					buffer[0] = r->origin;
 					buffer[1] = '\0';
-					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j - 1, buffer,
 							1, field_width, pad_left, pad_value);
 					j += res;
 					break;
@@ -684,7 +685,7 @@ int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt
 					PRINT_FILE_HEADER(BEST)
 					truc = (r->best ? "1" : "0");
 					res = strlen(truc);
-					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, truc,
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j - 1, truc,
 							res, field_width, pad_left, ' ');
 					j += res;
 					break;
@@ -692,7 +693,7 @@ int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt
 					PRINT_FILE_HEADER(BEST)
 					truc = (r->best ? "Best" : "No");
 					res = strlen(truc);
-					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, truc,
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j - 1, truc,
 							res, field_width, pad_left, ' ');
 					j += res;
 					break;
@@ -705,7 +706,7 @@ int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt
 					PRINT_FILE_HEADER(Proto)
 					truc = (r->type == 'i'? "iBGP" : "eBGP");
 					res = strlen(truc);
-					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, truc,
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j - 1, truc,
 							res, field_width, pad_left, ' ');
 					j += res;
 					break;
@@ -717,7 +718,7 @@ int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt
 						strcpy(buffer, "<Invalid mask>");
 						res = strlen(buffer);
 					}
-					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j - 1, buffer,
 							res, field_width, pad_left, ' ');
 					j += res;
 					break;
@@ -726,7 +727,7 @@ int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt
 					SET_IP_COMPRESSION_LEVEL(fmt[i2 + 1]);
 					copy_subnet(&v_sub, &r->subnet);
 					res = subnet2str(&v_sub, buffer, sizeof(buffer), compression_level);
-					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j - 1, buffer,
 							res, field_width, pad_left, ' ');
 					j += res;
 					break;
@@ -736,7 +737,7 @@ int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt
 					copy_subnet(&v_sub, &r->subnet);
 					subnet2str(&v_sub, buffer2, sizeof(buffer2), compression_level);
 					res = sprintf(buffer, "%s/%d", buffer2, (int)v_sub.mask);
-					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j - 1, buffer,
 							res, field_width, pad_left, ' ');
 					j += res;
 					break;
@@ -746,15 +747,16 @@ int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt
 					copy_ipaddr(&sub.ip_addr, &r->gw);
 					sub.ip_ver = r->subnet.ip_ver;
 					res = subnet2str(&sub, buffer, sizeof(buffer), compression_level);
-					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j -1, buffer,
 							res, field_width, pad_left, ' ');
 					j += res;
 					break;
 				default:
 					debug(FMT, 2, "%c is not a valid char after a %c\n", fmt[i2], '%');
-					outbuf[j] = '%';
-					outbuf[j + 1] = fmt[i2];
-					j += 2;
+					outbuf[j++] = '%';
+					if (j < sizeof(outbuf) - 2)
+						outbuf[j++] = fmt[i2];
+					break;
 			} /* switch */
 			i += 2;
 		} else if (c == '\\') {
