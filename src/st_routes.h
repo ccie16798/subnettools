@@ -16,13 +16,21 @@ struct route {
  * clone_route MUST BE used if the src route is still referenced
  */
 void copy_route(struct route *dst, const struct route *src);
-/* clone route src into dst
- * if dst has memory alloced in EA, free them before allocating
+/* clone src into dest
+ * if dest had alloc'ed buffer, free tham
+ *
+ * returns:
+ * 	1  on success
+ * 	-1 on failure (ENOMEM)
  */
 int clone_route(struct route *dst, const struct route *src);
 
-/* clone_route_nofree:
- * clone src into dst; DOES NOT FREE DST, make sure it is not alloced
+/* clone src into dest
+ * doesnt free dest buffers, so make sure it hasnt
+ *
+ * returns:
+ * 	1  on success
+ * 	-1 on failure (ENOMEM)
  */
 int clone_route_nofree(struct route *dst, const struct route *src);
 

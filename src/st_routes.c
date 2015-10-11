@@ -60,13 +60,7 @@ int realloc_route_ea(struct route *r, int new_n)
 	r->ea_nr = new_n;
 	return 1;
 }
-/* clone src into dest
- * if dest had alloc'ed buffer, free tham
- *
- * returns:
- * 	1  on success
- * 	-1 on failure (ENOMEM)
- */
+
 int clone_route(struct route *dest, const struct route *src)
 {
 	int i, res;
@@ -84,13 +78,6 @@ int clone_route(struct route *dest, const struct route *src)
 	return 1;
 }
 
-/* clone src into dest
- * doesnt free dest buffers, so make sure it hasnt
- *
- * returns:
- * 	1  on success
- * 	-1 on failure (ENOMEM)
- */
 int clone_route_nofree(struct route *dest, const struct route *src)
 {
 	int i, res;
