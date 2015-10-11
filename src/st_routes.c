@@ -49,6 +49,17 @@ int alloc_route_ea(struct route *r, int n)
 	return 1;
 }
 
+int realloc_route_ea(struct route *r, int new_n)
+{
+	struct ipam_ea *new_ea;
+
+	new_ea = realloc_ea_array(r->ea, r->ea_nr, new_n);
+	if (new_ea == NULL)
+		return -1;
+	r->ea    = new_ea;
+	r->ea_nr = new_n;
+	return 1;
+}
 /* clone src into dest
  * if dest had alloc'ed buffer, free tham
  *

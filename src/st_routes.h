@@ -28,7 +28,27 @@ int clone_route_nofree(struct route *dst, const struct route *src);
 
 void zero_route(struct route *a);
 void zero_route_ea(struct route *a);
+
+/*
+ * alloc_route_ea
+ * Alloc memory for a route Extended Attributes
+ * @r	: the route
+ * @n	: the number of Extended Attributes to alloc
+ * returns:
+ * 	1  on SUCCESS
+ * 	-1 on failure (ENOMEM)
+ */
 int alloc_route_ea(struct route *r, int n);
+
+/*
+ * realloc_route_ea
+ * realloc memory for a route Extended Attributes
+ * @r	: the route
+ * @n	: the new number of Extended Attributes to alloc
+ * returns:
+ * 	1  on SUCCESS
+ */
+int realloc_route_ea(struct route *r, int new_n);
 void free_route(struct route *r);
 int is_equal_gw(struct route *r1, struct route *r2);
 
