@@ -76,3 +76,25 @@ struct ipam_ea *alloc_ea_array(int n)
 	}
 	return ea;
 }
+
+struct ipam_ea *realloc_ea_array(struct ipam_ea *ea, int old_n, int new_n)
+{
+	int j;
+	struct ipam_ea *new_ea;
+
+	if (new_n <= old_n) {
+		fprintf(stderr, "BUG, realloc_ea_array called new size < old_size \n");
+		return NULL;
+	}
+	new_ea = st_realloc_nodebug(ea, new_n * sizeof(struct ipam_ea),
+			old_n * sizeof(struct ipam_ea),
+			"ipam_ea");
+	if (new_ea == NULL)
+		return NULL;
+
+	for (j = old_n; j < new_n; j++) {
+		new_ea[j].value = NULL;
+		new_ea[j].len   = 0;
+	}
+	return ea;
+}
