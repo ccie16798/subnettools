@@ -271,7 +271,7 @@ static inline int __print_ea(char *outbuf, size_t buffer_len,
 static int __fprint_route_fmt(FILE *output, const struct route *r, const char *fmt, int header)
 {
 	int i, j, i2, compression_level;
-	int res, pad_left, ea_num;
+	int res, pad_left;
 	char c;
 	char outbuf[512 + 140];
 	char buffer[128], buffer2[128];
@@ -396,7 +396,6 @@ static int __fprint_route_fmt(FILE *output, const struct route *r, const char *f
 					j += res;
 					break;
 				case 'O': /* Extended Attribute */
-					ea_num = 0;
 					res = __print_ea(outbuf + j, sizeof(outbuf) -j,
 							fmt, &i,
 							field_width, pad_left,
