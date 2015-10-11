@@ -66,6 +66,7 @@ int subnet_file_cmp(const struct subnet_file *before, const struct subnet_file *
 	unsigned long i, j, k;
 	int res, found;
 	int ea_nr;
+	char buffer[128];
 
 	k = 0;
 	res = alloc_subnet_file(sf, before->nr + after->nr);
@@ -94,13 +95,19 @@ int subnet_file_cmp(const struct subnet_file *before, const struct subnet_file *
 			ea_strdup(&sf->routes[k].ea[ea_nr], "removed");
 			ea_strdup(&sf->routes[k].ea[ea_nr + 1], "removed");
 		} else {
-			if (!is_equal_gw(&after->routes[j], &before->routes[i])) {
+			if ( (!is_equal_gw(&after->routes[j], &before->routes[i])) &&
+					(strcmp(after->routes[j].device, before->routes[i].device))) {
 				ea_strdup(&sf->routes[k].ea[ea_nr], "changed");
-				ea_strdup(&sf->routes[k].ea[ea_nr + 1], "new GW");
-			}
-			if (strcmp(after->routes[j].device, before->routes[i].device)) {
+				st_snprintf(buffer, sizeof(buffer), "new Device/GW: %s/%a",
+						after->routes[j].device, after->routes[j].gw);
+				ea_strdup(&sf->routes[k].ea[ea_nr + 1], buffer);
+			} else if (!is_equal_gw(&after->routes[j], &before->routes[i])) {
 				ea_strdup(&sf->routes[k].ea[ea_nr], "changed");
-				ea_strdup(&sf->routes[k].ea[ea_nr + 1], "new devuce");
+				st_snprintf(buffer, sizeof(buffer), "new GW: %a", after->routes[j].gw);
+				ea_strdup(&sf->routes[k].ea[ea_nr + 1], buffer);
+			 } else if (strcmp(after->routes[j].device, before->routes[i].device)) {
+				ea_strdup(&sf->routes[k].ea[ea_nr], "changed");
+				ea_strdup(&sf->routes[k].ea[ea_nr + 1], "new device");
 			}
 		}
 		k++;
