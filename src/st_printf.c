@@ -309,11 +309,12 @@ static int __fprint_route_fmt(FILE *output, const struct route *r, const char *f
 	while (1) {
 		c = fmt[i];
 		debug(FMT, 5, "Still to parse : '%s'\n", fmt + i);
-		if (j >= sizeof(outbuf)) {
+		if (j >= sizeof(outbuf) - 1) {
 			fprintf(stderr, "BUG in %s, buffer overrun, j=%d len=%d\n", __FUNCTION__, j,
 					 (int)sizeof(outbuf));
 			break;
-		} else if (j == sizeof(outbuf) - 1) {
+		/* must reserve one byte for '\n', one byte for '\0' */
+		} else if (j == sizeof(outbuf) - 2) {
 			debug(FMT, 2, "Output buffer is full, stopping\n");
 			break;
 		}
@@ -339,8 +340,8 @@ static int __fprint_route_fmt(FILE *output, const struct route *r, const char *f
 						strcpy(buffer, "<Invalid mask>");
 						res = strlen(buffer);
 					}
-					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
-							res, field_width, pad_left, pad_value);
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j - 1,
+							buffer, res, field_width, pad_left, pad_value);
 					j += res;
 					break;
 				case 'm':
@@ -351,14 +352,15 @@ static int __fprint_route_fmt(FILE *output, const struct route *r, const char *f
 						strcpy(buffer, "<Invalid mask>");
 						res = strlen(buffer);
 					}
-					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
-							res, field_width, pad_left, ' ');
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j - 1,
+							buffer, res, field_width, pad_left, ' ');
 					j += res;
 					break;
 				case 'D':
 					IPAM_HEADER("device")
 					res = strlen(r->device);
-					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, r->device,
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j - 1,
+							r->device,
 							res, field_width, pad_left, ' ');
 					j += res;
 					break;
@@ -366,12 +368,14 @@ static int __fprint_route_fmt(FILE *output, const struct route *r, const char *f
 					IPAM_HEADER("comment")
 					if (r->ea[0].value == NULL) {
 						buffer[0] = '\0';
-						res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
-							0, field_width, pad_left, ' ');
+						res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j - 1,
+								buffer,
+								0, field_width, pad_left, ' ');
 					} else {
 						res = strlen(r->ea[0].value);
-						res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, r->ea[0].value,
-							res, field_width, pad_left, ' ');
+						res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j - 1,
+								r->ea[0].value,
+								res, field_width, pad_left, ' ');
 					}
 					j += res;
 					break;
@@ -392,7 +396,7 @@ static int __fprint_route_fmt(FILE *output, const struct route *r, const char *f
 					else if (fmt[i2] == 'U')
 						next_subnet(&v_sub);
 					res = subnet2str(&v_sub, buffer, sizeof(buffer), compression_level);
-					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j - 1, buffer,
 							res, field_width, pad_left, ' ');
 					j += res;
 					break;
@@ -401,7 +405,7 @@ static int __fprint_route_fmt(FILE *output, const struct route *r, const char *f
 					SET_IP_COMPRESSION_LEVEL(fmt[i2 + 1]);
 					subnet2str(&r->subnet, buffer2, sizeof(buffer2), compression_level);
 					res = sprintf(buffer, "%s/%d", buffer2, (int)r->subnet.mask);
-					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j - 1, buffer,
 							res, field_width, pad_left, ' ');
 					j += res;
 					break;
@@ -411,7 +415,7 @@ static int __fprint_route_fmt(FILE *output, const struct route *r, const char *f
 					copy_ipaddr(&sub.ip_addr, &r->gw);
 					sub.ip_ver = r->subnet.ip_ver;
 					res = subnet2str(&sub, buffer, sizeof(buffer), compression_level);
-					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j, buffer,
+					res = pad_buffer_out(outbuf + j, sizeof(outbuf) - j - 1, buffer,
 							res, field_width, pad_left, ' ');
 					j += res;
 					break;
@@ -426,8 +430,11 @@ static int __fprint_route_fmt(FILE *output, const struct route *r, const char *f
 				default:
 					debug(FMT, 2, "%c is not a valid char after a %c\n", fmt[i2], '%');
 					outbuf[j] = '%';
-					outbuf[j + 1] = fmt[i2];
-					j += 2;
+					j++;
+					if (j < sizeof(outbuf) - 2) {
+						outbuf[j] = fmt[i2];
+						j++;
+					}
 			} /* switch */
 			i += 2;
 		} else if (c == '\\') {
