@@ -142,10 +142,8 @@ static inline int pad_buffer_out(char *out, size_t len, const char *buffer, size
 	int res;
 
 	debug(FMT, 7, "Padding : len=%d, buff_size=%d, field_width=%d\n", (int)len, (int)buff_size, field_width);
-	if (buff_size < 0) {
-		debug(FMT, 1, "Cannot pad an Invalid buffer\n");
+	if (len == 0)
 		return 0;
-	}
 	/* if buffer size is larger than field width, no need to pad */
 	if (buff_size > field_width) {
 		res = min(len - 1, buff_size);
@@ -183,7 +181,7 @@ static inline int pad_buffer_out(char *out, size_t len, const char *buffer, size
  * 	number of printed chars in outbuf
  */
 
-static inline int __print_ea(char *outbuf, size_t buffer_len,
+static int __print_ea(char *outbuf, size_t buffer_len,
 			const char *fmt, int *i,
 			int field_width, int pad_left,
 			struct ipam_ea *ea, int ea_nr,
@@ -219,6 +217,14 @@ static inline int __print_ea(char *outbuf, size_t buffer_len,
 			res = pad_buffer_out(outbuf + j, buffer_len - j,
 					buffer, res, field_width, pad_left, ' ');
 			j += res;
+			if (j == buffer_len - 1) {
+				debug(FMT, 1, "Stopping after %d Extended Attributes\n", k + 1);
+				break;
+			} else if (j >= buffer_len) {
+				fprintf(stderr, "BUG in %s, buffer overrun %d > %d\n", __FUNCTION__,
+					j, (int)buffer_len);
+				break;
+			}
 			if (k != ea_nr - 1) {
 				outbuf[j] = sep;
 				j++;
