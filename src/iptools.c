@@ -408,7 +408,6 @@ int string2mask(const char *s, int len)
 					debug(PARSEIP, 3, "Invalid DDN mask, wrong\n");
 					return BAD_MASK;
 				}
-
 			}
 			prev_a = a;
 			ddn_mask += 8 - mylog2(256 - a);
