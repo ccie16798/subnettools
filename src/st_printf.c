@@ -226,15 +226,17 @@ static inline int __print_ea(char *outbuf, size_t buffer_len,
 		}
 		*i += 1;
 		return j;
-	} else {
-		ea_num = 0;
+	} else if (isdigit(fmt[*i + 2])) {
+		/* print just One Extended Attribute */
+		ea_num = fmt[*i + 2] - '0';
+		*i += 1;
 		while (isdigit(fmt[*i + 2])) {
 			ea_num *= 10;
 			ea_num += fmt[*i + 2] - '0';
 			*i += 1;
 		}
 		if (ea_num >= ea_nr) {
-			debug(FMT, 3, "Invalid Extended Attribute number #%d, max %d\n", ea_num, ea_nr);
+			debug(FMT, 2, "Invalid Extended Attribute number #%d, max %d\n", ea_num, ea_nr);
 			return 0;
 		}
 		if (header)
@@ -254,6 +256,9 @@ static inline int __print_ea(char *outbuf, size_t buffer_len,
 		res = pad_buffer_out(outbuf,  buffer_len, buffer,
 				res, field_width, pad_left, ' ');
 		return res;
+	} else {
+		debug(FMT, 1, "Invalid char '%c' after %%O\n", fmt[*i + 2]);
+		return 0;
 	}
 }
 
