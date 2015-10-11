@@ -119,35 +119,3 @@ void parse_debug(char *string)
 		s = strtok_r(NULL, ",", &save_s1);
 	} while (s);
 }
-
-char  try_to_guess_delim(FILE *f)
-{
-	char try[] = ",;/| &#-";
-	int count[16];
-	int i, j;
-	int maxline = 0;
-	int max_count = 0;
-	char *s;
-	char c;
-	char buffer[1024];
-
-	memset(count, 0, sizeof(count));
-	rewind(f);
-	while ((s = fgets(buffer, sizeof(buffer), f)) && maxline++ < 4) {
-		for (j = 0; j < strlen(buffer); j++) {
-			for (i = 0; i < strlen(try); i++)
-				if (try[i] == s[j]) {
-					count[i]++;
-					debug(TRYGUESS, 3, "%c one hit\n", try[i]);
-				}
-		}
-	}
-	for (i = 0; i < strlen(try); i++) {
-		debug(TRYGUESS, 1, "%c %d\n", try[i], count[i]);
-		if (count[i] > max_count) {
-			max_count = count[i];
-			c = try[i];
-		}
-	}
-	return c;
-}
