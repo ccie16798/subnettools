@@ -4,6 +4,8 @@
 #include "st_options.h"
 #include "st_handle_csv_files.h"
 void compare_files(struct subnet_file *sf1, struct subnet_file *sf2, struct st_options *nof);
+int subnet_files_diff(const struct subnet_file *before, const struct subnet_file *after,
+			struct subnet_file *sf);
 int missing_routes(const struct subnet_file *sf1, const struct subnet_file *sf2, struct subnet_file *sf3);
 int uniq_routes(const struct subnet_file *sf1, const struct subnet_file *sf2, struct subnet_file *sf3);
 void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *paip, struct st_options *nof);

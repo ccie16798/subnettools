@@ -60,6 +60,55 @@ void compare_files(struct subnet_file *sf1, struct subnet_file *sf2, struct st_o
 	}
 }
 
+int subnet_files_diff(const struct subnet_file *before, const struct subnet_file *after,
+			struct subnet_file *sf)
+{
+	unsigned long i, j, k;
+	int res, found;
+	int ea_nr;
+
+	k = 0;
+	res = alloc_subnet_file(sf, before->nr + after->nr);
+	if (res < 0)
+		return res;
+
+	for (i = 0; i < before->nr; i++) {
+		found = 0;
+		for (j = 0; j < after->nr; j++) {
+			res = subnet_compare(&after->routes[j].subnet, &before->routes[i].subnet);
+			if (res == EQUALS) {
+				found = 1;
+				break;
+			}
+		}
+		clone_route_nofree(&sf->routes[k], &before->routes[i]);
+		ea_nr = sf->routes[k].ea_nr;
+		res = realloc_route_ea(&sf->routes[k], sf->routes[k].ea_nr + 2);
+		if (res < 0) {
+			sf->nr = k + 1;
+			return -1;
+		}
+		sf->routes[k].ea[ea_nr].name = "status";
+		sf->routes[k].ea[ea_nr + 1].name = "change";
+		if (found == 0) {
+			ea_strdup(&sf->routes[k].ea[ea_nr], "removed");
+			ea_strdup(&sf->routes[k].ea[ea_nr + 1], "removed");
+		} else {
+			if (!is_equal_gw(&after->routes[j], &before->routes[i])) {
+				ea_strdup(&sf->routes[k].ea[ea_nr], "changed");
+				ea_strdup(&sf->routes[k].ea[ea_nr + 1], "new GW");
+			}
+			if (strcmp(after->routes[j].device, before->routes[i].device)) {
+				ea_strdup(&sf->routes[k].ea[ea_nr], "changed");
+				ea_strdup(&sf->routes[k].ea[ea_nr + 1], "new devuce");
+			}
+		}
+		k++;
+	}
+	sf->nr = k;
+	return 1;
+}
+
 static int __heap_subnet_is_superior(void *v1, void *v2)
 {
 	struct subnet *s1 = &((struct route *)v1)->subnet;
