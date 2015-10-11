@@ -160,8 +160,8 @@ static inline int pad_buffer_out(char *out, size_t len, const char *buffer, size
 			res = len - 1;
 			memcpy(out, buffer, res);
 		} else {
-			res = min(field_width, (int)len - 1); /* buf_len < len, but field_with can be > len */
 			strcpy(out, buffer);
+			res = min(field_width, (int)len - 1);
 			pad_n(out + buff_size, res - buff_size, c);
 		}
 	} else { /* pad right */
@@ -169,8 +169,8 @@ static inline int pad_buffer_out(char *out, size_t len, const char *buffer, size
 			pad_n(out, len, c);
 			res = len - 1;
 		} else {
-			res = min(field_width, (int)len - 1);
 			pad_n(out, field_width - buff_size, c);
+			res = min(field_width, (int)len - 1);
 			memcpy(out + field_width - buff_size, buffer, res);
 		}
 	}
