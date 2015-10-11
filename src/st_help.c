@@ -94,8 +94,7 @@ void usage()
 	printf("- Input subnet/routes files without a CSV header are assumed to be : prefix;mask;GW;comment or prefix;mask;comment\n");
 	printf("- default CSV header is 'prefix;mask;device;GW;comment'\n");
 	printf("- CSV header can be changed by using the configuration file (subnettools confdesc for more info)\n");
-	printf("- Input IPAM CSV MUST have a CSV header; there is a defaut header, but it is derived from my company's one\n");
-	printf("- So IPAM CSV header MUST be described in the configuration file\n");
+	printf("- IPAM CSV header MUST be described in the configuration file\n");
 }
 
 void debug_usage()
