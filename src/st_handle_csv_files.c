@@ -205,7 +205,7 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 	if (nof->netcsv_comment[0])
 		csv_field[4].name = nof->netcsv_comment;
 
-	init_csv_file(&cf, name, csv_field, nof->delim, &strtok_r);
+	init_csv_file(&cf, name, csv_field, nof->delim, &simple_strtok_r);
 	cf.is_header = &netcsv_is_header;
 	cf.endofline_callback = &netcsv_endofline_callback;
 	cf.validate_header = &netcsv_validate_header;
