@@ -132,9 +132,16 @@ static void inline pad_n(char *s, int n, char c)
 
 
 /*
- * print 'buffer' into 'out'
- * pad the buffer if there's a field width, but don't copy more than 'len' chars into out
- * 'out' wont have a terminating Nul-byte
+ * print 'buffer' into 'out' padding it if necessary
+ * Don't copy more than 'len - 1' chars into out
+ * @out        : outpuf buffer
+ * @len        : out length
+ * @buffer     : buffer containing string to print
+ * @buff_size  : strlen(buffer)
+ * @field_witdh: the requested size of output string
+ * @pad_left   : requires padding on left size
+ * @c	       : the padding char
+ * returns the number of copied chars
  */
 static inline int pad_buffer_out(char *out, size_t len, const char *buffer, size_t buff_size,
 		int field_width, int pad_left, char c)
