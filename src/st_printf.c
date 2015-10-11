@@ -983,6 +983,11 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 					if (o == NULL)
 						break;
 					o_num = 0;
+					if (!isdigit(fmt[i + 2])) {
+						debug(FMT, 3, "Invalid char '%c' after %%O, needs to be an int\n",
+							fmt[i + 2]);
+						break;
+					}
 					while (isdigit(fmt[i + 2])) {
 						o_num *= 10;
 						o_num += fmt[i + 2] - '0';
@@ -1003,9 +1008,10 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap, s
 					break;
 				default:
 					debug(FMT, 2, "%c is not a valid char after a %c\n", fmt[i2], '%');
-					outbuf[j] = '%';
-					outbuf[j + 1] = fmt[i2];
-					j += 2;
+					outbuf[j++] = '%';
+					if (j < sizeof(outbuf) - 1)
+						outbuf[j++] = fmt[i2];
+					break;
 			} /* switch */
 			i += 2;
 		} else if (c == '\\') {
