@@ -87,14 +87,19 @@ void parse_debug(char *string)
 	char *s, *save_s1;
 	char s2[52];
 	int debug_level;
+	int res;
 
 	s = strtok_r(string, ",", &save_s1);
 	if (s == NULL)
 		return;
 	do {
-		len = strlen(s);
 		debug_level = 1;
-		strxcpy(s2, s, sizeof(s2));
+		res = strxcpy(s2, s, sizeof(s2));
+		len = strlen(s);
+		if (res >= sizeof(s2)) {
+			fprintf(stderr, "debug string too long\n");
+			return;
+		}
 		if (len > 1 && s2[len - 2] == ':') {
 				if (isdigit(s[len - 1]))
 					debug_level = s[len - 1] - '0';
@@ -106,14 +111,14 @@ void parse_debug(char *string)
 			if (debugs[i].name == NULL)
 				break;
 			if (!strcmp(s2, debugs[i].name)) {
-				debugs_level[debugs[i].num] = debug_level;;
+				debugs_level[debugs[i].num] = debug_level;
 				debug(DEBUG, 3, "adding debug flag %s, level %d\n", debugs[i].name, debug_level);
 				break;
 			}
 		}
 		s = strtok_r(NULL, ",", &save_s1);
 	} while (s);
-} 
+}
 
 char  try_to_guess_delim(FILE *f)
 {
