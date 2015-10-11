@@ -612,7 +612,8 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 			*i += (i2 - 1);
 			i2 = 0;
 			/* match_char_against_range cant return -1 here, fill_char_range above would have caught a bad expr */
-			while (match_char_against_range(in[j2], expr, &i2) && j2 - *j < max_field_length - 1) {
+			while (match_char_against_range(in[j2], expr, &i2) &&
+					j2 - *j < max_field_length - 1) {
 				if (in[j2] == '\0')
 					break;
 				v_s[j2 - *j] = in[j2];
@@ -890,11 +891,11 @@ static int find_expr(char *remain, struct expr *e)
  * found in a struct sto *
  * parse_multiplier updates offset into 'in', 'fmt', the number of objects found (n_found)
  *
- * in      : input buffer, *j its offset
- * fmt     : fmt buffer,   *i its offset
- * expr    : the string/expression  concerned by the multiplier
- * o       : objects will be stored in o (max_o)
- * n_found : num conversion specifier found so far
+ * @in      : input buffer, *j its offset
+ * @fmt     : fmt buffer,   *i its offset
+ * @expr    : the string/expression  concerned by the multiplier
+ * @o       : objects will be stored in o (max_o)
+ * @n_found : num conversion specifier found so far
  *
  * returns :
  *    positive on success
