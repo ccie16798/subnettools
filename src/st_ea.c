@@ -96,5 +96,5 @@ struct ipam_ea *realloc_ea_array(struct ipam_ea *ea, int old_n, int new_n)
 		new_ea[j].value = NULL;
 		new_ea[j].len   = 0;
 	}
-	return ea;
+	return new_ea;
 }
