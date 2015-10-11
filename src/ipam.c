@@ -165,7 +165,6 @@ static int ipam_endofline_callback(struct csv_state *state, void *data)
 	res = alloc_ipam_ea(sf, sf->nr);
 	if (res < 0)
 		return  CSV_CATASTROPHIC_FAILURE;
-	state->state[0] = 0; /* state[0] holds the num of the EA */
 	return CSV_CONTINUE;
 }
 
@@ -239,6 +238,7 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 	for (i = 0; i < ea_nr; i++)
 		sf->ea[i].name = csv_field[i + 2].name;
 	memset(&sf->lines[0], 0, sizeof(struct ipam_line));
+	/* alloc memory for first line of file */
 	res = alloc_ipam_ea(sf, 0);
 	if (res < 0) {
 		free_ipam_file(sf);
