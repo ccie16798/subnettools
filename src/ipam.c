@@ -119,7 +119,7 @@ static int ipam_mask_handle(char *s, void *data, struct csv_state *state)
 static int ipam_ea_handle(char *s, void *data, struct csv_state *state)
 {
         struct ipam_file *sf = data;
-	int ea_nr = state->state[0];
+	int ea_nr;
 	int found = 0;
 
 	for (ea_nr = 0; ea_nr < sf->ea_nr; ea_nr++) {
@@ -127,7 +127,6 @@ static int ipam_ea_handle(char *s, void *data, struct csv_state *state)
 			found = 1;
 			break;
 		}
-
 	}
 	if (found == 0) {
 		debug(IPAM, 2, "No EA match field '%s'\n",  state->csv_field);
@@ -136,7 +135,6 @@ static int ipam_ea_handle(char *s, void *data, struct csv_state *state)
 	debug(IPAM, 6, "Found %s = %s\n",  sf->lines[sf->nr].ea[ea_nr].name, s);
 	/* we dont care if memory failed on strdup; we continue */
 	ea_strdup(&sf->lines[sf->nr].ea[ea_nr], s);
-	state->state[0]++;
 	return CSV_VALID_FIELD;
 }
 
