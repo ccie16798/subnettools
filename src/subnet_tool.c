@@ -112,6 +112,28 @@ int subnet_file_cmp(const struct subnet_file *before, const struct subnet_file *
 		}
 		k++;
 	}
+	for (j = 0; j < after->nr; j++) {
+		found = 0;
+		for (i = 0; i < before->nr; i++) {
+			res = subnet_compare(&after->routes[j].subnet, &before->routes[i].subnet);
+			if (res == EQUALS) {
+				found = 1;
+				break;
+			}
+		}
+		if (found == 0) {
+			clone_route_nofree(&sf->routes[k], &after->routes[j]);
+			ea_nr = sf->routes[k].ea_nr;
+			res = realloc_route_ea(&sf->routes[k], sf->routes[k].ea_nr + 2);
+			if (res < 0) {
+				sf->nr = k + 1;
+				return -1;
+			}
+			sf->routes[k].ea[ea_nr].name = "status";
+			ea_strdup(&sf->routes[k].ea[ea_nr], "new");
+			k++;
+		}
+	}
 	sf->nr = k;
 	return 1;
 }
