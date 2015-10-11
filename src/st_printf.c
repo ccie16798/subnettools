@@ -133,7 +133,8 @@ static void inline pad_n(char *s, int n, char c)
 
 /*
  * print 'buffer' into 'out' padding it if necessary
- * Don't copy more than 'len - 1' chars into out
+ * Don't copy more than 'len - 1' chars into out to preserve one byte for NULL
+ * pad_buffer_out don't add a NUL char
  * @out        : outpuf buffer
  * @len        : out length
  * @buffer     : buffer containing string to print
@@ -144,11 +145,12 @@ static void inline pad_n(char *s, int n, char c)
  * returns the number of copied chars
  */
 static inline int pad_buffer_out(char *out, size_t len, const char *buffer, size_t buff_size,
-		int field_width, int pad_left, char c)
+		size_t field_width, int pad_left, char c)
 {
 	int res;
 
-	debug(FMT, 7, "Padding : len=%d, buff_size=%d, field_width=%d\n", (int)len, (int)buff_size, field_width);
+	debug(FMT, 7, "Padding : len=%d, buff_size=%d, field_width=%d\n", (int)len,
+			(int)buff_size, (int)field_width);
 	if (len == 0)
 		return 0;
 	/* if buffer size is larger than field width, no need to pad */
@@ -161,7 +163,7 @@ static inline int pad_buffer_out(char *out, size_t len, const char *buffer, size
 			memcpy(out, buffer, res);
 		} else {
 			strcpy(out, buffer);
-			res = min(field_width, (int)len - 1);
+			res = min(field_width, len - 1);
 			pad_n(out + buff_size, res - buff_size, c);
 		}
 	} else { /* pad right */
@@ -170,7 +172,7 @@ static inline int pad_buffer_out(char *out, size_t len, const char *buffer, size
 			res = len - 1;
 		} else {
 			pad_n(out, field_width - buff_size, c);
-			res = min(field_width, (int)len - 1);
+			res = min(field_width, len - 1);
 			memcpy(out + field_width - buff_size, buffer, res);
 		}
 	}
