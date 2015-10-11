@@ -205,7 +205,8 @@ int addrv62str(ipv6 z, char *out_buffer, size_t len, int compress)
 	int skip_index = 0, max_skip_index = 0;
 
 	/*
-	 * instead of using snprint to check outbuff isnt overrun at each step, we make sure output buffer is large enough
+	 * instead of using snprint to check outbuff isnt overrun at each step,
+	 * we make sure output buffer is large enough
 	 * we refuse to print potentially truncated IPs and BUG early ; min size if (4 + 1) * 8
 	 */
 	if (len < 40) {
@@ -216,10 +217,14 @@ int addrv62str(ipv6 z, char *out_buffer, size_t len, int compress)
 	if (compress == 0) {
 		/* no need for snprintf since we made sure len is at least 40 and
 		 * we can't print more than 40 chars here */
-		a = sprintf(out_buffer, "%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x", block(z, 0), block(z, 1) , block(z, 2) , block(z, 3) , block(z, 4), block(z, 5), block(z, 6), block(z, 7));
+		a = sprintf(out_buffer, "%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x",
+				block(z, 0), block(z, 1), block(z, 2), block(z, 3),
+				block(z, 4), block(z, 5), block(z, 6), block(z, 7));
 		return a;
 	} else if (compress == 1) {
-		a = sprintf(out_buffer, "%x:%x:%x:%x:%x:%x:%x:%x", block(z,0), block(z, 1) , block(z, 2) , block(z, 3) , block(z, 4), block(z, 5), block(z, 6), block(z, 7));
+		a = sprintf(out_buffer, "%x:%x:%x:%x:%x:%x:%x:%x",
+				block(z, 0), block(z, 1), block(z, 2), block(z, 3),
+				block(z, 4), block(z, 5), block(z, 6), block(z, 7));
 		return a;
 	}
 	/**
