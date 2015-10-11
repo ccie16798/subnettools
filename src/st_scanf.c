@@ -489,7 +489,7 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 					debug(SCANF, 3, "no LONG found at offset %d \n", *j);
 					return n_found;
 				}
-				while (isdigit(in[j2]) && j2 - *j < max_field_length) {
+				while (isdigit(in[j2])) {
 					*v_long *= 10UL;
 					*v_long += (in[j2] - '0') ;
 					j2++;
