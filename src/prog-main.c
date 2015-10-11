@@ -75,6 +75,7 @@ struct file_options fileoptions[] = {
 
 
 static int run_compare(int argc, char **argv, void *st_options);
+static int run_subnetcmp(int argc, char **argv, void *st_options);
 static int run_missing(int argc, char **argv, void *st_options);
 static int run_uniq(int argc, char **argv, void *st_options);
 static int run_paip(int argc, char **argv, void *st_options);
@@ -138,6 +139,7 @@ struct st_command commands[] = {
 	{ "bgpsortby",	&run_bgpsortby,	1},
 	{ "ipinfo",	&run_ipinfo,	1},
 	{ "compare",	&run_compare,	2},
+	{ "subnetcmp",	&run_subnetcmp,	2},
 	{ "missing",	&run_missing,	2},
 	{ "uniq",	&run_uniq,	2},
 	{ "paip",	&run_paip,	1},
@@ -341,6 +343,33 @@ static int run_compare(int arc, char **argv, void *st_options)
 	DIE_ON_BAD_FILE(argv[3]);
 
 	compare_files(&sf1, &sf2, nof);
+	return 0;
+}
+
+static int run_subnetcmp(int arc, char **argv, void *st_options)
+{
+	int res;
+	struct subnet_file before, after, sf;
+	struct st_options *nof = st_options;
+
+	res = load_netcsv_file(argv[2], &before, nof);
+	DIE_ON_BAD_FILE(argv[2]);
+	res = load_netcsv_file(argv[3], &after, nof);
+	DIE_ON_BAD_FILE(argv[3]);
+
+	res = subnet_file_cmp(&before, &after, &sf);
+	if (res < 0) {
+		free_subnet_file(&before);
+		free_subnet_file(&after);
+		free_subnet_file(&sf);
+		return res;
+	}
+	if (nof->print_header)
+		fprint_route_header(nof->output_file, &sf.routes[0], nof->output_fmt);
+	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
+	free_subnet_file(&before);
+	free_subnet_file(&after);
+	free_subnet_file(&sf);
 	return 0;
 }
 
