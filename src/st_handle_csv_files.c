@@ -36,6 +36,15 @@ int alloc_subnet_file(struct subnet_file *sf, unsigned long n)
 	}
 	sf->nr     = 0;
 	sf->max_nr = n;
+	sf->ea	   = alloc_ea_array(1);
+	if (sf->ea == NULL) {
+		free(sf->routes);
+		sf->max_nr = 0;
+		total_memory -= sf->max_nr * sizeof(struct route);
+		return -1;
+	}
+	sf->ea[0].name = st_strdup("comment");
+	sf->ea_nr  = 1;
 	return 0;
 }
 
@@ -49,6 +58,11 @@ void free_subnet_file(struct subnet_file *sf)
 	total_memory -= sf->max_nr * sizeof(struct route);
 	sf->routes = NULL;
 	sf->nr = sf->max_nr = 0;
+	for (i = 0; i < sf->ea_nr; i++)
+		st_free_string(sf->ea[i].name);
+	free_ea_array(sf->ea, sf->ea_nr);
+	sf->ea = NULL;
+	sf->ea_nr = 0;
 }
 
 static int netcsv_prefix_handle(char *s, void *data, struct csv_state *state)
