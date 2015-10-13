@@ -154,27 +154,34 @@ static int read_csv_body(FILE *f, char *name, struct csv_file *cf,
 			debug(LOAD_CSV, 5, "Parsing token '%s' pos %d \n", s, pos);
 			/* try to find the handler */
 			for (i = 0; ; i++) {
-				debug(LOAD_CSV, 9, "Parsing field pos %d %d  : %s\n", pos, cf->csv_field[i].pos, cf->csv_field[i].name);
+				debug(LOAD_CSV, 9, "Parsing field pos %d %d : %s\n",
+						pos, cf->csv_field[i].pos, cf->csv_field[i].name);
 				if (cf->csv_field[i].name == NULL)
 					break;
 				if (pos == cf->csv_field[i].pos) {
 					csv_field = &cf->csv_field[i];
 					state->csv_field = csv_field->name;
-					debug(LOAD_CSV, 5, "found field handler : %s data : %s\n", csv_field->name, s);
+					debug(LOAD_CSV, 5, "found field handler : %s data : %s\n",
+							csv_field->name, s);
 					break;
 				}
 			}
 			if (csv_field && csv_field->handle) {
 				res = csv_field->handle(s, data, state);
 				if (res == CSV_INVALID_FIELD_BREAK) {
-					debug(LOAD_CSV, 2, "Parsing field %s data %s handler returned CSV_FIELD_INVALID_BREAK\n", csv_field->name, s);
+					debug(LOAD_CSV, 2, "Field '%s' data '%s' handler returned %s\n",
+							"CSV_INVALID_FIELD_BREAK", csv_field->name, s);
 					state->badline = 1;
 					break;
-				} else if (res == CSV_VALID_FIELD_BREAK) { /* found a valid field, but caller told us nothing interesting on this line */
-					debug(LOAD_CSV, 5, "Parsing field %s data %s handler returned CSV_VALID_FIELD_BREAK\n", csv_field->name, s);
+				} else if (res == CSV_VALID_FIELD_BREAK) {
+					/* found a valid field, but caller told us
+					 * nothing interesting on this line */
+					debug(LOAD_CSV, 5, "Field '%s' data '%s' handler returned %s\n",
+							"CSV_VALID_FIELD_BREAK", csv_field->name, s);
 					break;
 				} else if (res == CSV_VALID_FIELD_SKIP) {
-					debug(LOAD_CSV, 5, "caller %s told us to skip %d fields\n", csv_field->name, state->skip);
+					debug(LOAD_CSV, 5, "Field '%s' told us to skip %d fields\n",
+							csv_field->name, state->skip);
 					for (i = 0; i < state->skip && s != NULL; i++) {
 						s = cf->csv_strtok_r(NULL, cf->delim, &save_s);
 						debug(LOAD_CSV, 6, "Skipping %s\n", s);
@@ -191,7 +198,8 @@ static int read_csv_body(FILE *f, char *name, struct csv_file *cf,
 		} /* while s */
 		if (pos < cf->max_mandatory_pos) {
 			state->badline++;
-			debug(LOAD_CSV, 2, "Parsing line %lu, not enough fields : %d, requires : %d\n", state->line, pos, cf->max_mandatory_pos);
+			debug(LOAD_CSV, 2, "Parsing line %lu, not enough fields : %d, requires : %d\n",
+					state->line, pos, cf->max_mandatory_pos);
 		}
 
 		if (cf->endofline_callback) {
@@ -201,7 +209,8 @@ static int read_csv_body(FILE *f, char *name, struct csv_file *cf,
 				debug_timing_end(2);
 				return -2;
 			} else if (res == CSV_END_FILE) {
-				debug(LOAD_CSV, 4,  "line %lu : endofline callback told us to end parsing\n", state->line);
+				debug(LOAD_CSV, 4, "line %lu : endofline callback told us to stop\n",
+						state->line);
 				break;
 			}
 		}
@@ -214,7 +223,8 @@ static int read_csv_body(FILE *f, char *name, struct csv_file *cf,
 		res = cf->endoffile_callback(state, data);
 	else
 		res = CSV_VALID_FILE;
-	debug(LOAD_CSV, 3, "Parsed %lu lines, %lu good, %lu bad\n", state->line, state->line - badlines, badlines);
+	debug(LOAD_CSV, 3, "Parsed %lu lines, %lu good, %lu bad\n",
+			state->line, state->line - badlines, badlines);
 	debug_timing_end(2);
 	return res;
 }
@@ -307,7 +317,7 @@ void init_csv_state(struct csv_state *cs, char *file_name)
 }
 
 int register_csv_field(struct csv_field *cf, char *name, int mandatory,
-	int (*handle)(char *token, void *data, struct csv_state *state))
+		int (*handle)(char *token, void *data, struct csv_state *state))
 {
 	int i = 0;
 
