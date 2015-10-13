@@ -288,15 +288,15 @@ void init_csv_file(struct csv_file *cf, char *file_name, struct csv_field *csv_f
 	if (cf == NULL)
 		return;
 	/* mandatory fields */
-	cf->csv_field = csv_field;
-	cf->delim = delim;
+	cf->csv_field	 = csv_field;
+	cf->delim	 = delim;
 	cf->csv_strtok_r = func;
-	cf->file_name = (file_name ? file_name : "<stdin>");
+	cf->file_name 	 = (file_name ? file_name : "<stdin>");
 	/* optional fields */
-	cf->is_header = NULL;
-	cf->validate_header = NULL;
-	cf->endofline_callback = NULL;
-	cf->endoffile_callback = NULL;
+	cf->is_header		 = NULL;
+	cf->validate_header	 = NULL;
+	cf->endofline_callback	 = NULL;
+	cf->endoffile_callback	 = NULL;
 	cf->header_field_compare = generic_header_cmp;
 }
 
