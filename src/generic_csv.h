@@ -37,6 +37,7 @@
 #define  CSV_NO_HEADER      2
 #define  CSV_BAD_HEADER     -19
 #define  CSV_HEADER_TOOLONG -18
+#define  CSV_ENOMEM	    -30
 
 /* csv_state is used to store data across calls to csv_field->handle
  * obvious exemple is the line number, but each caller of generic_load_csv
@@ -69,6 +70,7 @@ struct csv_file {
 	char *file_name;
 	struct csv_field *csv_field;
 	int num_fields;
+	char **field_names; /* all field, including those that haven't a csv_field handler */
 	char *delim; /** delimiteur */
 	int max_mandatory_pos ; /* used to track the pos of the last mandatory field */
 	/* given a line, try to guess if its a header or plain data; if NULL, the file REQUIRES a header */
