@@ -112,7 +112,7 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
  * it is a private function
  * init_buffer can be the first line read from
  */
-static int read_csv_body(FILE *f, char *name, struct csv_file *cf,
+static int read_csv_body(FILE *f, struct csv_file *cf,
 		struct csv_state *state, void *data,
 		char *init_buffer)
 {
@@ -130,19 +130,20 @@ static int read_csv_body(FILE *f, char *name, struct csv_file *cf,
 	} else {
 		s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res);
 		if (s == NULL) {
-			debug(LOAD_CSV, 1, "File %s doesn't have any content\n", name);
+			debug(LOAD_CSV, 1, "File %s doesn't have any content\n", cf->file_name);
 			return  CSV_EMPTY_FILE;
 		}
 	}
 	do {
 		if (state->line == ULONG_MAX) { /* paranoid check */
-			debug(LOAD_CSV, 1, "File %s is too big, we reached ULONG_MAX (%lu)\n", name, ULONG_MAX);
+			debug(LOAD_CSV, 1, "File %s is too big, we reached ULONG_MAX (%lu)\n",
+					cf->file_name, ULONG_MAX);
 			return CSV_FILE_MAX_SIZE;
 		}
 		state->line++;
 		if (res) { /* BFB; BIG FUCKING BUFFER; try to handle that  */
 			debug(LOAD_CSV, 1, "File %s line %lu is longer than max size %d, discarding %d chars\n",
-					name, state->line, (int)sizeof(buffer), res);
+					cf->file_name, state->line, (int)sizeof(buffer), res);
 		}
 		debug(LOAD_CSV, 5, "Parsing line %lu : %s \n", state->line, s);
 		s = cf->csv_strtok_r(s, cf->delim, &save_s);
@@ -274,9 +275,9 @@ int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state* stat
 	}
 	state->line = 0;
 	if (res == CSV_HEADER_FOUND) /* first line was a header, no need to put initial_buff */
-		res = read_csv_body(f, filename, cf, state, data, NULL);
+		res = read_csv_body(f, cf, state, data, NULL);
 	else if (res == CSV_NO_HEADER) /* we need to pass initial buff */
-		res = read_csv_body(f, filename, cf, state, data, buffer);
+		res = read_csv_body(f, cf, state, data, buffer);
 	else {
 		fprintf(stderr, "BUG at %s line %d, invalid res=%d\n", __FILE__, __LINE__, res);
 		fclose(f);
