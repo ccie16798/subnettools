@@ -53,6 +53,7 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
 			s = cf->csv_strtok_r(NULL, cf->delim, &save_s);
 		}
 		debug(CSVHEADER, 3, "found %d fields\n", pos - 1);
+		cf->num_fields = pos - 1;
 	} else  {
 		debug(CSVHEADER, 2, "file %s doesnt have a CSV header, using default values\n",
 				cf->file_name);
@@ -176,9 +177,10 @@ static int read_csv_body(FILE *f, struct csv_file *cf,
 					break;
 				}
 			}
-			if (csv_field == NULL && cf->default_handler)
+			if (csv_field == NULL && cf->default_handler) {
 				field_handle = cf->default_handler;
-			else if (csv_field && csv_field->handle)
+				state->csv_field = csv_field->name;
+			} else if (csv_field && csv_field->handle)
 				field_handle = csv_field->handle;
 			else
 				field_handle = NULL;
