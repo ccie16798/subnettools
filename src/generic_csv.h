@@ -77,7 +77,7 @@ struct csv_file {
 	/* use to compare CSV header FIELDS name, strcmp by default */
 	int (*header_field_compare)(const char *, const char *);
 	/* handler for fields where no specific handler is found */
-	int (*default_handle)(struct csv_state *state, void *data);
+	int (*default_handler)(char *token, void *data, struct csv_state *state);
 	int (*endofline_callback)(struct csv_state *state, void *data);
 	int (*endoffile_callback)(struct csv_state *state, void *data);
 	char * (*csv_strtok_r)(char *s, const char *delim, char **save_ptr);

@@ -130,6 +130,7 @@ static int read_csv_body(FILE *f, struct csv_file *cf,
 	char *s, *save_s;
 	int pos;
 	unsigned long badlines = 0;
+	int (*field_handle)(char *, void *, struct csv_state *);
 
 	debug_timing_start(2);
 	if (init_buffer) {
@@ -159,7 +160,7 @@ static int read_csv_body(FILE *f, struct csv_file *cf,
 		state->badline = 0;
 		while (s) {
 			pos++;
-			csv_field = NULL;
+			csv_field    = NULL;
 			debug(LOAD_CSV, 5, "Parsing token '%s' pos %d \n", s, pos);
 			/* try to find the handler */
 			for (i = 0; ; i++) {
@@ -175,8 +176,14 @@ static int read_csv_body(FILE *f, struct csv_file *cf,
 					break;
 				}
 			}
-			if (csv_field && csv_field->handle) {
-				res = csv_field->handle(s, data, state);
+			if (csv_field == NULL && cf->default_handler)
+				field_handle = cf->default_handler;
+			else if (csv_field && csv_field->handle)
+				field_handle = csv_field->handle;
+			else
+				field_handle = NULL;
+			if (field_handle) {
+				res = field_handle(s, data, state);
 				if (res == CSV_INVALID_FIELD_BREAK) {
 					debug(LOAD_CSV, 2, "Field '%s' data '%s' handler returned %s\n",
 							"CSV_INVALID_FIELD_BREAK", csv_field->name, s);
@@ -314,6 +321,7 @@ void init_csv_file(struct csv_file *cf, char *file_name, struct csv_field *csv_f
 	/* optional fields */
 	cf->is_header		 = NULL;
 	cf->validate_header	 = NULL;
+	cf->default_handler	 = NULL;
 	cf->endofline_callback	 = NULL;
 	cf->endoffile_callback	 = NULL;
 	cf->header_field_compare = generic_header_cmp;
