@@ -61,7 +61,8 @@ static int read_csv_header(char *filename, const char *buffer, struct csv_file *
 			if (cf->csv_field[i].name == NULL)
 				break;
 			cf->csv_field[i].pos = cf->csv_field[i].default_pos;
-			debug(CSVHEADER, 3, "Using default pos %d for field '%s'\n",  cf->csv_field[i].pos, cf->csv_field[i].name);
+			debug(CSVHEADER, 3, "Using default pos %d for field '%s'\n",
+					cf->csv_field[i].pos, cf->csv_field[i].name);
 		}
 	}
 
@@ -87,7 +88,9 @@ static int read_csv_header(char *filename, const char *buffer, struct csv_file *
 				continue;
 			if (cf->csv_field[i].pos == cf->csv_field[j].pos && cf->csv_field[j].pos ) {
 				bad_header++;
-				debug(CSVHEADER, 1, "pos for %s == pos for %s : %d\n",  cf->csv_field[i].name, cf->csv_field[j].name, cf->csv_field[i].pos);
+				debug(CSVHEADER, 1, "pos for %s == pos for %s : %d\n",
+						cf->csv_field[i].name, cf->csv_field[j].name,
+						cf->csv_field[i].pos);
 			}
 		}
 	}
@@ -254,7 +257,7 @@ int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state* stat
 		res2 = cf->validate_header(cf->csv_field);
 		if (res2 < 0) {
 			fclose(f);
-			return res;
+			return res2;
 		}
 	}
 	state->line = 0;
