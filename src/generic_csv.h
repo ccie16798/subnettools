@@ -76,6 +76,8 @@ struct csv_file {
 	int (*validate_header)(struct csv_field *);
 	/* use to compare CSV header FIELDS name, strcmp by default */
 	int (*header_field_compare)(const char *, const char *);
+	/* handler for fields where no specific handler is found */
+	int (*default_handle)(struct csv_state *state, void *data);
 	int (*endofline_callback)(struct csv_state *state, void *data);
 	int (*endoffile_callback)(struct csv_state *state, void *data);
 	char * (*csv_strtok_r)(char *s, const char *delim, char **save_ptr);
@@ -92,12 +94,12 @@ void init_csv_state(struct csv_state *cs, char *file_name);
 int register_csv_field(struct csv_field *cf, char *name, int mandatory,
 	int (*handle)(char *token, void *data, struct csv_state *state));
 /* this func will open the 'filename' FILE, parse it according to 'cf' and 'state'
- * and usually you'll want to feed a  pointer to a struct  whatever in *data
+ * and usually you'll want to feed a  pointer to a struct whatever in *data
  *
- * filename : name of the file, stdin is used if filename == NULL
- * cf       : struct csv_file, must have been init before
- * state    : a generic state object used by run_body, to store data between callbacks
- * data     : this will point to a struct you want to fill with data read from the file
+ * @filename : name of the file, stdin is used if filename == NULL
+ * @cf       : struct csv_file, must have been init before
+ * @state    : a generic state object used by run_body, to store data between callbacks
+ * @data     : this will point to a struct you want to fill with data read from the file
  * */
 int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state *state, void *data);
 
