@@ -58,11 +58,14 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
 		debug(CSVHEADER, 2, "file %s doesnt have a CSV header, using default values\n",
 				cf->file_name);
 		no_header = 1;
+		cf->num_fields = 0;
 		/* setting default pos */
 		for (i = 0; ; i++) {
 			if (cf->csv_field[i].name == NULL)
 				break;
 			cf->csv_field[i].pos = cf->csv_field[i].default_pos;
+
+			cf->num_fields = max(cf->num_fields, cf->csv_field[i].pos);
 			debug(CSVHEADER, 3, "Using default pos %d for field '%s'\n",
 					cf->csv_field[i].pos, cf->csv_field[i].name);
 		}
@@ -161,6 +164,10 @@ static int read_csv_body(FILE *f, struct csv_file *cf,
 		state->badline = 0;
 		while (s) {
 			pos++;
+			if (pos > cf->num_fields) {
+				debug(LOAD_CSV, 1, "Line %lu too many tokens \n", state->line);
+				break;
+			}
 			csv_field    = NULL;
 			debug(LOAD_CSV, 5, "Parsing token '%s' pos %d \n", s, pos);
 			/* try to find the handler */
