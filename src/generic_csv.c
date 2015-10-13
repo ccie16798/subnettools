@@ -291,7 +291,7 @@ void init_csv_file(struct csv_file *cf, char *file_name, struct csv_field *csv_f
 	cf->csv_field = csv_field;
 	cf->delim = delim;
 	cf->csv_strtok_r = func;
-	cf->file_name = file_name;
+	cf->file_name = (file_name ? file_name : "<stdin>");
 	/* optional fields */
 	cf->is_header = NULL;
 	cf->validate_header = NULL;
@@ -300,10 +300,10 @@ void init_csv_file(struct csv_file *cf, char *file_name, struct csv_field *csv_f
 	cf->header_field_compare = generic_header_cmp;
 }
 
-void init_csv_state(struct csv_state *cs, char *name)
+void init_csv_state(struct csv_state *cs, char *file_name)
 {
 	memset(cs, 0, sizeof(struct csv_state));
-	cs->file_name = name;
+	cs->file_name = (file_name ? file_name : "<stdin>");
 }
 
 int register_csv_field(struct csv_field *cf, char *name, int mandatory,
