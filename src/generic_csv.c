@@ -111,6 +111,14 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
  * the CSV Body engine
  * it is a private function
  * init_buffer can be the first line read from
+ * @f 	  : the CSV file to parse
+ * @cf	  : a struct csv_file describing the fields
+ * @state : a CSV state; can be set before
+ * @date  : a generic structure where you will store the data
+ * @init_buffer : if non-NULL, will contain the first line of the file
+ * returns :
+ * 	>0 on success
+ * 	<0 on ERROR
  */
 static int read_csv_body(FILE *f, struct csv_file *cf,
 		struct csv_state *state, void *data,
