@@ -16,7 +16,7 @@
 #include "generic_csv.h"
 #include "utils.h"
 
-static int read_csv_header(char *filename, const char *buffer, struct csv_file *cf)
+static int read_csv_header(const char *buffer, struct csv_file *cf)
 {
 	int i, j;
 	char *s, *save_s;
@@ -33,7 +33,7 @@ static int read_csv_header(char *filename, const char *buffer, struct csv_file *
 		return CSV_HEADER_TOOLONG;
 	}
 	s = buffer2;
-	debug(CSVHEADER, 3, "Trying to parse header in %s\n", filename);
+	debug(CSVHEADER, 3, "Trying to parse header in %s\n", cf->file_name);
 	debug(CSVHEADER, 5, "CSV header : '%s'\n", s);
 
 	if (cf->is_header == NULL || cf->is_header(s)) { /* check if valid header */
@@ -54,7 +54,8 @@ static int read_csv_header(char *filename, const char *buffer, struct csv_file *
 		}
 		debug(CSVHEADER, 3, "found %d fields\n", pos - 1);
 	} else  {
-		debug(CSVHEADER, 2, "file %s doesnt have a CSV header, using default values\n", filename);
+		debug(CSVHEADER, 2, "file %s doesnt have a CSV header, using default values\n",
+				cf->file_name);
 		no_header = 1;
 		/* setting default pos */
 		for (i = 0; ; i++) {
@@ -74,7 +75,8 @@ static int read_csv_header(char *filename, const char *buffer, struct csv_file *
 			max_mandatory_pos = max(max_mandatory_pos, cf->csv_field[i].pos);
 		if (cf->csv_field[i].pos == 0 && cf->csv_field[i].mandatory) {
 			bad_header++;
-			debug(CSVHEADER, 1, "mandatory CSV field '%s' not found in %s\n", cf->csv_field[i].name, filename);
+			debug(CSVHEADER, 1, "mandatory CSV field '%s' not found in %s\n",
+					cf->csv_field[i].name, cf->file_name);
 		}
 	}
 	/* check for duplicate field pos */
@@ -95,7 +97,7 @@ static int read_csv_header(char *filename, const char *buffer, struct csv_file *
 		}
 	}
 	if (bad_header) {
-		fprintf(stderr, "file %s doesn't have a valid CSV header\n", filename);
+		fprintf(stderr, "file %s doesn't have a valid CSV header\n", cf->file_name);
 		return CSV_BAD_HEADER;
 	}
 	cf->max_mandatory_pos = max_mandatory_pos;
@@ -248,7 +250,7 @@ int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state* stat
 		fclose(f);
 		return CSV_HEADER_TOOLONG;
 	}
-	res = read_csv_header((filename ? filename : "<stdin>"), buffer, cf);
+	res = read_csv_header(buffer, cf);
 	if (res < 0) {
 		fclose(f);
 		return res;
