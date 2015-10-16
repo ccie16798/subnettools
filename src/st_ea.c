@@ -71,6 +71,7 @@ struct ipam_ea *alloc_ea_array(int n)
 		return NULL;
 
 	for (j = 0; j < n; j++) {
+		ea[j].name  = NULL;
 		ea[j].value = NULL;
 		ea[j].len   = 0;
 	}
@@ -93,6 +94,7 @@ struct ipam_ea *realloc_ea_array(struct ipam_ea *ea, int old_n, int new_n)
 		return NULL;
 
 	for (j = old_n; j < new_n; j++) {
+		new_ea[j].name  = NULL;
 		new_ea[j].value = NULL;
 		new_ea[j].len   = 0;
 	}
