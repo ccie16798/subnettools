@@ -1,2 +1,2 @@
-V;Proto;BEST;          Prefix;              GW;       MED;LOCAL_PREF;    WEIGHT;ORIGIN;AS_PATH
+V;Proto;BEST;          prefix;              GW;       MED;LOCAL_PREF;    WEIGHT;ORIGIN;AS_PATH
 1; eBGP;Best;  192.168.5.0/32;         0.0.0.0;         0;         0;     32768;     ?;

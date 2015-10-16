@@ -1,4 +1,4 @@
-BEST;         Prefix;     MED;LOCAL_PREF;AS_PATH
+BEST;         prefix;     MED;LOCAL_PREF;AS_PATH
 Best;    10.1.1.0/24;       0;0       ;
 Best;  10.13.13.0/24;       0;0       ;
 Best;  10.15.15.0/24;       0;0       ;
