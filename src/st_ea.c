@@ -38,6 +38,7 @@ int ea_strdup(struct ipam_ea *ea, const char *value)
 		return -1;
 	}
 	strcpy(ea->value, value);
+	debug(MEMORY, 7, "Allocating %d bytes for EA_value '%s'\n", len, value);
 	total_memory += len;
 	ea->len = len;
 	return 1;
@@ -49,6 +50,7 @@ void free_ea_array(struct ipam_ea *ea, int n)
 
 	for (i = 0; i < n; i++) {
 		total_memory -= ea_size(&ea[i]);
+		debug(MEMORY, 7, "Freeing %d bytes for EA_value '%s'\n", ea[i].len, ea[i].value);
 		free(ea[i].value);
 		ea[i].value = NULL;
 		ea[i].len   = 0;
