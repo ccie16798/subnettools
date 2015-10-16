@@ -339,6 +339,7 @@ void init_csv_file(struct csv_file *cf, char *file_name, struct csv_field *csv_f
 	cf->endofline_callback	 = NULL;
 	cf->endoffile_callback	 = NULL;
 	cf->header_field_compare = generic_header_cmp;
+	cf->num_fields_registered= 0;
 }
 
 void init_csv_state(struct csv_state *cs, char *file_name)
@@ -350,21 +351,16 @@ void init_csv_state(struct csv_state *cs, char *file_name)
 int register_csv_field(struct csv_file *csv_file, char *name, int mandatory,
 		int (*handle)(char *token, void *data, struct csv_state *state))
 {
-	int i = 0;
+	int i = csv_file->num_fields_registered;
 	struct csv_field *cf = csv_file->csv_field;
 
-	while (1) {
-		if (cf[i].name != NULL) {
-			i++;
-			continue;
-		}
-		cf[i].name        = name;
-		cf[i].handle      = handle;
-		cf[i].mandatory   = mandatory;
-		cf[i].pos 	  = 0;
-		cf[i].default_pos = 0;
-		cf[i + 1].name 	  = NULL;
-		return 1;
-	}
-	return 0;
+	cf[i].name        = name;
+	cf[i].handle      = handle;
+	cf[i].mandatory   = mandatory;
+	cf[i].pos 	  = 0;
+	cf[i].default_pos = 0;
+	cf[i + 1].name 	  = NULL;
+	csv_file->num_fields_registered++;
+	debug(CSVHEADER, 3, "Registering handler #%d %s\n", name, i);
+	return 1;
 }
