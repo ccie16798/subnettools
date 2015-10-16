@@ -54,12 +54,12 @@ void free_subnet_file(struct subnet_file *sf)
 
 	for (i = 0; i < sf->nr; i++)
 		free_route(&sf->routes[i]);
+	for (i = 0; i < sf->ea_nr; i++)
+		st_free_string(sf->ea[i].name);
 	free(sf->routes);
 	total_memory -= sf->max_nr * sizeof(struct route);
 	sf->routes = NULL;
 	sf->nr = sf->max_nr = 0;
-	for (i = 0; i < sf->ea_nr; i++)
-		st_free_string(sf->ea[i].name);
 	free_ea_array(sf->ea, sf->ea_nr);
 	sf->ea = NULL;
 	sf->ea_nr = 0;
