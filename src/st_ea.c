@@ -49,10 +49,13 @@ void free_ea_array(struct ipam_ea *ea, int n)
 	int i;
 
 	for (i = 0; i < n; i++) {
-		total_memory -= ea_size(&ea[i]);
-		debug(MEMORY, 7, "Freeing %d bytes for EA_value '%s'\n", ea[i].len, ea[i].value);
-		free(ea[i].value);
-		ea[i].value = NULL;
+		if (ea[i].value) {
+			total_memory -= ea_size(&ea[i]);
+			debug(MEMORY, 7, "Freeing %d bytes for EA_value '%s'\n",
+					ea[i].len, ea[i].value);
+			free(ea[i].value);
+			ea[i].value = NULL;
+		}
 		ea[i].len   = 0;
 	}
 	total_memory -= sizeof(struct ipam_ea) * n;
