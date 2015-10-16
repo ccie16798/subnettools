@@ -15,7 +15,6 @@
 #include "heap.h"
 #include "generic_csv.h"
 #include "utils.h"
-#include "st_memory.h"
 
 static int read_csv_header(const char *buffer, struct csv_file *cf)
 {
@@ -55,15 +54,11 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
 		}
 		debug(CSVHEADER, 3, "found %d fields\n", pos - 1);
 		cf->num_fields = pos - 1;
-		cf->field_names = st_malloc(sizeof(char *) * pos, "CSV field names\n");
-		if (cf->field_names == NULL)
-			return CSV_ENOMEM;
 	} else  {
 		debug(CSVHEADER, 2, "File %s doesnt have a CSV header, using default values\n",
 				cf->file_name);
 		no_header = 1;
 		cf->num_fields = 0;
-		cf->field_names = NULL;
 		/* setting default pos */
 		for (i = 0; ; i++) {
 			if (cf->csv_field[i].name == NULL)
@@ -292,20 +287,12 @@ int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state* stat
 	}
 	res = read_csv_header(buffer, cf);
 	if (res < 0) {
-		if (cf->field_names) {
-			free(cf->field_names);
-			total_memory -= (cf->num_fields + 1) * sizeof(char *);
-		}
 		fclose(f);
 		return res;
 	}
 	if (cf->validate_header) {
 		res2 = cf->validate_header(cf->csv_field);
 		if (res2 < 0) {
-			if (cf->field_names) {
-				free(cf->field_names);
-				total_memory -= (cf->num_fields + 1) * sizeof(char *);
-			}
 			fclose(f);
 			return res2;
 		}
@@ -318,10 +305,6 @@ int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state* stat
 	else {
 		fprintf(stderr, "BUG at %s line %d, invalid res=%d\n", __FILE__, __LINE__, res);
 		res = -3;
-	}
-	if (cf->field_names) {
-		free(cf->field_names);
-		total_memory -= (cf->num_fields + 1) * sizeof(char *);
 	}
 	fclose(f);
 	return res;
