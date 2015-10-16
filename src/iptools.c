@@ -895,7 +895,7 @@ int subnet_is_superior(const struct subnet *s1, const struct subnet *s2)
 			res =  1;
 		else
 			res =  0;
-		st_debug(ADDRCOMP, 5, "%P %c %P\n", *s1, (res ? '>' : '<' ), *s2);
+		st_debug(ADDRCOMP, 7, "%P %c %P\n", *s1, (res ? '>' : '<' ), *s2);
 		return res;
 	}
 
@@ -916,7 +916,7 @@ int subnet_is_superior(const struct subnet *s1, const struct subnet *s2)
 				}
 			}
 		}
-		st_debug(ADDRCOMP, 5, "%P %c %P\n", *s1, (res ? '>' : '<' ), *s2);
+		st_debug(ADDRCOMP, 7, "%P %c %P\n", *s1, (res ? '>' : '<' ), *s2);
 		return res;
 	}
 	debug(ADDRCOMP, 1, "Invalid comparison ipver %d\n", s1->ip_ver);
