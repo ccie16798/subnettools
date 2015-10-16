@@ -106,7 +106,8 @@ static int netcsv_device_handle(char *s, void *data, struct csv_state *state)
 
 	res = strxcpy(sf->routes[sf->nr].device, s, sizeof(sf->routes[sf->nr].device));
 	if (res >= sizeof(sf->routes[sf->nr].device))
-		debug(LOAD_CSV, 2, "line %lu STRING device '%s'  too long, truncating to '%s'\n", state->line, s, sf->routes[sf->nr].device);
+		debug(LOAD_CSV, 2, "line %lu STRING device '%s'  too long, truncating to '%s'\n",
+				state->line, s, sf->routes[sf->nr].device);
 	return CSV_VALID_FIELD;
 }
 
@@ -116,7 +117,8 @@ static int netcsv_GW_handle(char *s, void *data, struct csv_state *state) {
 	int res;
 
 	res = string2addr(s, &addr, 41);
-	if (res != IPV4_A && res != IPV6_A) {  /* we accept that there's no gateway but we treat it has a comment instead */
+	/* we accept that there's no gateway but we treat it has a comment instead */
+	if (res != IPV4_A && res != IPV6_A && strlen(s)) {
 		/* we dont care if memory alloc failed here */
 		ea_strdup(&sf->routes[sf->nr].ea[0], s);
 	} else {
@@ -134,6 +136,7 @@ static int netcsv_comment_handle(char *s, void *data, struct csv_state *state)
 {
 	struct subnet_file *sf = data;
 
+	st_free_string(sf->routes[sf->nr].ea[0].value);
 	ea_strdup(&sf->routes[sf->nr].ea[0], s);
 	return CSV_VALID_FIELD;
 }
