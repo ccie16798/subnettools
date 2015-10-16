@@ -2,11 +2,14 @@
 #define ST_HANDLE_CSV_FILES_H
 
 #include "st_options.h"
+#include "st_routes.h"
 
 struct subnet_file {
 	struct route *routes;
 	unsigned long nr;
 	unsigned long max_nr; /* the number of routes that has been malloced */
+	int ea_nr;
+	struct ipam_ea *ea;
 };
 
 struct bgp_file {
