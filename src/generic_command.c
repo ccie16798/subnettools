@@ -73,7 +73,7 @@ int generic_command_run(int argc, char **argv, char *progname, void *opt)
 		debug_timing_end(1);
 		debug(MEMORY, 4, "Total amout of memory still allocated %lu; %s\n", total_memory, argv[1]);
 		if (total_memory != 0) {
-			debug(MEMORY, 1, "Total amout of memory still allocated %lu; %si, memory leak?\n",
+			debug(MEMORY, 1, "Total amout of memory still allocated %lu by %s, memory leak?\n",
 				 total_memory, argv[1]);
 		}
 	} else {
@@ -110,7 +110,8 @@ int generic_parse_options(int argc, char **argv, char *progname, void *opt)
 			}
 			if (!strcmp(options[i].name, argv[a])) {
 				debug(PARSEOPTS, 4, "found handler for %s\n", argv[a]);
-				debug(PARSEOPTS, 6, "argc - a = %d, options[i].required_args = %d\n", argc - a , options[i].required_args);
+				debug(PARSEOPTS, 6, "argc - a = %d, options[i].required_args = %d\n",
+						argc - a , options[i].required_args);
 				if (argc - a <= options[i].required_args) {
 					fprintf(stderr, "Not enough arguments after option '%s'\n", argv[a]);
 					return -1;
