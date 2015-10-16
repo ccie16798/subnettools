@@ -197,21 +197,17 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 	cf.endoffile_callback = ipam_endoffile_callback;
 	init_csv_state(&state, name);
 
-	csv_field[0].name	 =  "address*";
-	csv_field[0].pos	 =  0;
-	csv_field[0].default_pos =  0;
-	csv_field[0].mandatory	 =  1;
-	csv_field[0].handle	 =  &ipam_prefix_handle;
-	csv_field[1].name	 =  "netmask_dec";
-	csv_field[1].pos	 =  0;
-	csv_field[1].default_pos =  0;
-	csv_field[1].mandatory	 =  1;
-	csv_field[1].handle	 =  &ipam_mask_handle;
-	csv_field[2].name	 = NULL;
+	/* register network and mask handler */
 	if (nof->ipam_prefix_field[0])
-		csv_field[0].name = nof->ipam_prefix_field;
+		s = nof->ipam_prefix_field;
+	else
+		s = "address*";
+	register_csv_field(&cf, s, 1, ipam_prefix_handle);
 	if (nof->ipam_mask[0])
-		csv_field[1].name = nof->ipam_mask;
+		s = nof->ipam_mask;
+	else
+		s = "netmask_dec";
+	register_csv_field(&cf, s, 1, ipam_mask_handle);
 
 	debug(IPAM, 3, "Parsing EA : '%s'\n", nof->ipam_ea);
 	i = 0;
@@ -220,7 +216,7 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 	while (s) {
 		i++;
 		debug(IPAM, 3, "Registering Extended Attribute : '%s'\n", s);
-		register_csv_field(csv_field, s, 0, ipam_ea_handle);
+		register_csv_field(&cf, s, 0, ipam_ea_handle);
 		s = strtok(NULL, ",");
 	}
 	if (i == 0) {
