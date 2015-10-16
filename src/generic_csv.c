@@ -18,7 +18,7 @@
 
 static int read_csv_header(const char *buffer, struct csv_file *cf)
 {
-	int i, j;
+	int i, j, found;
 	char *s, *save_s;
 	int pos = 1;
 	int bad_header = 0;
@@ -40,14 +40,28 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
 		s = cf->csv_strtok_r(s, cf->delim, &save_s);
 		while (s) {
 			debug(CSVHEADER, 8, "parsing token '%s' at pos %d\n", s, pos);
+			found = 0;
 			for (i = 0; ; i++) {
 				if (cf->csv_field[i].name == NULL)
 					break;
 				if (!cf->header_field_compare(s, cf->csv_field[i].name)) {
 					cf->csv_field[i].pos = pos;
+					found = 1;
 					debug(CSVHEADER, 3, "found header field '%s' at pos %d\n", s, pos);
 					break;
 				}
+			}
+			if (found == 0) {
+				if (cf->default_handler) {
+					debug(CSVHEADER, 3, "using default handler for field '%s' at pos %d\n",
+							s, pos);
+					register_csv_field(cf->csv_field, s, 0,
+					cf->default_handler);
+				} else {
+					debug(CSVHEADER, 3, "no handler for field '%s' at pos %d\n",
+							s, pos);
+				}
+
 			}
 			pos++;
 			s = cf->csv_strtok_r(NULL, cf->delim, &save_s);
@@ -134,7 +148,6 @@ static int read_csv_body(FILE *f, struct csv_file *cf,
 	char *s, *save_s;
 	int pos;
 	unsigned long badlines = 0;
-	int (*field_handle)(char *, void *, struct csv_state *);
 
 	debug_timing_start(2);
 	if (init_buffer) {
@@ -184,15 +197,8 @@ static int read_csv_body(FILE *f, struct csv_file *cf,
 					break;
 				}
 			}
-			if (csv_field == NULL && cf->default_handler) {
-				field_handle = cf->default_handler;
-				state->csv_field = csv_field->name;
-			} else if (csv_field && csv_field->handle)
-				field_handle = csv_field->handle;
-			else
-				field_handle = NULL;
-			if (field_handle) {
-				res = field_handle(s, data, state);
+			if (csv_field && csv_field->handle) {
+				res = csv_field->handle(s, data, state);
 				if (res == CSV_INVALID_FIELD_BREAK) {
 					debug(LOAD_CSV, 2, "Field '%s' data '%s' handler returned %s\n",
 							"CSV_INVALID_FIELD_BREAK", csv_field->name, s);
