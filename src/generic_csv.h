@@ -69,7 +69,8 @@ struct csv_field {
 struct csv_file {
 	char *file_name;
 	struct csv_field *csv_field;
-	int num_fields;
+	int num_fields; /* number of fields inside the CSV (including those without handler */
+	int num_fields_registered; /* number of field dynamically registered */
 	char *delim; /** delimiteur */
 	int max_mandatory_pos ; /* used to track the pos of the last mandatory field */
 	/* given a line, try to guess if its a header or plain data; if NULL, the file REQUIRES a header */
