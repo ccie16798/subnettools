@@ -127,5 +127,6 @@ void st_free_string(char *s)
 	if (s == NULL)
 		return;
 	total_memory -= (strlen(s) + 1);
+	debug(MEMORY, 6, "Freeing string '%s', %d bytes\n", s, (int)(strlen(s) + 1));
 	free(s);
 }
