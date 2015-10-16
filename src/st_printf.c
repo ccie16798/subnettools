@@ -731,7 +731,7 @@ int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt
 					j += res;
 					break;
 				case 'P': /* Prefix */
-					PRINT_FILE_HEADER(Prefix)
+					PRINT_FILE_HEADER(prefix)
 					SET_IP_COMPRESSION_LEVEL(fmt[i2 + 1]);
 					copy_subnet(&v_sub, &r->subnet);
 					subnet2str(&v_sub, buffer2, sizeof(buffer2), compression_level);
