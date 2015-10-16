@@ -46,17 +46,20 @@ void compare_files(struct subnet_file *sf1, struct subnet_file *sf2, struct st_o
 		for (j = 0; j < sf2->nr; j++) {
 			res = subnet_compare(&sf1->routes[i].subnet, &sf2->routes[j].subnet);
 			if (res == INCLUDES) {
-				st_fprintf(nof->output_file, "%I;%m;INCLUDES;%I;%m\n", sf1->routes[i].subnet, sf1->routes[i].subnet,
+				st_fprintf(nof->output_file, "%I;%m;INCLUDES;%I;%m\n",
+						sf1->routes[i].subnet, sf1->routes[i].subnet,
 						sf2->routes[j].subnet,  sf2->routes[j].subnet);
 				find = 1;
 			} else if (res == EQUALS) {
-				st_fprintf(nof->output_file, "%I;%m;EQUALS;%I;%m\n", sf1->routes[i].subnet, sf1->routes[i].subnet,
+				st_fprintf(nof->output_file, "%I;%m;EQUALS;%I;%m\n",
+						sf1->routes[i].subnet, sf1->routes[i].subnet,
 						sf2->routes[j].subnet,  sf2->routes[j].subnet);
 				find = 1;
 			}
 		}
 		if (find == 0)
-			st_fprintf(nof->output_file, "%I;%m;;;\n", sf1->routes[i].subnet, sf1->routes[i].subnet);
+			st_fprintf(nof->output_file, "%I;%m;;;\n",
+					sf1->routes[i].subnet, sf1->routes[i].subnet);
 	}
 }
 
@@ -67,11 +70,22 @@ int subnet_file_cmp(const struct subnet_file *before, const struct subnet_file *
 	int res, found;
 	int ea_nr;
 	char buffer[128];
+	struct ipam_ea *new_ea;
 
 	k = 0;
 	res = alloc_subnet_file(sf, before->nr + after->nr);
 	if (res < 0)
 		return res;
+	/* realloc route EA "status and "change" */
+	new_ea = realloc_ea_array(sf->ea, sf->ea_nr,  sf->ea_nr + 2);
+	if (new_ea == NULL)
+		return -1;
+	sf->ea = new_ea;
+	sf->ea_nr += 2;
+	sf->ea[sf->ea_nr - 2].name = st_strdup("status");
+	sf->ea[sf->ea_nr - 1].name = st_strdup("change");
+	if (sf->ea[sf->ea_nr - 1].name == NULL || sf->ea[sf->ea_nr - 2].name == NULL)
+		return -1;
 
 	for (i = 0; i < before->nr; i++) {
 		found = 0;
@@ -355,7 +369,8 @@ int network_grep_file(char *name, struct st_options *nof, char *ip)
 			for (i = 0; i < nof->grep_field - 1; i++) {
 				s = strtok(NULL, nof->delim);
 				if (s == NULL) {
-					debug(GREP, 3, "no token at offset %d line %lu\n", nof->grep_field, line);
+					debug(GREP, 3, "no token at offset %d line %lu\n",
+							nof->grep_field, line);
 					res = 1;
 					break;
 				}
@@ -370,7 +385,8 @@ int network_grep_file(char *name, struct st_options *nof, char *ip)
 			reevaluate = 0;
 			if (s == NULL)
 				break;
-			if (find_ip) { /* previous token was an IP without a mask, try to get a mask on this field*/
+			/* previous token was an IP without a mask, try to get a mask on this field*/
+			if (find_ip) {
 				int lmask = string2mask(s, 21);
 				if (subnet.ip_ver == IPV4_A)
 					subnet.mask = (lmask == BAD_MASK ? 32 : lmask);
@@ -384,7 +400,8 @@ int network_grep_file(char *name, struct st_options *nof, char *ip)
 			} else {
 				res = get_subnet_or_ip(s, &subnet);
 				if (res < 0 && nof->grep_field)  {
-					debug(GREP, 2, "field %s line %lu not an IP, bad grep_offset value???\n",  s, line);
+					debug(GREP, 2, "field %s line %lu not an IP, bad grep_offset value?\n",
+							s, line);
 					break;
 				} else if (res > 1000) {/* c pas une IP */
 					debug(GREP, 5, "field %s line %lu not an IP\n",  s, line);
@@ -472,7 +489,8 @@ int subnet_file_simplify(struct subnet_file *sf)
 		/* because the 'new_r' list is sorted, we know the only network to consider is i - 1 */
 		res = subnet_compare(&r->subnet, &new_r[i - 1].subnet);
 		if (res == INCLUDED || res == EQUALS ) {
-			st_debug(ADDRCOMP, 3, "%P is included in %P, skipping\n", r->subnet, new_r[i - 1].subnet);
+			st_debug(ADDRCOMP, 3, "%P is included in %P, skipping\n",
+					r->subnet, new_r[i - 1].subnet);
 			free_route(r);
 			continue;
 		}
@@ -531,16 +549,18 @@ int route_file_simplify(struct subnet_file *sf,  int mode)
 		while (1) {
 			res = subnet_compare(&r->subnet, &new_r[a].subnet);
 			if (res == INCLUDED || res == EQUALS) {
-					/* because the 'new_r' list is sorted, we know the first 'backward' match is the longest one
-					 * and the longest match is the one that matters
-					 */
-					if (is_equal_gw(r, &new_r[a])) {
-						st_debug(ADDRCOMP, 3, "%P is included in %P, discarding it\n", r->subnet, new_r[a].subnet);
-						skip = 1;
-					} else {
-						st_debug(ADDRCOMP, 3, "%P is included in %P but GW is different, keeping it\n", r->subnet, new_r[a].subnet);
-					}
-					break;
+				/* because the 'new_r' list is sorted, we know the first 'backward'
+				 * match is the longest one and the longest match is the one that matters
+				 */
+				if (is_equal_gw(r, &new_r[a])) {
+					st_debug(ADDRCOMP, 3, "%P is included in %P, discarding it\n",
+							r->subnet, new_r[a].subnet);
+					skip = 1;
+				} else {
+					st_debug(ADDRCOMP, 3, "%P is included in %P but GW is different\n",
+							r->subnet, new_r[a].subnet);
+				}
+				break;
 			}
 			if (a == 0)
 				break;
@@ -600,7 +620,8 @@ int aggregate_route_file(struct subnet_file *sf, int mode)
 	j = 0; /* i is the index in the original file, j is the index in the file we are building */
 	for (i = 1; i < sf->nr; i++) {
 		if (mode == 1 && !is_equal_gw(&new_r[j],  &sf->routes[i])) {
-			st_debug(AGGREGATE, 4, "Entry %lu [%P] & %lu [%P] cant aggregate, different GW\n", j, new_r[j].subnet,
+			st_debug(AGGREGATE, 4, "Entry %lu '%P' & %lu '%P' cant aggregate, different GW\n",
+					j, new_r[j].subnet,
 					i, sf->routes[i].subnet);
 			j++;
 			copy_route(&new_r[j], &sf->routes[i]);
@@ -608,14 +629,16 @@ int aggregate_route_file(struct subnet_file *sf, int mode)
 		}
 		res = aggregate_subnet(&new_r[j].subnet, &sf->routes[i].subnet, &s);
 		if (res < 0) {
-			st_debug(AGGREGATE, 4, "Entry %lu [%P] & %lu [%P] cant aggregate\n", j, new_r[j].subnet,
+			st_debug(AGGREGATE, 4, "Entry %lu '%P' & %lu '%P' cant aggregate\n",
+					j, new_r[j].subnet,
 					i, sf->routes[i].subnet);
 			j++;
 			copy_route(&new_r[j], &sf->routes[i]);
 			continue;
 		}
-		st_debug(AGGREGATE, 4, "Entry %lu [%P] & %lu [%P] can aggregate\n", j, new_r[j].subnet,
-			i, sf->routes[i].subnet);
+		st_debug(AGGREGATE, 4, "Entry %lu '%P' & %lu '%P' can aggregate\n",
+				j, new_r[j].subnet,
+				i, sf->routes[i].subnet);
 		copy_subnet(&new_r[j].subnet, &s);
 		if (mode == 1)
 			copy_ipaddr(&new_r[j].gw, &sf->routes[i].gw);
@@ -626,13 +649,16 @@ int aggregate_route_file(struct subnet_file *sf, int mode)
 		ea_strdup(&new_r[j].ea[0], "AGGREGATE");
 		if (new_r[j].ea[0].value == NULL)
 			return -1;
-		/* rewinding and aggregating backwards as much as we can; the aggregate we just created may aggregate with j - 1 */
+		/* rewinding and aggregating backwards as much as we can;
+		 * the aggregate we just created may aggregate with j - 1 */
 		while (j > 0) {
 			if (mode == 1 && !is_equal_gw(&new_r[j], &new_r[j - 1]))
 				break;
 			res = aggregate_subnet(&new_r[j].subnet, &new_r[j - 1].subnet, &s);
 			if (res >= 0) {
-				st_debug(AGGREGATE, 4, "Rewinding, entry %lu [%P] & %lu [%P] can aggregate\n", j - 1, new_r[j - 1].subnet, j, new_r[j].subnet);
+				st_debug(AGGREGATE, 4, "Rewinding, entry %lu '%P' & %lu '%P' can aggregate\n",
+						j - 1, new_r[j - 1].subnet,
+						j, new_r[j].subnet);
 				free_route(&new_r[j]);
 				j--;
 				copy_subnet(&new_r[j].subnet, &s);
@@ -682,7 +708,8 @@ int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct
 		for (j = 0; j < sf2->nr; j++) {
 			res = subnet_compare(&sf1->routes[i].subnet, &sf2->routes[j].subnet);
 			if (res == INCLUDED || res == EQUALS) {
-				st_debug(ADDRCOMP, 3, "Loop #1 adding %P (included in : %P)\n", sf1->routes[i].subnet,
+				st_debug(ADDRCOMP, 3, "Loop #1 adding %P (included in : %P)\n",
+						sf1->routes[i].subnet,
 						sf2->routes[j].subnet);
 				addTAS(&tas, &sf1->routes[i]);
 				break;
@@ -695,11 +722,14 @@ int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct
 		for (i = 0; i < sf1->nr; i++) {
 			res = subnet_compare(&sf2->routes[j].subnet, &sf1->routes[i].subnet);
 			if (res == INCLUDED) {
-				st_debug(ADDRCOMP, 3, "Loop #2 may add %P (included in : %P)\n", sf2->routes[j].subnet,
+				st_debug(ADDRCOMP, 3, "Loop #2 may add %P (included in : %P)\n",
+						sf2->routes[j].subnet,
 						sf1->routes[i].subnet);
 				can_add = 1;
 			} else if (res == EQUALS) {/* already added, skipping */
-				can_add = 0; /* maybe the route we are matching is included in something; in that case we wont add it again */
+				can_add = 0;
+				 /* maybe the route we are matching is included in something;
+				  * in that case we wont add it again */
 				break;
 			}
 		}
@@ -736,7 +766,7 @@ unsigned long long sum_subnet_file(struct subnet_file *sf)
 			continue;
 		if (ipver == IPV4_A)
 			sum += 1ULL << (32 - sf->routes[i].subnet.mask); /*power of 2  */
-		if (ipver == IPV6_A) { /* we count only /64 not single host; hosts are unlimited in IPv6 (2^64)  */
+		if (ipver == IPV6_A) { /* we count only /64 not single host; hosts are unlimited in IPv6 (2^64) */
 			if (sf->routes[i].subnet.mask <= 64)
 				sum += 1ULL << (64 - sf->routes[i].subnet.mask);
 		}
