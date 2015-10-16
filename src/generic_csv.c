@@ -361,6 +361,6 @@ int register_csv_field(struct csv_file *csv_file, char *name, int mandatory,
 	cf[i].default_pos = 0;
 	cf[i + 1].name 	  = NULL;
 	csv_file->num_fields_registered++;
-	debug(CSVHEADER, 3, "Registering handler #%d %s\n", name, i);
+	debug(CSVHEADER, 3, "Registering handler #%d '%s'\n", i, name);
 	return 1;
 }
