@@ -442,6 +442,23 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 	int k, res;
 	int found_mask, mask;
 	int has_comment = 0;
+	struct ipam_ea *new_ea;
+
+	new_ea = realloc_ea_array(sf->ea, sf->ea_nr,  sf->ea_nr + ipam->ea_nr);
+	if (new_ea == NULL)
+		return -1;
+	sf->ea = new_ea;
+	sf->ea_nr += ipam->ea_nr;
+
+	k = 1;
+	for (j = 0; j < ipam->ea_nr; j++) {
+		if (!strcasecmp(ipam->ea[j].name, "comment")) {
+			has_comment = 1;
+		} else {
+			sf->ea[k].name = st_strdup(ipam->ea[j].name);
+			k++;
+		}
+	}
 
 	for (i = 0; i < sf->nr; i++) {
 		/* allocating new EA and setting value to NULL */
