@@ -77,6 +77,8 @@ void free_ipam_file(struct ipam_file *sf)
 
 	for (i = 0; i < sf->nr; i++)
 		free_ipam_ea(&sf->lines[i]);
+	for (i = 0; i < sf->ea_nr; i++)
+		st_free_string(sf->ea[i].name);
 	free(sf->ea);
 	total_memory -= sizeof(struct ipam_ea) * sf->ea_nr;
 	free(sf->lines);
@@ -231,8 +233,14 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 		total_memory -= (ea_nr + 4) * sizeof(struct csv_field);
 		return -2;
 	}
-	for (i = 0; i < ea_nr; i++)
-		sf->ea[i].name = csv_field[i + 2].name;
+	for (i = 0; i < ea_nr; i++) {
+		sf->ea[i].name = st_strdup(csv_field[i + 2].name);
+		if (sf->ea[i].name == NULL) {
+			total_memory -= (ea_nr + 4) * sizeof(struct csv_field);
+			free(csv_field);
+			return -1;
+		}
+	}
 	memset(&sf->lines[0], 0, sizeof(struct ipam_line));
 	/* alloc memory for first line of file */
 	res = alloc_ipam_ea(sf, 0);
