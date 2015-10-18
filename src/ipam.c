@@ -195,20 +195,14 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 	if (csv_field == NULL)
 		return -1;
 	init_csv_file(&cf, name, csv_field, nof->ipam_delim, &simple_strtok_r);
+	init_csv_state(&state, name);
 	cf.endofline_callback = ipam_endofline_callback;
 	cf.endoffile_callback = ipam_endoffile_callback;
-	init_csv_state(&state, name);
 
 	/* register network and mask handler */
-	if (nof->ipam_prefix_field[0])
-		s = nof->ipam_prefix_field;
-	else
-		s = "address*";
+	s = (nof->ipam_prefix_field[0] ? nof->ipam_prefix_field : "address*");
 	register_csv_field(&cf, s, 1, 0, ipam_prefix_handle);
-	if (nof->ipam_mask[0])
-		s = nof->ipam_mask;
-	else
-		s = "netmask_dec";
+	s = (nof->ipam_mask[0] ? nof->ipam_mask : "netmask_dec");
 	register_csv_field(&cf, s, 1, 0, ipam_mask_handle);
 
 	debug(IPAM, 3, "Parsing EA : '%s'\n", nof->ipam_ea);
