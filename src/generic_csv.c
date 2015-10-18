@@ -55,7 +55,7 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
 				if (cf->default_handler) {
 					debug(CSVHEADER, 3, "using default handler for field '%s' at pos %d\n",
 							s, pos);
-					register_csv_field(cf, s, 0,
+					register_csv_field(cf, s, 0, 0,
 							cf->default_handler);
 				} else {
 					debug(CSVHEADER, 3, "no handler for field '%s' at pos %d\n",
@@ -348,7 +348,7 @@ void init_csv_state(struct csv_state *cs, char *file_name)
 	cs->file_name = (file_name ? file_name : "<stdin>");
 }
 
-int register_csv_field(struct csv_file *csv_file, char *name, int mandatory,
+int register_csv_field(struct csv_file *csv_file, char *name, int mandatory, int default_pos,
 		int (*handle)(char *token, void *data, struct csv_state *state))
 {
 	int i = csv_file->num_fields_registered;
@@ -358,7 +358,7 @@ int register_csv_field(struct csv_file *csv_file, char *name, int mandatory,
 	cf[i].handle      = handle;
 	cf[i].mandatory   = mandatory;
 	cf[i].pos 	  = 0;
-	cf[i].default_pos = 0;
+	cf[i].default_pos = default_pos;
 	cf[i + 1].name 	  = NULL;
 	csv_file->num_fields_registered++;
 	debug(CSVHEADER, 3, "Registering handler #%d '%s'\n", i, name);

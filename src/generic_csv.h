@@ -94,7 +94,17 @@ struct csv_file {
 void init_csv_file(struct csv_file *cf, char *file_name, struct csv_field *csv_field, char *delim,
 		char * (*strtok_r)(char *s, const char *delim, char **save_ptr));
 void init_csv_state(struct csv_state *cs, char *file_name);
-int register_csv_field(struct csv_file *cf, char *name, int mandatory,
+
+/* register_csv_field : fill struct csv_file csv_fields
+ * @cf	        : a pointer to a CSV file
+ * @name	: the name of the field
+ * @mandatory	: is the header mandatory
+ * @default_pos : its pos in case no header is found
+ * @handler	: a CSV field handler to parse data
+ *returns :
+	1 on SUCCESS
+ */
+int register_csv_field(struct csv_file *cf, char *name, int mandatory, int default_pos,
 	int (*handle)(char *token, void *data, struct csv_state *state));
 /* this func will open the 'filename' FILE, parse it according to 'cf' and 'state'
  * and usually you'll want to feed a  pointer to a struct whatever in *data
