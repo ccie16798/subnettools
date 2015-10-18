@@ -205,10 +205,10 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 	char *s;
 
 	init_csv_file(&cf, name, csv_field, nof->delim, &simple_strtok_r);
-	cf.is_header = &netcsv_is_header;
-	cf.endofline_callback = &netcsv_endofline_callback;
-	cf.validate_header = &netcsv_validate_header;
 	init_csv_state(&state, name);
+	cf.is_header 	      = &netcsv_is_header;
+	cf.endofline_callback = &netcsv_endofline_callback;
+	cf.validate_header    = &netcsv_validate_header;
 	/* netcsv field may have been set by conf file */
 	s = (nof->netcsv_prefix_field[0] ? nof->netcsv_prefix_field : "prefix");
 	register_csv_field(&cf, s, 1, 1, netcsv_prefix_handle);
