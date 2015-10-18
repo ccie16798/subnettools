@@ -198,35 +198,28 @@ static int netcsv_validate_header(struct csv_field *field)
 int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 {
 	/* default netcsv fields */
-	struct csv_field csv_field[] = {
-		{ "prefix"	, 0, 1, 1, &netcsv_prefix_handle },
-		{ "mask"	, 0, 2, 0, &netcsv_mask_handle },
-		{ "device"	, 0, 0, 0, &netcsv_device_handle },
-		{ "GW"		, 0, 3, 0, &netcsv_GW_handle },
-		{ "comment"	, 0, 4, 0, &netcsv_comment_handle },
-		{ NULL, 0,0,0, NULL }
-	};
+	struct csv_field csv_field[6];
 	struct csv_file cf;
 	struct csv_state state;
 	int res;
-
-	/* netcsv field may have been set by conf file */
-	if (nof->netcsv_prefix_field[0])
-		csv_field[0].name = nof->netcsv_prefix_field;
-	if (nof->netcsv_mask[0])
-		csv_field[1].name = nof->netcsv_mask;
-	if (nof->netcsv_device[0])
-		csv_field[2].name = nof->netcsv_device;
-	if (nof->netcsv_gw[0])
-		csv_field[3].name = nof->netcsv_gw;
-	if (nof->netcsv_comment[0])
-		csv_field[4].name = nof->netcsv_comment;
+	char *s;
 
 	init_csv_file(&cf, name, csv_field, nof->delim, &simple_strtok_r);
 	cf.is_header = &netcsv_is_header;
 	cf.endofline_callback = &netcsv_endofline_callback;
 	cf.validate_header = &netcsv_validate_header;
 	init_csv_state(&state, name);
+	/* netcsv field may have been set by conf file */
+	s = (nof->netcsv_prefix_field[0] ? nof->netcsv_prefix_field : "prefix");
+	register_csv_field(&cf, s, 1, 1, netcsv_prefix_handle);
+	s = (nof->netcsv_mask[0] ? nof->netcsv_mask : "mask");
+	register_csv_field(&cf, s, 0, 2, netcsv_mask_handle);
+	s = (nof->netcsv_device[0] ? nof->netcsv_device : "device");
+	register_csv_field(&cf, s, 0, 0, netcsv_device_handle);
+	s = (nof->netcsv_gw[0] ? nof->netcsv_gw : "GW");
+	register_csv_field(&cf, s, 0, 3, netcsv_GW_handle);
+	s = (nof->netcsv_comment[0] ? nof->netcsv_comment : "comment");
+	register_csv_field(&cf, s, 0, 4, netcsv_comment_handle);
 
 	if (alloc_subnet_file(sf, 4096) < 0)
 		return -2;
