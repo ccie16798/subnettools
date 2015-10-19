@@ -190,7 +190,8 @@ int uniq_routes(const struct subnet_file *sf1, const struct subnet_file *sf2,
 		for (j = 0; j < sf2->nr; j++) {
 			res = subnet_compare(&sf1->routes[i].subnet, &sf2->routes[j].subnet);
 			if (res != NOMATCH) {
-				st_debug(ADDRCOMP, 4, "skipping %P, relaled with %P\n", sf1->routes[i].subnet,
+				st_debug(ADDRCOMP, 4, "skipping %P, related with %P\n",
+						sf1->routes[i].subnet,
 						sf2->routes[j].subnet);
 				find = 1;
 				break;
@@ -204,7 +205,8 @@ int uniq_routes(const struct subnet_file *sf1, const struct subnet_file *sf2,
 		for (i = 0; i < sf1->nr; i++) {
 			res = subnet_compare(&sf2->routes[j].subnet, &sf1->routes[i].subnet);
 			if (res != NOMATCH) {
-				st_debug(ADDRCOMP, 4, "skipping %P rel with %P\n", sf2->routes[j].subnet,
+				st_debug(ADDRCOMP, 4, "skipping %P related with %P\n",
+						sf2->routes[j].subnet,
 						sf1->routes[i].subnet);
 				find = 1;
 				break;
@@ -217,7 +219,7 @@ int uniq_routes(const struct subnet_file *sf1, const struct subnet_file *sf2,
 		r = popTAS(&tas);
 		if (r == NULL)
 			break;
-		/* sf3 had not EA alloced, so dont use cloen_route */
+		/* sf3 had not EA alloced, so dont use clone_route */
 		clone_route_nofree(&sf3->routes[i], r);
 	}
 	sf3->nr = i;
