@@ -105,16 +105,12 @@ int ipv6_is_multicast(ipv6 a);
  * -1 otherwise
  */
 int subnet_compare(const struct subnet *sub1, const struct subnet *sub2);
-int subnet_compare_ipv4(ipv4 ip1, u32 mask1, ipv4 ip2, u32 mask2);
-int subnet_compare_ipv6(ipv6 ip1, u32 mask1, ipv6 ip2, u32 mask2);
 
 int subnet_is_superior(const struct subnet *s1, const struct subnet *s2);
 int addr_is_superior(const struct ip_addr *s1, const struct ip_addr *s2);
 
 /* address to addr converting functions
    output buffer MUST be allocated by caller and large enough */
-int addrv42str(ipv4 z, char *out_buffer, size_t len);
-int addrv62str(ipv6 z, char *out_buffer, size_t len, int compress);
 int subnet2str(const struct subnet *s, char *out_buffer, size_t len, int comp_level);
 int addr2str(const struct ip_addr *a, char *out_buffer, size_t len, int comp_level);
 int mask2ddn(u32 mask, char *out_buffer, size_t len);

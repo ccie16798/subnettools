@@ -42,27 +42,6 @@ inline void zero_ipaddr(struct ip_addr *a)
 {
 	memset(a, 0, sizeof(struct ip_addr));
 }
-/*
- * compare sub1 & sub2 for inclusion
- * returns :
- * INCLUDES if  sub1 includes sub2
- * INCLUDED if  sub1 is included in sub2
- * EQUALS   if  sub1 equals sub2
- * -1 otherwise
- */
-int subnet_compare(const struct subnet *sub1, const struct subnet *sub2)
-{
-	if (sub1->ip_ver != sub2->ip_ver) {
-		debug(ADDRCOMP, 1, "different address FAMILY : %d, %d\n", sub1->ip_ver, sub2->ip_ver);
-		return -1;
-	}
-	if (sub1->ip_ver == IPV4_A)
-		return subnet_compare_ipv4(sub1->ip, sub1->mask, sub2->ip, sub2->mask);
-	else if (sub1->ip_ver == IPV6_A)
-		return subnet_compare_ipv6(sub1->ip6, sub1->mask, sub2->ip6, sub2->mask);
-	fprintf(stderr, "Impossible to get here, IP version = %d BUG?\n", sub1->ip_ver);
-	return -1;
-}
 
 int is_equal_ipv6(ipv6 ip1, ipv6 ip2)
 {
@@ -112,7 +91,7 @@ int ipv6_is_multicast(ipv6 a)
 	return ((block(a, 0) >> 8) == (0xFF00 >> 8));
 }
 
-int subnet_compare_ipv6(ipv6 ip1, u32 mask1, ipv6 ip2, u32 mask2)
+static inline int subnet_compare_ipv6(ipv6 ip1, u32 mask1, ipv6 ip2, u32 mask2)
 {
 	if (mask1 > mask2) {
 		shift_ipv6_right(ip1, (128 - mask2));
@@ -142,7 +121,7 @@ int subnet_compare_ipv6(ipv6 ip1, u32 mask1, ipv6 ip2, u32 mask2)
         }
 }
 
-int subnet_compare_ipv4(ipv4 prefix1, u32 mask1, ipv4 prefix2, u32 mask2)
+static inline int subnet_compare_ipv4(ipv4 prefix1, u32 mask1, ipv4 prefix2, u32 mask2)
 {
 	ipv4 a, b;
 
@@ -170,7 +149,29 @@ int subnet_compare_ipv4(ipv4 prefix1, u32 mask1, ipv4 prefix2, u32 mask2)
 	}
 }
 
-int addrv42str(ipv4 z, char *out_buffer, size_t len)
+/*
+ * compare sub1 & sub2 for inclusion
+ * returns :
+ * INCLUDES if  sub1 includes sub2
+ * INCLUDED if  sub1 is included in sub2
+ * EQUALS   if  sub1 equals sub2
+ * -1 otherwise
+ */
+int subnet_compare(const struct subnet *sub1, const struct subnet *sub2)
+{
+	if (sub1->ip_ver != sub2->ip_ver) {
+		debug(ADDRCOMP, 1, "different address FAMILY : %d, %d\n", sub1->ip_ver, sub2->ip_ver);
+		return -1;
+	}
+	if (sub1->ip_ver == IPV4_A)
+		return subnet_compare_ipv4(sub1->ip, sub1->mask, sub2->ip, sub2->mask);
+	else if (sub1->ip_ver == IPV6_A)
+		return subnet_compare_ipv6(sub1->ip6, sub1->mask, sub2->ip6, sub2->mask);
+	fprintf(stderr, "Impossible to get here, IP version = %d BUG?\n", sub1->ip_ver);
+	return -1;
+}
+
+static inline int addrv42str(ipv4 z, char *out_buffer, size_t len)
 {
 	int i;
 	/*
@@ -201,7 +202,7 @@ int addrv42str(ipv4 z, char *out_buffer, size_t len)
  * compress = 2 ==> FULL compression but doesnt convert Embedded IPv4
  * compress = 3 ==> FULL compression and convert Embedded IPv4
  */
-int addrv62str(ipv6 z, char *out_buffer, size_t len, int compress)
+static inline int addrv62str(ipv6 z, char *out_buffer, size_t len, int compress)
 {
 	int a, i, j;
 	int skip = 0, max_skip = 0;
