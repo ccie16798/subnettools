@@ -525,7 +525,8 @@ static int string2addrv6(const char *s, struct ip_addr *addr, int len)
 	/**  couting ':' (7max),  '::' (1max), and '.' (0 or 3) */
 	for (i = 1;  i < len; i++) {
 		if (count_dot && count_dot != 3 && s[i] == ':') {
-			debug(PARSEIPV6, 3, "Invalid IPv6 address '%s', found a ':' after only %d '.', cannot build embedded IP\n", s, count_dot);
+			debug(PARSEIPV6, 3, "Invalid IPv6 address '%s', found a ':'"
+					"after only %d '.', cannot build embedded IP\n", s, count_dot);
 			return BAD_IP;
 		} else if (s[i] == ':') {
 			count++;
@@ -555,7 +556,8 @@ static int string2addrv6(const char *s, struct ip_addr *addr, int len)
 	}
 	if (count_dot) {
 		if  (count_dot != 3) {
-			debug(PARSEIPV6, 3, "Invalid IPv4-Embedded/Mapped address '%s', wrong '.' count, [%d]\n", s, count_dot);
+			debug(PARSEIPV6, 3, "Invalid IPv4-Embedded/Mapped address"
+					" '%s', wrong '.' count, [%d]\n", s, count_dot);
 			return BAD_IP;
 		}
 		if (count > 6) {
@@ -563,17 +565,20 @@ static int string2addrv6(const char *s, struct ip_addr *addr, int len)
 			return BAD_IP;
 		}
 		if (count2 == 0 && count != 6) {
-			debug(PARSEIPV6, 3, "Invalid IPv4-Embedded/Mapped address '%s', bad ':' count, [%d]\n", s, count );
+			debug(PARSEIPV6, 3, "Invalid IPv4-Embedded/Mapped address"
+					" '%s', bad ':' count, [%d]\n", s, count );
 			return BAD_IP;
 		}
 		skipped_blocks = 7 - count;
 	} else {
 		if (count > 7) {
-			debug(PARSEIPV6, 3, "Invalid IPv6 address '%s', too many ':', [%d]\n", s, count );
+			debug(PARSEIPV6, 3, "Invalid IPv6 address '%s', too many ':', [%d]\n",
+					s, count );
 			return BAD_IP;
 		}
 		if (count2 == 0 && count != 7) {
-			debug(PARSEIPV6, 3, "Invalid IPv6 address '%s', not enough ':', [%d]\n", s, count );
+			debug(PARSEIPV6, 3, "Invalid IPv6 address '%s', not enough ':', [%d]\n",
+					s, count );
 			return BAD_IP;
 		}
 		skipped_blocks = 8 - count;
@@ -608,10 +613,12 @@ static int string2addrv6(const char *s, struct ip_addr *addr, int len)
 			num_digit = 0;
 			if (s[i + 1] == ':') /* we found a ':: (compressed address) */
 				do_skip = 1;
-			debug(PARSEIPV6, 9, "still to parse '%s', %d blocks already parsed\n", s + i + 1, out_i);
+			debug(PARSEIPV6, 9, "still to parse '%s', %d blocks already parsed\n",
+					s + i + 1, out_i);
 		} else if (isxdigit(s[i])) {
 			if (num_digit == 4) {
-				debug(PARSEIPV6, 3, "Invalid IPv6 '%s', block#%d has too many chars\n", s, out_i);
+				debug(PARSEIPV6, 3, "Invalid IPv6 '%s', block#%d has too many chars\n",
+						s, out_i);
 				return BAD_IP;
 
 			}
@@ -854,7 +861,8 @@ int addr_is_superior(const struct ip_addr *ip1, const struct ip_addr *ip2)
 	int i, res;
 
 	if (ip1->ip_ver != ip2->ip_ver) {
-		debug(ADDRCOMP, 1, "cannot compare, different IP version %d != %d\n", ip1->ip_ver, ip2->ip_ver);
+		debug(ADDRCOMP, 1, "cannot compare, different IP version %d != %d\n",
+				ip1->ip_ver, ip2->ip_ver);
 		return -1;
 	}
 	res = 0;
@@ -1141,7 +1149,8 @@ struct subnet *subnet_remove(const struct subnet *s1, const struct subnet *s2, i
 			st_debug(ADDRREMOVE, 3, "Loop#1 testing %P\n", test);
 			res = subnet_compare(&test, s2);
 			if (res == INCLUDES) {
-				st_debug(ADDRREMOVE, 5, "Loop#1 %P too BIG, includes %P, continuing loop\n", test, *s2);
+				st_debug(ADDRREMOVE, 5, "Loop#1 %P too BIG, includes %P, continuing loop\n",
+						test, *s2);
 				continue;
 			} else if (res == NOMATCH) {
 				st_debug(ADDRREMOVE, 5, "Loop#1 %P BIG enough, breaking loop\n", test);
