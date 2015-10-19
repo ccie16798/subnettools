@@ -127,7 +127,7 @@ int mask2ddn(u32 mask, char *out_buffer, size_t len);
  *    IPV6_A if addr is valid IPv6
  *    BAD_IP otherwise
  * */
-int string2addr(const char *s, struct ip_addr *addr, int len);
+int string2addr(const char *s, struct ip_addr *addr, size_t len);
 
 /* read len chars from 's' and try to convert to a subnet mask length
  * s doesnt need to be '\0' ended
@@ -135,7 +135,7 @@ int string2addr(const char *s, struct ip_addr *addr, int len);
  *    'mask length' is 's' is a valid mask
  *     BAD_MASK otherwise
 */
-int string2mask(const char *s, int len) ;
+int string2mask(const char *s, size_t len) ;
 
 
 /* fills struct subnet from a string

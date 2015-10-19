@@ -335,10 +335,10 @@ int mask2ddn(u32 mask, char *out, size_t len)
 		for ( ; i < 4; i++)
 			s[i] = 0;
 	}
-	return  sprintf(out, "%d.%d.%d.%d", s[0], s[1], s[2], s[3]);
+	return sprintf(out, "%d.%d.%d.%d", s[0], s[1], s[2], s[3]);
 }
 
-int string2mask(const char *s, int len)
+int string2mask(const char *s, size_t len)
 {
 	int i = 0, ddn_mask = 0;
 	u32 a = 0, prev_a = 0;
@@ -435,7 +435,7 @@ int string2mask(const char *s, int len)
 	return ddn_mask;
 }
 
-static int string2addrv4(const char *s, struct ip_addr *addr, int len)
+static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 {
 	int i;
 	int count_dot = 0;
@@ -496,12 +496,11 @@ static int string2addrv4(const char *s, struct ip_addr *addr, int len)
 	return IPV4_A;
 }
 
-static int string2addrv6(const char *s, struct ip_addr *addr, int len)
+static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 {
 	int i, j, k;
 	int do_skip = 0;
 	int out_i = 0;
-	int stop = 0;
 	int count = 0, count2 = 0, count_dot = 0;
 	int try_embedded, skipped_blocks;
 	unsigned short current_block;
@@ -510,7 +509,8 @@ static int string2addrv6(const char *s, struct ip_addr *addr, int len)
 
 	if (s[0] == ':') { /** loopback addr **/
 		if (s[1] != ':') {
-			debug(PARSEIPV6, 3, "Invalid IPv6 address '%s', cannot begin with a single ':'\n", s);
+			debug(PARSEIPV6, 3, "Invalid IPv6 address '%s', cannot begin with a single ':'\n",
+					s);
 			return BAD_IP;
 		}
 		do_skip = 1;
@@ -603,14 +603,13 @@ static int string2addrv6(const char *s, struct ip_addr *addr, int len)
 			do_skip = 0;
 			current_block = 0;
 			num_digit = 0;
-		} else if (s[i] ==':' || s[i] == '\0' || i == len) {
-			if (s[i] == '\0' || i == len)
-				stop = 1;
+		} else if (s[i] == '\0' || i == len) {
 			debug(PARSEIPV6, 8, "copying '%x' to block#%d\n", current_block, out_i);
 			set_block(addr->ip6, out_i, current_block);
-			if (stop) /* we are here because s[i] was 0 before we replaced it*/
-				break;
-
+			break;
+		} else if (s[i] ==':') {
+			debug(PARSEIPV6, 8, "copying '%x' to block#%d\n", current_block, out_i);
+			set_block(addr->ip6, out_i, current_block);
 			out_i++;
 			current_block = 0;
 			num_digit = 0;
@@ -660,7 +659,7 @@ static int string2addrv6(const char *s, struct ip_addr *addr, int len)
 	return IPV6_A;
 }
 
-int string2addr(const char *s, struct ip_addr *addr, int len)
+int string2addr(const char *s, struct ip_addr *addr, size_t len)
 {
 	int i;
 	int may_ipv4 = 0, may_ipv6 = 0;
