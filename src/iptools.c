@@ -21,6 +21,7 @@
 #include "st_printf.h"
 
 sprint_hex(short)
+sprint_unsigned(int)
 
 inline int is_ip_char(char c)
 {
@@ -171,8 +172,7 @@ int subnet_compare_ipv4(ipv4 prefix1, u32 mask1, ipv4 prefix2, u32 mask2)
 
 int addrv42str(ipv4 z, char *out_buffer, size_t len)
 {
-	unsigned int a, b, c, d;
-
+	int i;
 	/*
 	 * instead of using snprint to check outbuff isnt overrun, we make sure output buffer is large enough
 	 * we refuse to print potentially truncated IPs and BUG early ; min size is (3 + 1) * 4
@@ -182,12 +182,15 @@ int addrv42str(ipv4 z, char *out_buffer, size_t len)
 		out_buffer[0] = '\0';
 		return -1;
 	}
-	d = z % 256;
-	c = (z >> 8) % 256;
-	b = (z >> 16) % 256;
-	a = (z >> 24) % 256;
-	/* SAFE to use sprintf here, we made sure buffer is large enough */
-	return sprintf(out_buffer, "%d.%d.%d.%d", a, b, c, d);
+	i = sprint_uint(out_buffer, (z >> 24) & 0xff);
+	out_buffer[i++] = '.';
+	i += sprint_uint(out_buffer + i, (z >> 16) & 0xff);
+	out_buffer[i++] = '.';
+	i += sprint_uint(out_buffer + i, (z >> 8) & 0xff);
+	out_buffer[i++] = '.';
+	i += sprint_uint(out_buffer + i, z & 0xff);
+	out_buffer[i] = '\0';
+	return i;
 }
 
 /*
