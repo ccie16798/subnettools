@@ -92,7 +92,7 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e)
 		debug(GEXPR, 1, "Invalid expr '%s', too many recursion level\n", e->pattern);
 		return -1;
 	}
-	strxcpy(buffer, pattern, len + 1); /* FIXME this should die once code is stabilized */
+	strxcpy(buffer, pattern, sizeof(buffer)); /* FIXME this should die once code is stabilized */
 	debug(GEXPR, 9, "Pattern : '%s', len=%d, recursion=%d\n", buffer, len, e->recursion_level);
 
 	while (isspace(pattern[i]))
