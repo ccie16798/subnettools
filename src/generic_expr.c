@@ -81,7 +81,7 @@ static int simple_expr(char *pattern, int len, struct generic_expr *e)
 
 int run_generic_expr(char *pattern, int len, struct generic_expr *e)
 {
-	int i = 0;
+	int i = 0, j;
 	char buffer[256];
 	int res1, res2;
 	int parenthese = 0;
@@ -96,15 +96,16 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e)
 	debug(GEXPR, 9, "Pattern : '%s', len=%d, recursion=%d\n", buffer, len, e->recursion_level);
 
 	while (isspace(pattern[i]))
-		pattern++;
-	if (pattern[0] == '!') {
+		i++;
+	if (pattern[i] == '!') {
 		negate++;
-		pattern++;
+		i++;
 	}
 	/* handle expr inside parenthesis */
 	if (pattern[i] == '(') {
 		debug(GEXPR, 5, "Found a '(', trying to split expr\n");
 		i += 1;
+		j = i;
 		parenthese++;
 		while (1) {
 			if (pattern[i] == '\0' || i == len) {
@@ -115,7 +116,7 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e)
 				parenthese++;
 			else if (pattern[i] == ')' && parenthese == 1 && pattern[i - 1] != '\\') {
 				debug(GEXPR, 5, "Found closing (expr)', recursion\n");
-				res1 = run_generic_expr(pattern + 1,  i - 1, e);
+				res1 = run_generic_expr(pattern + j,  i - j, e);
 				e->recursion_level--;
 				if (res1 < 0)
 					return res1;
@@ -152,11 +153,12 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e)
 			i++;
 		}
 	}
+	j = i;
 	while (1) {
 		if (i == len || pattern[i] == '\0')
 			break;
 		if (pattern[i] == '|') {
-			res1 = run_generic_expr(pattern, i, e);
+			res1 = run_generic_expr(pattern + j, i - j, e);
 			e->recursion_level--;
 			if (res1 < 0)
 				return res1;
@@ -173,7 +175,7 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e)
 			return  (res1 | res2);
 		}
 		if (pattern[i] == '&') {
-			res1 = run_generic_expr(pattern, i, e);
+			res1 = run_generic_expr(pattern + j, i - j, e);
 			e->recursion_level--;
 			if (res1 < 0)
 				return res1;
@@ -188,7 +190,7 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e)
 		}
 		i++;
 	}
-	res1 = simple_expr(pattern, i, e);
+	res1 = simple_expr(pattern + j, i - j, e);
 	e->recursion_level--;
 	if (res1 < 0)
 		return res1;
