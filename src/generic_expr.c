@@ -130,31 +130,32 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e)
 				 * it is stronger than '&' and '|'
 				 */
 				res1 = (negate ? !res1 : res1);
-				while (isspace(pattern[i + 1]))
+				i++;
+				while (isspace(pattern[i]))
 					i++;
-				if (i >= len) {
+				if (i > len) {
 					/* it should occur only on BUG*/
 					fprintf(stderr, "%s: BUG i=%i, len=%d\n", __FILE__, i, len);
 					return -1;
 				}
 				/* we reached end of string, just return */
-				if (pattern[i + 1] == '\0' || len == i + 1)
+				if (pattern[i] == '\0' || len == i)
 					return res1;
 				/* let s try to take shortcuts to avoid evalutating second part of expr
 				 * downside is that if the other part of expr has a syntax error,
 				 * we don't catch it  */
-				if (res1 && pattern[i + 1] == '|')
+				if (res1 && pattern[i] == '|')
 					return 1;
-				if (res1 == 0 && pattern[i + 1] == '&')
+				if (res1 == 0 && pattern[i] == '&')
 					return 0;
 
-				res2 = run_generic_expr(pattern + i + 2,  len - i - 2, e);
+				res2 = run_generic_expr(pattern + i + 1,  len - i - 1, e);
 				e->recursion_level--;
 				if (res2 < 0)
 					return res2;
-				if (pattern[i + 1] == '|')
+				if (pattern[i] == '|')
 					return res1 | res2;
-				else if (pattern[i + 1] == '&')
+				else if (pattern[i] == '&')
 					return res1 & res2;
 				debug(GEXPR, 1, "A comparator is required after ) '%s'\n", buffer);
 				return -1;
