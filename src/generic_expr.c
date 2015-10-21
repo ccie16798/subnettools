@@ -101,6 +101,11 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e)
 		negate++;
 		i++;
 	}
+	if (i >= len) {
+		/* someone sent a really stupid string or BUG*/
+		fprintf(stderr, "%s: BUG expr too long\n", __FILE__);
+		return -1;
+	}
 	/* handle expr inside parenthesis */
 	if (pattern[i] == '(') {
 		debug(GEXPR, 5, "Found a '(', trying to split expr\n");
