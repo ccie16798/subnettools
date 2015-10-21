@@ -102,8 +102,8 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e)
 		i++;
 	}
 	if (i >= len) {
-		/* someone sent a really stupid string or BUG*/
-		fprintf(stderr, "%s: BUG expr too long\n", __FILE__);
+		/* it should occur only on BUG*/
+		fprintf(stderr, "%s: BUG i=%i, len=%d\n", __FILE__, i, len);
 		return -1;
 	}
 	/* handle expr inside parenthesis */
@@ -119,8 +119,8 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e)
 			}
 			if (pattern[i] == '(')
 				parenthese++;
-			else if (pattern[i] == ')' && parenthese == 1 && pattern[i - 1] != '\\') {
-				debug(GEXPR, 5, "Found closing (expr)', recursion\n");
+			else if (pattern[i] == ')' && parenthese == 1) {
+				debug(GEXPR, 5, "Found closing '(', recursion\n");
 				res1 = run_generic_expr(pattern + j,  i - j, e);
 				e->recursion_level--;
 				if (res1 < 0)
@@ -132,6 +132,11 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e)
 				res1 = (negate ? !res1 : res1);
 				while (isspace(pattern[i + 1]))
 					i++;
+				if (i >= len) {
+					/* it should occur only on BUG*/
+					fprintf(stderr, "%s: BUG i=%i, len=%d\n", __FILE__, i, len);
+					return -1;
+				}
 				/* we reached end of string, just return */
 				if (pattern[i + 1] == '\0' || len == i + 1)
 					return res1;
@@ -151,7 +156,7 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e)
 					return res1 | res2;
 				else if (pattern[i + 1] == '&')
 					return res1 & res2;
-				debug(GEXPR, 3, "A comparator is required after ) '%s'\n", buffer);
+				debug(GEXPR, 1, "A comparator is required after ) '%s'\n", buffer);
 				return -1;
 			} else if (pattern[i] == ')')
 				parenthese--;
