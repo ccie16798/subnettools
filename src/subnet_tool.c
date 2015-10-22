@@ -32,7 +32,7 @@ void compare_files(struct subnet_file *sf1, struct subnet_file *sf2, struct st_o
 {
 	unsigned long i, j, found_j;
 	int res;
-	int find = 0, found_mask;
+	int find = 0, mask, found_mask;
 
 	for (i = 0; i < sf1->nr; i++) {
 		find = 0;
@@ -51,11 +51,11 @@ void compare_files(struct subnet_file *sf1, struct subnet_file *sf2, struct st_o
 				find = 1;
 			} else if (res == INCLUDED) {
 				find = 1;
-				if (sf2->routes[j].subnet.mask > found_mask) {
-					found_mask = sf2->routes[j].subnet.mask;
+				mask = sf2->routes[j].subnet.mask;
+				if (mask > found_mask) {
+					found_mask = mask;
 					found_j = j;
 				}
-
 			}
 		}
 		if (find == 0)
@@ -358,6 +358,7 @@ int network_grep_file(char *name, struct st_options *nof, char *ip)
 	res = get_subnet_or_ip(ip, &subnet1);
 	if (res < 0) {
 		fprintf(stderr, "WTF? \"%s\"  IS  a prefix/mask ?? really?\n", ip);
+		fclose(f);
 		return -3;
 	}
 	debug_timing_start(2);
@@ -654,8 +655,12 @@ int aggregate_route_file(struct subnet_file *sf, int mode)
 		free_route(&sf->routes[i]);
 		st_free_string(new_r[j].ea[0].value);
 		ea_strdup(&new_r[j].ea[0], "AGGREGATE");
-		if (new_r[j].ea[0].value == NULL)
+		if (new_r[j].ea[0].value == NULL) {
+			free(new_r);
+			total_memory -= sizeof(struct route) * sf->nr;
+			debug_timing_end(2);
 			return -1;
+		}
 		/* rewinding and aggregating backwards as much as we can;
 		 * the aggregate we just created may aggregate with j - 1 */
 		while (j > 0) {
@@ -675,8 +680,12 @@ int aggregate_route_file(struct subnet_file *sf, int mode)
 					zero_ipaddr(&new_r[j].gw); /* the aggregate route has null gateway */
 				st_free_string(new_r[j].ea[0].value);
 				ea_strdup(&new_r[j].ea[0], "AGGREGATE");
-				if (new_r[j].ea[0].value == NULL)
+				if (new_r[j].ea[0].value == NULL) {
+					free(new_r);
+					total_memory -= sizeof(struct route) * sf->nr;
+					debug_timing_end(2);
 					return -1;
+				}
 			} else
 				break;
 		} /* while j */
