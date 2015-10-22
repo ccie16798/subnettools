@@ -1,11 +1,5 @@
 /*
- * Subnet_tool ! : a tool that will help network engineers :
- *
- *  - finding IPs conflicts in 2 files
- *  - extracting a subnet definition from a IPAM (IP Address Manager)
- *  - converting various 'sh ip route' formats to csv
- *  - grepping routes in a file
- *  - aggregating routes
+ *  subnet_file & routes functions (sorting, aggregating, comparing, filtering ...)
  *
  * Copyright (C) 2014,2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
@@ -13,7 +7,6 @@
  * under the terms of version 2 of the GNU General Public License
  * as published by the Free Software Foundation.
  */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -37,12 +30,13 @@
  */
 void compare_files(struct subnet_file *sf1, struct subnet_file *sf2, struct st_options *nof)
 {
-	unsigned long i, j;
+	unsigned long i, j, found_j;
 	int res;
-	int find = 0;
+	int find = 0, found_mask;
 
 	for (i = 0; i < sf1->nr; i++) {
 		find = 0;
+		found_mask = -1;
 		for (j = 0; j < sf2->nr; j++) {
 			res = subnet_compare(&sf1->routes[i].subnet, &sf2->routes[j].subnet);
 			if (res == INCLUDES) {
@@ -55,11 +49,22 @@ void compare_files(struct subnet_file *sf1, struct subnet_file *sf2, struct st_o
 						sf1->routes[i].subnet, sf1->routes[i].subnet,
 						sf2->routes[j].subnet,  sf2->routes[j].subnet);
 				find = 1;
+			} else if (res == INCLUDED) {
+				find = 1;
+				if (sf2->routes[j].subnet.mask > found_mask) {
+					found_mask = sf2->routes[j].subnet.mask;
+					found_j = j;
+				}
+
 			}
 		}
 		if (find == 0)
 			st_fprintf(nof->output_file, "%I;%m;;;\n",
 					sf1->routes[i].subnet, sf1->routes[i].subnet);
+		else if (found_mask > 0)
+			st_fprintf(nof->output_file, "%I;%m;INCLUDED;%I;%m\n",
+					sf1->routes[i].subnet, sf1->routes[i].subnet,
+					sf2->routes[found_j].subnet, sf2->routes[found_j].subnet);
 	}
 }
 
