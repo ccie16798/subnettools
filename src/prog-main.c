@@ -82,8 +82,8 @@ static int run_paip(int argc, char **argv, void *st_options);
 static int run_ipam_getea(int argc, char **argv, void *st_options);
 static int run_grep(int argc, char **argv, void *st_options);
 static int run_convert(int argc, char **argv, void *st_options);
-static int run_simplify1(int argc, char **argv, void *st_options);
-static int run_simplify2(int argc, char **argv, void *st_options);
+static int run_routesimplify1(int argc, char **argv, void *st_options);
+static int run_routesimplify2(int argc, char **argv, void *st_options);
 static int run_common(int argc, char **argv, void *st_options);
 static int run_addfiles(int argc, char **argv, void *st_options);
 static int run_sort(int argc, char **argv, void *st_options);
@@ -130,44 +130,44 @@ static int option_ecmp(int argc, char **argv, void *st_options);
 static int option_noheader(int argc, char **argv, void *st_options);
 
 struct st_command commands[] = {
-	{ "echo",	&run_echo,	2},
-	{ "print",	&run_print,	0},
-	{ "bgpprint",	&run_bgpprint,	0},
-	{ "ipamprint",	&run_ipamprint,	0},
-	{ "relation",	&run_relation,	2},
-	{ "bgpcmp",	&run_bgpcmp,	2},
-	{ "bgpsortby",	&run_bgpsortby,	1},
-	{ "ipinfo",	&run_ipinfo,	1},
-	{ "compare",	&run_compare,	2},
-	{ "subnetcmp",	&run_subnetcmp,	2},
-	{ "missing",	&run_missing,	2},
-	{ "uniq",	&run_uniq,	2},
-	{ "paip",	&run_paip,	1},
-	{ "ipam",	&run_paip,	1},
-	{ "getea",	&run_ipam_getea,1},
-	{ "grep",	&run_grep,	2},
-	{ "convert",	&run_convert,	1},
-	{ "simplify1",	&run_simplify1,	1},
-	{ "simplify2",	&run_simplify2,	1},
-	{ "common",	&run_common,	2},
-	{ "addfiles",	&run_addfiles,	2},
-	{ "sort",	&run_sort,	0},
-	{ "sortby",	&run_sortby,	1},
-	{ "filter",	&run_filter,	1},
-	{ "ipamfilter",	&run_ipam_filter,1},
-	{ "bgpfilter",	&run_bgp_filter,1},
-	{ "sum",	&run_sum,	1},
-	{ "subnetagg",	&run_subnetagg,	1},
-	{ "routeagg",	&run_routeagg,	1},
-	{ "removesubnet", &run_remove,	3},
-	{ "removefile", &run_remove_file,2},
-	{ "split",	&run_split,	2},
-	{ "split2",	&run_split_2,	2},
-	{ "scanf",	&run_scanf,	2},
-	{ "fscanf",	&run_fscanf,	2},
-	{ "help",	&run_help,	0},
-	{ "version",	&run_version,	0},
-	{ "confdesc",	&run_confdesc,	0},
+	{ "echo",		&run_echo,	2},
+	{ "print",		&run_print,	0},
+	{ "bgpprint",		&run_bgpprint,	0},
+	{ "ipamprint",		&run_ipamprint,	0},
+	{ "relation",		&run_relation,	2},
+	{ "bgpcmp",		&run_bgpcmp,	2},
+	{ "bgpsortby",		&run_bgpsortby,	1},
+	{ "ipinfo",		&run_ipinfo,	1},
+	{ "compare",		&run_compare,	2},
+	{ "subnetcmp",		&run_subnetcmp,	2},
+	{ "missing",		&run_missing,	2},
+	{ "uniq",		&run_uniq,	2},
+	{ "paip",		&run_paip,	1},
+	{ "ipam",		&run_paip,	1},
+	{ "getea",		&run_ipam_getea,1},
+	{ "grep",		&run_grep,	2},
+	{ "convert",		&run_convert,	1},
+	{ "routesimplify1",	&run_routesimplify1,	1},
+	{ "routesimplify2",	&run_routesimplify2,	1},
+	{ "common",		&run_common,	2},
+	{ "addfiles",		&run_addfiles,	2},
+	{ "sort",		&run_sort,	0},
+	{ "sortby",		&run_sortby,	1},
+	{ "filter",		&run_filter,	1},
+	{ "ipamfilter",		&run_ipam_filter,1},
+	{ "bgpfilter",		&run_bgp_filter,1},
+	{ "sum",		&run_sum,	1},
+	{ "subnetagg",		&run_subnetagg,	1},
+	{ "routeagg",		&run_routeagg,	1},
+	{ "removesubnet",	&run_remove,	3},
+	{ "removefile",		&run_remove_file,2},
+	{ "split",		&run_split,	2},
+	{ "split2",		&run_split_2,	2},
+	{ "scanf",		&run_scanf,	2},
+	{ "fscanf",		&run_fscanf,	2},
+	{ "help",		&run_help,	0},
+	{ "version",		&run_version,	0},
+	{ "confdesc",		&run_confdesc,	0},
 	/* 'hidden' debug functions */
 	{ "exprtest",	&run_gen_expr,	1, 1},
 	{ "test",	&run_test,	1, 1},
@@ -579,7 +579,7 @@ static int run_convert(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_simplify1(int arc, char **argv, void *st_options)
+static int run_routesimplify1(int arc, char **argv, void *st_options)
 {
 	int res;
 	struct subnet_file sf;
@@ -599,7 +599,7 @@ static int run_simplify1(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_simplify2(int arc, char **argv, void *st_options)
+static int run_routesimplify2(int arc, char **argv, void *st_options)
 {
 	int res;
 	struct subnet_file sf;
