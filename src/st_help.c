@@ -27,8 +27,8 @@ void usage()
 	printf("sortby help	    : print available sort options\n");
 	printf("subnetagg FILE1     : sort and aggregate subnets in CSV FILE1; GW is not checked\n");
 	printf("routeagg  FILE1     : sort and aggregate subnets in CSV FILE1; GW is checked\n");
-	printf("simplify1 FILE1     : simplify CSV subnet file FILE1; duplicate or included networks are removed; GW is checked\n");
-	printf("simplify2 FILE1     : simplify CSV subnet file FILE1; prints redundant routes that can be removed\n");
+	printf("routesimplify1 FILE : simplify CSV subnet file duplicate or included networks are removed;\n");
+	printf("routesimplify2 FILE : simplify CSV subnet file;  prints redundant routes that can be removed\n");
 	printf("\n");
 	printf("Route file comparison\n");
 	printf("---------------------\n");
