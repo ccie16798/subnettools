@@ -32,7 +32,7 @@ void usage()
 	printf("\n");
 	printf("Route file comparison\n");
 	printf("---------------------\n");
-	printf("compare FILE1 FILE2 : compare FILE1 & FILE2, printing subnets in FILE1 INCLUDED in FILE2\n");
+	printf("compare FILE1 FILE2 : compare FILE1 & FILE2, printing subnets in FILE1 in relation with FILE2\n");
 	printf("missing FILE1 FILE2 : prints subnets from FILE1 that are not covered by FILE2; GW is not checked\n");
 	printf("uniq FILE1 FILE2    : prints unique subnets from FILE1 and FILE2\n");
 	printf("common FILE1 FILE2  : merge CSV subnet files FILE1 & FILE2; prints common routes only; GW isn't checked\n");
