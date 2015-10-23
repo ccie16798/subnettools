@@ -70,10 +70,26 @@ int run_csvconverter(char *name, char *filename, struct st_options *o)
 {
 	int i = 0;
 	FILE *f;
+	int (*converter)(char *, FILE *, struct st_options *);
 
 	if (!strcasecmp(name, "help")) {
 		csvconverter_help(stdout);
 		return 0;
+	}
+	converter = NULL;
+	while (1) {
+		if (csvconverters[i].name == NULL)
+			break;
+		if (!strcasecmp(name, csvconverters[i].name)) {
+			converter = csvconverters[i].converter;
+			break;
+		}
+		i++;
+	}
+	if (converter == NULL) {
+		fprintf(stderr, "Unknow route converter : %s\n", name);
+		csvconverter_help(stderr);
+		return -3;
 	}
 	if (filename == NULL) {
 		fprintf(stderr, "Not enough arguments\n");
@@ -84,18 +100,9 @@ int run_csvconverter(char *name, char *filename, struct st_options *o)
 		fprintf(stderr, "Error: cannot open %s for reading\n", filename);
 		return -2;
 	}
-	while (1) {
-		if (csvconverters[i].name == NULL)
-			break;
-		if (!strcasecmp(name, csvconverters[i].name)) {
-			csvconverters[i].converter(filename, f, o);
-			return 0;
-		}
-		i++;
-	}
-	fprintf(stderr, "Unknow route converter : %s\n", name);
-	csvconverter_help(stderr);
-	return -2;
+	csvconverters[i].converter(filename, f, o);
+	fclose(f);
+	return 0;
 }
 
 #define BAD_LINE_CONTINUE \
