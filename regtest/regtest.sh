@@ -339,16 +339,16 @@ reg_test subnetagg bigcsv
 reg_test routeagg route_aggipv6
 reg_test routeagg route_aggipv6-2
 reg_test routeagg route_aggipv4
-reg_test simplify1 BURP
-reg_test simplify2 BURP
-reg_test simplify1 simple
-reg_test simplify2 simple
+reg_test routesimplify1 BURP
+reg_test routesimplify2 BURP
+reg_test routesimplify1 simple
+reg_test routesimplify2 simple
 reg_test sort aggipv4
 reg_test sortby prefix	sortme
 reg_test sortby mask	sortme
 reg_test sortby gw	sortme
-reg_test simplify1 simplify1
-reg_test simplify2 simplify1
+reg_test routesimplify1 simplify1
+reg_test routesimplify2 simplify1
 reg_test sort aggipv6
 reg_test sort sort1
 reg_test sort sort1-ipv6
