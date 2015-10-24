@@ -166,7 +166,6 @@ static int netcsv_ea_handler(char *s, void *data, struct csv_state *state)
 	int ea_nr;
 	int found = 0;
 
-	return CSV_VALID_FIELD;
 	for (ea_nr = 1; ea_nr < sf->ea_nr; ea_nr++) {
 		if (!strcmp(state->csv_field, sf->ea[ea_nr].name)) {
 			found = 1;
@@ -238,7 +237,10 @@ static int netcsv_validate_header(struct csv_file *cf, void *data)
 		sf->ea    = new_ea;
 		sf->ea_nr = new_n;
 		debug(LOAD_CSV, 3, "Need to register %d EA, sf->ea_nr=%d\n", new_n, new_n);
-		for (i = 4; i < cf->num_fields_registered; i++) {
+
+		/* we alloc memory for sf->ea[i].name
+		 * except comment because it is already alloc'ed */
+		for (i = 5; i < cf->num_fields_registered; i++) {
 			sf->ea[i - 4].name = st_strdup(cf->csv_field[i].name);
 			debug(LOAD_CSV, 3, "Register handler '%s' for EA=%d\n",
 					sf->ea[i - 4].name, i - 4);
