@@ -153,7 +153,7 @@ static int read_csv_body(FILE *f, struct csv_file *cf,
 		s = init_buffer;
 		res = 0;
 	} else {
-		s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res);
+		s = fgets_truncate_buffer(buffer, CSV_MAX_LINE_LEN, f, &res);
 		if (s == NULL) {
 			debug(LOAD_CSV, 1, "File %s doesn't have any content\n", cf->file_name);
 			return  CSV_EMPTY_FILE;
@@ -191,8 +191,8 @@ static int read_csv_body(FILE *f, struct csv_file *cf,
 				if (pos == cf->csv_field[i].pos) {
 					csv_field = &cf->csv_field[i];
 					state->csv_field = csv_field->name;
-					debug(LOAD_CSV, 5, "found field handler : %s data : %s\n",
-							csv_field->name, s);
+					debug(LOAD_CSV, 5, "found field handler#%d='%s' pos=%d data : '%s'\n",
+							i, csv_field->name, pos, s);
 					break;
 				}
 			}
