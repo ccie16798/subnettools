@@ -6,7 +6,7 @@
 
 extern char *default_fmt;
 
-void usage_arithmetic()
+void usage_en_arithmetic()
 {
 	printf("Subnet arithmetic\n");
 	printf("-----------------\n");
@@ -18,7 +18,7 @@ void usage_arithmetic()
 	printf("ipinfo IP|all|IPvX  : prints information about IP, or all known subnets (all, IPv4 or IPv6)\n");
 }
 
-void usage_simply()
+void usage_en_simply()
 {
 	printf("Route file simplification\n");
 	printf("-------------------------\n");
@@ -31,7 +31,7 @@ void usage_simply()
 	printf("routesimplify2 FILE : simplify CSV subnet file;  prints redundant routes that can be removed\n");
 }
 
-void usage_routecompare()
+void usage_en_routecompare()
 {
 	printf("Route file comparison\n");
 	printf("---------------------\n");
@@ -47,7 +47,7 @@ void usage_routecompare()
 	printf("bgpfilter help      : prints help about bgp filters\n");
 }
 
-void usage_ipam()
+void usage_en_ipam()
 {
 	printf("IPAM tools\n");
 	printf("----------\n");
@@ -57,7 +57,7 @@ void usage_ipam()
 	printf("getea <IPAM> FILE   : print FILE with Extended Attributes retrieved from IPAM\n");
 }
 
-void usage_misceallenous()
+void usage_en_misceallenous()
 {
 	printf("Miscellaneous route file tools\n");
 	printf("------------------------------\n");
@@ -67,7 +67,7 @@ void usage_misceallenous()
 	printf("sum IPv6FILE        : get total number of /64 subnets included\n");
 }
 
-void usage_bgp()
+void usage_en_bgp()
 {
 	printf("BGP route file tools\n");
 	printf("--------------------\n");
@@ -76,7 +76,7 @@ void usage_bgp()
 	printf("bgpsortby help	    : print available sort options\n");
 }
 
-void usage_convert()
+void usage_en_convert()
 {
 	printf("IP route to CSV converters\n");
 	printf("--------------------------\n");
@@ -84,7 +84,7 @@ void usage_convert()
 	printf("convert help        : use '%s convert help' for available parsers \n", PROG_NAME);
 }
 
-void usage_debug()
+void usage_en_debug()
 {
 	printf("DEBUG and help\n");
 	printf("--------------\n");
@@ -96,7 +96,7 @@ void usage_debug()
 	printf("version             : %s version \n", PROG_NAME);
 }
 
-void usage_options()
+void usage_en_options()
 {
 	printf("\nOPTIONS := \n");
 	printf("-d <delim>      : change the default field delim (;) \n");
@@ -113,7 +113,7 @@ void usage_options()
 	printf("-VV             : more verbose mode; same as '-D all:1'\n\n");
 }
 
-void usage_csv()
+void usage_en_csv()
 {
 	printf("INPUT CSV format :=\n");
 	printf("- Input subnet/routes files SHOULD have a CSV header describing its structure (prefix, mask,, GW, comment, etc...)\n");
@@ -124,36 +124,48 @@ void usage_csv()
 	printf("- IPAM CSV header MUST be described in the configuration file\n");
 }
 
-void usage_all()
+struct usages {
+	const char *name;
+	void (*usage)();
+};
+
+struct usages usages_en[] = {
+	{"arithmetic", usage_en_arithmetic},
+	
+
+	{NULL, NULL}
+};
+
+void usage_en_all()
 {
 	printf("Usage: %s [OPTIONS] COMMAND ARGUMENTS ....\n", PROG_NAME);
 	printf("\n");
 	printf("\nCOMMAND := \n");
 	printf("\n");
-	usage_arithmetic();
+	usage_en_arithmetic();
 	printf("\n");
-	usage_simply();
+	usage_en_simply();
 	printf("\n");
-	usage_routecompare();
+	usage_en_routecompare();
 	printf("\n");
-	usage_ipam();
+	usage_en_ipam();
 	printf("\n");
-	usage_misceallenous();
+	usage_en_misceallenous();
 	printf("\n");
-	usage_bgp();
+	usage_en_bgp();
 	printf("\n");
-	usage_convert();
+	usage_en_convert();
 	printf("\n");
-	usage_debug();
+	usage_en_debug();
 	printf("\n");
-	usage_options();
+	usage_en_options();
 	printf("\n");
-	usage_csv();
+	usage_en_csv();
 }
 
 void usage()
 {
-	usage_all();
+	usage_en_all();
 }
 
 void debug_usage()
