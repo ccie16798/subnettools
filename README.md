@@ -46,9 +46,9 @@ Route file comparison
 
 IPAM tools
 ----------
-- ipam <IPAM> FILE1   : load IPAM, and print FILE1 subnets with comment extracted from IPAM (legacy)
-- ipamfilter FILE EXPR: load IPAM, and filter using regexp EXPR
-- ipamprint FILE      : print IPAM; use option -ipamea to select Extended Attributes
+- ipam <IPAM> FILE1   : print FILE1 subnets with comment extracted from IPAM (legacy)
+- ipamfilter <IPAM> E : filter IPAM using regexp E
+- ipamprint<IPAM>     : print <IPAM>; use option -ipamea to select Extended Attributes
 - getea <IPAM> FILE   : print FILE with Extended Attributes retrieved from IPAM
 
 Miscellaneous route file tools
@@ -310,5 +310,5 @@ CODING
 
 work TODO
 =========
-- fixing file diff (semantics is difficult, what do we want)
 - adding more converters (and fixing IPv6 converters)
+- statistics module
