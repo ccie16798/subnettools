@@ -505,8 +505,7 @@ int subnet_file_simplify(struct subnet_file *sf)
 		copy_route(&new_r[i], r);
 		i++;
         }
-	free(sf->routes);
-	total_memory -= sf->max_nr * sizeof(struct route);
+	st_free(sf->routes, sf->max_nr * sizeof(struct route));
 	sf->max_nr = sf->nr;
         sf->nr = i;
 	free_tas(&tas);
@@ -536,8 +535,7 @@ int route_file_simplify(struct subnet_file *sf,  int mode)
 	discard = st_malloc(sf->nr * sizeof(struct route), "struct route"); /* excluded routes */
 	if (discard == NULL) {
 		free_tas(&tas);
-		free(new_r);
-		total_memory -= sf->nr * sizeof(struct route);
+		st_free(new_r, sf->nr * sizeof(struct route));
 		return -1;
 	}
 
@@ -580,23 +578,20 @@ int route_file_simplify(struct subnet_file *sf,  int mode)
 			copy_route(&discard[j++], r);
         }
 	free_tas(&tas);
-	free(sf->routes);
-	total_memory -= sf->max_nr * sizeof(struct route);
+	st_free(sf->routes, sf->max_nr * sizeof(struct route));
 	sf->max_nr = sf->nr;
 	if (mode == 0) {
         	sf->nr = i;
 		sf->routes = new_r;
 		for (k = 0; k < j; k++)
 			free_route(&discard[k]);
-		free(discard);
-		total_memory -= sf->max_nr * sizeof(struct route);
+		st_free(discard, sf->max_nr * sizeof(struct route));
 	} else {
         	sf->nr = j;
 		sf->routes = discard;
 		for (k = 0; k < i; k++)
 			free_route(&new_r[k]);
-		free(new_r);
-		total_memory -= sf->max_nr * sizeof(struct route);
+		st_free(new_r, sf->max_nr * sizeof(struct route));
 	}
 	return 1;
 }
@@ -656,8 +651,7 @@ int aggregate_route_file(struct subnet_file *sf, int mode)
 		st_free_string(new_r[j].ea[0].value);
 		ea_strdup(&new_r[j].ea[0], "AGGREGATE");
 		if (new_r[j].ea[0].value == NULL) {
-			free(new_r);
-			total_memory -= sizeof(struct route) * sf->nr;
+			st_free(new_r, sizeof(struct route) * sf->nr);
 			debug_timing_end(2);
 			return -1;
 		}
@@ -681,8 +675,7 @@ int aggregate_route_file(struct subnet_file *sf, int mode)
 				st_free_string(new_r[j].ea[0].value);
 				ea_strdup(&new_r[j].ea[0], "AGGREGATE");
 				if (new_r[j].ea[0].value == NULL) {
-					free(new_r);
-					total_memory -= sizeof(struct route) * sf->nr;
+					st_free(new_r, sizeof(struct route) * sf->nr);
 					debug_timing_end(2);
 					return -1;
 				}
@@ -690,8 +683,7 @@ int aggregate_route_file(struct subnet_file *sf, int mode)
 				break;
 		} /* while j */
 	} /* for i */
-	free(sf->routes);
-	total_memory -= sizeof(struct route) * sf->max_nr;
+	st_free(sf->routes, sizeof(struct route) * sf->max_nr);
 	sf->routes = new_r;
 	sf->max_nr = sf->nr;
 	sf->nr = j + 1;
@@ -834,8 +826,7 @@ int subnet_file_remove_subnet(const struct subnet_file *sf1, struct subnet_file 
 			copy_subnet(&sf2->routes[j].subnet, &r[res]);
 			j++;
 		}
-		free(r);
-		total_memory -= sizeof(struct subnet) * n;
+		st_free(r, sizeof(struct subnet) * n);
 	}
 	sf2->nr = j;
 	return 1;
@@ -1135,8 +1126,7 @@ static int __subnet_sort_by(struct subnet_file *sf, int cmpfunc(void *v1, void *
 		copy_route(&new_r[i], r);
 	}
 	free_tas(&tas);
-	free(sf->routes);
-	total_memory -= sizeof(struct route) * sf->max_nr;
+	st_free(sf->routes, sizeof(struct route) * sf->max_nr);
 	sf->routes = new_r;
 	debug_timing_end(2);
 	return 0;
@@ -1367,8 +1357,7 @@ int subnet_file_filter(struct subnet_file *sf, char *expr)
 		res = run_generic_expr(expr, len, &e);
 		if (res < 0) {
 			fprintf(stderr, "Invalid filter '%s'\n", expr);
-			free(new_r);
-			total_memory -= sf->nr * sizeof(struct route);
+			st_free(new_r, sf->nr * sizeof(struct route));
 			debug_timing_end(2);
 			return -1;
 		}
@@ -1379,8 +1368,7 @@ int subnet_file_filter(struct subnet_file *sf, char *expr)
 		} else
 			free_route(&sf->routes[i]);
 	}
-	free(sf->routes);
-	total_memory -= sf->max_nr * sizeof(struct route);
+	st_free(sf->routes, sf->max_nr * sizeof(struct route));
 	sf->routes = new_r;
 	sf->max_nr = sf->nr;
 	sf->nr     = j;
