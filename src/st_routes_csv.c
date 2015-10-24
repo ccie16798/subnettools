@@ -63,6 +63,26 @@ void free_subnet_file(struct subnet_file *sf)
 	sf->ea_nr = 0;
 }
 
+/*
+ * alloc Extended Attribute array and copy name from sf->ea
+ * @sf  : the subnet file
+ * @n   : the element to alloc_memory
+ * returns:
+ * 	1  on SUCCESS
+ *	-1 on ENOMEM
+ */
+int sf_alloc_ea_array(struct subnet_file *sf, unsigned long n)
+{
+	int res, i;
+
+	res = alloc_route_ea(&sf->routes[n], sf->ea_nr);
+	if (res < 0)
+		return res;
+	for (i = 0; i < sf->ea_nr; i++)
+		sf->routes[n].ea[i].name = sf->ea[i].name;
+	return 1;
+}
+
 static int netcsv_prefix_handle(char *s, void *data, struct csv_state *state)
 {
 	struct subnet_file *sf = data;
