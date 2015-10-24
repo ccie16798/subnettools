@@ -38,9 +38,8 @@ int alloc_subnet_file(struct subnet_file *sf, unsigned long n)
 	sf->max_nr = n;
 	sf->ea	   = alloc_ea_array(1);
 	if (sf->ea == NULL) {
-		free(sf->routes);
+		st_free(sf->routes, sf->max_nr * sizeof(struct route));
 		sf->max_nr = 0;
-		total_memory -= sf->max_nr * sizeof(struct route);
 		return -1;
 	}
 	sf->ea[0].name = st_strdup("comment");
@@ -56,8 +55,7 @@ void free_subnet_file(struct subnet_file *sf)
 		free_route(&sf->routes[i]);
 	for (i = 0; i < sf->ea_nr; i++)
 		st_free_string(sf->ea[i].name);
-	free(sf->routes);
-	total_memory -= sf->max_nr * sizeof(struct route);
+	st_free(sf->routes, sf->max_nr * sizeof(struct route));
 	sf->routes = NULL;
 	sf->nr = sf->max_nr = 0;
 	free_ea_array(sf->ea, sf->ea_nr);
@@ -321,8 +319,7 @@ int alloc_bgp_file(struct bgp_file *sf, unsigned long n)
 
 void free_bgp_file(struct bgp_file *sf)
 {
-	free(sf->routes);
-	total_memory -= sf->max_nr * sizeof(struct bgp_route);
+	st_free(sf->routes, sf->max_nr * sizeof(struct bgp_route));
 	sf->routes = NULL;
 	sf->nr = sf->max_nr = 0;
 }
