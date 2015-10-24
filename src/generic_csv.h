@@ -64,6 +64,7 @@ struct csv_field {
 	int default_pos; /* used in  CSV files where there is no HEADER, and only if there is no header */
 	int mandatory;
 	int (*handle)(char *token, void *data, struct csv_state *state);
+	int dyn_alloc; /* set to one if name was malloc'ed */
 };
 
 struct csv_file {

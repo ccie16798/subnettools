@@ -1,5 +1,5 @@
 /*
- *  Generic CSV  parser functions
+ *  Generic CSV parser functions
  *
  * Copyright (C) 2014, 2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
@@ -15,11 +15,12 @@
 #include "heap.h"
 #include "generic_csv.h"
 #include "utils.h"
+#include "st_memory.h"
 
 static int read_csv_header(const char *buffer, struct csv_file *cf)
 {
 	int i, j, found;
-	char *s, *save_s;
+	char *s, *save_s, *s2;
 	int pos = 1;
 	int bad_header = 0;
 	int max_mandatory_pos = 1;
@@ -55,9 +56,13 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
 				if (cf->default_handler) {
 					debug(CSVHEADER, 3, "using default handler for field '%s' at pos %d\n",
 							s, pos);
-					i = register_csv_field(cf, s, 0, 0,
+					s2 = st_strdup(s);
+					if (s2 == NULL)
+						return -20;
+					i = register_csv_field(cf, s2, 0, 0,
 							cf->default_handler);
 					cf->csv_field[i].pos = pos;
+					cf->csv_field[i].dyn_alloc = 1;
 				} else {
 					debug(CSVHEADER, 3, "no handler for field '%s' at pos %d\n",
 							s, pos);
@@ -259,6 +264,18 @@ static int read_csv_body(FILE *f, struct csv_file *cf,
 	return res;
 }
 
+static void free_csv_field(struct csv_field *cf)
+{
+	int i;
+
+	for (i = 0; ; i++) {
+		if (cf[i].name == NULL)
+			return;
+		if (cf[i].dyn_alloc)
+			st_free_string(cf[i].name);
+	}
+}
+
 int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state* state, void *data)
 {
 	FILE *f;
@@ -292,6 +309,7 @@ int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state* stat
 	}
 	res = read_csv_header(buffer, cf);
 	if (res < 0) {
+		free_csv_field(cf->csv_field);
 		fclose(f);
 		return res;
 	}
@@ -299,6 +317,7 @@ int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state* stat
 		res2 = cf->validate_header(cf, data);
 		if (res2 < 0) {
 			fclose(f);
+			free_csv_field(cf->csv_field);
 			return res2;
 		}
 	}
@@ -311,6 +330,7 @@ int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state* stat
 		fprintf(stderr, "BUG at %s line %d, invalid res=%d\n", __FILE__, __LINE__, res);
 		res = -3;
 	}
+	free_csv_field(cf->csv_field);
 	fclose(f);
 	return res;
 }
@@ -357,6 +377,7 @@ int register_csv_field(struct csv_file *csv_file, char *name, int mandatory, int
 	cf[i].handle      = handle;
 	cf[i].mandatory   = mandatory;
 	cf[i].pos 	  = 0;
+	cf[i].dyn_alloc	  = 0;
 	cf[i].default_pos = default_pos;
 	cf[i + 1].name 	  = NULL;
 	csv_file->num_fields_registered++;
