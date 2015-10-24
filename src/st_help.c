@@ -124,7 +124,7 @@ void usage_csv()
 	printf("- IPAM CSV header MUST be described in the configuration file\n");
 }
 
-void usage()
+void usage_all()
 {
 	printf("Usage: %s [OPTIONS] COMMAND ARGUMENTS ....\n", PROG_NAME);
 	printf("\n");
@@ -149,6 +149,11 @@ void usage()
 	usage_options();
 	printf("\n");
 	usage_csv();
+}
+
+void usage()
+{
+	usage_all();
 }
 
 void debug_usage()
