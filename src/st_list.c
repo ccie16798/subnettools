@@ -1,6 +1,6 @@
 /*
  * generic double linked-list manipulation functions
- * some parts are inspired from Linux Kernel by Linus Torvalds
+ * some parts (MACROS, container_of) are inspired from Linux Kernel by Linus Torvalds
  *
  * Copyright (C) 2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "st_list.h"
-#include "time.h"
+#include "debug.h"
 
 
 void init_list(st_list *list)
@@ -105,29 +105,29 @@ void list_merge(st_list *l1, st_list *l2, st_list *res,
 	}
 }
 
-void list_sort(st_list *list, int (*cmp)(st_list *, st_list *))
+void list_sort(st_list *head, int (*cmp)(st_list *, st_list *))
 {
 	st_list right, left, *r, *l, *next;
 	/* zero or one elem, return */
-	if (list->next == list || list->next->next == list)
+	if (head->next == head || head->next->next == head)
 		return;
 	/* split list in right and left lists
 	* we do not bother updating ->prev pointers, list_merge will
 	**/
-	l = list->next;
+	l = head->next;
 	r = l->next;
 	left.next  = l;
 	right.next = r;
 
 	while (1) {
-		if (r->next == list) {
+		if (r->next == head) {
 			r->next = &right;
 			l->next = &left;
 			break;
 		}
 		l->next = r->next;
 		l = l->next;
-		if (l->next == list) {
+		if (l->next == head) {
 			r->next = &right;
 			l->next = &left;
 			break;
@@ -139,10 +139,10 @@ void list_sort(st_list *list, int (*cmp)(st_list *, st_list *))
 	list_sort(&right, cmp);
 	list_sort(&left, cmp);
 
-	list_merge(&right, &left, list, cmp);
+	list_merge(&right, &left, head, cmp);
 }
 
-
+#ifdef TEST_LIST
 struct ab {
 	int j;
 	int k;
@@ -160,7 +160,8 @@ int ab_cmp(st_list *l1, st_list *l2)
 
 }
 
-void print_list(st_list *head) {
+void print_list(st_list *head)
+{
 	struct st_list *l;
 	struct ab *a;
 
@@ -184,6 +185,7 @@ void test_sort_one(int n) {
 	}
 	list_sort(&head, &ab_cmp);
 	prev = 10000;
+	i = 0;
 	LIST_FOR_EACH(l, &head) {
 		c = container_of(l, struct ab, list);
 		if (prev < c->a) {
@@ -192,8 +194,13 @@ void test_sort_one(int n) {
 			return;
 		}
 		prev = c->a;
+		i++;
 	}
 	free(a);
+	if (i != n) {
+		printf("FAIL %d elements, %d inserted\n", i, n);
+		return;
+	}
 	printf("PASS %d\n", n);
 }
 
@@ -236,3 +243,4 @@ int main(int argc, char **argv)
 	printf("len=%d\n", list_length(&list));
 	test_sort(1000);
 }
+#endif
