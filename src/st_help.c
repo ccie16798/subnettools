@@ -18,7 +18,7 @@ void usage_en_arithmetic()
 	printf("ipinfo IP|all|IPvX  : prints information about IP, or all known subnets (all, IPv4 or IPv6)\n");
 }
 
-void usage_en_simply()
+void usage_en_simplify()
 {
 	printf("Route file simplification\n");
 	printf("-------------------------\n");
@@ -57,7 +57,7 @@ void usage_en_ipam()
 	printf("getea <IPAM> FILE   : print FILE with Extended Attributes retrieved from IPAM\n");
 }
 
-void usage_en_misceallenous()
+void usage_en_miscellaneous()
 {
 	printf("Miscellaneous route file tools\n");
 	printf("------------------------------\n");
@@ -110,7 +110,7 @@ void usage_en_options()
 	printf("-D <debug>      : DEBUG MODE ; use '%s -D help' for more info\n", PROG_NAME);
 	printf("-fmt            : change the output format (default :%s)\n", default_fmt);
 	printf("-V              : verbose mode; same as '-D all:1'\n");
-	printf("-VV             : more verbose mode; same as '-D all:1'\n\n");
+	printf("-VV             : more verbose mode; same as '-D all:1'\n");
 }
 
 void usage_en_csv()
@@ -130,9 +130,16 @@ struct usages {
 };
 
 struct usages usages_en[] = {
-	{"arithmetic", usage_en_arithmetic},
-	
-
+	{"arithmetic",	usage_en_arithmetic},
+	{"simplify",	usage_en_simplify},
+	{"compare",	usage_en_routecompare},
+	{"ipam",	usage_en_ipam},
+	{"misc",	usage_en_miscellaneous},
+	{"bgp",		usage_en_bgp},
+	{"convert",	usage_en_convert},
+	{"debug",	usage_en_debug},
+	{"options",	usage_en_options},
+	{"csv",		usage_en_csv},
 	{NULL, NULL}
 };
 
@@ -144,13 +151,13 @@ void usage_en_all()
 	printf("\n");
 	usage_en_arithmetic();
 	printf("\n");
-	usage_en_simply();
+	usage_en_simplify();
 	printf("\n");
 	usage_en_routecompare();
 	printf("\n");
 	usage_en_ipam();
 	printf("\n");
-	usage_en_misceallenous();
+	usage_en_miscellaneous();
 	printf("\n");
 	usage_en_bgp();
 	printf("\n");
