@@ -55,8 +55,9 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
 				if (cf->default_handler) {
 					debug(CSVHEADER, 3, "using default handler for field '%s' at pos %d\n",
 							s, pos);
-					register_csv_field(cf, s, 0, 0,
+					i = register_csv_field(cf, s, 0, 0,
 							cf->default_handler);
+					cf->csv_field[i].pos = pos;
 				} else {
 					debug(CSVHEADER, 3, "no handler for field '%s' at pos %d\n",
 							s, pos);
@@ -199,14 +200,14 @@ static int read_csv_body(FILE *f, struct csv_file *cf,
 				res = csv_field->handle(s, data, state);
 				if (res == CSV_INVALID_FIELD_BREAK) {
 					debug(LOAD_CSV, 2, "Field '%s' data '%s' handler returned %s\n",
-							"CSV_INVALID_FIELD_BREAK", csv_field->name, s);
+							csv_field->name, s, "CSV_INVALID_FIELD_BREAK");
 					state->badline = 1;
 					break;
 				} else if (res == CSV_VALID_FIELD_BREAK) {
 					/* found a valid field, but caller told us
 					 * nothing interesting on this line */
 					debug(LOAD_CSV, 5, "Field '%s' data '%s' handler returned %s\n",
-							"CSV_VALID_FIELD_BREAK", csv_field->name, s);
+							csv_field->name, s, "CSV_VALID_FIELD_BREAK");
 					break;
 				} else if (res == CSV_VALID_FIELD_SKIP) {
 					debug(LOAD_CSV, 5, "Field '%s' told us to skip %d fields\n",
@@ -360,5 +361,5 @@ int register_csv_field(struct csv_file *csv_file, char *name, int mandatory, int
 	cf[i + 1].name 	  = NULL;
 	csv_file->num_fields_registered++;
 	debug(CSVHEADER, 3, "Registering handler #%d '%s'\n", i, name);
-	return 1;
+	return i;
 }
