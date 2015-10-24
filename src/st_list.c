@@ -15,13 +15,13 @@
 #include "debug.h"
 
 
-void init_list(st_list *list)
+void inline init_list(st_list *list)
 {
 	list->next = list;
 	list->prev = list;
 }
 
-int list_empty(st_list *list)
+int inline list_empty(st_list *list)
 {
 	return list == list->next;
 }
@@ -38,7 +38,7 @@ int list_length(st_list *list)
 /*
  * insert a nex entry after head
  */
-void list_add(st_list *new, st_list *head)
+void inline list_add(st_list *new, st_list *head)
 {
 	head->next->prev = new;
 	new->next  = head->next;
@@ -49,7 +49,7 @@ void list_add(st_list *new, st_list *head)
 /*
  * insert a nex entry at the end
  */
-void list_add_tail(st_list *new, st_list *head)
+void inline list_add_tail(st_list *new, st_list *head)
 {
 	new->next = head;
 	new->prev = head->prev;
@@ -57,7 +57,7 @@ void list_add_tail(st_list *new, st_list *head)
 	head->prev = new;
 }
 
-void list_del(st_list *list)
+void inline list_del(st_list *list)
 {
 	list->prev->next = list->next;
 	list->next->prev = list->prev;
@@ -105,12 +105,12 @@ void list_merge(st_list *l1, st_list *l2, st_list *res,
 	}
 }
 
-void list_sort(st_list *head, int (*cmp)(st_list *, st_list *))
+/*
+ * __list_sort operates on a list of at least 2 elements
+ */
+static void __list_sort(st_list *head, int (*cmp)(st_list *, st_list *))
 {
 	st_list right, left, *r, *l, *next;
-	/* zero or one elem, return */
-	if (head->next == head || head->next->next == head)
-		return;
 	/* split list in right and left lists
 	* we do not bother updating ->prev pointers, list_merge will
 	**/
@@ -136,10 +136,19 @@ void list_sort(st_list *head, int (*cmp)(st_list *, st_list *))
 		r = r->next;
 	}
 	/* sort recursively; we don't care about the stack :) */
-	list_sort(&right, cmp);
-	list_sort(&left, cmp);
+	if (right.next->next != &right)
+		__list_sort(&right, cmp);
+	if (left.next->next != &left)
+		__list_sort(&left, cmp);
 
 	list_merge(&right, &left, head, cmp);
+}
+
+void list_sort(st_list *head, int (*cmp)(st_list *, st_list *)) {
+	/* zero or one elem, return */
+	if (head->next == head || head->next->next == head)
+		return;
+	__list_sort(head, cmp);
 }
 
 #ifdef TEST_LIST
@@ -209,7 +218,7 @@ void test_sort(int n)
 
 	srand(time(NULL));
 	for (toto = 0; toto < n; toto++)
-		test_sort_one(rand()%1000000);
+		test_sort_one(rand()%2000000);
 }
 
 int main(int argc, char **argv)
