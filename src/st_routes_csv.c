@@ -196,7 +196,7 @@ static int netcsv_endofline_callback(struct csv_state *state, void *data)
 {
 	struct subnet_file *sf = data;
 	struct route *new_r;
-	int i, res;
+	int res;
 
 	if (state->badline) {
 		debug(LOAD_CSV, 1, "%s : invalid line %lu\n", state->file_name, state->line);
@@ -217,11 +217,9 @@ static int netcsv_endofline_callback(struct csv_state *state, void *data)
 		sf->routes = new_r;
 	}
 	zero_route(&sf->routes[sf->nr]);
-	res = alloc_route_ea(&sf->routes[sf->nr], sf->ea_nr);
+	res = sf_alloc_ea_array(sf, sf->nr);
 	if (res < 0)
 		return CSV_CATASTROPHIC_FAILURE;
-	for (i = 0; i< sf->ea_nr; i++)
-		sf->routes[sf->nr].ea[i].name = sf->ea[i].name;
 	state->state[0] = 0; /* state[0] = we found a mask */
 	return CSV_CONTINUE;
 }
@@ -248,11 +246,10 @@ static int netcsv_validate_header(struct csv_file *cf, void *data)
 				return -1;
 		}
 	}
-	res = alloc_route_ea(&sf->routes[0], sf->ea_nr);
+	/* alloc EA for routes[0] */
+	res = sf_alloc_ea_array(sf, 0);
 	if (res < 0)
 		return res;
-	for (i = 0; i< sf->ea_nr; i++)
-		sf->routes[0].ea[i].name = sf->ea[i].name;
 	return 1;
 }
 
