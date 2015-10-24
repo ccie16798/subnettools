@@ -139,6 +139,31 @@ static int netcsv_comment_handle(char *s, void *data, struct csv_state *state)
 	return CSV_VALID_FIELD;
 }
 
+/* generic ea_handler */
+static int netcsv_ea_handler(char *s, void *data, struct csv_state *state)
+{
+	struct subnet_file *sf = data;
+	int ea_nr;
+	int found = 0;
+
+	return CSV_VALID_FIELD;
+	for (ea_nr = 0; ea_nr < sf->ea_nr; ea_nr++) {
+		if (!strcmp(state->csv_field, sf->ea[ea_nr].name)) {
+			found = 1;
+			break;
+		}
+	}
+	if (found == 0) {
+		debug(LOAD_CSV, 2, "No EA match field '%s'\n",  state->csv_field);
+		return CSV_INVALID_FIELD_BREAK;
+	}
+	debug(LOAD_CSV, 6, "Found %s = %s\n",  sf->routes[sf->nr].ea[ea_nr].name, s);
+	/* we dont care if memory failed on strdup; we continue */
+	ea_strdup(&sf->routes[sf->nr].ea[ea_nr], s);
+
+	return CSV_VALID_FIELD;
+}
+
 static int netcsv_is_header(char *s)
 {
 	if (isalpha(s[0]))
@@ -180,15 +205,25 @@ static int netcsv_endofline_callback(struct csv_state *state, void *data)
 	return CSV_CONTINUE;
 }
 
-static int netcsv_validate_header(struct csv_field *field)
+static int netcsv_validate_header(struct csv_file *cf, void *data)
 {
-	int i;
-	/* ENHANCE ME
-	 * we could check if ( (prefix AND mask) OR (prefix/mask) )
-	 */
-	for (i = 0; ; i++) {
-		if (field[i].name == NULL)
-			break;
+	struct subnet_file *sf = data;
+	int i, new_n;
+	struct ipam_ea *new_ea;
+
+	new_n  = cf->num_fields_registered - 5;
+	if (new_n <= 0)
+		return 1;
+	new_ea = realloc_ea_array(sf->ea, sf->ea_nr, new_n);
+	if (new_ea == NULL) /* we don't free original ea, caller should */
+		return -1;
+	sf->ea    = new_ea;
+	sf->ea_nr = new_n;
+	debug(LOAD_CSV, 3, "Need to register %d EA\n", cf->num_fields_registered - 5);
+	for (i = 4; i < cf->num_fields_registered; i++) {
+		sf->ea[i - 4].name = st_strdup(cf->csv_field[i].name);
+		if (sf->ea[i - 4].name == NULL)
+			return -1;
 	}
 	return 1;
 }
@@ -196,7 +231,7 @@ static int netcsv_validate_header(struct csv_field *field)
 int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 {
 	/* default netcsv fields */
-	struct csv_field csv_field[6];
+	struct csv_field csv_field[20];
 	struct csv_file cf;
 	struct csv_state state;
 	int res;
@@ -207,6 +242,7 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 	cf.is_header 	      = &netcsv_is_header;
 	cf.endofline_callback = &netcsv_endofline_callback;
 	cf.validate_header    = &netcsv_validate_header;
+	cf.default_handler    = &netcsv_ea_handler;
 	/* netcsv field may have been set by conf file */
 	s = (nof->netcsv_prefix_field[0] ? nof->netcsv_prefix_field : "prefix");
 	register_csv_field(&cf, s, 1, 1, netcsv_prefix_handle);
