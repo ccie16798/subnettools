@@ -7,7 +7,8 @@
 #define LANG_EN  0
 #define LANG_FR  0
 
-void usage();
+#include "st_options.h"
+void usage(int argc, char **argv, struct st_options *o);
 void debug_usage();
 
 #else

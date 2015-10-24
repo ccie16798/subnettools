@@ -915,13 +915,15 @@ static int run_fscanf(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_help(int arc, char **argv, void *st_options)
+static int run_help(int argc, char **argv, void *st_options)
 {
-	usage();
+	struct st_options *o = st_options;
+
+	usage(argc, argv, o);
 	return 0;
 }
 
-static int run_version(int arc, char **argv, void *st_options)
+static int run_version(int argc, char **argv, void *st_options)
 {
 	printf("%s version %s by Mahmoud Basset\n", PROG_NAME, PROG_VERS);
 #ifdef __DATE__

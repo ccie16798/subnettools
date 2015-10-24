@@ -183,7 +183,7 @@ void usage_all(int language)
 	}
 }
 
-void usage()
+void usage(int argc, char **argv, struct st_options *o)
 {
 	usage_all(LANG_EN);
 }
