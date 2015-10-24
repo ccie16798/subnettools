@@ -32,9 +32,9 @@ struct st_list {
 typedef struct st_list st_list;
 
 #define LIST_FOR_EACH(__l, __head) \
-	for (__l = __head->next; __l != __head; __l = __l->next)
+	for (__l = (__head)->next; __l != (__head); __l = __l->next)
 
 #define LIST_FOR_EACH_REVERSE(__l, __head) \
-	for (__l = __head->prev; __l != __head; __l = __l->prev)
+	for (__l = (__head)->prev; __l != (__head); __l = __l->prev)
 #else
 #endif
