@@ -6,11 +6,8 @@
 
 extern char *default_fmt;
 
-void usage()
+void usage_arithmetic()
 {
-	printf("Usage: %s [OPTIONS] COMMAND ARGUMENTS ....\n", PROG_NAME);
-	printf("\n");
-	printf("\nCOMMAND := \n");
 	printf("Subnet arithmetic\n");
 	printf("-----------------\n");
 	printf("relation IP1 IP2    : prints a relationship between IP1 and IP2\n");
@@ -19,7 +16,10 @@ void usage()
 	printf("removesub TYPE O1 S1: remove Subnet S from Object O1; if TYPE=file O1=ile, if TYPE=subnet 01=subnet\n");
 	printf("removefile F1 F2    : remove all F2 subnets from F1\n");
 	printf("ipinfo IP|all|IPvX  : prints information about IP, or all known subnets (all, IPv4 or IPv6)\n");
-	printf("\n");
+}
+
+void usage_simply()
+{
 	printf("Route file simplification\n");
 	printf("-------------------------\n");
 	printf("sort FILE1          : sort CSV FILE1\n");
@@ -29,7 +29,10 @@ void usage()
 	printf("routeagg  FILE1     : sort and aggregate subnets in CSV FILE1; GW is checked\n");
 	printf("routesimplify1 FILE : simplify CSV subnet file duplicate or included networks are removed;\n");
 	printf("routesimplify2 FILE : simplify CSV subnet file;  prints redundant routes that can be removed\n");
-	printf("\n");
+}
+
+void usage_routecompare()
+{
 	printf("Route file comparison\n");
 	printf("---------------------\n");
 	printf("compare FILE1 FILE2 : compare FILE1 & FILE2, printing subnets in FILE1 in relation with FILE2\n");
@@ -42,32 +45,47 @@ void usage()
 	printf("filter help         : prints help about bgp filters\n");
 	printf("bgpfilter FILE EXPR : grep bgp_file FILE using regexp EXPR\n");
 	printf("bgpfilter help      : prints help about bgp filters\n");
-	printf("\n");
+}
+
+void usage_ipam()
+{
 	printf("IPAM tools\n");
 	printf("----------\n");
 	printf("ipam <IPAM> FILE1   : load IPAM, and print FILE1 subnets with comment extracted from IPAM\n");
 	printf("ipamfilter FILE EXPR: load IPAM, and filter using regexp EXPR\n");
 	printf("ipamprint FILE      : print IPAM; use option -ipamea to select Extended Attributes\n");
 	printf("getea <IPAM> FILE   : print FILE with Extended Attributes retrieved from IPAM\n");
-	printf("\n");
+}
+
+void usage_misceallenous()
+{
 	printf("Miscellaneous route file tools\n");
 	printf("------------------------------\n");
 	printf("print FILE1         : just read & print FILE1; use a -fmt FMT to print CSV fields you want\n");
 	printf("bgpprint FILE1      : just read & print BGP FILE1; use a -fmt FMT to print CSV fields you want\n");
 	printf("sum IPv4FILE        : get total number of hosts included in the list of subnets\n");
 	printf("sum IPv6FILE        : get total number of /64 subnets included\n");
-	printf("\n");
+}
+
+void usage_bgp()
+{
 	printf("BGP route file tools\n");
 	printf("--------------------\n");
 	printf("bgpcmp file1 file2  : show what changed in BGP file file1 & file2\n");
 	printf("bgpsortby name file : sort BGP file by (prefix|gw|MED|LOCALPREF), prefix is always a tie-breaker\n");
 	printf("bgpsortby help	    : print available sort options\n");
-	printf("\n");
+}
+
+void usage_convert()
+{
 	printf("IP route to CSV converters\n");
 	printf("--------------------------\n");
 	printf("convert PARSER FILE1: convert FILE1 to csv using parser PARSER\n");
 	printf("convert help        : use '%s convert help' for available parsers \n", PROG_NAME);
-	printf("\n");
+}
+
+void usage_debug()
+{
 	printf("DEBUG and help\n");
 	printf("--------------\n");
 	printf("echo FMT ARG2       : try to get subnet from ARG2 and echo it according to FMT\n");
@@ -76,6 +94,10 @@ void usage()
 	printf("confdesc            : print a small explanation of %s configuration file\n", PROG_NAME);
 	printf("help                : This HELP \n");
 	printf("version             : %s version \n", PROG_NAME);
+}
+
+void usage_options()
+{
 	printf("\nOPTIONS := \n");
 	printf("-d <delim>      : change the default field delim (;) \n");
 	printf("-ipamea EA1,EA2 : load Extended Attributes in IPAM files; use ',' to select more\n");
@@ -89,12 +111,44 @@ void usage()
 	printf("-fmt            : change the output format (default :%s)\n", default_fmt);
 	printf("-V              : verbose mode; same as '-D all:1'\n");
 	printf("-VV             : more verbose mode; same as '-D all:1'\n\n");
+}
+
+void usage_csv()
+{
 	printf("INPUT CSV format :=\n");
 	printf("- Input subnet/routes files SHOULD have a CSV header describing its structure (prefix, mask,, GW, comment, etc...)\n");
-	printf("- Input subnet/routes files without a CSV header are assumed to be : prefix;mask;GW;comment or prefix;mask;comment\n");
+	printf("- Input subnet/routes files without a CSV header are assumed to be :"
+			"prefix;mask;GW;comment or prefix;mask;comment\n");
 	printf("- default CSV header is 'prefix;mask;device;GW;comment'\n");
 	printf("- CSV header can be changed by using the configuration file (subnettools confdesc for more info)\n");
 	printf("- IPAM CSV header MUST be described in the configuration file\n");
+}
+
+void usage()
+{
+	printf("Usage: %s [OPTIONS] COMMAND ARGUMENTS ....\n", PROG_NAME);
+	printf("\n");
+	printf("\nCOMMAND := \n");
+	printf("\n");
+	usage_arithmetic();
+	printf("\n");
+	usage_simply();
+	printf("\n");
+	usage_routecompare();
+	printf("\n");
+	usage_ipam();
+	printf("\n");
+	usage_misceallenous();
+	printf("\n");
+	usage_bgp();
+	printf("\n");
+	usage_convert();
+	printf("\n");
+	usage_debug();
+	printf("\n");
+	usage_options();
+	printf("\n");
+	usage_csv();
 }
 
 void debug_usage()
