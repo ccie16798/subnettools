@@ -14,5 +14,6 @@ void *st_realloc(void *ptr, unsigned long newn, unsigned long oldn, const char *
 
 char *st_strdup(const char *s);
 void st_free_string(char *s);
+void st_free(void *ptr, unsigned long len);
 #else
 #endif
