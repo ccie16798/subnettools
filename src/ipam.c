@@ -38,8 +38,7 @@ int alloc_ipam_file(struct ipam_file *sf, unsigned long n, int ea_nr)
 	if (sf->ea == NULL) {
 		sf->max_nr = 0;
 		sf->ea_nr  = 0;
-		free(sf->lines);
-		total_memory -= n * sizeof(struct ipam_line);
+		st_free(sf->lines, n * sizeof(struct ipam_line));
 		sf->lines = NULL;
 		return -1;
 	}
@@ -79,10 +78,8 @@ void free_ipam_file(struct ipam_file *sf)
 		free_ipam_ea(&sf->lines[i]);
 	for (i = 0; i < sf->ea_nr; i++)
 		st_free_string(sf->ea[i].name);
-	free(sf->ea);
-	total_memory -= sizeof(struct ipam_ea) * sf->ea_nr;
-	free(sf->lines);
-	total_memory -= sizeof(struct ipam_line) * sf->max_nr;
+	st_free(sf->ea, sizeof(struct ipam_ea) * sf->ea_nr);
+	st_free(sf->lines, sizeof(struct ipam_line) * sf->max_nr);
 	sf->nr     = 0;
 	sf->max_nr = 0;
 	sf->ea_nr  = 0;
@@ -188,10 +185,11 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 	struct csv_file cf;
 	struct csv_state state;
 	char *s;
-	int i, res, ea_nr = 0;
+	int i, res, ea_nr = 0, ea_memory;
 
 	ea_nr = count_char(nof->ipam_ea, ',') + 1;
-	csv_field = st_malloc((ea_nr + 4) * sizeof(struct csv_field), "IPAM CSV field");
+	ea_memory = (ea_nr + 4) * sizeof(struct csv_field);
+	csv_field = st_malloc(ea_memory, "IPAM CSV field");
 	if (csv_field == NULL)
 		return -1;
 	init_csv_file(&cf, name, csv_field, nof->ipam_delim, &simple_strtok_r);
@@ -217,21 +215,19 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 	}
 	if (i == 0) {
 		fprintf(stderr, "Please specify at least one Extended Attribute\n");
-		free(csv_field);
+		st_free(csv_field, ea_memory);
 		return -1;
 	}
 	debug(IPAM, 5, "Collected %d Extended Attributes\n", i);
 	res = alloc_ipam_file(sf, 16192, i);
 	if (res < 0) {
-		free(csv_field);
-		total_memory -= (ea_nr + 4) * sizeof(struct csv_field);
+		st_free(csv_field, ea_memory);
 		return -2;
 	}
 	for (i = 0; i < ea_nr; i++) {
 		sf->ea[i].name = st_strdup(csv_field[i + 2].name);
 		if (sf->ea[i].name == NULL) {
-			total_memory -= (ea_nr + 4) * sizeof(struct csv_field);
-			free(csv_field);
+			st_free(csv_field, ea_memory);
 			return -1;
 		}
 	}
@@ -240,15 +236,13 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 	res = alloc_ipam_ea(sf, 0);
 	if (res < 0) {
 		free_ipam_file(sf);
-		free(csv_field);
-		total_memory -= (ea_nr + 4) * sizeof(struct csv_field);
+		st_free(csv_field, ea_memory);
 		return res;
 	}
 	res = generic_load_csv(name, &cf, &state, sf);
 	/* last line was allocated by endofline_callback, but is unused, so free it */
 	free_ipam_ea(&sf->lines[sf->nr]);
-	free(csv_field);
-	total_memory -= (ea_nr + 4) * sizeof(struct csv_field);
+	st_free(csv_field, ea_memory);
 	return res;
 }
 
@@ -409,8 +403,7 @@ int ipam_file_filter(struct ipam_file *sf, char *expr)
 		res = run_generic_expr(expr, len, &e);
 		if (res < 0) {
 			fprintf(stderr, "Invalid filter '%s'\n", expr);
-			free(new_ipam);
-			total_memory -= sf->nr * sizeof(struct ipam_line);
+			st_free(new_ipam, sf->nr * sizeof(struct ipam_line));
 			debug_timing_end(2);
 			return -1;
 		}
@@ -421,8 +414,7 @@ int ipam_file_filter(struct ipam_file *sf, char *expr)
 		} else
 			free_ipam_ea(&sf->lines[i]);
 	}
-	free(sf->lines);
-	total_memory -= sf->max_nr * sizeof(struct ipam_line);
+	st_free(sf->lines, sf->max_nr * sizeof(struct ipam_line));
 	sf->lines  = new_ipam;
 	sf->max_nr = sf->nr;
 	sf->nr     = j;
