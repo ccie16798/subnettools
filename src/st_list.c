@@ -31,7 +31,7 @@ int list_length(st_list *list)
 	st_list *l;
 	int i = 0;
 
-	LIST_FOR_EACH(l, list)
+	list_for_each(l, list)
 		i++;
 	return i;
 }
@@ -165,8 +165,7 @@ void print_list(st_list *head)
 	struct st_list *l;
 	struct ab *a;
 
-	LIST_FOR_EACH(l, head) {
-		a = container_of(l, struct ab, list);
+	list_for_each_entry(a, head, list) {
 		printf("%d ", a->a);
 	}
 	printf("\n");
@@ -186,7 +185,7 @@ void test_sort_one(int n) {
 	list_sort(&head, &ab_cmp);
 	prev = 10000;
 	i = 0;
-	LIST_FOR_EACH(l, &head) {
+	list_for_each(l, &head) {
 		c = container_of(l, struct ab, list);
 		if (prev < c->a) {
 			printf("FAIL %d < %d\n", prev, c->a);
@@ -239,7 +238,10 @@ int main(int argc, char **argv)
 	list_add(&g.list, &list);
 	list_add(&h.list, &list);
 	list_add(&i.list, &list);
-	print_list(&list2);
+	print_list(&list);
+	list_sort(&list, &ab_cmp);
+	list_del(&i.list);
+	print_list(&list);
 	printf("len=%d\n", list_length(&list));
 	test_sort(1000);
 }

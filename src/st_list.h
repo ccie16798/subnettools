@@ -31,10 +31,33 @@ struct st_list {
 
 typedef struct st_list st_list;
 
-#define LIST_FOR_EACH(__l, __head) \
+
+void init_list(st_list *list);
+int list_empty(st_list *list);
+int list_length(st_list *list);
+void list_add(st_list *new, st_list *head);
+void list_add_tail(st_list *new, st_list *head);
+void list_del(st_list *element);
+void list_sort(st_list *head, int (*cmp)(st_list *, st_list *));
+
+#define list_first_entry(__list_head, type, member) \
+	container_of((__list_head)->next, type, member)
+
+#define list_next_entry(pos, member) \
+	container_of((pos)->member.next, typeof(*(pos)), member)
+
+#define list_prev_entry(pos, member) \
+	container_of((pos)->member.prev, typeof(*(pos)), member)
+
+#define list_for_each(__l, __head) \
 	for (__l = (__head)->next; __l != (__head); __l = __l->next)
 
-#define LIST_FOR_EACH_REVERSE(__l, __head) \
+#define list_for_each_reverse(__l, __head) \
 	for (__l = (__head)->prev; __l != (__head); __l = __l->prev)
+
+#define list_for_each_entry(pos, head, member) \
+	for (pos = list_first_entry(head, typeof(*pos), member); \
+			&pos->member != (head); \
+			pos = list_next_entry(pos, member))
 #else
 #endif
