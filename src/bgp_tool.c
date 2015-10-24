@@ -16,7 +16,6 @@
 #include "st_printf.h"
 #include "st_scanf.h"
 #include "generic_expr.h"
-#include "st_handle_csv_files.h"
 #include "bgp_tool.h"
 
 #define SIZE_T_MAX ((size_t)0 - 1)

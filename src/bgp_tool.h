@@ -1,7 +1,8 @@
 #ifndef BGPTOOL_H
 #define BGPTOOL_H
 
-#include "st_handle_csv_files.h"
+#include "st_options.h"
+#include "st_routes_csv.h"
 
 struct bgp_route {
 	struct subnet subnet;

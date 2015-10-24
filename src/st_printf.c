@@ -18,9 +18,9 @@
 #include "bitmap.h"
 #include "utils.h"
 #include "st_object.h"
-#include "st_handle_csv_files.h"
 #include "bgp_tool.h"
 #include "ipam.h"
+#include "st_printf.h"
 
 #define ST_VSPRINTF_BUFFER_SIZE 2048
 
@@ -1077,10 +1077,10 @@ int sto_fprintf(FILE *f, const char *fmt, struct sto *o, int max_o, ...)
 	va_start(ap, max_o);
 	st_vsnprintf(buffer, sizeof(buffer), fmt, ap, o, max_o);
 	va_end(ap);
-	return fprintf(f, "%s", buffer);
+	return fputs(buffer, f);
 }
 
-void sto_printf(const char *fmt, struct sto *o, int max_o, ...)
+int sto_printf(const char *fmt, struct sto *o, int max_o, ...)
 {
 	char buffer[ST_VSPRINTF_BUFFER_SIZE];
 	va_list ap;
@@ -1088,7 +1088,7 @@ void sto_printf(const char *fmt, struct sto *o, int max_o, ...)
 	va_start(ap, max_o);
 	st_vsnprintf(buffer, sizeof(buffer), fmt, ap, o, max_o);
 	va_end(ap);
-	printf("%s", buffer);
+	return fputs(buffer, stdout);
 }
 
 void fprint_subnet_file(FILE *output, const struct subnet_file *sf, int compress_level)
