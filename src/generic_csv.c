@@ -61,7 +61,6 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
 					debug(CSVHEADER, 3, "no handler for field '%s' at pos %d\n",
 							s, pos);
 				}
-
 			}
 			pos++;
 			s = cf->csv_strtok_r(NULL, cf->delim, &save_s);
@@ -69,7 +68,7 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
 		debug(CSVHEADER, 3, "found %d fields\n", pos - 1);
 		cf->num_fields = pos - 1;
 	} else  {
-		debug(CSVHEADER, 2, "File %s doesnt have a CSV header, using default values\n",
+		debug(CSVHEADER, 2, "File %s does not have a CSV header, using default values\n",
 				cf->file_name);
 		no_header = 1;
 		cf->num_fields = 0;
@@ -128,7 +127,6 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
 /*
  * the CSV Body engine
  * it is a private function
- * init_buffer can be the first line read from
  * @f 	  : the CSV file to parse
  * @cf	  : a struct csv_file describing the fields
  * @state : a CSV state; can be set before
