@@ -3,6 +3,7 @@
 #include "debug.h"
 #include "st_options.h"
 #include "prog-main.h"
+#include "st_help.h"
 
 extern char *default_fmt;
 
@@ -129,7 +130,7 @@ struct usages {
 	void (*usage)();
 };
 
-struct usages usages_en[] = {
+const struct usages usages_en[] = {
 	{"arithmetic",	usage_en_arithmetic},
 	{"simplify",	usage_en_simplify},
 	{"compare",	usage_en_routecompare},
@@ -143,36 +144,48 @@ struct usages usages_en[] = {
 	{NULL, NULL}
 };
 
-void usage_en_all()
+/* still not ready */
+const struct usages usages_fr[] = {
+	{"arithmetic",	usage_en_arithmetic},
+	{"simplify",	usage_en_simplify},
+	{"compare",	usage_en_routecompare},
+	{"ipam",	usage_en_ipam},
+	{"misc",	usage_en_miscellaneous},
+	{"bgp",		usage_en_bgp},
+	{"convert",	usage_en_convert},
+	{"debug",	usage_en_debug},
+	{"options",	usage_en_options},
+	{"csv",		usage_en_csv},
+	{NULL, NULL}
+};
+
+const struct usages *usages[] = {usages_en, usages_fr};
+
+void usage_all(int language)
 {
+	int i;
+	const struct usages *u;
+
+	if (language < LANG_MIN || language > LANG_MAX) {
+		fprintf(stderr, "BUG, invalid language ID for help: %d\n", language);
+		return;
+	}
+	u = usages[language];
 	printf("Usage: %s [OPTIONS] COMMAND ARGUMENTS ....\n", PROG_NAME);
 	printf("\n");
 	printf("\nCOMMAND := \n");
 	printf("\n");
-	usage_en_arithmetic();
-	printf("\n");
-	usage_en_simplify();
-	printf("\n");
-	usage_en_routecompare();
-	printf("\n");
-	usage_en_ipam();
-	printf("\n");
-	usage_en_miscellaneous();
-	printf("\n");
-	usage_en_bgp();
-	printf("\n");
-	usage_en_convert();
-	printf("\n");
-	usage_en_debug();
-	printf("\n");
-	usage_en_options();
-	printf("\n");
-	usage_en_csv();
+	for (i = 0; ; i++) {
+		if (u[i].name == NULL)
+			break;
+		u[i].usage();
+		printf("\n");
+	}
 }
 
 void usage()
 {
-	usage_en_all();
+	usage_all(LANG_EN);
 }
 
 void debug_usage()
