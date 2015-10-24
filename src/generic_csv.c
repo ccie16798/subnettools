@@ -296,7 +296,7 @@ int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state* stat
 		return res;
 	}
 	if (cf->validate_header) {
-		res2 = cf->validate_header(cf->csv_field);
+		res2 = cf->validate_header(cf, data);
 		if (res2 < 0) {
 			fclose(f);
 			return res2;

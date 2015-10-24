@@ -76,7 +76,7 @@ struct csv_file {
 	/* given a line, try to guess if its a header or plain data; if NULL, the file REQUIRES a header */
 	int (*is_header)(char *);
 	/* once a header has been parsed, post-validate the required fields are there */
-	int (*validate_header)(struct csv_field *);
+	int (*validate_header)(struct csv_file *, void *data);
 	/* use to compare CSV header FIELDS name, strcmp by default */
 	int (*header_field_compare)(const char *, const char *);
 	/* handler for fields where no specific handler is found */
