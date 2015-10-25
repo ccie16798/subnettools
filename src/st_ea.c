@@ -14,6 +14,7 @@
 #include "st_memory.h"
 #include "utils.h"
 #include "st_ea.h"
+#include "st_scanf.h"
 
 int ea_size(const struct ipam_ea *ea)
 {
@@ -104,4 +105,61 @@ struct ipam_ea *realloc_ea_array(struct ipam_ea *ea, int old_n, int new_n)
 		new_ea[j].len   = 0;
 	}
 	return new_ea;
+}
+
+int filter_ea(const struct ipam_ea *ea, int ea_nr, const char *ea_name,
+		const char *value, char op)
+{
+	int j, a, b, res, err;
+	int found = 0;
+	char *s;
+
+	for (j = 0; j < ea_nr; j++) {
+		if (!strcmp(ea_name, ea[j].name)) {
+			found = 1;
+			break;
+		}
+	}
+	if (found == 0) {
+		debug(FILTER, 1, "Cannot filter on attribute '%s'\n", ea_name);
+		return 0;
+	}
+	debug(IPAM, 5, "We will filter on EA: '%s'\n", ea[j].name);
+	s = ea[j].value;
+	if (s == NULL) /* EA Value has not been set */
+		return 0;
+	switch(op) {
+		case '=':
+			return (!strcmp(s, value));
+			break;
+		case '#':
+			return (strcmp(s, value));
+			break;
+		case '~':
+			res = st_sscanf(s, value);
+			return (res < 0 ? 0 : 1);
+			break;
+		case '<':
+		case '>':
+			b = string2int(value, &err);
+			if (err < 0) {
+				debug(FILTER, 1, "Cannot interpret Field '%s' as an INT\n", value);
+				return -1;
+			}
+			a = string2int(s, &err);
+			/* if Extended Attribute is not Int we don't return an error, just no match
+			*/
+			if (err < 0) {
+				debug(FILTER, 4, "Cannot interpret EA '%s' as an INT\n", s);
+				return 0;
+			}
+			if (op == '>')
+				return (a > b);
+			else
+				return (b > a);
+		default:
+			debug(FILTER, 1, "Unsupported op '%c' for Extended Attribute\n", op);
+			return -1;
+			break;
+	}
 }

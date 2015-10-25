@@ -40,5 +40,19 @@ struct ipam_ea *alloc_ea_array(int n);
  */
 struct ipam_ea *realloc_ea_array(struct ipam_ea *ea, int old_n, int new_n);
 
+/*
+ * filter ea array to see if EA with name 'ea_name' matches 'value' using operator 'op'
+ * @ea      : the EA array
+ * @ea_nr   : length of  EA array
+ * @ea_name : the name of the EA to filter on
+ * @value   : the value to match
+ * @op      : the operator (=, #, <, >, ~)
+ * returns:
+ * 	1  if match
+ * 	0  if no match
+ * 	-1 on error
+ */
+int filter_ea(const struct ipam_ea *ea, int ea_nr, const char *ea_name,
+		const char *value, char op);
 #else
 #endif
