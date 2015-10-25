@@ -54,8 +54,6 @@ void usage_en_routecompare()
 	printf("grep FILE prefix    : grep FILE for prefix/mask\n");
 	printf("filter FILE EXPR    : grep netcsv   FILE using regexp EXPR\n");
 	printf("filter help         : prints help about bgp filters\n");
-	printf("bgpfilter FILE EXPR : grep bgp_file FILE using regexp EXPR\n");
-	printf("bgpfilter help      : prints help about bgp filters\n");
 }
 
 void usage_en_ipam()
@@ -82,9 +80,11 @@ void usage_en_bgp()
 {
 	printf("BGP route file tools\n");
 	printf("--------------------\n");
-	printf("bgpcmp file1 file2  : show what changed in BGP file file1 & file2\n");
+	printf("bgpcmp before after : show what changed in BGP file before & after\n");
 	printf("bgpsortby name file : sort BGP file by (prefix|gw|MED|LOCALPREF), prefix is always a tie-breaker\n");
 	printf("bgpsortby help	    : print available sort options\n");
+	printf("bgpfilter FILE EXPR : grep bgp_file FILE using regexp EXPR\n");
+	printf("bgpfilter help      : prints help about bgp filters\n");
 }
 
 void usage_en_convert()
