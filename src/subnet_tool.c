@@ -1179,6 +1179,7 @@ int fprint_routefilter_help(FILE *out)
 			" -gw\n"
 			" -device\n"
 			" -comment\n"
+			" -Any Extended Attribute attached to the route\n"
 			"\n"
 			"operator are :\n"
 			"- '=' (EQUALS)\n"
