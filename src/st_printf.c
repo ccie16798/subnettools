@@ -42,11 +42,11 @@ sprint_unsigned(long)
  *  - st_vsprintf
  */
 #define SET_IP_COMPRESSION_LEVEL(__c) do { \
-	if (__c >= '0' && __c <= '3') { \
+	if (__c >= '0' && __c <= '4') { \
 		compression_level = __c - '0'; \
 		i++; \
 	} else \
-		compression_level = 3; \
+		compression_level = 4; \
 	} while (0);
 
 
@@ -850,12 +850,13 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap,
 							field_width, pad_left, ' ');
 					j += res;
 					break;
-				case 's': /* almost standard %s printf, except that size is limited to 128 */
+				case 's': /* almost standard %s printf, except that size is limited */
 					v_s = va_arg(ap, char *);
 					res = strxcpy(buffer, v_s, sizeof(buffer) - 1);
 
 					if (res >= sizeof(buffer) - 1) {
-						debug(FMT, 3, "truncating string '%s' to %d bytes\n", v_s, (int)(sizeof(buffer) - 1));
+						debug(FMT, 3, "truncating string '%s' to %d bytes\n",
+								v_s, (int)(sizeof(buffer) - 1));
 						res = sizeof(buffer) - 1;
 					}
 					res = pad_buffer_out(outbuf + j, len - j, buffer, res,
