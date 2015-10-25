@@ -4,9 +4,9 @@ subnet-tools: src/*.c src/*.h
 	cd src; make -f Makefile.bsd subnet-tools
 	mv src/subnet-tools .
 
-test-printf:
+test-printf: src/*.c src/*.h
 	cd src; make test-printf
 	mv src/test-printf .
 
-test:
+test: src/*.c src/*.h
 	cd src; make test
