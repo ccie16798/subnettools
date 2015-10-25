@@ -277,7 +277,7 @@ static void free_csv_field(struct csv_field *cf)
 	}
 }
 
-int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state* state, void *data)
+int generic_load_csv(const char *filename, struct csv_file *cf, struct csv_state* state, void *data)
 {
 	FILE *f;
 	char buffer[CSV_MAX_LINE_LEN];

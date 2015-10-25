@@ -118,7 +118,7 @@ int register_dyn_csv_field(struct csv_file *csv_file, char *name, int pos,
  * @state    : a generic state object used by run_body, to store data between callbacks
  * @data     : this will point to a struct you want to fill with data read from the file
  * */
-int generic_load_csv(char *filename, struct csv_file *cf, struct csv_state *state, void *data);
+int generic_load_csv(const char *filename, struct csv_file *cf, struct csv_state *state, void *data);
 
 #else
 #endif
