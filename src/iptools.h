@@ -128,6 +128,7 @@ int addr_is_superior(const struct ip_addr *s1, const struct ip_addr *s2);
  * returns:
  * 	>0 on match
  * 	0  on no match
+ * 	-1 on error
  */
 int subnet_filter(const struct subnet *test, const struct subnet *against, char op);
 int addr_filter(const struct ip_addr *test, const struct subnet *against, char op);
