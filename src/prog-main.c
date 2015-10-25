@@ -203,7 +203,7 @@ struct st_command options[] = {
 /*
  * COMMAND HANDLERS
  */
-static int run_relation(int arc, char **argv, void *st_options)
+static int run_relation(int argc, char **argv, void *st_options)
 {
 	int res;
 	struct subnet subnet1, subnet2;
@@ -240,13 +240,17 @@ static int run_relation(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_echo(int arc, char **argv, void *st_options)
+static int run_echo(int argc, char **argv, void *st_options)
 {
 	int res, i;
 	struct subnet subnet;
 	char *s =  argv[2];
 
 	res = get_subnet_or_ip(argv[3], &subnet);
+	if (res < 0) {
+		fprintf(stderr, "Invalid IP\n");
+		return -1;
+	}
 	/* make sure no "%s" specifier is there, or bad thing will happen */
 	for (i = 0; ; i++) {
 		if (s[i] == '\0')
@@ -261,25 +265,21 @@ static int run_echo(int arc, char **argv, void *st_options)
 				fprintf(stderr, "Bad format string '%s'\n", s);
 				return -1;
 			}
-			if (s[i] != 'I' && s[i] != 'a' && s[i] != 'P' && tolower(s[i]) != 'm') {
+			if (s[i] != 'I' && s[i] != 'a' && s[i] != 'P' && tolower(s[i]) != 'm' &&
+					s[i] != 'B' && s[i] != 'N' && s[i] != 'L' && s[i] != 'U')
+			{
 				fprintf(stderr, "Conversion specifier '%c' not allowed"
 					" with echo command\n", s[i]);
 				return -1;
 			}
 		}
 	}
-
-	if (res == IPV4_A || res == IPV6_A)
-		st_printf(argv[2], subnet, subnet);
-	else if (res == IPV4_N || res == IPV6_N)
-		st_printf(argv[2], subnet, subnet, subnet);
-	else
-		fprintf(stderr, "Invalid IP");
+	st_printf(argv[2], subnet, subnet, subnet);
 	printf("\n");
 	return 0;
 }
 
-static int run_ipinfo(int arc, char **argv, void *st_options)
+static int run_ipinfo(int argc, char **argv, void *st_options)
 {
 	int res;
 	struct st_options *nof = st_options;
@@ -305,7 +305,7 @@ static int run_ipinfo(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_print(int arc, char **argv, void *st_options)
+static int run_print(int argc, char **argv, void *st_options)
 {
 	int res;
 	struct subnet_file sf;
@@ -320,7 +320,7 @@ static int run_print(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_bgpprint(int arc, char **argv, void *st_options)
+static int run_bgpprint(int argc, char **argv, void *st_options)
 {
 	int res;
 	struct bgp_file sf;
@@ -335,7 +335,7 @@ static int run_bgpprint(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_ipamprint(int arc, char **argv, void *st_options)
+static int run_ipamprint(int argc, char **argv, void *st_options)
 {
 	int res;
 	struct ipam_file sf;
@@ -350,7 +350,7 @@ static int run_ipamprint(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_compare(int arc, char **argv, void *st_options)
+static int run_compare(int argc, char **argv, void *st_options)
 {
 	int res;
 	struct subnet_file sf1, sf2;
@@ -365,7 +365,7 @@ static int run_compare(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_subnetcmp(int arc, char **argv, void *st_options)
+static int run_subnetcmp(int argc, char **argv, void *st_options)
 {
 	int res;
 	struct subnet_file before, after, sf;
@@ -392,7 +392,7 @@ static int run_subnetcmp(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_missing(int arc, char **argv, void *st_options)
+static int run_missing(int argc, char **argv, void *st_options)
 {
 	int res;
 	struct subnet_file sf1, sf2, sf3;
@@ -416,7 +416,7 @@ static int run_missing(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_uniq(int arc, char **argv, void *st_options)
+static int run_uniq(int argc, char **argv, void *st_options)
 {
 	int res;
 	struct subnet_file sf1, sf2, sf3;
@@ -440,7 +440,7 @@ static int run_uniq(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_paip(int arc, char **argv, void *st_options)
+static int run_paip(int argc, char **argv, void *st_options)
 {
 	int res;
 	struct subnet_file paip, sf;
@@ -457,7 +457,7 @@ static int run_paip(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_ipam_getea(int arc, char **argv, void *st_options)
+static int run_ipam_getea(int argc, char **argv, void *st_options)
 {
 	int res;
 	struct subnet_file sf;
@@ -488,7 +488,7 @@ static int run_ipam_getea(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_grep(int arc, char **argv, void *st_options)
+static int run_grep(int argc, char **argv, void *st_options)
 {
 	struct st_options *nof = st_options;
 	int res;
@@ -499,7 +499,7 @@ static int run_grep(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_filter(int arc, char **argv, void *st_options)
+static int run_filter(int argc, char **argv, void *st_options)
 {
 	int res;
 	struct subnet_file sf;
@@ -530,7 +530,7 @@ static int run_filter(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_bgp_filter(int arc, char **argv, void *st_options)
+static int run_bgp_filter(int argc, char **argv, void *st_options)
 {
 	int res;
 	struct bgp_file sf;
@@ -560,7 +560,7 @@ static int run_bgp_filter(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_ipam_filter(int arc, char **argv, void *st_options)
+static int run_ipam_filter(int argc, char **argv, void *st_options)
 {
 	int res;
 	struct ipam_file sf;
@@ -590,7 +590,7 @@ static int run_ipam_filter(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_convert(int arc, char **argv, void *st_options)
+static int run_convert(int argc, char **argv, void *st_options)
 {
 	struct st_options *nof = st_options;
 
@@ -598,7 +598,7 @@ static int run_convert(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_routesimplify1(int arc, char **argv, void *st_options)
+static int run_routesimplify1(int argc, char **argv, void *st_options)
 {
 	int res;
 	struct subnet_file sf;
@@ -618,7 +618,7 @@ static int run_routesimplify1(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_routesimplify2(int arc, char **argv, void *st_options)
+static int run_routesimplify2(int argc, char **argv, void *st_options)
 {
 	int res;
 	struct subnet_file sf;
@@ -638,7 +638,7 @@ static int run_routesimplify2(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_common(int arc, char **argv, void *st_options)
+static int run_common(int argc, char **argv, void *st_options)
 {
 	int res;
 	struct subnet_file sf1, sf2, sf3;
@@ -660,7 +660,7 @@ static int run_common(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_addfiles(int arc, char **argv, void *st_options)
+static int run_addfiles(int argc, char **argv, void *st_options)
 {
 	int res;
 	unsigned long i, j;
@@ -699,7 +699,7 @@ static int run_addfiles(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_sort(int arc, char **argv, void *st_options)
+static int run_sort(int argc, char **argv, void *st_options)
 {
 	int res;
 	struct subnet_file sf;
@@ -720,7 +720,7 @@ static int run_sort(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_sortby(int arc, char **argv, void *st_options)
+static int run_sortby(int argc, char **argv, void *st_options)
 {
 	struct subnet_file sf;
 	int res;
@@ -748,7 +748,7 @@ static int run_sortby(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_sum(int arc, char **argv, void *st_options)
+static int run_sum(int argc, char **argv, void *st_options)
 {
 	int res;
 	struct subnet_file sf;
@@ -764,7 +764,7 @@ static int run_sum(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_subnetagg(int arc, char **argv, void *st_options)
+static int run_subnetagg(int argc, char **argv, void *st_options)
 {
 	int res;
 	struct subnet_file sf;
@@ -780,7 +780,7 @@ static int run_subnetagg(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_routeagg(int arc, char **argv, void *st_options)
+static int run_routeagg(int argc, char **argv, void *st_options)
 {
 	int res;
 	struct subnet_file sf;
@@ -797,7 +797,7 @@ static int run_routeagg(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_remove_file(int arc, char **argv, void *st_options)
+static int run_remove_file(int argc, char **argv, void *st_options)
 {
 	struct subnet_file sf1, sf2, sf3;
 	struct st_options *nof = st_options;
@@ -817,7 +817,7 @@ static int run_remove_file(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_remove(int arc, char **argv, void *st_options)
+static int run_remove(int argc, char **argv, void *st_options)
 {
 	struct subnet subnet1, subnet2, *r;
 	struct subnet_file sf1, sf2;
@@ -865,7 +865,7 @@ static int run_remove(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_split(int arc, char **argv, void *st_options)
+static int run_split(int argc, char **argv, void *st_options)
 {
 	struct subnet subnet;
 	struct st_options *nof = st_options;
@@ -880,7 +880,7 @@ static int run_split(int arc, char **argv, void *st_options)
 	return res;
 }
 
-static int run_split_2(int arc, char **argv, void *st_options)
+static int run_split_2(int argc, char **argv, void *st_options)
 {
 	struct subnet subnet;
 	struct st_options *nof = st_options;
@@ -895,7 +895,7 @@ static int run_split_2(int arc, char **argv, void *st_options)
 	return res;
 }
 
-static int run_scanf(int arc, char **argv, void *st_options)
+static int run_scanf(int argc, char **argv, void *st_options)
 {
 	int res;
 	struct sto o[40];
@@ -910,7 +910,7 @@ static int run_scanf(int arc, char **argv, void *st_options)
 }
 
 
-static int run_fscanf(int arc, char **argv, void *st_options)
+static int run_fscanf(int argc, char **argv, void *st_options)
 {
 	int res;
 	struct sto o[40];
@@ -951,7 +951,7 @@ static int run_version(int argc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_confdesc(int arc, char **argv, void *st_options)
+static int run_confdesc(int argc, char **argv, void *st_options)
 {
 	printf("-%s use 'st.conf' as the default configuration file\n", PROG_NAME);
 	printf("-It is used to describe your CSVs or your IPAM format\n");
@@ -964,7 +964,7 @@ static int run_confdesc(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_bgpcmp(int arc, char **argv, void *st_options)
+static int run_bgpcmp(int argc, char **argv, void *st_options)
 {
 	struct bgp_file sf1;
 	struct bgp_file sf2;
@@ -981,7 +981,7 @@ static int run_bgpcmp(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_bgpsortby(int arc, char **argv, void *st_options)
+static int run_bgpsortby(int argc, char **argv, void *st_options)
 {
 	struct bgp_file sf;
 	int res;
@@ -1008,17 +1008,20 @@ static int run_bgpsortby(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_test(int arc, char **argv, void *st_options)
+static int run_test(int argc, char **argv, void *st_options)
 {
 	struct ipam_file sf1;
 	struct st_options *o = st_options;
+	int res;
 
-	load_ipam(argv[2], &sf1, st_options);
+	res = load_ipam(argv[2], &sf1, st_options);
+	if (res < 0)
+		return res;
 	fprint_ipam_file_fmt(stdout, &sf1, o->ipam_output_fmt);
 	return 0;
 }
 
-static int run_gen_expr(int arc, char **argv, void *st_options)
+static int run_gen_expr(int argc, char **argv, void *st_options)
 {
 	struct generic_expr e;
 	int res;
@@ -1029,7 +1032,7 @@ static int run_gen_expr(int arc, char **argv, void *st_options)
 	return 0;
 }
 
-static int run_test2(int arc, char **argv, void *st_options)
+static int run_test2(int argc, char **argv, void *st_options)
 {
 	int res;
 	struct sto o[40];
@@ -1042,13 +1045,13 @@ static int run_test2(int arc, char **argv, void *st_options)
 /*
  * OPTION HANDLERS
  */
-static int option_verbose(int arc, char **argv, void *st_options)
+static int option_verbose(int argc, char **argv, void *st_options)
 {
 	debugs_level[__D_ALL] = 1;
 	return 0;
 }
 
-static int option_verbose2(int arc, char **argv, void *st_options)
+static int option_verbose2(int argc, char **argv, void *st_options)
 {
 	debugs_level[__D_ALL] = 2;
 	return 0;
