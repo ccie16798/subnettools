@@ -1,6 +1,9 @@
 #ifndef ST_OPTIONS_H
 #define ST_OPTIONS_H
 
+/* use Subnet tool memory tracking for memory leak prevention
+ * comment this for performance, but it shouldn't make a lot of difference */
+#define DEBUG_ST_MEMORY
 
 #define MAX_DELIM	32
 #define IPAM_MAX_EA_LEN	128

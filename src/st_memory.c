@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "debug.h"
+#include "st_memory.h"
 
 unsigned long total_memory = 0;
 
