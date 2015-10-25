@@ -173,7 +173,7 @@ static int read_csv_body(FILE *f, struct csv_file *cf,
 		}
 		state->line++;
 		if (res) { /* BFB; BIG FUCKING BUFFER; try to handle that  */
-			debug(LOAD_CSV, 1, "File %s line %lu is longer than max size %d, discarding %d chars\n",
+			debug(LOAD_CSV, 1, "File %s line %lu is longer than max %d, discarding %d chars\n",
 					cf->file_name, state->line, (int)sizeof(buffer), res);
 		}
 		debug(LOAD_CSV, 5, "Parsing line %lu : %s \n", state->line, s);
@@ -190,8 +190,6 @@ static int read_csv_body(FILE *f, struct csv_file *cf,
 			debug(LOAD_CSV, 5, "Parsing token '%s' pos %d \n", s, pos);
 			/* try to find the handler */
 			for (i = 0; ; i++) {
-				debug(LOAD_CSV, 9, "Parsing field pos %d %d : %s\n",
-						pos, cf->csv_field[i].pos, cf->csv_field[i].name);
 				if (cf->csv_field[i].name == NULL)
 					break;
 				if (pos == cf->csv_field[i].pos) {
@@ -229,7 +227,10 @@ static int read_csv_body(FILE *f, struct csv_file *cf,
 					debug_timing_end(2);
 					return -2;
 				}
-			} /* if csv_>field */
+			} else {/* if csv_>field */
+				debug(LOAD_CSV, 5, "No field handler for pos=%d data='%s'\n",
+						pos, s);
+			}
 			s = cf->csv_strtok_r(NULL, cf->delim, &save_s);
 		} /* while s */
 		if (pos < cf->max_mandatory_pos) {
@@ -243,7 +244,7 @@ static int read_csv_body(FILE *f, struct csv_file *cf,
 			if (res == CSV_CATASTROPHIC_FAILURE) {/* FATAL ERROR like no more memory*/
 				debug(LOAD_CSV, 1,  "line %lu : fatal error, aborting\n", state->line);
 				debug_timing_end(2);
-				return -2;
+				return res;
 			} else if (res == CSV_END_FILE) {
 				debug(LOAD_CSV, 4, "line %lu : endofline callback told us to stop\n",
 						state->line);
