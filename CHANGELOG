@@ -1,0 +1,86 @@
+v1.4
+====
+-New features
+-- bitmask printing (with compression 4, ie use '%I4' in fmt)
+-- Extensible Attribute attached to routes, can be also filtered
+
+- Miscellaneous new commands
+-- 'compare'  now returns all relations (INCLUDED, INCLUDES, EQUALS)
+-- subnetcmp before after : prints all changes that occurs between 'before' and 'after'; you should use typically after you change your routing
+
+- new IPAM commands and IPAM infrastructure
+-- ipamprint  (Example : ./subnettools -ea EA-Site,EA-Vlan,comment ipamprint ipam.csv )
+-- ipamfilter (Example : ./subnettools -ea EA-Site,EA-Vlan,comment ipamfilter ipam.csv 'EA-Vlan<2000&EA-Site=Acheres')
+-- getea (Example : ./subnettools -EA-Site,comment getea ipam.csv toto)
+
+- Internal changes
+-- st_malloc infrastructure to track memory leaks
+-- struct route a no more comment field, just Extensible Attributes
+-- many modification to CSV helpers, to load files with varying number of Extensible Attributes
+
+v1.3
+====
+-New features
+-- filter & bgpfilter commands (filter on GW, prefix, AS_PATH, etc... in any logical combination)
+-- add 'uniq' commands, prints routes from FILE1 & FILE2 that have no relation
+-- remove diff command, that never worked properly
+-- bgpprint according to a format!
+
+-Internal changes
+-- bug fixes (didnt properly scan 'sh ip bgp' , because some subnets are ... classfull)
+-- rewritten string2mask low level function
+-- improved error reporting (with -V, -VV), debug message levels are more consistent
+
+v1.2
+====
+-New features
+--ecmp options to print all routes in case the source files has multiples NH to same destination
+--many fixes in converters
+--sortby, bgpsorty commands to sort BGP routes, subnet routes
+--revamped help (in categories)
+--can compile on freebsd now
+
+v1.1
+====
+New features :
+- converters now supports '-rt' option to set comment to route type (ospf, bgp, static ....)
+- converter for show route on ASA
+-BGP tools :
+-- converter to load a BGP table
+-- bgpcmp command to show differences between a table, after some UPDATES
+
+v1.0
+====
+- New features
+-- network split
+-Internal changes
+-- lot of cleanups, scanf work
+-- all converters converted to st_scanf
+
+v0.7
+====
+-Internal changes
+-- st_scanf pattern matching engine
+-- few visible changes for the end user, except a new 'scanf' command
+-- rewriting and hardening of low -level IPv4/IPv6 parsing functions
+
+v0.6
+====
+- New features
+--ipinfo :
+subnettools ipinfo 'subnet' can give the following informations about 'subnet'
+- network address, last subnet address
+- known prefix membership (IPv6 global addresses, RFC 1918 private subnet, multicast, etc...)
+Decoding of following addresses :
+- Teredo
+- IPv6 multicast (including embedded RP)
+- 6to4
+- ISATAP link-local address
+- IPv4 glop
+- rfc 6052
+- EUI-64 Interface ID
+
+v0.4
+====
+- Internal changes
+-- dynamic output fmt
