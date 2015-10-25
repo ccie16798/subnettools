@@ -226,13 +226,13 @@ Example :
 ROUTE FILTERING
 ===============
 
-Subnettool is able to filter routes from a CSV files with complex expressions.
+Subnettool is able to filter routes from a CSV file with complex expressions.
 It can filter on :
 - prefix
 - mask
 - gw
 - device
-- comment
+- comment (or any additionnal Extended Attribute)
 
 For BGP, it can filter on :
 - prefix
