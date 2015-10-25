@@ -14,6 +14,7 @@
 
 unsigned long total_memory = 0;
 
+#ifdef DEBUG_ST_MEMORY
 void *__st_malloc_nodebug(unsigned long n, const char *s,
 		const char *file, const char *func, int line)
 {
@@ -160,3 +161,5 @@ void st_free(void *ptr, unsigned long len)
 	debug(MEMORY, 6, "Freeing %lu bytes\n", len);
 	free(ptr);
 }
+#else
+#endif
