@@ -29,12 +29,12 @@ Route file simplification
 - sortby help	    : print available sort options
 - subnetagg FILE1     : sort and aggregate subnets in CSV FILE1; GW is not checked
 - routeagg  FILE1     : sort and aggregate subnets in CSV FILE1; GW is checked
-- simplify1 FILE1     : simplify CSV subnet file FILE1; duplicate or included networks are removed; GW is checked
-- simplify2 FILE1     : simplify CSV subnet file FILE1; prints redundant routes that can be removed
+- routesimplify1 FILE : simplify CSV subnet file FILE; duplicate or included networks are removed
+- routesimplify2 FILE : simplify CSV subnet file FILE; prints redundant routes that can be removed
 
 Route file comparison
 ---------------------
-- compare FILE1 FILE2 : compare FILE1 & FILE2, printing subnets in FILE1 INCLUDED in FILE2
+- compare FILE1 FILE2 : compare FILE1 & FILE2, printing subnets in FILE1 with relation in FILE2
 - missing FILE1 FILE2 : prints subnets from FILE1 that are not covered by FILE2; GW is not checked
 - uniq FILE1 FILE2    : prints unique subnets from FILE1 and FILE2
 - common FILE1 FILE2  : merge CSV subnet files FILE1 & FILE2; prints common routes only; GW isn't checked
@@ -70,12 +70,13 @@ IP route to CSV converters
 - convert PARSER FILE1: convert FILE1 to csv using parser PARSER
 - convert help        : use 'subnet_tool convert help' for available parsers
 
-subnettools subnet FILE format is a CSV where each line represent a route ; a route is
+subnettools route FILE format is a CSV where each line represent a route ; a route is
 -* a subnet
 -* a subnet mask
 -* a gateway
 -* a device
 -* a comment 
+-* any number of optional Extended Attributes (EA)
 - delimitors, name of the fields describing (prefix, mask, gw, dev, comment) are fully configurable
 - subnettools output format is configurable ; you can configure a FMT (%I %m %D %G %C)
 - subnettools has a default config file (st.conf)
@@ -86,7 +87,7 @@ LIMITS
 =======
 - file size : more than enough (aggretated a 8millions line CSV in 2-3minutes)
 - line size : 1024 (subnettools truncates too long lines)
-- comment size : 128 bytes (i butcher it if too long)
+- comment size : 256 bytes (not really, but st_printf limits string to 256 chars)
 - name of CSV fields : 32 bytes (OK unless you use stupids name to describe a prefix, mask, comment... french longest word is 26 bytes anyway, anticonstitutionnellement)
 - max number of delimiters : 30 (why would you want more?)
 - device name : 32 bytes (should be enough, but could be increased, TenGigabitethernet2/2/0.4121  is 29 bytes) 
@@ -96,12 +97,11 @@ it should work OK today for most functions
 Input CSV format
 ================
 When working on CSV route files, please note the following
-- Input subnet/routes files SHOULD have a CSV header describing its structure (prefix, mask,, GW, comment, etc...)
-- Input subnet/routes files without a CSV header are assumed to be : prefix;mask;GW;comment or prefix;mask;comment
-- default CSV header is "prefix;mask;device;GW;comment"
+- Input routes files SHOULD have a CSV header describing its structure (prefix, mask,, GW, comment, etc...)
+- Input routes files without a CSV header are assumed to be : prefix;mask;GW;comment or prefix;mask;comment
+- default routes CSV header is "prefix;mask;device;GW;comment"
 - CSV header can be changed by using the configuration file (subnettools confdesc for more info)
-- Input IPAM CSV MUST have a CSV header; there is a defaut header, but it is derived from my company's one
-- So IPAM CSV header MUST be described in the configuration file
+- IPAM CSV header MUST be described in the configuration file
 - BGP routes files MUST have a CSV header
 
 - some commands can take <stdin> as input : sort, sortby, bgpsortby, print, ipam, filter, bgpfilter
