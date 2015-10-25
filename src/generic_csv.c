@@ -342,8 +342,9 @@ int generic_header_cmp(const char *s1, const char *s2)
 	return strcmp(s1, s2);
 }
 
-void init_csv_file(struct csv_file *cf, char *file_name, struct csv_field *csv_field,
-		int max_fields, char *delim, char * (*func)(char *, const char *, char **))
+void init_csv_file(struct csv_file *cf, const char *file_name, struct csv_field *csv_field,
+		int max_fields, const char *delim,
+		char * (*func)(char *, const char *, char **))
 {
 	if (cf == NULL)
 		return;
@@ -363,7 +364,7 @@ void init_csv_file(struct csv_file *cf, char *file_name, struct csv_field *csv_f
 	cf->num_fields_registered= 0;
 }
 
-void init_csv_state(struct csv_state *cs, char *file_name)
+void init_csv_state(struct csv_state *cs, const char *file_name)
 {
 	memset(cs, 0, sizeof(struct csv_state));
 	cs->file_name = (file_name ? file_name : "<stdin>");

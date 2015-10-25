@@ -42,7 +42,7 @@
  */
 struct csv_state {
 	unsigned long line; /* current line */
-	char *file_name;
+	const char *file_name;
 	char *csv_field; /* name of the field we crossed */
 	int  badline;
 	int skip; /* tell the engine to skip fields without increasing the pos counter */
@@ -59,12 +59,12 @@ struct csv_field {
 };
 
 struct csv_file {
-	char *file_name;
+	const char *file_name;
 	struct csv_field *csv_field;
 	int num_fields; /* number of fields inside the CSV (including those without handler) */
 	int num_fields_registered; /* number of field dynamically registered */
 	int max_fields; /* max number of fields */
-	char *delim; /** delimiteur */
+	const char *delim; /** delimiteur */
 	int max_mandatory_pos ; /* used to track the pos of the last mandatory field */
 	/* given a line, try to guess if its a header or plain data; if NULL, the file REQUIRES a header */
 	int (*is_header)(char *);
@@ -84,9 +84,10 @@ struct csv_file {
  * - simple_strtok_r : doesnt treat consecutive delims as one
  * - strtok_r        : treat consecutives delims as one
  * */
-void init_csv_file(struct csv_file *cf, char *file_name, struct csv_field *csv_field, int max_fields,
-		char *delim, char * (*strtok_r)(char *, const char *, char **));
-void init_csv_state(struct csv_state *cs, char *file_name);
+void init_csv_file(struct csv_file *cf, const char *file_name,
+		struct csv_field *csv_field, int max_fields,
+		const char *delim, char * (*strtok_r)(char *, const char *, char **));
+void init_csv_state(struct csv_state *cs, const char *file_name);
 
 /* register_csv_field : register a struct csv_field in csv_file
  * @cf	        : a pointer to a CSV file
