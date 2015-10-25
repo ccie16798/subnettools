@@ -76,25 +76,25 @@ void *__st_realloc(void *ptr, unsigned long new, unsigned long old, const char *
 	if (new_ptr == NULL) {
 		if (new > 10 * 1024 * 1024)
 			fprintf(stderr, "%s:%s line %d Unable to reallocate %lu Mbytes for %s\n",
-					 file, func, line, new / (1024 * 1024), s);
+					file, func, line, new / (1024 * 1024), s);
 		else if (new > 10 * 1024)
 			fprintf(stderr, "%s:%s line %d Unable to reallocate %lu Kbytes for %s\n",
-					 file, func, line, new / (1024) , s);
+					file, func, line, new / (1024) , s);
 		else
 			fprintf(stderr, "%s:%s line %d Unable to reallocate %lu bytes for %s\n",
-					 file, func, line, new, s);
+					file, func, line, new, s);
 		return  NULL;
 	}
 	total_memory += (new - old);
 	if (new > 10 * 1024 * 1024) {
 		debug_memory(3, "%s:%s line %d Reallocated %lu Mbytes for %s\n",
-					 file, func, line, new / (1024 * 1024), s);
+				file, func, line, new / (1024 * 1024), s);
 	} else if (new > 10 * 1024) {
 		debug_memory(3, "%s:%s line %d Reallocated %lu Kbytes for %s\n",
-					 file, func, line, new / 1024, s);
+				file, func, line, new / 1024, s);
 	} else {
 		debug_memory(3, "%s:%s line %d Reallocated %lu bytes for %s\n",
-					 file, func, line, new, s);
+				file, func, line, new, s);
 	}
 	return new_ptr;
 }
@@ -108,20 +108,21 @@ void *__st_realloc_nodebug(void *ptr, unsigned long new, unsigned long old, cons
 	if (new_ptr == NULL) {
 		if (new > 10 * 1024 * 1024)
 			fprintf(stderr, "%s:%s line %d Unable to reallocate %lu Mbytes for %s\n",
-					 file, func, line, new / (1024 * 1024), s);
+					file, func, line, new / (1024 * 1024), s);
 		else if (new > 10 * 1024)
 			fprintf(stderr, "%s:%s line %d Unable to reallocate %lu Kbytes for %s\n",
-					 file, func, line, new / (1024) , s);
+					file, func, line, new / (1024) , s);
 		else
 			fprintf(stderr, "%s:%s line %d Unable to reallocate %lu bytes for %s\n",
-					 file, func, line, new, s);
+					file, func, line, new, s);
 		return  NULL;
 	}
 	total_memory += (new - old);
 	return new_ptr;
 }
 
-char *st_strdup(const char *s)
+char *__st_strdup(const char *s,
+		const char *file, const char *func, int line)
 {
 	char *broumf;
 	int n;
@@ -131,12 +132,14 @@ char *st_strdup(const char *s)
 	n = strlen(s) + 1;
 	broumf = malloc(n);
 	if (broumf == NULL) {
-		fprintf(stderr, "Unable to allocate %d bytes for '%s'\n", n, s);
+		fprintf(stderr, "%s:%s line %d Unable to allocate %d bytes for '%s'\n",
+				file, func, line, n, s);
 		return NULL;
 	}
 	total_memory += n;
 	strcpy(broumf, s);
-	debug(MEMORY, 5, "Allocated %d bytes for '%s'\n", n, s);
+	debug_memory(5, "%s:%s line %d Allocated %d bytes for '%s'\n",
+			file, func, line, n, s);
 	return broumf;
 }
 
