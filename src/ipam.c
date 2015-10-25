@@ -266,9 +266,7 @@ static int ipam_filter(char *s, char *value, char op, void *object)
 {
 	struct ipam_line *ipam = object;
 	struct subnet subnet;
-	int res, j, err;
-	int found = 0;
-	int a, b;
+	int res;
 
 	debug(FILTER, 8, "Filtering '%s' %c '%s'\n", s, op, value);
 	if (!strcmp(s, "prefix")) {
@@ -303,56 +301,8 @@ static int ipam_filter(char *s, char *value, char op, void *object)
 			return -1;
 		}
 	}
-	else {
-		for (j = 0; j < ipam->ea_nr; j++) {
-			if (!strcmp(s, ipam->ea[j].name)) {
-				found = 1;
-				break;
-			}
-		}
-		if (found == 0) {
-			debug(FILTER, 1, "Cannot filter on attribute '%s'\n", s);
-			return 0;
-		}
-		debug(IPAM, 5, "We will filter on EA: '%s'\n", ipam->ea[j].name);
-		if (ipam->ea[j].value == NULL) /* EA Value has not been set */
-			return 0;
-		switch(op) {
-		case '=':
-			return (!strcmp(ipam->ea[j].value, value));
-			break;
-		case '#':
-			return (strcmp(ipam->ea[j].value, value));
-			break;
-		case '~':
-			res = st_sscanf(ipam->ea[j].value, value);
-			return (res < 0 ? 0 : 1);
-			break;
-		case '<':
-		case '>':
-			b = string2int(value, &err);
-			if (err < 0) {
-				debug(FILTER, 1, "Cannot interpret Field '%s' as an INT\n", value);
-				return -1;
-			}
-			a = string2int(ipam->ea[j].value, &err);
-			/* if Extended Attribute is null we don't return an error, just no match
-			*/
-			if (err < 0) {
-				debug(FILTER, 4, "Cannot interpret EA '%s' as an INT\n", ipam->ea[j].value);
-				return 0;
-			}
-			if (op == '>')
-				return (a > b);
-			else
-				return (b > a);
-			break;
-		default:
-			debug(FILTER, 1, "Unsupported op '%c' for Extended Attribute\n", op);
-			return -1;
-			break;
-		}
-	}
+	else
+		return filter_ea(ipam->ea, ipam->ea_nr, s, value, op);
 }
 
 int ipam_file_filter(struct ipam_file *sf, char *expr)
