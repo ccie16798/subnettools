@@ -46,7 +46,7 @@ sprint_unsigned(long)
 		compression_level = __c - '0'; \
 		i++; \
 	} else \
-		compression_level = 4; \
+		compression_level = 3; \
 	} while (0);
 
 
