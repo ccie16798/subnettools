@@ -8,7 +8,8 @@
 		const typeof( ((type *)0)->member ) *__mptr = (ptr); \
 		(type *)( (char *)__mptr - offsetof(type,member) );})
 
-/* this struct should be embedded inside a struct XYZ
+/*
+ * struct st_list should be embedded inside a struct XYZ
  * (except the list head, which MUST be initialized)
  *
  * struct mystruct {
@@ -30,7 +31,6 @@ struct st_list {
 };
 
 typedef struct st_list st_list;
-
 
 void init_list(st_list *list);
 int list_empty(st_list *list);
