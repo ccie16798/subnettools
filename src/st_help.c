@@ -9,6 +9,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "debug.h"
 #include "st_options.h"
 #include "prog-main.h"
@@ -171,6 +172,22 @@ const struct usages usages_fr[] = {
 
 const struct usages *usages[] = {usages_en, usages_fr};
 
+void usage_brief_en()
+{
+	int i;
+
+	printf("Commands & options are documented by section\n");
+	printf("Use '%s help <section_name>' to have help about one section\n", PROG_NAME);
+	printf("Available sections :\n[");
+	for (i = 0; ;i++) {
+		if (usages_en[i].name == NULL)
+			break;
+		printf("%s ", usages_en[i].name);
+	}
+	printf("]\n");
+	printf("To get all sections, '%s help all\n", PROG_NAME);
+}
+
 void usage_all(int language)
 {
 	int i;
@@ -195,7 +212,27 @@ void usage_all(int language)
 
 void usage(int argc, char **argv, struct st_options *o)
 {
-	usage_all(LANG_EN);
+	int i, lang;
+	const struct usages *u;
+
+	lang = LANG_EN;
+	if (argv[2] == NULL) {
+		usage_all(lang);
+		return;
+	}
+	u = usages[lang];
+	printf("Usage: %s [OPTIONS] COMMAND ARGUMENTS ....\n", PROG_NAME);
+	printf("\n");
+	for (i = 0; ; i++) {
+		if (u[i].name == NULL) {
+			usage_brief_en();
+			return;
+		}
+		if (!strncmp(u[i].name, argv[2], strlen(argv[2]))) {
+			u[i].usage();
+			return;
+		}
+	}
 }
 
 void debug_usage()
