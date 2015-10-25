@@ -38,7 +38,7 @@ int ea_strdup(struct ipam_ea *ea, const char *value)
 		return -1;
 	}
 	strcpy(ea->value, value);
-	debug(MEMORY, 7, "Allocating %d bytes for EA_value '%s'\n", len, value);
+	debug_memory(7, "Allocating %d bytes for EA_value '%s'\n", len, value);
 	total_memory += len;
 	ea->len = len;
 	return 1;
