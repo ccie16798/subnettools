@@ -22,7 +22,9 @@
 #include "ipam.h"
 #include "st_printf.h"
 
-#define ST_VSPRINTF_BUFFER_SIZE 2048
+#define ST_VSPRINTF_BUFFER_SIZE   2048
+#define ST_PRINTF_MAX_STRING_SIZE 256
+
 
 sprint_signed(short)
 sprint_signed(int)
@@ -197,7 +199,7 @@ static int __print_ea(char *outbuf, size_t buffer_len,
 			int header) {
 	int k, res;
 	char sep;
-	char buffer[128];
+	char buffer[ST_PRINTF_MAX_STRING_SIZE];
 	int ea_num;
 	int j = 0;
 
@@ -293,8 +295,9 @@ static int __fprint_route_fmt(FILE *output, const struct route *r, const char *f
 	int i, j, i2, compression_level;
 	int res, pad_left;
 	char c;
-	char outbuf[512 + 140];
-	char buffer[128], buffer2[128];
+	char outbuf[1024];
+	char buffer[ST_PRINTF_MAX_STRING_SIZE];
+	char buffer2[ST_PRINTF_MAX_STRING_SIZE];
 	struct subnet sub;
 	int field_width;
 	struct subnet v_sub;
@@ -780,7 +783,7 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap,
 	int i, j, i2, compression_level;
 	int res;
 	char c;
-	char buffer[256];
+	char buffer[ST_PRINTF_MAX_STRING_SIZE];
 	int field_width;
 	int pad_left, pad_value;
 	int o_num;
