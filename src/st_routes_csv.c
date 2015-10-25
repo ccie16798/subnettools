@@ -71,12 +71,12 @@ void free_subnet_file(struct subnet_file *sf)
  * 	1  on SUCCESS
  *	-1 on ENOMEM
  */
-int sf_alloc_ea_array(struct subnet_file *sf, unsigned long n)
+int alloc_sf_ea(struct subnet_file *sf, unsigned long n)
 {
 	int res, i;
 
 	res = alloc_route_ea(&sf->routes[n], sf->ea_nr);
-	if (res < 0)
+	if (res < 0) /* routes->ea will be set to NULL, an d ea_nr to zero */
 		return res;
 	for (i = 0; i < sf->ea_nr; i++)
 		sf->routes[n].ea[i].name = sf->ea[i].name;
@@ -216,7 +216,7 @@ static int netcsv_endofline_callback(struct csv_state *state, void *data)
 		sf->routes = new_r;
 	}
 	zero_route(&sf->routes[sf->nr]);
-	res = sf_alloc_ea_array(sf, sf->nr);
+	res = alloc_sf_ea(sf, sf->nr);
 	if (res < 0)
 		return CSV_CATASTROPHIC_FAILURE;
 	state->state[0] = 0; /* state[0] = we found a mask */
@@ -249,7 +249,7 @@ static int netcsv_validate_header(struct csv_file *cf, void *data)
 		}
 	}
 	/* alloc EA for routes[0] */
-	res = sf_alloc_ea_array(sf, 0);
+	res = alloc_sf_ea(sf, 0);
 	if (res < 0)
 		return res;
 	return 1;
