@@ -1279,9 +1279,8 @@ static int route_filter(char *s, char *value, char op, void *object)
 			debug(FILTER, 1, "Unsupported op '%c' for comment\n", op);
 			return -1;
 		}
-	}
-	debug(FILTER, 1, "Cannot filter on attribute '%s'\n", s);
-	return -1;
+	} else
+		return filter_ea(route->ea, route->ea_nr, s, value, op);
 }
 
 /*
