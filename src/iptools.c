@@ -313,12 +313,27 @@ static inline int addrv42bitmask(ipv4 a, char *out, size_t len)
 	return i;
 }
 
+static inline int addrv62bitmask(ipv6 a, char *out, size_t len)
+{
+	int i;
+
+	if (len < 129) {
+		fprintf(stderr, "BUG, %s needs at least a 129-bytes buffer\n", __FUNCTION__);
+		out[0] = '\0';
+		return -1;
+	}
+	for (i = 0; i < 128; i++)
+		out[i] = '0' + !!(block(a, i / 16) & (1 << ((127 - i) & 0xf)));
+	out[i] = '\0';
+	return i;
+}
+
 int addr2bitmask(const struct ip_addr *a, char *out, size_t len)
 {
 	if (a->ip_ver == IPV4_A)
 		return addrv42bitmask(a->ip, out, len);
 	if (a->ip_ver == IPV6_A)
-		return addrv62str(a->ip6, out, len, 3);
+		return addrv62bitmask(a->ip6, out, len);
 	out = '\0';
 	return -1;
 }
