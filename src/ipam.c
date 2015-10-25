@@ -277,30 +277,7 @@ static int ipam_filter(char *s, char *value, char op, void *object)
 			debug(FILTER, 1, "Filtering on prefix %c '%s',  but it is not an IP\n", op, value);
 			return -1;
 		}
-		res = subnet_compare(&ipam->subnet, &subnet);
-		switch (op) {
-		case '=':
-			return (res == EQUALS);
-			break;
-		case '#':
-			return !(res == EQUALS);
-			break;
-		case '<':
-			return subnet_is_superior(&ipam->subnet, &subnet);
-			break;
-		case '>':
-			return !subnet_is_superior(&ipam->subnet, &subnet) && res != EQUALS;
-			break;
-		case '{':
-			return (res == INCLUDED || res == EQUALS);
-			break;
-		case '}':
-			return (res == INCLUDES || res == EQUALS);
-			break;
-		default:
-			debug(FILTER, 1, "Unsupported op '%c' for prefix\n", op);
-			return -1;
-		}
+		return subnet_filter(&ipam->subnet, &subnet, op);
 	}
 	else if (!strcmp(s, "mask")) {
 		res =  string2mask(value, 42);
