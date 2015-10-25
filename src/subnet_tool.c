@@ -1220,24 +1220,7 @@ static int route_filter(char *s, char *value, char op, void *object)
 			debug(FILTER, 1, "Filtering on gw %c '%s',  but it is not an IP\n", op, value);
 			return -1;
 		}
-		switch (op) {
-		case '=':
-			return is_equal_ip(&route->gw, &subnet.ip_addr);
-			break;
-		case '#':
-			return !is_equal_ip(&route->gw, &subnet.ip_addr);
-			break;
-		case '<':
-			return addr_is_superior(&route->gw, &subnet.ip_addr);
-			break;
-		case '>':
-			return (!addr_is_superior(&route->gw, &subnet.ip_addr) &&
-					!is_equal_ip(&route->gw, &subnet.ip_addr));
-			break;
-		default:
-			debug(FILTER, 1, "Unsupported op '%c' for prefix\n", op);
-			return -1;
-		}
+		return addr_filter(&route->gw, &subnet, op);
 	}
 	else if (!strcmp(s, "mask")) {
 		res =  string2mask(value, 42);
