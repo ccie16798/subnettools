@@ -1,12 +1,3 @@
-/*
- * Generic CSV parser functions
- * 
- * Copyright (C) 2014 Etienne Basset <etienne.basset@ensta.org>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License
- * as published by the Free Software Foundation.
- */
 #ifndef GENERIC_CSV
 #define GENERIC_CSV
 
@@ -70,7 +61,7 @@ struct csv_field {
 struct csv_file {
 	char *file_name;
 	struct csv_field *csv_field;
-	int num_fields; /* number of fields inside the CSV (including those without handler */
+	int num_fields; /* number of fields inside the CSV (including those without handler) */
 	int num_fields_registered; /* number of field dynamically registered */
 	char *delim; /** delimiteur */
 	int max_mandatory_pos ; /* used to track the pos of the last mandatory field */
