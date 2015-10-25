@@ -97,8 +97,10 @@ int ipv6_is_ula(ipv6 a);
 int ipv6_is_multicast(ipv6 a);
 
 /*
- * compare sub1 & sub2 for inclusion
- * returns :
+ * compare sub1 & sub2 for relation (Equals, includes, included)
+ * @sub1  : first subnet to test
+ * @sub2  : 2nd   subnet to test
+ * returns:
  * INCLUDES if  sub1 includes sub2
  * INCLUDED if  sub1 is included in sub2
  * EQUALS   if  sub1 equals sub2
@@ -106,15 +108,41 @@ int ipv6_is_multicast(ipv6 a);
  */
 int subnet_compare(const struct subnet *sub1, const struct subnet *sub2);
 
+/*
+ * numeric compare functions; lower IP address is better
+ * @s1 : first address to test
+ * @s2 : 2nd   address to test
+ * returns:
+ * 	>0 if s1 is 'better' than s2
+ * 	0 otherwise
+ */
 int subnet_is_superior(const struct subnet *s1, const struct subnet *s2);
 int addr_is_superior(const struct ip_addr *s1, const struct ip_addr *s2);
 
-/* address to addr converting functions
-   output buffer MUST be allocated by caller and large enough */
-int subnet2str(const struct subnet *s, char *out_buffer, size_t len, int comp_level);
-int addr2str(const struct ip_addr *a, char *out_buffer, size_t len, int comp_level);
-int mask2ddn(u32 mask, char *out_buffer, size_t len);
+/*
+ * filter 'test' against 'against' using operator 'op' (=, #, <, >, {, })
+ * @test    : the subnet to test
+ * @against : the subnet to test against
+ * @op      : the operator
+ * returns:
+ * 	>0 on match
+ * 	0  on no match
+ */
+int subnet_filter(struct subnet *test, struct subnet *against, char op);
 
+/* address to String converting functions
+ *  output buffer MUST be allocated by caller and large enough
+ *  @ip   : the struct to convert
+ *  @out  : output buffer
+ *  @len  : len of output buffer; must be large enough to hold a full IP
+ *  @comp : IPv6 compression level (0, 1, 2, 3)
+ *  returns:
+ *  	number of written char on success
+ *  	-1 on error
+ */
+int subnet2str(const struct subnet *ip, char *out, size_t len, int comp);
+int addr2str(const struct ip_addr *ip, char *out, size_t len, int comp);
+int mask2ddn(u32 ip, char *out_buffer, size_t len);
 
 /* read len chars from 's' and try to convert to a struct ip_addr
  * s doesnt need to be '\0' ended
@@ -122,7 +150,7 @@ int mask2ddn(u32 mask, char *out_buffer, size_t len);
  *    IPV4_A if addr is valid IPv4
  *    IPV6_A if addr is valid IPv6
  *    BAD_IP otherwise
- * */
+ **/
 int string2addr(const char *s, struct ip_addr *addr, size_t len);
 
 /* read len chars from 's' and try to convert to a subnet mask length
