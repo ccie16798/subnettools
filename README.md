@@ -10,8 +10,9 @@ Subnettools is a sotfware intending to help networ engineers manipulating route 
 information from it; subnettools has :
 - native IPv6 & IPv4 support
 - IPv4 & IPv6 address information (known subnet membership, decoding of embedded IPs like Teredo)
-- Powerfull pattern matching engine
-- route CSV files, bgp route CSV files, IPAM csv files
+- Powerful pattern matching engine
+- route CSV files, bgp route CSV files, IPAM csv files support 
+- CSV filtering, comparing, conversion from cisco etc...
 
 Subnet arithmetic
 -----------------
