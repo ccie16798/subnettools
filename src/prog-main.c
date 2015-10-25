@@ -1038,13 +1038,13 @@ static int option_verbose2(int arc, char **argv, void *st_options)
 static int option_delim(int argc, char **argv, void *st_options)
 {
 	struct st_options *nof = st_options;
+	int i;
 
-	debug(PARSEOPTS, 3, "changing delim to :\"%s\"\n", argv[1]);
-	if (strlen(argv[1]) > MAX_DELIM - 1 ) {
-		fprintf(stderr, "too many delimiters, MAX %d\n", MAX_DELIM-1);
-		return -1;
-	}
-	strcpy(nof->delim, argv[1]);
+	debug(PARSEOPTS, 3, "changing delim to : '%s'\n", argv[1]);
+	/* we need to reserve on last byte in nof.delim for '\n' */
+	i = strxcpy(nof->delim, argv[1], sizeof(nof->delim) - 1);
+	if (i >= sizeof(nof->delim))
+		fprintf(stderr, "too many delimiters, MAX %d\n", MAX_DELIM - 1);
 	return 0;
 }
 
@@ -1235,8 +1235,8 @@ int main(int argc, char **argv)
 	if (strlen(nof.delim) == 0)
 		strcpy(nof.delim, ";\n");
 	else {
-		nof.delim[strlen(nof.delim) + 1]= '\0';
-		nof.delim[strlen(nof.delim)]= '\n';
+		nof.delim[strlen(nof.delim) + 1] = '\0';
+		nof.delim[strlen(nof.delim)] = '\n';
 	}
 	if (strlen(nof.ipam_delim) == 0)
 		strcpy(nof.ipam_delim, ",\n");
