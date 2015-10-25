@@ -93,20 +93,31 @@ struct csv_file {
  * - strtok_r        : treat consecutives delims as one
  * */
 void init_csv_file(struct csv_file *cf, char *file_name, struct csv_field *csv_field, char *delim,
-		char * (*strtok_r)(char *s, const char *delim, char **save_ptr));
+		char * (*strtok_r)(char *, const char *, char **));
 void init_csv_state(struct csv_state *cs, char *file_name);
 
-/* register_csv_field : fill struct csv_file csv_fields
+/* register_csv_field : register a struct csv_field in csv_file
  * @cf	        : a pointer to a CSV file
- * @name	: the name of the field
+ * @name	: the name of the field (static);
  * @mandatory	: is the header mandatory
  * @default_pos : its pos in case no header is found
  * @handler	: a CSV field handler to parse data
  *returns :
-	1 on SUCCESS
+ *	the position where is was inserted
  */
 int register_csv_field(struct csv_file *cf, char *name, int mandatory, int default_pos,
 	int (*handle)(char *token, void *data, struct csv_state *state));
+
+/* register_dyn_csv_field: register a struct csv_field in csv_file
+ * This MUST be used only for optional argument, whose name is dynamically alloced
+ * @csv_file : the file to which CSV field belongs
+ * @name     : name of the field (malloc'ed)
+ * @pos      : the position of the field in the header
+ * @handler  : a handler
+ */
+int register_dyn_csv_field(struct csv_file *csv_file, char *name, int pos,
+		int (*handle)(char *token, void *data, struct csv_state *state));
+
 /* this func will open the 'filename' FILE, parse it according to 'cf' and 'state'
  * and usually you'll want to feed a  pointer to a struct whatever in *data
  *
