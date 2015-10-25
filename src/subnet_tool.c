@@ -1263,22 +1263,6 @@ static int route_filter(char *s, char *value, char op, void *object)
 			debug(FILTER, 1, "Unsupported op '%c' for device\n", op);
 			return -1;
 		}
-	}
-	else if (!strcmp(s, "comment")) {
-		switch (op) {
-		case '=':
-			return !strcmp(route->ea[0].value, value);
-			break;
-		case '#':
-			return !!strcmp(route->ea[0].value, value);
-			break;
-		case '~':
-			res = st_sscanf(route->ea[0].value, value);
-			return (res < 0 ? 0 : 1);
-		default:
-			debug(FILTER, 1, "Unsupported op '%c' for comment\n", op);
-			return -1;
-		}
 	} else
 		return filter_ea(route->ea, route->ea_nr, s, value, op);
 }
