@@ -14,46 +14,55 @@
 
 unsigned long total_memory = 0;
 
-void *st_malloc_nodebug(unsigned long n, const char *s)
+void *__st_malloc_nodebug(unsigned long n, const char *s,
+		const char *file, const char *func, int line)
 {
 	void *ptr;
 
 	ptr = malloc(n);
 	if (ptr == NULL) {
 		if (n > 10 * 1024 * 1024)
-			fprintf(stderr, "Unable to allocate %lu Mbytes for %s\n",
-					n / (1024 * 1024), s);
+			fprintf(stderr, "%s:%s line %d Unable to allocate %lu Mbytes for %s\n",
+					file, func, line, n / (1024 * 1024),  s);
 		else if (n > 10 * 1024)
-			fprintf(stderr, "Unable to allocate %lu Kbytes for %s\n", n / 1024, s);
+			fprintf(stderr, "%s:%s line %d Unable to allocate %lu Kbytes for %s\n",
+					file, func, line, n / (1024),  s);
 		else
-			fprintf(stderr, "Unable to allocate %lu bytes for %s\n", n, s);
+			fprintf(stderr, "%s:%s line %d Unable to allocate %lu bytes for %s\n",
+					file, func, line, n,  s);
 	}
 	total_memory += n;
 	return ptr;
 }
 
-void *st_malloc(unsigned long n, const char *s)
+void *__st_malloc(unsigned long n, const char *s,
+		const char *file, const char *func, int line)
 {
 	void *ptr;
 
 	ptr = malloc(n);
 	if (ptr == NULL) {
 		if (n > 10 * 1024 * 1024)
-			fprintf(stderr, "Unable to allocate %lu Mbytes for %s\n",
-					n / (1024 * 1024), s);
+			fprintf(stderr, "%s:%s line %d Unable to allocate %lu Mbytes for %s\n",
+					file, func, line, n / (1024 * 1024), s);
 		else if (n > 10 * 1024)
-			fprintf(stderr, "Unable to allocate %lu Kbytes for %s\n", n / 1024, s);
+			fprintf(stderr, "%s:%s line %d Unable to allocate %lu Kbytes for %s\n",
+					file, func, line, n / (1024), s);
 		else
-			fprintf(stderr, "Unable to allocate %lu bytes for %s\n", n, s);
+			fprintf(stderr, "%s:%s line %d Unable to allocate %lu bytes for %s\n",
+					file, func, line, n, s);
 		return NULL;
 	}
 	total_memory += n;
 	if (n > 10 * 1024 * 1024) {
-		debug(MEMORY, 3, "Allocated %lu Mbytes for %s\n", n / (1024 * 1024), s);
+		debug(MEMORY, 3, "%s:%s line %d Allocated %lu Mbytes for %s\n",
+				file, func, line, n / (1024 * 1024), s);
 	} else if (n > 10 * 1024) {
-		debug(MEMORY, 3, "Allocated %lu Kbytes for %s\n", n / 1024, s);
+		debug(MEMORY, 3, "%s:%s line %d Allocated %lu Kbytes for %s\n",
+				file, func, line, n / (1024), s);
 	} else {
-		debug(MEMORY, 3, "Allocated %lu bytes for %s\n", n, s);
+		debug(MEMORY, 3, "%s:%s line %d Allocated %lu bytes for %s\n",
+				file, func, line, n, s);
 	}
 	return ptr;
 }
