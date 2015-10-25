@@ -45,7 +45,7 @@ int alloc_ipam_file(struct ipam_file *sf, unsigned long n, int ea_nr)
 	return 0;
 }
 
-static int alloc_ipam_ea(struct ipam_file *sf, int i)
+static int alloc_ipam_ea(struct ipam_file *sf, unsigned long i)
 {
 	struct ipam_ea *ea;
 	int j;
