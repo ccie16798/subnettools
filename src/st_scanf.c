@@ -23,7 +23,7 @@
 struct expr {
 	char *expr;
 	 /* even if expr, matches ->early_stop may force a return; useful ie to break '.*' expansion  */
-	int (*early_stop)(char *remain, struct expr *e);
+	int (*early_stop)(const char *remain, struct expr *e);
 	char end_of_expr; /* if remain[i] = end_of_expr , we can stop*/
 	char end_expr[64];
 	int match_last; /* if set, the expansion will stop the last time ->stop return positive value && and previous stop DIDNOT*/
@@ -178,27 +178,27 @@ static int count_cs(const char *expr)
  * try to determine if the remaining chars match their type
  * for exemple, find_int will match on the first digit found
 */
-static int find_int(char *remain, struct expr *e)
+static int find_int(const char *remain, struct expr *e)
 {
 	return isdigit(*remain) || (*remain == '-' && isdigit(remain[1]));
 }
 
-static int find_uint(char *remain, struct expr *e)
+static int find_uint(const char *remain, struct expr *e)
 {
 	return isdigit(*remain);
 }
 
-static int find_word(char *remain, struct expr *e)
+static int find_word(const char *remain, struct expr *e)
 {
 	return isalpha(*remain);
 }
 
-static int find_string(char *remain, struct expr *e)
+static int find_string(const char *remain, struct expr *e)
 {
 	return !isspace(*remain);
 }
 
-static int find_hex(char *remain, struct expr *e)
+static int find_hex(const char *remain, struct expr *e)
 {
 	if (remain[0] == '0' && remain[1] == 'x' && isxdigit(remain[2]))
 		return 1;
@@ -670,7 +670,7 @@ static inline int expr_try_again(const char *expr)
  *
  * if 'expr' includes conversion specifiers, put the result in 'o' and update 'num_o'
  */
-static int match_expr_single(const char *expr, char *in, struct sto *o, int *num_o)
+static int match_expr_single(const char *expr, const char *in, struct sto *o, int *num_o)
 {
 	int i, j, res;
 	char c;
@@ -747,7 +747,7 @@ static int match_expr_single(const char *expr, char *in, struct sto *o, int *num
  * 0 if it doesnt match (or if e->early_stop allows)
  * number of matched chars otherwise
  */
-static int match_expr(struct expr *e, char *in, struct sto *o, int *num_o)
+static int match_expr(struct expr *e, const char *in, struct sto *o, int *num_o)
 {
 	int res = 0;
 	int res2;
@@ -795,7 +795,7 @@ static int match_expr(struct expr *e, char *in, struct sto *o, int *num_o)
 	return res;
 }
 
-static int find_not_ip(char *remain, struct expr *e)
+static int find_not_ip(const char *remain, struct expr *e)
 {
 	char buffer[64];
 	int i = 0;
@@ -818,7 +818,7 @@ static int find_not_ip(char *remain, struct expr *e)
 		return 1;
 }
 
-static int find_ip(char *remain, struct expr *e)
+static int find_ip(const char *remain, struct expr *e)
 {
 	char buffer[64];
 	int i = 0;
@@ -839,7 +839,7 @@ static int find_ip(char *remain, struct expr *e)
 		return 0;
 }
 
-static int find_classfull_subnet(char *remain, struct expr *e)
+static int find_classfull_subnet(const char *remain, struct expr *e)
 {
 	char buffer[64];
 	int i = 0;
@@ -860,7 +860,7 @@ static int find_classfull_subnet(char *remain, struct expr *e)
 		return 0;
 }
 
-static int find_mask(char *remain, struct expr *e)
+static int find_mask(const char *remain, struct expr *e)
 {
 	int i = 0;
 	int res;
@@ -876,7 +876,7 @@ static int find_mask(char *remain, struct expr *e)
 	return res;
 }
 
-static int find_expr(char *remain, struct expr *e)
+static int find_expr(const char *remain, struct expr *e)
 {
 	int i = 0;
 	int res;
@@ -903,7 +903,7 @@ static int find_expr(char *remain, struct expr *e)
  *   -2  : no match
  *
  */
-static int parse_multiplier(char *in, const char *fmt, int *i, int in_length, int *j, char *expr,
+static int parse_multiplier(const char *in, const char *fmt, int *i, int in_length, int *j, char *expr,
 			struct sto *o, int max_o, int *n_found)
 {
 
@@ -1116,7 +1116,7 @@ static int parse_multiplier(char *in, const char *fmt, int *i, int in_length, in
  * 	number of objects found
  * 	-1 if no match and no conversion specifier found
  */
-int sto_sscanf(char *in, const char *fmt, struct sto *o, int max_o)
+int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 {
 	int i, j;
 	int res;
@@ -1270,7 +1270,7 @@ end_nomatch:
 		return n_found;
 }
 
-int st_vscanf(char *in, const char *fmt, va_list ap)
+int st_vscanf(const char *in, const char *fmt, va_list ap)
 {
 	int res;
 	struct sto o[ST_VSCANF_MAX_OBJECTS];
@@ -1280,7 +1280,7 @@ int st_vscanf(char *in, const char *fmt, va_list ap)
 	return res;
 }
 
-int st_sscanf(char *in, const char *fmt, ...)
+int st_sscanf(const char *in, const char *fmt, ...)
 {
 	va_list ap;
 	int ret;
