@@ -822,8 +822,7 @@ static int run_remove(int arc, char **argv, void *st_options)
 
 		for (i = 0; i < n; i++)
 			st_printf("%P\n", r[i]);
-		free(r);
-		total_memory -= n * sizeof(struct subnet);
+		st_free(r, n * sizeof(struct subnet));
 		return 0;
 	} else  if (!strcasecmp(argv[2], "file")) {
 		res = load_netcsv_file(argv[3], &sf1, nof);
