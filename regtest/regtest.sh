@@ -289,45 +289,15 @@ reg_test -c st-fmt.conf print route_aggipv4
 # a CSV with strange fields names :)
 reg_test -c st-bizarr.conf sort bizar.csv
 # a CSV with strange fields names, output more strange
-result() {
-	echo "Summary : "
-	echo -e "\033[32m$n_ok OK\033[0m"
-	echo -e "\033[31m$n_ko KO\033[0m"
-}
-
-
-result() {
-	echo "Summary : "
-	echo -e "\033[32m$n_ok OK\033[0m"
-	echo -e "\033[31m$n_ko KO\033[0m"
-}
-
-
-#test for IPv4/IPv6 handling
-reg_test print invalid_ips_masks.txt
-#basic print to test fmt
-reg_test -c st-fmt.conf print route_aggipv6-2
-reg_test -c st-fmt.conf print route_aggipv4
-# a CSV with strange fields names :)
-reg_test -c st-bizarr.conf sort bizar.csv
-# a CSV with strange fields names, output more strange
-result() {
-	echo "Summary : "
-	echo -e "\033[32m$n_ok OK\033[0m"
-	echo -e "\033[31m$n_ko KO\033[0m"
-}
-
-
-#test for IPv4/IPv6 handling
-reg_test print invalid_ips_masks.txt
-#basic print to test fmt
-reg_test -c st-fmt.conf print route_aggipv6-2
-reg_test -c st-fmt.conf print route_aggipv4
-reg_test -c st-bgpfmt.conf bgpprint bgp1
-# a CSV with strange fields names :)
-reg_test -c st-bizarr.conf sort bizar.csv 
-# a CSV with strange fields names, output more strange 
 reg_test -c st-bizarr2.conf sort bizar2.csv
+#a CSV with Extended Attributes
+reg_test sort sort_long_EA
+reg_test print sort_long_EA
+#test for IPv4/IPv6 handling
+reg_test print invalid_ips_masks.txt
+#basic print to test fmt
+reg_test -c st-fmt.conf print route_aggipv6-2
+reg_test -c st-fmt.conf print route_aggipv4
 reg_test missing  BURP2 BURP
 reg_test uniq  BURP2 BURP
 reg_test uniq  uniq1 uniq2
