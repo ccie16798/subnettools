@@ -55,13 +55,13 @@ void *__st_malloc(unsigned long n, const char *s,
 	}
 	total_memory += n;
 	if (n > 10 * 1024 * 1024) {
-		debug(MEMORY, 3, "%s:%s line %d Allocated %lu Mbytes for %s\n",
+		debug_memory(3, "%s:%s line %d Allocated %lu Mbytes for %s\n",
 				file, func, line, n / (1024 * 1024), s);
 	} else if (n > 10 * 1024) {
-		debug(MEMORY, 3, "%s:%s line %d Allocated %lu Kbytes for %s\n",
+		debug_memory(3, "%s:%s line %d Allocated %lu Kbytes for %s\n",
 				file, func, line, n / (1024), s);
 	} else {
-		debug(MEMORY, 3, "%s:%s line %d Allocated %lu bytes for %s\n",
+		debug_memory(3, "%s:%s line %d Allocated %lu bytes for %s\n",
 				file, func, line, n, s);
 	}
 	return ptr;
@@ -84,11 +84,11 @@ void *st_realloc(void *ptr, unsigned long new, unsigned long old, const char *s)
 	}
 	total_memory += (new - old);
 	if (new > 10 * 1024 * 1024) {
-		debug(MEMORY, 3, "Reallocated %lu Mbytes for %s\n", new / (1024 * 1024), s);
+		debug_memory(3, "Reallocated %lu Mbytes for %s\n", new / (1024 * 1024), s);
 	} else if (new > 10 * 1024) {
-		debug(MEMORY, 3, "Reallocated %lu Kbytes for %s\n", new / 1024, s);
+		debug_memory(3, "Reallocated %lu Kbytes for %s\n", new / 1024, s);
 	} else {
-		debug(MEMORY, 3, "Reallocated %lu bytes for %s\n", new, s);
+		debug_memory(3, "Reallocated %lu bytes for %s\n", new, s);
 	}
 	return new_ptr;
 }

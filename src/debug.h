@@ -37,6 +37,14 @@
 			fprintf(stderr, __FMT); \
 		} \
 	} while (0);
+
+#define debug_memory(__DEBUG_LEVEL, __FMT...) \
+	do { \
+		int ___x = __D_MEMORY; \
+		if (debugs_level[___x] >= __DEBUG_LEVEL || debugs_level[__D_ALL] >= __DEBUG_LEVEL) \
+			fprintf(stderr, __FMT); \
+	} while (0);
+
 struct debug {
 	const char *name;
 	unsigned num;
