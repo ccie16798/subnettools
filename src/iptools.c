@@ -934,7 +934,7 @@ int subnet_is_superior(const struct subnet *s1, const struct subnet *s2)
 	return -1;
 }
 
-int subnet_filter(struct subnet *test, struct subnet *against, char op)
+int subnet_filter(const struct subnet *test, const struct subnet *against, char op)
 {
 	int res;
 
@@ -959,11 +959,43 @@ int subnet_filter(struct subnet *test, struct subnet *against, char op)
 			return (res == INCLUDES || res == EQUALS);
 			break;
 		default:
-			debug(FILTER, 1, "Unsupported op '%c' for prefix\n", op);
+			debug(FILTER, 1, "Unsupported op '%c' for subnet_filter\n", op);
 			return -1;
 	}
 }
 
+int addr_filter(const struct ip_addr *test, const struct subnet *against, char op)
+{
+	int res;
+
+	res = addr_compare(test, against);
+	switch (op) {
+		case '=':
+			return (res == EQUALS);
+			break;
+		case '#':
+			return !(res == EQUALS);
+			break;
+		case '<':
+			return addr_is_superior(test, &against->ip_addr);
+			break;
+		case '>':
+			return !addr_is_superior(test, &against->ip_addr) && res != EQUALS;
+			break;
+		case '{':
+			return (res == INCLUDED || res == EQUALS);
+			break;
+		case '}':
+			return (res == INCLUDES || res == EQUALS);
+			break;
+		default:
+			debug(FILTER, 1, "Unsupported op '%c' for addr_filter\n", op);
+			return -1;
+	}
+}
+
+/* try to aggregate s1 & s2, putting the result in s3 if possible
+ * returns negative if impossible to aggregate, positive if possible */
 /* try to aggregate s1 & s2, putting the result in s3 if possible
  * returns negative if impossible to aggregate, positive if possible */
 static int aggregate_subnet_ipv4(const struct subnet *s1, const struct subnet *s2, struct subnet *s3)
