@@ -248,6 +248,7 @@ static int netcsv_validate_header(struct csv_file *cf, void *data)
 				return -1;
 		}
 	}
+	zero_route(&sf->routes[0]);
 	/* alloc EA for routes[0] */
 	res = alloc_sf_ea(sf, 0);
 	if (res < 0)
