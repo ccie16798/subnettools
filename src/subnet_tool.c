@@ -1198,7 +1198,7 @@ int fprint_routefilter_help(FILE *out)
  * op     : the operator
  * object : a struct route; input string 's' will tell which field to test
  */
-static int route_filter(char *s, char *value, char op, void *object)
+static int route_filter(const char *s, const char *value, char op, void *object)
 {
 	struct route *route = object;
 	struct subnet subnet;

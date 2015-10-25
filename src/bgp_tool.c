@@ -365,7 +365,7 @@ int fprint_bgpfilter_help(FILE *out)
 }
 
 
-static int bgp_route_filter(char *s, char *value, char op, void *object)
+static int bgp_route_filter(const char *s, const char *value, char op, void *object)
 {
 	struct bgp_route *route = object;
 	struct subnet subnet;

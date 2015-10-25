@@ -22,7 +22,7 @@ static inline int is_comp(char c)
 }
 
 void init_generic_expr(struct generic_expr *e, const char *s,
-		int (*compare)(char *, char *, char, void *))
+		int (*compare)(const char *, const char *, char, void *))
 {
 	e->pattern = s;
 	if (s == NULL)
@@ -209,7 +209,7 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e)
 }
 
 /* used for testing purposes */
-int int_compare(char *s1, char *s2, char o, void *object)
+int int_compare(const char *s1, const char *s2, char o, void *object)
 {
 	int l1 = atoi(s1);
 	int l2 = atoi(s2);

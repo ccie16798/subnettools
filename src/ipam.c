@@ -222,7 +222,7 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 	res = alloc_ipam_file(sf, 16192, i);
 	if (res < 0) {
 		st_free(csv_field, ea_memory);
-		return -2;
+		return res;
 	}
 	for (i = 0; i < ea_nr; i++) {
 		sf->ea[i].name = st_strdup(csv_field[i + 2].name);
@@ -262,7 +262,7 @@ int fprint_ipamfilter_help(FILE *out)
 			"- '~' (st_scanf regular expression)\n");
 }
 
-static int ipam_filter(char *s, char *value, char op, void *object)
+static int ipam_filter(const char *s, const char *value, char op, void *object)
 {
 	struct ipam_line *ipam = object;
 	struct subnet subnet;
