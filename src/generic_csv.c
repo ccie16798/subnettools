@@ -59,10 +59,7 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
 					s2 = st_strdup(s);
 					if (s2 == NULL)
 						return CSV_ENOMEM;
-					i = register_csv_field(cf, s2, 0, 0,
-							cf->default_handler);
-					cf->csv_field[i].pos = pos;
-					cf->csv_field[i].dyn_alloc = 1;
+					register_dyn_csv_field(cf, s2, pos, cf->default_handler);
 				} else {
 					debug(CSVHEADER, 3, "no handler for field '%s' at pos %d\n",
 							s, pos);
