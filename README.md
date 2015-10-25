@@ -132,17 +132,19 @@ Some theory first, next some examples :)
 The character % MAY be followed by a field width (see printf man pages); this can help to align the results vertically, but please note in case width is smaller
 than ouptut string, it WILL NOT be truncated
 
-EXAMPLE 1 (stupid print):
--------------------------
-[etienne@me]$ ./subnet-tools -fmt "HELLO my mask is %m my prefix is %I ma GW est %G, i say '%C'" route regtest/route_aggipv4
+EXAMPLE 1 (use fmt to convert to Cisco static routes):
+------------------------------------------------------
+	[etienne@ARODEF subnet_tools]$ ./subnet-tools -fmt "ip route %I %M %G name %C" print regtest/route_aggipv4
+	ip route prefix mask GW name comment
+	ip route 10.1.0.0 255.255.255.0 192.168.1.1 name test1
+	ip route 10.1.1.0 255.255.255.0 192.168.1.1 name test1
+	ip route 10.1.2.0 255.255.255.0 192.168.1.1 name test1
+	ip route 10.1.3.0 255.255.255.0 192.168.1.2 name test1
+	ip route 10.1.4.0 255.255.255.0 192.168.1.2 name test1
+	ip route 10.1.5.0 255.255.255.0 192.168.1.2 name test1
+	ip route 10.1.6.0 255.255.255.0 192.168.1.2 name test1
+	ip route 10.1.7.0 255.255.255.0 192.168.1.2 name test1
 
-HELLO my mask is 23 my prefix is 10.1.0.0 ma GW est 192.168.1.1, i say 'AGGREGATE'
-
-HELLO my mask is 24 my prefix is 10.1.2.0 ma GW est 192.168.1.1, i say 'test1'
-
-HELLO my mask is 24 my prefix is 10.1.3.0 ma GW est 192.168.1.2, i say 'test1'
-
-HELLO my mask is 22 my prefix is 10.1.4.0 ma GW est 192.168.1.2, i say 'AGGREGATE'
 
 EXAMPLE 2 (using field width to align colons):
 ----------------------------------------------
