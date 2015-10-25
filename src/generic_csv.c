@@ -58,7 +58,7 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
 							s, pos);
 					s2 = st_strdup(s);
 					if (s2 == NULL)
-						return -20;
+						return CSV_ENOMEM;
 					i = register_csv_field(cf, s2, 0, 0,
 							cf->default_handler);
 					cf->csv_field[i].pos = pos;
@@ -102,7 +102,8 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
 					cf->csv_field[i].name, cf->file_name);
 		}
 	}
-	/* check for duplicate field pos */
+	/* check for duplicate field pos
+	 * this can happen only if NO header and programming error */
 	 for (i = 0; ; i++) {
                 if (cf->csv_field[i].name == NULL)
 			break;
