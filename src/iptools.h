@@ -147,6 +147,8 @@ int subnet2str(const struct subnet *ip, char *out, size_t len, int comp);
 int addr2str(const struct ip_addr *ip, char *out, size_t len, int comp);
 int mask2ddn(u32 ip, char *out_buffer, size_t len);
 
+int addr2bitmask(const struct ip_addr *a, char *out, size_t len);
+
 /* read len chars from 's' and try to convert to a struct ip_addr
  * s doesnt need to be '\0' ended
  * returns :
