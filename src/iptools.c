@@ -144,14 +144,6 @@ static inline int subnet_compare_ipv4(ipv4 prefix1, u32 mask1, ipv4 prefix2, u32
 	}
 }
 
-/*
- * compare sub1 & sub2 for inclusion
- * returns :
- * INCLUDES if  sub1 includes sub2
- * INCLUDED if  sub1 is included in sub2
- * EQUALS   if  sub1 equals sub2
- * -1 otherwise
- */
 int subnet_compare(const struct subnet *sub1, const struct subnet *sub2)
 {
 	if (sub1->ip_ver != sub2->ip_ver) {
@@ -163,6 +155,20 @@ int subnet_compare(const struct subnet *sub1, const struct subnet *sub2)
 	else if (sub1->ip_ver == IPV6_A)
 		return subnet_compare_ipv6(sub1->ip6, sub1->mask, sub2->ip6, sub2->mask);
 	fprintf(stderr, "Impossible to get here, IP version = %d BUG?\n", sub1->ip_ver);
+	return -1;
+}
+
+int addr_compare(const struct ip_addr *a, const struct subnet *sub)
+{
+	if (a->ip_ver != sub->ip_ver) {
+		debug(ADDRCOMP, 1, "different address FAMILY : %d, %d\n", a->ip_ver, sub->ip_ver);
+		return -1;
+	}
+	if (a->ip_ver == IPV4_A)
+		return subnet_compare_ipv4(a->ip, 32, sub->ip, sub->mask);
+	else if (a->ip_ver == IPV6_A)
+		return subnet_compare_ipv6(a->ip6, 128, sub->ip6, sub->mask);
+	fprintf(stderr, "Impossible to get here, IP version = %d BUG?\n", a->ip_ver);
 	return -1;
 }
 

@@ -96,7 +96,7 @@ int ipv6_is_global(ipv6 a);
 int ipv6_is_ula(ipv6 a);
 int ipv6_is_multicast(ipv6 a);
 
-/*
+/* subnet_compare & addr_compare
  * compare sub1 & sub2 for relation (Equals, includes, included)
  * @sub1  : first subnet to test
  * @sub2  : 2nd   subnet to test
@@ -107,6 +107,7 @@ int ipv6_is_multicast(ipv6 a);
  * -1 otherwise
  */
 int subnet_compare(const struct subnet *sub1, const struct subnet *sub2);
+int addr_compare(const struct ip_addr *sub1, const struct subnet *sub2);
 
 /*
  * numeric compare functions; lower IP address is better
