@@ -308,14 +308,13 @@ static inline int addrv42bitmask(ipv4 a, char *out, size_t len)
 		return -1;
 	}
 	for (i = 0; i < 32; i++)
-		out[i] = !!(a & (1  << (31 - i)));
+		out[i] = '0' + !!(a & (1  << (31 - i)));
 	out[i] = '\0';
 	return i;
 }
 
 int addr2bitmask(const struct ip_addr *a, char *out, size_t len)
 {
-
 	if (a->ip_ver == IPV4_A)
 		return addrv42bitmask(a->ip, out, len);
 	if (a->ip_ver == IPV6_A)
@@ -327,6 +326,8 @@ int addr2bitmask(const struct ip_addr *a, char *out, size_t len)
 /* outbuffer must be large enough **/
 int subnet2str(const struct subnet *s, char *out_buffer, size_t len, int comp_level)
 {
+	if (comp_level == 4)
+		return addr2bitmask(&s->ip_addr, out_buffer, len);
 	if (s->ip_ver == IPV4_A)
 		return addrv42str(s->ip, out_buffer, len);
 	if (s->ip_ver == IPV6_A)
@@ -338,6 +339,8 @@ int subnet2str(const struct subnet *s, char *out_buffer, size_t len, int comp_le
 /* outbuffer must be large enough **/
 int addr2str(const struct ip_addr *a, char *out_buffer, size_t len, int comp_level)
 {
+	if (comp_level == 4)
+		return addr2bitmask(a, out_buffer, len);
 	if (a->ip_ver == IPV4_A)
 		return addrv42str(a->ip, out_buffer, len);
 	if (a->ip_ver == IPV6_A)
