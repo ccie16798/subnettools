@@ -749,7 +749,6 @@ int get_subnet_or_ip(const char *s, struct subnet *subnet)
 	return BAD_IP;
 }
 
-
 int ipv4_get_classfull_mask(const struct subnet *s)
 {
 	if (s->ip == 0)
@@ -932,6 +931,36 @@ int subnet_is_superior(const struct subnet *s1, const struct subnet *s2)
 	}
 	debug(ADDRCOMP, 1, "Invalid comparison ipver %d\n", s1->ip_ver);
 	return -1;
+}
+
+int subnet_filter(struct subnet *test, struct subnet *against, char op)
+{
+	int res;
+
+	res = subnet_compare(test, against);
+	switch (op) {
+		case '=':
+			return (res == EQUALS);
+			break;
+		case '#':
+			return !(res == EQUALS);
+			break;
+		case '<':
+			return subnet_is_superior(test, against);
+			break;
+		case '>':
+			return !subnet_is_superior(test, against) && res != EQUALS;
+			break;
+		case '{':
+			return (res == INCLUDED || res == EQUALS);
+			break;
+		case '}':
+			return (res == INCLUDES || res == EQUALS);
+			break;
+		default:
+			debug(FILTER, 1, "Unsupported op '%c' for prefix\n", op);
+			return -1;
+	}
 }
 
 /* try to aggregate s1 & s2, putting the result in s3 if possible
