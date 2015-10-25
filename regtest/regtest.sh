@@ -217,8 +217,13 @@ reg_test_filter() {
 	$PROG filter filter_ipv6 "mask<64" > res/filter15
 	$PROG filter filter_ipv6 "mask>64" > res/filter16
 	$PROG filter filter_ipv6 "mask#64" > res/filter17
+	$PROG filter sort_long_EA 'zob~.*coucou.*' > res/filter18
+	$PROG filter sort_long_EA 'comment~com.*' > res/filter19
+	$PROG filter sort_long_EA 'comment=comment1' > res/filter20
+	$PROG filter sort_long_EA 'zob~.*coucou.*' > res/filter21
+	$PROG filter sort_long_EA 'zob<220' > res/filter22
 
-	n=17
+	n=22
 	for i in `seq 1 $n`; do
 		output_file=filter$i
 		if [ ! -f ref/$output_file ]; then
