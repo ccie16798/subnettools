@@ -1,14 +1,14 @@
 all: subnet-tools
 
 subnet-tools: src/*.c src/*.h
-	cd src; make subnet-tools
+	make -C src
 	mv src/subnet-tools .
 
-test-printf:
+test-printf: src/*.c src/*.h
 	cd src; make test-printf
 	mv src/test-printf .
 
-test:
+test: src/*.c src/*.h
 	cd src; make test
 
 regtest: src/*.c src/*.h
