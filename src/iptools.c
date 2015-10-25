@@ -11,7 +11,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <stdarg.h>
 #include "debug.h"
 #include "iptools.h"
 #include "utils.h"
@@ -43,14 +42,10 @@ inline void zero_ipaddr(struct ip_addr *a)
 	memset(a, 0, sizeof(struct ip_addr));
 }
 
-int is_equal_ipv6(ipv6 ip1, ipv6 ip2)
+inline int is_equal_ipv6(ipv6 ip1, ipv6 ip2)
 {
-	int i;
-
-	for (i = 0; i < 4; i++)
-		if (ip1.n32[i] != ip2.n32[i])
-			return 0;
-	return 1;
+	return !(ip1.n32[0] != ip2.n32[0] || ip1.n32[1] != ip2.n32[1] ||
+			ip1.n32[2] != ip2.n32[2] || ip1.n32[3] != ip2.n32[3]);
 }
 
 int is_equal_ip(struct ip_addr *ip1, struct ip_addr *ip2)
