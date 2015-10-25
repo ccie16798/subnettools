@@ -242,14 +242,33 @@ static int run_relation(int arc, char **argv, void *st_options)
 
 static int run_echo(int arc, char **argv, void *st_options)
 {
-	int res;
+	int res, i;
 	struct subnet subnet;
+	char *s =  argv[2];
 
 	res = get_subnet_or_ip(argv[3], &subnet);
-	if (strstr(argv[2], "%s")) {
-		fprintf(stderr, "Bad FMT, %%s is not allowed in this context\n");
-		return 0;
+	/* make sure no "%s" specifier is there, or bad thing will happen */
+	for (i = 0; ; i++) {
+		if (s[i] == '\0')
+			break;
+		if (s[i] == '%') {
+			i++;
+			if (s[i] == '-')
+				i++;
+			while (isdigit(s[i]))
+				i++;
+			if (s[i] == '\0') {
+				fprintf(stderr, "Bad format string '%s'\n", s);
+				return -1;
+			}
+			if (s[i] != 'I' && s[i] != 'a' && s[i] != 'P' && tolower(s[i]) != 'm') {
+				fprintf(stderr, "Conversion specifier '%c' not allowed"
+					" with echo command\n", s[i]);
+				return -1;
+			}
+		}
 	}
+
 	if (res == IPV4_A || res == IPV6_A)
 		st_printf(argv[2], subnet, subnet);
 	else if (res == IPV4_N || res == IPV6_N)
