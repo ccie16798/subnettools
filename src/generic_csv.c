@@ -59,7 +59,9 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
 					s2 = st_strdup(s);
 					if (s2 == NULL)
 						return CSV_ENOMEM;
-					register_dyn_csv_field(cf, s2, pos, cf->default_handler);
+					i = register_dyn_csv_field(cf, s2, pos, cf->default_handler);
+					if (i < 0)
+						st_free_string(s2);
 				} else {
 					debug(CSVHEADER, 3, "no handler for field '%s' at pos %d\n",
 							s, pos);
@@ -341,7 +343,7 @@ int generic_header_cmp(const char *s1, const char *s2)
 }
 
 void init_csv_file(struct csv_file *cf, char *file_name, struct csv_field *csv_field,
-		char *delim, char * (*func)(char *s, const char *delim, char **save_ptr))
+		int max_fields, char *delim, char * (*func)(char *, const char *, char **))
 {
 	if (cf == NULL)
 		return;
@@ -350,6 +352,7 @@ void init_csv_file(struct csv_file *cf, char *file_name, struct csv_field *csv_f
 	cf->delim	 = delim;
 	cf->csv_strtok_r = func;
 	cf->file_name 	 = (file_name ? file_name : "<stdin>");
+	cf->max_fields   = max_fields;
 	/* optional fields */
 	cf->is_header		 = NULL;
 	cf->validate_header	 = NULL;
@@ -372,6 +375,10 @@ int register_csv_field(struct csv_file *csv_file, char *name, int mandatory, int
 	int i = csv_file->num_fields_registered;
 	struct csv_field *cf = csv_file->csv_field;
 
+	if (i == csv_file->max_fields - 1) {
+		debug(CSVHEADER, 1, "Cannot register more than %d fields, dropping '%s\n", i, name);
+		return -1;
+	}
 	cf[i].name        = name;
 	cf[i].handle      = handle;
 	cf[i].mandatory   = mandatory;
@@ -391,6 +398,10 @@ int register_dyn_csv_field(struct csv_file *csv_file, char *name, int pos,
 	int i = csv_file->num_fields_registered;
 	struct csv_field *cf = csv_file->csv_field;
 
+	if (i == csv_file->max_fields - 1) {
+		debug(CSVHEADER, 1, "Cannot register more than %d fields, dropping '%s\n", i, name);
+		return -1;
+	}
 	cf[i].name        = name;
 	cf[i].handle      = handle;
 	cf[i].mandatory   = 0;

@@ -63,6 +63,7 @@ struct csv_file {
 	struct csv_field *csv_field;
 	int num_fields; /* number of fields inside the CSV (including those without handler) */
 	int num_fields_registered; /* number of field dynamically registered */
+	int max_fields; /* max number of fields */
 	char *delim; /** delimiteur */
 	int max_mandatory_pos ; /* used to track the pos of the last mandatory field */
 	/* given a line, try to guess if its a header or plain data; if NULL, the file REQUIRES a header */
@@ -83,8 +84,8 @@ struct csv_file {
  * - simple_strtok_r : doesnt treat consecutive delims as one
  * - strtok_r        : treat consecutives delims as one
  * */
-void init_csv_file(struct csv_file *cf, char *file_name, struct csv_field *csv_field, char *delim,
-		char * (*strtok_r)(char *, const char *, char **));
+void init_csv_file(struct csv_file *cf, char *file_name, struct csv_field *csv_field, int max_fields,
+		char *delim, char * (*strtok_r)(char *, const char *, char **));
 void init_csv_state(struct csv_state *cs, char *file_name);
 
 /* register_csv_field : register a struct csv_field in csv_file
@@ -93,7 +94,7 @@ void init_csv_state(struct csv_state *cs, char *file_name);
  * @mandatory	: is the header mandatory
  * @default_pos : its pos in case no header is found
  * @handler	: a CSV field handler to parse data
- *returns :
+ * returns :
  *	the position where is was inserted
  */
 int register_csv_field(struct csv_file *cf, char *name, int mandatory, int default_pos,
