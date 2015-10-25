@@ -9,7 +9,7 @@ OBJS =  subnet_tool.o debug.o iptools.o bitmap.o routetocsv.o utils.o heap.o gen
 		bgp_tool.o generic_expr.o st_routes_csv.o ipam.o st_memory.o st_routes.o st_ea.o \
 		st_help.o
 
-$(OBJS) : $(.PREFIX).c $(.PREFIX).h
+$(OBJS) : $(.PREFIX).c $(.PREFIX).h st_options.h
 	$(CC) -c $(.PREFIX).c $(CFLAGS)
 all: $(EXEC)
 
