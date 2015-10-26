@@ -35,8 +35,8 @@ int open_config_file(char *name, void *nof)
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &i))) {
 			line++;
 			if (i) {
-				debug(CONFIGFILE, 1, "%s line %lu is longer than max size %d, discarding %d chars\n",
-						name, line, (int)sizeof(buffer), i);
+				debug(CONFIGFILE, 1, "%s line %lu is longer than max size %d\n",
+						name, line, (int)sizeof(buffer));
 			}
 			s = strtok(s, " =\n");
 			if (s == NULL) {
@@ -57,10 +57,12 @@ int open_config_file(char *name, void *nof)
 				}
 			}
 			if (found == 0) {
-				debug(CONFIGFILE, 2, "%s line %lu invalid config option : %s\n", name, line, s);
+				debug(CONFIGFILE, 2, "%s line %lu invalid config option : %s\n",
+						name, line, s);
 				continue;
 			}
-			debug(CONFIGFILE, 5, "%s line %lu valid config option found : %s\n", name, line, s);
+			debug(CONFIGFILE, 5, "%s line %lu valid config option found : %s\n",
+					name, line, s);
 			s = strtok(NULL, "\n");
 			if (s == NULL) {
 				debug(CONFIGFILE, 2, "%s line %lu no value found\n", name, line);
@@ -69,38 +71,45 @@ int open_config_file(char *name, void *nof)
 
 			offset = fileoptions[i].object_offset;
 			switch (fileoptions[i].type) {
-				case TYPE_STRING:
-					debug(CONFIGFILE, 5, "line %lu copying STRING '%s' at offset %d, size %d\n", line, s, (int)offset, (int)fileoptions[i].size);
-					res = strxcpy(object + offset, s,  fileoptions[i].size);
-					if (res >= fileoptions[i].size) {
-						debug(CONFIGFILE, 2, "%s line %lu STRING '%s' is too long,  truncated to '%s'\n", name, line, s, object + offset);
-					}
+			case TYPE_STRING:
+				debug(CONFIGFILE, 5, "line %lu copying STRING '%s'offset %d\n",
+						line, s, (int)offset);
+				res = strxcpy(object + offset, s,  fileoptions[i].size);
+				if (res >= fileoptions[i].size) {
+					debug(CONFIGFILE, 2, "line %lu STRING '%s' is too long\n",
+							line, s);
+					debug(CONFIGFILE, 2, "truncated to '%s'\n",
+							object + offset);
+				}
+				break;
+			case TYPE_INT:
+				if (!isInt(s)) {
+					debug(CONFIGFILE, 1, "line %lu expects an INT, got '%s'\n",
+							line, s);
 					break;
-				case TYPE_INT:
-					if (!isInt(s)) {
-						debug(CONFIGFILE, 1, "%s line %lu expected value as INT, got '%s'\n", name, line, s);
-						break;
-					}
+				}
 
-					debug(CONFIGFILE, 5, "%s line %lu copying INT '%s' at offset %d, size %d\n", name, line, s, (int)offset, (int)fileoptions[i].size);
-					found = atoi(s);
-					memcpy(object + offset, &found, fileoptions[i].size);
-					break;
-				default:
-					debug(CONFIGFILE, 2, "%s line %lu unsupported type '%u'\n", name, line, fileoptions[i].type);
-					break;
+				debug(CONFIGFILE, 5, "line %lu copying INT '%s' at offset %d\n",
+						line, s, (int)offset);
+				found = atoi(s);
+				memcpy(object + offset, &found, fileoptions[i].size);
+				break;
+			default:
+				debug(CONFIGFILE, 2, "line %lu unsupported type '%u'\n",
+						line, fileoptions[i].type);
+				break;
 			}
 	}
 	fclose(f);
 	return 0;
 }
 
-void config_file_describe()
+void config_file_describe(void)
 {
 	int i;
 	char *s;
 
-	for (i = 0; ;i++) {
+	for (i = 0; ; i++) {
 		if (fileoptions[i].name == NULL)
 			break;
 		if (fileoptions[i].long_desc)
