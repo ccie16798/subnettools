@@ -44,7 +44,8 @@ int generic_command_run(int argc, char **argv, char *progname, void *opt)
 				break;
 			}
 			/* if more than one match, means the caller
-			 * used an ambiguous abbreviation */
+			 * used an ambiguous abbreviation
+			 */
 			if (found >= MAX_AMBIGUOUS - 1) /* enough is enough, OK??? */
 				break;
 			if (commands[i].hidden)
@@ -113,7 +114,7 @@ int generic_parse_options(int argc, char **argv, char *progname, void *opt)
 			if (!strcmp(options[i].name, argv[a])) {
 				debug(PARSEOPTS, 4, "found handler for %s\n", argv[a]);
 				debug(PARSEOPTS, 6, "argc - a = %d, require %d args\n",
-						argc - a , options[i].required_args);
+						argc - a, options[i].required_args);
 				if (argc - a <= options[i].required_args) {
 					fprintf(stderr, "Not enough arguments after option '%s'\n",
 							argv[a]);
