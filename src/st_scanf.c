@@ -789,7 +789,10 @@ static int match_expr(struct expr *e, const char *in, struct sto *o, int *num_o)
 		*num_o = saved_num_o;
 		return 0;
 	}
-	/* e->skip_stop positive means we wont try to early-stop */
+	/* e->skip_stop positive means we wont try to early-stop
+	 * skip_stop will be set if we want to stop on say an IP address
+	 * in[i....i +  n] represent an IP ==> we set skip_stop to 'n'
+	 **/
 	if (e->skip_stop > 0) {
 		e->skip_stop -= res;
 		return res;
@@ -842,7 +845,8 @@ static int find_not_ip(const char *remain, struct expr *e)
 		return 1;
 	buffer[i] = '\0';
 	if (get_subnet_or_ip(buffer, &s) > 0) {
-		e->skip_stop = i; /* remain[0...i] represents an IP, so dont try stop checking in that range */
+		/* remain[0...i] represents an IP, so dont try stop checking in that range */;
+		e->skip_stop = i
 		return 0;
 	} else
 		return 1;
@@ -965,13 +969,16 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	e.skip_stop   = 0;
 	num_cs = count_cs(expr);
 	if (*n_found + num_cs > max_o) {
-		debug(SCANF, 1, "Cannot get more than %d objets, already found %d\n", max_o, *n_found);
+		debug(SCANF, 1, "Cannot get more than %d objets, already found %d\n",
+				max_o, *n_found);
 		return -1;
 	}
-	debug(SCANF, 5, "need to find expression '%s' %c time, with %d conversion specifiers\n", expr, c, num_cs);
+	debug(SCANF, 5, "need to find expression '%s' %c time, with %d conversion specifiers\n",
+			expr, c, num_cs);
 	if (fmt[*i + 1] == '$') {
 		if (max_m < 2) {
-			debug(SCANF, 1, "'$' special char is only allowed after mutiple expansion chars like '*', '+'\n");
+			debug(SCANF, 1, "'$' special char is only allowed"
+					" after mutiple expansion chars like '*', '+'\n");
 
 		} else {
 			e.match_last = 1;
@@ -985,7 +992,8 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 
 		switch (c) {
 			case '\0':
-				debug(SCANF, 1, "Invalid format string '%s', ends with %%\n", fmt);
+				debug(SCANF, 1, "Invalid format string '%s', ends with %%\n",
+						fmt);
 				return -1;
 			case 'd':
 				e.early_stop = &find_int;
@@ -1028,7 +1036,8 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 				break;
 			case '[':
 				k = 0;
-				while (isdigit(fmt[*i + k + 2])) /* we must take field length into account */
+				/* we must take field length into account */
+				while (isdigit(fmt[*i + k + 2]))
 					k++;
 				res = fill_char_range(e.end_expr, fmt + *i + k + 2, sizeof(e.end_expr));
 				if (res < 0) {
@@ -1083,8 +1092,10 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 		}
 		e_has_stopped = e.has_stopped;
 		*j += res;
-		if (*j > in_length) { /* can happen only if there is a BUG in 'match_expr' and its descendant */
-			fprintf(stderr, "BUG, input buffer override in %s line %d\n", __FUNCTION__, __LINE__);
+		if (*j > in_length) {
+			/* can happen only if there is a BUG in 'match_expr' and its descendant */
+			fprintf(stderr, "BUG, input buffer override in %s line %d\n",
+					__FUNCTION__, __LINE__);
 			return -5;
 		}
 		if (in[*j] == '\0') {
@@ -1092,12 +1103,13 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 			break;
 		}
 	}
-	debug(SCANF, 3, "Exiting loop with expr '%s' matched %d times, found %d objects so far\n", expr, n_match, *n_found);
+	debug(SCANF, 3, "Exiting loop with expr '%s' matched %d times, found %d objects\n",
+			expr, n_match, *n_found);
 	/* in case of last match, we must update position in 'in' and n_match */
 	if (e.match_last) {
 		*j      = e.last_match;
 		n_match = e.last_nmatch;
-		debug(SCANF, 4, "but last match asked so lets rewind to '%d' matches\n",  n_match);
+		debug(SCANF, 4, "last match asked, rewind to '%d' matches\n",  n_match);
 		if (e.last_nmatch == -1) {
 			debug(SCANF, 3, "last match never matched\n");
 			return -2;
@@ -1105,7 +1117,8 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	}
 
 	if (n_match < min_m) {
-		debug(SCANF, 3, "found expr '%s' %d times, but required %d\n", expr, n_match, min_m);
+		debug(SCANF, 3, "found expr '%s' %d times, but required %d\n",
+				expr, n_match, min_m);
 		return -2;
 	}
 	/* we found conversions specifiers
@@ -1122,7 +1135,8 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 			 * we must consume them because the caller add provisionned
 			 * space for it
 			 */
-			debug(SCANF, 4, "0 match but there was %d CS so consume them\n", num_cs);
+			debug(SCANF, 4, "0 match but there was %d CS so consume them\n",
+					num_cs);
 			for (k = 0; k < num_cs; k++) {
 				o[*n_found].type = 0;
 				*n_found += 1;
