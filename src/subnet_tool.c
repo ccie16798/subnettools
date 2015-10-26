@@ -48,7 +48,7 @@ void compare_files(struct subnet_file *sf1, struct subnet_file *sf2, struct st_o
 				st_fprintf(nof->output_file, "%I;%m;EQUALS;%I;%m\n",
 						sf1->routes[i].subnet, sf1->routes[i].subnet,
 						sf2->routes[j].subnet,  sf2->routes[j].subnet);
-				find = 1;
+				find = 2;
 			} else if (res == INCLUDED) {
 				find = 1;
 				mask = sf2->routes[j].subnet.mask;
