@@ -2,7 +2,8 @@
 #define ST_OPTIONS_H
 
 /* use Subnet tool memory tracking for memory leak prevention
- * comment this for performance, but it shouldn't make a lot of difference */
+ * comment this for performance, but it shouldn't make a lot of difference
+ */
 #define DEBUG_ST_MEMORY
 
 #define MAX_DELIM	32
@@ -13,9 +14,10 @@
 struct st_options {
 	int subnet_off;
 	int print_header;
-	int grep_field; /** when grepping, grep only on this field **/
+	int grep_field; /* when grepping, grep only on this field **/
 	int simplify_mode; /* == 0 means we print the simplified routes,
-			      == 1 print the routes we can discard */
+			    * == 1 print the routes we can discard
+			    */
 	char *config_file; /* config file name; default is 'st.conf' */
 	char delim[MAX_DELIM];
 	FILE *output_file;
