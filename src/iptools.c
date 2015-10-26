@@ -97,23 +97,23 @@ static inline int subnet_compare_ipv6(ipv6 ip1, u32 mask1, ipv6 ip2, u32 mask2)
 			return INCLUDED;
 		else
 			return NOMATCH;
-        } else if (mask1 < mask2) {
+	} else if (mask1 < mask2) {
 		shift_ipv6_right(ip1, (128 - mask1));
 		shift_ipv6_right(ip2, (128 - mask1));
 		/*print_bitmap(ip1.n16, 8);
 		print_bitmap(ip2.n16, 8); */
-                if (is_equal_ipv6(ip1, ip2))
-                        return INCLUDES;
-                else
-                        return NOMATCH;
-        } else {
+		if (is_equal_ipv6(ip1, ip2))
+			return INCLUDES;
+		else
+			return NOMATCH;
+	} else {
 		shift_ipv6_right(ip1, (128 - mask1));
 		shift_ipv6_right(ip2, (128 - mask1));
-                if (is_equal_ipv6(ip1, ip2))
-                        return EQUALS;
-                else
-                        return NOMATCH;
-        }
+		if (is_equal_ipv6(ip1, ip2))
+			return EQUALS;
+		else
+			return NOMATCH;
+	}
 }
 
 static inline int subnet_compare_ipv4(ipv4 prefix1, u32 mask1, ipv4 prefix2, u32 mask2)
@@ -147,7 +147,8 @@ static inline int subnet_compare_ipv4(ipv4 prefix1, u32 mask1, ipv4 prefix2, u32
 int subnet_compare(const struct subnet *sub1, const struct subnet *sub2)
 {
 	if (sub1->ip_ver != sub2->ip_ver) {
-		debug(ADDRCOMP, 1, "different address FAMILY : %d, %d\n", sub1->ip_ver, sub2->ip_ver);
+		debug(ADDRCOMP, 1, "different address FAMILY : %d, %d\n",
+				sub1->ip_ver, sub2->ip_ver);
 		return -1;
 	}
 	if (sub1->ip_ver == IPV4_A)
@@ -176,11 +177,12 @@ static inline int addrv42str(ipv4 z, char *out_buffer, size_t len)
 {
 	int i;
 	/*
-	 * instead of using snprint to check outbuff isnt overrun, we make sure output buffer is large enough
+	 * instead of using snprint to check outbuff isnt overrun,
+	 * we make sure output buffer is large enough
 	 * we refuse to print potentially truncated IPs and BUG early ; min size is (3 + 1) * 4
 	 */
 	if (len < 16) {
-		fprintf(stderr, "BUG, %s needs at least a 16-bytes buffer\n", __FUNCTION__);
+		fprintf(stderr, "BUG, %s needs at least a 16-bytes buffer\n", __func__);
 		out_buffer[0] = '\0';
 		return -1;
 	}
@@ -215,7 +217,7 @@ static inline int addrv62str(ipv6 z, char *out_buffer, size_t len, int compress)
 	 * we refuse to print potentially truncated IPs and BUG early ; min size if (4 + 1) * 8
 	 */
 	if (len < 40) {
-		fprintf(stderr, "BUG, %s needs at least a 40-bytes buffer\n", __FUNCTION__);
+		fprintf(stderr, "BUG, %s needs at least a 40-bytes buffer\n", __func__);
 		out_buffer[0] = '\0';
 		return -1;
 	}
@@ -244,10 +246,10 @@ static inline int addrv62str(ipv6 z, char *out_buffer, size_t len, int compress)
 			skip++;
 		} else {
 			if (skip) {
-				/* in case of egality, we prefer to replace block to the right */
-				/* if you want to replace the left block change the comparison to '>' */
+				/* in case of egality, we prefer to replace block to the right
+				* if you want to replace the left block change to '>' */
 				if (skip >= max_skip) {
-					debug(PARSEIPV6, 8, "skip index %d better \n", skip_index);
+					debug(PARSEIPV6, 8, "skip index %d better\n", skip_index);
 					max_skip = skip;
 					max_skip_index = skip_index;
 				}
@@ -256,7 +258,8 @@ static inline int addrv62str(ipv6 z, char *out_buffer, size_t len, int compress)
 		}
 	}
 	if (skip && (skip >= max_skip)) {
-		/* happens in case address ENDS with :0000, we then left the loop without setting max_skip__ */
+		/* happens in case address ENDS with :0000,
+		 * we then left the loop without setting max_skip__ */
 		max_skip =  skip;
 		max_skip_index = skip_index;
 	}
@@ -303,7 +306,7 @@ static inline int addrv42bitmask(ipv4 a, char *out, size_t len)
 	int i;
 
 	if (len < 33) {
-		fprintf(stderr, "BUG, %s needs at least a 33-bytes buffer\n", __FUNCTION__);
+		fprintf(stderr, "BUG, %s needs at least a 33-bytes buffer\n", __func__);
 		out[0] = '\0';
 		return -1;
 	}
@@ -318,7 +321,7 @@ static inline int addrv62bitmask(ipv6 a, char *out, size_t len)
 	int i;
 
 	if (len < 129) {
-		fprintf(stderr, "BUG, %s needs at least a 129-bytes buffer\n", __FUNCTION__);
+		fprintf(stderr, "BUG, %s needs at least a 129-bytes buffer\n", __func__);
 		out[0] = '\0';
 		return -1;
 	}
@@ -370,7 +373,7 @@ int mask2ddn(u32 mask, char *out, size_t len)
 	unsigned int s[4];
 
 	if (len < 16) {
-		fprintf(stderr, "BUG, %s needs at least a 16-bytes buffer\n", __FUNCTION__);
+		fprintf(stderr, "BUG, %s needs at least a 16-bytes buffer\n", __func__);
 		out[0] = '\0';
 		return -1;
 	}
@@ -414,7 +417,9 @@ int string2mask(const char *s, size_t len)
 				return BAD_MASK;
 			}
 			if (!isPower2(256 - a)) {
-				debug(PARSEIP, 3, "Invalid DDN mask, 256 - '%d' is not power of 2\n", a);
+				debug(PARSEIP, 3,
+						"Invalid DDN mask, 256 - '%d' is not power of 2\n",
+						a);
 				return BAD_MASK;
 			}
 			if (a > prev_a) {
@@ -428,8 +433,8 @@ int string2mask(const char *s, size_t len)
 			ddn_mask += 8 - mylog2(256 - a);
 			break;
 		} else if (s[i] == '.') {
-		 	if (s[i + 1] == '.') {
-				debug(PARSEIP, 3, "Invalid DDN mask '%s', contains consecutive '.'\n", s);
+			if (s[i + 1] == '.') {
+				debug(PARSEIP, 3, "Invalid DDN mask '%s', consecutive '.'\n", s);
 				return BAD_MASK;
 			}
 			if (s[i + 1] == '\0') {
@@ -445,12 +450,15 @@ int string2mask(const char *s, size_t len)
 				return BAD_MASK;
 			}
 			if (!isPower2(256 - a)) {
-				debug(PARSEIP, 3, "Invalid DDN mask, 256 - '%d' is not power of 2\n", a);
+				debug(PARSEIP, 3,
+						"Invalid DDN mask, 256 - '%d' is not power of 2\n",
+						a);
 				return BAD_MASK;
 			}
 			if (count_dot) {
 				if (a > prev_a) {
-					debug(PARSEIP, 3, "Invalid DDN mask, '%d' > %d\n", a, prev_a);
+					debug(PARSEIP, 3, "Invalid DDN mask, '%d' > %d\n",
+							a, prev_a);
 					return BAD_MASK;
 				}
 				if (a && (a < 255) && (prev_a != 255)) { /* 255.240.224.0 */
@@ -500,13 +508,14 @@ static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 		if (s[i] == '\0' || i == len) {
 			truc[count_dot] = current_block;
 			if (current_block > 255) {
-				debug(PARSEIP, 3, "Invalid IP '%s', %d too big\n", s, current_block);
+				debug(PARSEIP, 3, "Invalid IP '%s', %d too big\n",
+						s, current_block);
 				return BAD_IP;
 			}
 			break;
 		} else if (s[i] == '.') {
 			if  (s[i + 1] == '.') {
-				debug(PARSEIP, 3, "Invalid IP '%s', contains 2 consecutives '.'\n", s);
+				debug(PARSEIP, 3, "Invalid IP '%s', 2 consecutives '.'\n", s);
 				return BAD_IP;
 			}
 			if  (s[i + 1] == '\0') {
@@ -514,7 +523,8 @@ static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 				return BAD_IP;
 			}
 			if (current_block > 255) {
-				debug(PARSEIP, 3, "Invalid IP '%s', %d too big\n", s, current_block);
+				debug(PARSEIP, 3, "Invalid IP '%s', %d too big\n",
+						s, current_block);
 				return BAD_IP;
 			}
 			if (count_dot == 3) {
@@ -555,7 +565,8 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 
 	if (s[0] == ':') { /** loopback addr **/
 		if (s[1] != ':') {
-			debug(PARSEIPV6, 3, "Invalid IPv6 address '%s', cannot begin with a single ':'\n",
+			debug(PARSEIPV6, 3,
+					"Invalid IPv6 address '%s', starts with a single ':'\n",
 					s);
 			return BAD_IP;
 		}
@@ -574,8 +585,9 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 	/**  couting ':' (7max),  '::' (1max), and '.' (0 or 3) */
 	for (i = 1;  i < len; i++) {
 		if (count_dot && count_dot != 3 && s[i] == ':') {
-			debug(PARSEIPV6, 3, "Invalid IPv6 address '%s', found a ':'"
-					"after only %d '.', cannot build embedded IP\n", s, count_dot);
+			debug(PARSEIPV6, 3,
+					"Invalid IPv6 address '%s', ':' after %d '.'\n",
+					s, count_dot);
 			return BAD_IP;
 		} else if (s[i] == ':') {
 			count++;
@@ -583,15 +595,18 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 				count2++;
 		} else if (s[i] == '.') {
 			if (s[i - 1] == ':') {
-				debug(PARSEIPV6, 3, "Invalid IP '%s', found '.' after ':'\n", s);
+				debug(PARSEIPV6, 3,
+						"Invalid IP '%s', found '.' after ':'\n", s);
 				return BAD_IP;
 			}
 			if (i == len - 1 || s[i + 1] == '\0') {
-				debug(PARSEIPV6, 3, "Invalid IP '%s', ends with '.'\n", s);
+				debug(PARSEIPV6, 3,
+						"Invalid IP '%s', ends with '.'\n", s);
 				return BAD_IP;
 			}
 			if (s[i + 1] == '.') {
-				debug(PARSEIPV6, 3, "Invalid IP '%s', contains 2 consecutives '.'\n", s);
+				debug(PARSEIPV6, 3,
+						"Invalid IP '%s', 2 consecutives '.'\n", s);
 				return BAD_IP;
 			}
 			count_dot++;
@@ -600,34 +615,37 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 	}
 	/* getting the correct number of :, :: etc **/
 	if (count2 > 1) {
-		debug(PARSEIPV6, 3, "Invalid IPv6 address '%s', too many '::', [%d]\n", s, count2 );
+		debug(PARSEIPV6, 3, "Invalid IPv6 address '%s', %d '::'\n", s, count2);
 		return BAD_IP;
 	}
 	if (count_dot) {
 		if  (count_dot != 3) {
-			debug(PARSEIPV6, 3, "Invalid IPv4-Embedded/Mapped address"
-					" '%s', wrong '.' count, [%d]\n", s, count_dot);
+			debug(PARSEIPV6, 3,
+					"Invalid IPv4-Embedded/Mapped address '%s', %d '.'\n",
+					s, count_dot);
 			return BAD_IP;
 		}
 		if (count > 6) {
-			debug(PARSEIPV6, 3, "Invalid IPv6 address '%s', too many ':', [%d]\n", s, count );
+			debug(PARSEIPV6, 3, "Invalid IPv6 address '%s', %d ':' > 6\n",
+					s, count);
 			return BAD_IP;
 		}
 		if (count2 == 0 && count != 6) {
-			debug(PARSEIPV6, 3, "Invalid IPv4-Embedded/Mapped address"
-					" '%s', bad ':' count, [%d]\n", s, count );
+			debug(PARSEIPV6, 3,
+					"Invalid IPv4-Embedded/Mapped address '%s', %d ':'\n",
+					s, count);
 			return BAD_IP;
 		}
 		skipped_blocks = 7 - count;
 	} else {
 		if (count > 7) {
 			debug(PARSEIPV6, 3, "Invalid IPv6 address '%s', too many ':', [%d]\n",
-					s, count );
+					s, count);
 			return BAD_IP;
 		}
 		if (count2 == 0 && count != 7) {
 			debug(PARSEIPV6, 3, "Invalid IPv6 address '%s', not enough ':', [%d]\n",
-					s, count );
+					s, count);
 			return BAD_IP;
 		}
 		skipped_blocks = 8 - count;
@@ -641,7 +659,8 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 	for (;; i++) {
 		if (do_skip) {
 			/* we refill the skipped 0000: blocks */
-			debug(PARSEIPV6, 9, "copying %d skipped '0000:' blocks\n", skipped_blocks);
+			debug(PARSEIPV6, 9, "copying %d skipped '0000:' blocks\n",
+					skipped_blocks);
 			for (j = 0; j < skipped_blocks; j++) {
 				set_block(addr->ip6, out_i, 0);
 				out_i++;
@@ -653,7 +672,7 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 			debug(PARSEIPV6, 8, "copying '%x' to block#%d\n", current_block, out_i);
 			set_block(addr->ip6, out_i, current_block);
 			break;
-		} else if (s[i] ==':') {
+		} else if (s[i] == ':') {
 			debug(PARSEIPV6, 8, "copying '%x' to block#%d\n", current_block, out_i);
 			set_block(addr->ip6, out_i, current_block);
 			out_i++;
@@ -665,7 +684,8 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 					s + i + 1, out_i);
 		} else if (isxdigit(s[i])) {
 			if (num_digit == 4) {
-				debug(PARSEIPV6, 3, "Invalid IPv6 '%s', block#%d has too many chars\n",
+				debug(PARSEIPV6, 3,
+						"Invalid IPv6 '%s', block#%d has too many chars\n",
 						s, out_i);
 				return BAD_IP;
 
@@ -832,13 +852,14 @@ int classfull_get_subnet(const char *s, struct subnet *subnet)
 		if (s[i] == '\0' || s[i] == '/') {
 			truc[count_dot] = current_block;
 			if (current_block > 255) {
-				debug(PARSEIP, 3, "Invalid IP '%s', %d too big\n", s, current_block);
+				debug(PARSEIP, 3, "Invalid IP '%s', %d too big\n",
+						s, current_block);
 				return BAD_IP;
 			}
 			break;
 		} else if (s[i] == '.') {
 			if  (s[i + 1] == '.') {
-				debug(PARSEIP, 3, "Invalid IP '%s', contains 2 consecutives '.'\n", s);
+				debug(PARSEIP, 3, "Invalid IP '%s', 2 consecutives '.'\n", s);
 				return BAD_IP;
 			}
 			if  (s[i + 1] == '\0') {
@@ -846,7 +867,8 @@ int classfull_get_subnet(const char *s, struct subnet *subnet)
 				return BAD_IP;
 			}
 			if (current_block > 255) {
-				debug(PARSEIP, 3, "Invalid IP '%s', %d too big\n", s, current_block);
+				debug(PARSEIP, 3, "Invalid IP '%s', %d too big\n",
+						s, current_block);
 				return BAD_IP;
 			}
 			if (count_dot == 3) {
@@ -861,7 +883,8 @@ int classfull_get_subnet(const char *s, struct subnet *subnet)
 			current_block += s[i] - '0';
 			continue;
 		} else if (s[i] == ':') {
-			/* that may be IPv6 and IPv6 is classless, so fall-back to a regular get_subnet_or_ip */
+			/* that may be IPv6 and IPv6 is classless,
+			 * so fall-back to a regular get_subnet_or_ip */
 			return get_subnet_or_ip(s, subnet);
 		} else {
 			debug(PARSEIP, 3, "Invalid IP '%s',  contains '%c'\n", s, s[i]);
@@ -894,11 +917,11 @@ int classfull_get_subnet(const char *s, struct subnet *subnet)
 		mask += s[i] - '0';
 	}
 	if (mask > 32) {
-		debug(PARSEIP, 3, "Invalid prefix '%s', mask '%d' too big \n", s, (int)mask);
+		debug(PARSEIP, 3, "Invalid prefix '%s', mask '%d' too big\n", s, (int)mask);
 		return BAD_MASK;
 	}
 	subnet->ip = (truc[0] << 24) + (truc[1] << 16) + (truc[2] << 8) + truc[3];
-        subnet->ip_ver = IPV4_A;
+	subnet->ip_ver = IPV4_A;
 	subnet->mask = mask;
 	return IPV4_N;
 }
@@ -945,12 +968,12 @@ int subnet_is_superior(const struct subnet *s1, const struct subnet *s2)
 			if (s1->mask < s2->mask)
 				res = 1;
 			else
- 				res = 0;
+				res = 0;
 		} else if  (s1->ip < s2->ip)
 			res =  1;
 		else
 			res =  0;
-		st_debug(ADDRCOMP, 7, "%P %c %P\n", *s1, (res ? '>' : '<' ), *s2);
+		st_debug(ADDRCOMP, 7, "%P %c %P\n", *s1, (res ? '>' : '<'), *s2);
 		return res;
 	}
 
@@ -971,7 +994,7 @@ int subnet_is_superior(const struct subnet *s1, const struct subnet *s2)
 				}
 			}
 		}
-		st_debug(ADDRCOMP, 7, "%P %c %P\n", *s1, (res ? '>' : '<' ), *s2);
+		st_debug(ADDRCOMP, 7, "%P %c %P\n", *s1, (res ? '>' : '<'), *s2);
 		return res;
 	}
 	debug(ADDRCOMP, 1, "Invalid comparison ipver %d\n", s1->ip_ver);
@@ -984,27 +1007,27 @@ int subnet_filter(const struct subnet *test, const struct subnet *against, char 
 
 	res = subnet_compare(test, against);
 	switch (op) {
-		case '=':
-			return (res == EQUALS);
-			break;
-		case '#':
-			return !(res == EQUALS);
-			break;
-		case '<':
-			return subnet_is_superior(test, against);
-			break;
-		case '>':
-			return !subnet_is_superior(test, against) && res != EQUALS;
-			break;
-		case '{':
-			return (res == INCLUDED || res == EQUALS);
-			break;
-		case '}':
-			return (res == INCLUDES || res == EQUALS);
-			break;
-		default:
-			debug(FILTER, 1, "Unsupported op '%c' for subnet_filter\n", op);
-			return -1;
+	case '=':
+		return (res == EQUALS);
+		break;
+	case '#':
+		return !(res == EQUALS);
+		break;
+	case '<':
+		return subnet_is_superior(test, against);
+		break;
+	case '>':
+		return !subnet_is_superior(test, against) && res != EQUALS;
+		break;
+	case '{':
+		return (res == INCLUDED || res == EQUALS);
+		break;
+	case '}':
+		return (res == INCLUDES || res == EQUALS);
+		break;
+	default:
+		debug(FILTER, 1, "Unsupported op '%c' for subnet_filter\n", op);
+		return -1;
 	}
 }
 
@@ -1014,27 +1037,27 @@ int addr_filter(const struct ip_addr *test, const struct subnet *against, char o
 
 	res = addr_compare(test, against);
 	switch (op) {
-		case '=':
-			return (res == EQUALS);
-			break;
-		case '#':
-			return !(res == EQUALS);
-			break;
-		case '<':
-			return addr_is_superior(test, &against->ip_addr);
-			break;
-		case '>':
-			return !addr_is_superior(test, &against->ip_addr) && res != EQUALS;
-			break;
-		case '{':
-			return (res == INCLUDED || res == EQUALS);
-			break;
-		case '}':
-			return (res == INCLUDES || res == EQUALS);
-			break;
-		default:
-			debug(FILTER, 1, "Unsupported op '%c' for addr_filter\n", op);
-			return -1;
+	case '=':
+		return (res == EQUALS);
+		break;
+	case '#':
+		return !(res == EQUALS);
+		break;
+	case '<':
+		return addr_is_superior(test, &against->ip_addr);
+		break;
+	case '>':
+		return !addr_is_superior(test, &against->ip_addr) && res != EQUALS;
+		break;
+	case '{':
+		return (res == INCLUDED || res == EQUALS);
+		break;
+	case '}':
+		return (res == INCLUDES || res == EQUALS);
+		break;
+	default:
+		debug(FILTER, 1, "Unsupported op '%c' for addr_filter\n", op);
+		return -1;
 	}
 }
 
@@ -1042,40 +1065,44 @@ int addr_filter(const struct ip_addr *test, const struct subnet *against, char o
  * returns negative if impossible to aggregate, positive if possible */
 /* try to aggregate s1 & s2, putting the result in s3 if possible
  * returns negative if impossible to aggregate, positive if possible */
-static int aggregate_subnet_ipv4(const struct subnet *s1, const struct subnet *s2, struct subnet *s3)
+static int aggregate_subnet_ipv4(const struct subnet *s1, const struct subnet *s2,
+		struct subnet *res)
 {
 	ipv4 a, b;
 
 	if (s1->mask != s2->mask) {
-		st_debug(AGGREGATE, 5, "different masks for %P and %P, can't aggregate\n", *s1, *s2);
+		st_debug(AGGREGATE, 5, "different masks for %P and %P, can't aggregate\n",
+				*s1, *s2);
 		return -1;
 	}
 	a = s1->ip >> (32 - s1->mask);
 	b = s2->ip >> (32 - s1->mask);
 	if (a == b) {
 		st_debug(AGGREGATE, 6, "same subnet %P\n", *s1);
-		s3->ip_ver = IPV4_A;
-		s3->ip     = s1->ip;
-		s3->mask   = s1->mask;
+		res->ip_ver = IPV4_A;
+		res->ip     = s1->ip;
+		res->mask   = s1->mask;
 		return 1;
 	}
 	if (a >> 1 != b >> 1) {
 		st_debug(AGGREGATE, 5, "cannot aggregate %P and %P\n", *s1, *s2);
 		return -1;
 	}
-	s3->ip_ver = IPV4_A;
-	s3->mask = s1->mask - 1;
-	s3->ip   = (a >> 1) << (32 - s3->mask);
-	st_debug(AGGREGATE, 5, "can aggregate %P and %P into : %P\n", *s1, *s2, *s3);
+	res->ip_ver = IPV4_A;
+	res->mask = s1->mask - 1;
+	res->ip   = (a >> 1) << (32 - res->mask);
+	st_debug(AGGREGATE, 5, "can aggregate %P and %P into : %P\n", *s1, *s2, *res);
 	return 1;
 }
 
-static int aggregate_subnet_ipv6(const struct subnet *s1, const struct subnet *s2, struct subnet *s3)
+static int aggregate_subnet_ipv6(const struct subnet *s1, const struct subnet *s2,
+		struct subnet *res)
 {
 	ipv6 a, b;
 
 	if (s1->mask != s2->mask) {
-		st_debug(AGGREGATE, 5, "different masks for %P and %P, can't aggregate\n", *s1, *s2);
+		st_debug(AGGREGATE, 5, "different masks for %P and %P, can't aggregate\n",
+				*s1, *s2);
 		return -1;
 	}
 	memcpy(&a, &s1->ip6, sizeof(a));
@@ -1084,7 +1111,7 @@ static int aggregate_subnet_ipv6(const struct subnet *s1, const struct subnet *s
 	shift_ipv6_right(b, (128 - s1->mask));
 	if (is_equal_ipv6(a, b)) {
 		st_debug(AGGREGATE, 5, "same subnet %P\n", *s1);
-		copy_subnet(s3, s1);
+		copy_subnet(res, s1);
 		return 1;
 	}
 	shift_ipv6_right(a, 1);
@@ -1093,27 +1120,28 @@ static int aggregate_subnet_ipv6(const struct subnet *s1, const struct subnet *s
 		st_debug(AGGREGATE, 5, "cannot aggregate %P and %P\n", *s1, *s2);
 		return -1;
 	}
-	s3->mask = s1->mask - 1;
-	shift_ipv6_left(a, 128 - s3->mask);
-	s3->ip_ver = IPV6_A;
-	memcpy(&s3->ip6, &a, sizeof(a));
-	st_debug(AGGREGATE, 5, "can aggregate %P and %P into : %P\n", *s1, *s2, *s3);
+	res->mask = s1->mask - 1;
+	shift_ipv6_left(a, 128 - res->mask);
+	res->ip_ver = IPV6_A;
+	memcpy(&res->ip6, &a, sizeof(a));
+	st_debug(AGGREGATE, 5, "can aggregate %P and %P into : %P\n", *s1, *s2, *res);
 	return 1;
 }
 
-int aggregate_subnet(const struct subnet *s1, const struct subnet *s2, struct subnet *s3)
+int aggregate_subnet(const struct subnet *s1, const struct subnet *s2, struct subnet *res)
 {
 	if (s1->ip_ver != s2->ip_ver)
 		return -4;
 
 	if (s1->ip_ver == IPV4_A)
-		return aggregate_subnet_ipv4(s1, s2, s3);
+		return aggregate_subnet_ipv4(s1, s2, res);
 	if (s1->ip_ver == IPV6_A)
-		return aggregate_subnet_ipv6(s1, s2, s3);
+		return aggregate_subnet_ipv6(s1, s2, res);
 	return -3;
 }
 
-/* network address of a prefix; named first_ip becoz in IPv6 ... well network address is a regular address  */
+/* network address of a prefix; named first_ip becoz in IPv6 ...
+ * well network address is a regular address  */
 void first_ip(struct subnet *s)
 {
 	if (s->ip_ver == IPV4_A) {
@@ -1121,7 +1149,7 @@ void first_ip(struct subnet *s)
 		s->ip <<= (32 - s->mask);
 	} else if (s->ip_ver == IPV6_A) {
 		shift_ipv6_right(s->ip6, 128 - s->mask);
-		shift_ipv6_left(s->ip6, 128 -s->mask);
+		shift_ipv6_left(s->ip6, 128 - s->mask);
 	}
 }
 
@@ -1258,16 +1286,19 @@ struct subnet *subnet_remove(const struct subnet *s1, const struct subnet *s2, i
 			st_debug(ADDRREMOVE, 3, "Loop#1 testing %P\n", test);
 			res = subnet_compare(&test, s2);
 			if (res == INCLUDES) {
-				st_debug(ADDRREMOVE, 5, "Loop#1 %P too BIG, includes %P, continuing loop\n",
+				st_debug(ADDRREMOVE, 5,
+						"Loop#1 %P too BIG, includes %P, continuing loop\n",
 						test, *s2);
 				continue;
 			} else if (res == NOMATCH) {
-				st_debug(ADDRREMOVE, 5, "Loop#1 %P BIG enough, breaking loop\n", test);
+				st_debug(ADDRREMOVE, 5,
+						"Loop#1 %P BIG enough, breaking loop\n", test);
 				copy_subnet(&news[i], &test);
 				i++;
 				break;
 			} else if (res == EQUALS) {
-				st_debug(ADDRREMOVE, 5, "Loop#1 %P EQUALS, breaking final loop\n", test);
+				st_debug(ADDRREMOVE, 5,
+						"Loop#1 %P EQUALS, breaking final loop\n", test);
 				a++;
 				break;
 			}

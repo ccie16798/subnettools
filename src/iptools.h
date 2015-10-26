@@ -2,18 +2,18 @@
 #define IPTOOLS_H
 
 /* subnet_compare return values */
-#define EQUALS 1
+#define EQUALS   1
 #define INCLUDED 2
 #define INCLUDES 3
 #define NOMATCH -1
 
 /* str2ipaddr, get_subnet_or_ip return values */
 #define BAD_MASK -2
-#define BAD_IP -1
-#define IPV4_A 4
-#define IPV6_A 6
-#define IPV4_N 14 /*  IPV4_N must be IPV4_A + 10 */
-#define IPV6_N 16 /*  IPV6_N must be IPV4_6 + 10 */
+#define BAD_IP   -1
+#define IPV4_A    4
+#define IPV6_A    6
+#define IPV4_N    14 /*  IPV4_N must be IPV4_A + 10 */
+#define IPV6_N    16 /*  IPV6_N must be IPV4_6 + 10 */
 
 
 typedef unsigned int u32;
@@ -25,7 +25,7 @@ struct ipv6_a {
 		 * current version of subnet tool manipulate ->n16 only, use n32 your own risk
 		 */
 		unsigned short	n16[8];
-		u32  		n32[4];
+		u32		n32[4];
 	};
 };
 typedef struct ipv6_a ipv6;
@@ -38,8 +38,8 @@ typedef struct ipv6_a ipv6;
 #ifndef BOGUS_U128
 
 #define block(__ip6, __n) __ip6.n16[__n]
-#define set_block(__ip6, __n, __value) __ip6.n16[__n] = __value
-#define block_OR(__ip6, __n, __value) __ip6.n16[__n] |= __value
+#define set_block(__ip6, __n, __value) (__ip6.n16[__n] = __value)
+#define block_OR(__ip6, __n, __value) (__ip6.n16[__n] |= __value)
 
 #define shift_ipv6_left(__z, __len) shift_left(__z.n16, 8, __len)
 #define shift_ipv6_right(__z, __len) shift_right(__z.n16, 8, __len)
@@ -54,10 +54,10 @@ typedef struct ipv6_a ipv6;
 	cur ^= __value; \
 	__ip6 ^= (cur << ((7 - __n) * 16)); \
 } while (0); /* not sure about this one :) */
-#define shift_ipv6_left(__z, __len) __z <<= __n
-#define shift_ipv6_right(__z, __len) __z >>= __n
-#define increase_ipv6(__z) __z++
-#define decrease_ipv6(__z) __z--
+#define shift_ipv6_left(__z, __len) (__z <<= __n)
+#define shift_ipv6_right(__z, __len) (__z >>= __n)
+#define increase_ipv6(__z) (__z++)
+#define decrease_ipv6(__z) (__z--)
 
 #endif
 
@@ -114,8 +114,8 @@ int addr_compare(const struct ip_addr *sub1, const struct subnet *sub2);
  * @s1 : first address to test
  * @s2 : 2nd   address to test
  * returns:
- * 	>0 if s1 is 'better' than s2
- * 	0 otherwise
+ *	>0 if s1 is 'better' than s2
+ *	0 otherwise
  */
 int subnet_is_superior(const struct subnet *s1, const struct subnet *s2);
 int addr_is_superior(const struct ip_addr *s1, const struct ip_addr *s2);
@@ -126,9 +126,9 @@ int addr_is_superior(const struct ip_addr *s1, const struct ip_addr *s2);
  * @against : the subnet to test against
  * @op      : the operator
  * returns:
- * 	>0 on match
- * 	0  on no match
- * 	-1 on error
+ *	>0 on match
+ *	0  on no match
+ *	-1 on error
  */
 int subnet_filter(const struct subnet *test, const struct subnet *against, char op);
 int addr_filter(const struct ip_addr *test, const struct subnet *against, char op);
@@ -140,8 +140,8 @@ int addr_filter(const struct ip_addr *test, const struct subnet *against, char o
  *  @len  : len of output buffer; must be large enough to hold a full IP
  *  @comp : IPv6 compression level (0, 1, 2, 3)
  *  returns:
- *  	number of written char on success
- *  	-1 on error
+ *	number of written char on success
+ *	-1 on error
  */
 int subnet2str(const struct subnet *ip, char *out, size_t len, int comp);
 int addr2str(const struct ip_addr *ip, char *out, size_t len, int comp);
@@ -164,7 +164,7 @@ int string2addr(const char *s, struct ip_addr *addr, size_t len);
  *    'mask length' is 's' is a valid mask
  *     BAD_MASK otherwise
 */
-int string2mask(const char *s, size_t len) ;
+int string2mask(const char *s, size_t len);
 
 
 /* fills struct subnet from a string
@@ -181,14 +181,16 @@ int get_subnet_or_ip(const char *s, struct subnet *subnet);
  * 'useless 0' like 10/8, 172.20/16, 192.168.1/24
  * or that, if not mask is present, will use the classfull mask :
  * 192.168.1.0 will translate in 192.168.1.0/24
- * Classfull_get_subnet always creates subnet+mask, while get_subnet_or_ip create IPv4/32 or IPv6/128
+ * Classfull_get_subnet always creates subnet+mask,
+ * while get_subnet_or_ip create IPv4/32 or IPv6/128
  * in case no mask is found
  **/
 int classfull_get_subnet(const char *string, struct subnet *subnet);
 
 /* try to aggregate s1 & s2, putting the result 'in aggregated_subnet' if possible
  * returns negative if impossible to aggregate, positive if possible */
-int aggregate_subnet(const struct subnet *s1, const struct subnet *s2, struct subnet *aggregated_subnet);
+int aggregate_subnet(const struct subnet *s1, const struct subnet *s2,
+		struct subnet *aggregated_subnet);
 
 /* those 2 function DO MODIFY their argument */
 void first_ip(struct subnet *s);
