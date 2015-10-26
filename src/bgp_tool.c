@@ -390,40 +390,45 @@ static int bgp_route_filter(const char *s, const char *value, char op, void *obj
 			return 0;
 		res = get_subnet_or_ip(value, &subnet);
 		if (res < 0) {
-			debug(FILTER, 1, "Filtering on gw %c '%s',"
-					" but it is not an IP\n", op, value);
+			debug(FILTER, 1,
+					"Filtering on gw %c '%s',  but it is not an IP\n",
+					op, value);
 			return -1;
 		}
 		return addr_filter(&route->gw, &subnet, op);
 	} else if (!strcmp(s, "mask")) {
 		res =  string2mask(value, 42);
 		if (res < 0) {
-			debug(FILTER, 1, "Filtering on mask %c '%s',"
-					" but it is valid\n", op, value);
+			debug(FILTER, 1,
+					"Filtering on mask %c '%s', but it is valid\n",
+					op, value);
 			return -1;
 		}
 		BLOCK_INT(subnet.mask);
 	} else if (!strcasecmp(s, "med")) {
 		res =  string2int(value, &err);
 		if (err < 0) {
-			debug(FILTER, 1, "Filtering on MED %c '%s',"
-					" but it is not valid\n", op, value);
+			debug(FILTER, 1,
+					"Filtering on MED %c '%s', but it is not valid\n",
+					op, value);
 			return -1;
 		}
 		BLOCK_INT(MED);
 	} else if (!strcasecmp(s, "weight")) {
 		res =  string2int(value, &err);
 		if (err < 0) {
-			debug(FILTER, 1, "Filtering on WEIGHT %c '%s',"
-					" but it is not valid\n", op, value);
+			debug(FILTER, 1,
+					"Filtering on WEIGHT %c '%s', but it is not valid\n",
+					op, value);
 			return -1;
 		}
 		BLOCK_INT(weight);
 	} else if (!strcasecmp(s, "LOCALPREF") || !strcasecmp(s, "local_pref")) {
 		res =  string2int(value, &err);
 		if (err < 0) {
-			debug(FILTER, 1, "Filtering on LOCAL_PREF %c '%s',"
-					" but it is not valid\n", op, value);
+			debug(FILTER, 1,
+					"Filtering on LOCAL_PREF %c '%s', but it is not valid\n",
+					op, value);
 			return -1;
 		}
 		BLOCK_INT(LOCAL_PREF);
@@ -436,8 +441,9 @@ static int bgp_route_filter(const char *s, const char *value, char op, void *obj
 		}
 		res =  string2int(value, &err);
 		if (err < 0) {
-			debug(FILTER, 1, "Filtering on AS_PATH length %c '%s',"
-					" but it is not valid\n", op, value);
+			debug(FILTER, 1,
+					"Filtering on AS_PATH len %c '%s', but it is not valid\n",
+					op, value);
 			return -1;
 		}
 		switch (op) {
@@ -461,8 +467,9 @@ static int bgp_route_filter(const char *s, const char *value, char op, void *obj
 	} else if (!strcasecmp(s, "best")) {
 		res =  string2int(value, &err);
 		if (err < 0) {
-			debug(FILTER, 1, "Filtering on Best %c '%s',"
-					 "but it is not valid\n", op, value);
+			debug(FILTER, 1,
+					"Filtering on Best %c '%s', but it is not valid\n",
+					op, value);
 			return -1;
 		}
 		switch (op) {
