@@ -723,12 +723,14 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 				j++;
 				break;
 			case '%':
-				debug(SCANF, 3, "conversion specifier to handle %lu\n", (unsigned long)(o + *num_o));
+				debug(SCANF, 3, "conversion specifier to handle %lu\n",
+						(unsigned long)(o + *num_o));
 				res = parse_conversion_specifier(in, expr, &i, &j, &o[*num_o]);
 				if (res == 0)
 					goto try_again;
 				if (o) {
-					debug(SCANF, 4, "conv specifier successfull '%c' for %d\n", o[*num_o].type, *num_o);
+					debug(SCANF, 4, "conv specifier successfull '%c' for %d\n",
+							o[*num_o].type, *num_o);
 				} else {
 					debug(SCANF, 4, "conv specifier successfull\n");
 				}
@@ -738,7 +740,7 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 				i++;
 				c = escape_char(expr[i]);
 				if (c == '\0') {
-					debug(SCANF, 1, "expr '%s' invalid, '\\' at end of string\n", expr);
+					debug(SCANF, 1, "Invalid expr '%s', '\\' at end of string\n", expr);
 					return 0;
 				}
 			default:
@@ -758,7 +760,8 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 			i += res;
 			j = 0;
 			*num_o = saved_num_o;
-			debug(SCANF, 4, "We have been given another chance, remaing expr '%s'\n", expr + i);
+			debug(SCANF, 4, "Logical OR found, trying again on expr '%s'\n",
+					expr + i);
 	}
 }
 
