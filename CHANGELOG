@@ -17,6 +17,7 @@ v1.4
 -- st_malloc infrastructure to track memory leaks
 -- struct route a no more comment field, just Extensible Attributes
 -- many modification to CSV helpers, to load files with varying number of Extensible Attributes
+-- checked by checkpatch.pl from Linux
 
 v1.3
 ====

@@ -304,7 +304,7 @@ some examples :
 CODING
 ======
 - subnettools is in C because i like that, and i know only that
-- coding style is close to linux kernel coding style
+- coding style is close to linux kernel coding style (checked with checkpatch.pl from v1.4, line < 101)
 - the first version was a BASH script doing IPAM search and subnet file diff; it was sooooo slow
 - will never be rewritten in C++, java, perl, etc...at least by me
 - some code is clearly NIH; but i don't want to rely on linux or specific libraries so obvious functions a recoded
