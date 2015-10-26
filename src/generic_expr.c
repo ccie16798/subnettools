@@ -146,7 +146,8 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e)
 					return res1;
 				/* take shortcuts to avoid evalutating second part of expr
 				 * downside is that if the other part of expr has a syntax error,
-				 * we don't catch it  */
+				 * we don't catch it
+				 */
 				if (res1 && pattern[i] == '|')
 					return 1;
 				if (res1 == 0 && pattern[i] == '&')
