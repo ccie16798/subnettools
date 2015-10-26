@@ -473,8 +473,9 @@ static int __fprint_ipam_fmt(FILE *output, const struct ipam_line *r,
 	int i, j, i2, compression_level;
 	int res, pad_left;
 	char c;
-	char outbuf[512 + 140];
-	char buffer[128], buffer2[128];
+	char outbuf[1024];
+	char buffer[ST_PRINTF_MAX_STRING_SIZE];
+	char buffer2[ST_PRINTF_MAX_STRING_SIZE];
 	int field_width;
 	struct subnet v_sub;
 	char pad_value;
@@ -609,8 +610,9 @@ int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt
 	int i, j, i2, compression_level;
 	int res, pad_left;
 	char c;
-	char outbuf[512 + 140];
-	char buffer[128], buffer2[128];
+	char outbuf[1024];
+	char buffer[ST_PRINTF_MAX_STRING_SIZE];
+	char buffer2[ST_PRINTF_MAX_STRING_SIZE];
 	struct subnet sub;
 	int field_width;
 	struct subnet v_sub;
