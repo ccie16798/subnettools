@@ -286,7 +286,6 @@ void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *
 		find_equals = 0;
 		/** first try an exact match **/
 		for (j = 0;  j < paip->nr; j++) {
-			mask = paip->routes[j].subnet.mask;
 			res = subnet_compare(&sf1->routes[i].subnet, &paip->routes[j].subnet);
 			if (res == EQUALS) {
 				st_free_string(sf1->routes[i].ea[0].value);
