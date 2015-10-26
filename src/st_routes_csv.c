@@ -63,12 +63,12 @@ void free_subnet_file(struct subnet_file *sf)
 	sf->ea_nr = 0;
 }
 
-/*
+/* alloc_sf_ea
  * alloc Extended Attribute array and copy name from sf->ea
  * @sf  : the subnet file
  * @n   : the element to alloc_memory
  * returns:
- * 	1  on SUCCESS
+ *	1  on SUCCESS
  *	-1 on ENOMEM
  */
 int alloc_sf_ea(struct subnet_file *sf, unsigned long n)
@@ -129,7 +129,8 @@ static int netcsv_device_handle(char *s, void *data, struct csv_state *state)
 	return CSV_VALID_FIELD;
 }
 
-static int netcsv_GW_handle(char *s, void *data, struct csv_state *state) {
+static int netcsv_GW_handle(char *s, void *data, struct csv_state *state)
+{
 	struct subnet_file *sf = data;
 	struct ip_addr addr;
 	int res;
@@ -259,7 +260,7 @@ static int netcsv_validate_header(struct csv_file *cf, void *data)
 int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 {
 	/* default netcsv fields */
-	struct csv_field csv_field[20];
+	struct csv_field csv_field[20 + 1]; /* 20 + last is NULL */
 	struct csv_file cf;
 	struct csv_state state;
 	int res;
@@ -267,7 +268,7 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 
 	init_csv_file(&cf, name, csv_field, 20, nof->delim, &simple_strtok_r);
 	init_csv_state(&state, name);
-	cf.is_header 	      = &netcsv_is_header;
+	cf.is_header          = &netcsv_is_header;
 	cf.endofline_callback = &netcsv_endofline_callback;
 	cf.validate_header    = &netcsv_validate_header;
 	cf.default_handler    = &netcsv_ea_handler;
@@ -297,7 +298,7 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 
 static int ipam_comment_handle(char *s, void *data, struct csv_state *state)
 {
-        struct  subnet_file *sf = data;
+	struct  subnet_file *sf = data;
 
 	if (strlen(s) > 2)/* sometimes comment are fucked and a better one is in EA-Name */
 		ea_strdup(&sf->routes[sf->nr].ea[0], s);
@@ -311,14 +312,14 @@ int load_ipam_no_EA(char  *name, struct subnet_file *sf, struct st_options *nof)
 {
 	/*
 	 * default IPAM fields (Infoblox)
-  	 * obviously if you have a different IPAM please describe it in the config file
+	 * obviously if you have a different IPAM please describe it in the config file
 	 */
 	struct csv_field csv_field[] = {
 		{ "address*"	, 0,  3, 1, &netcsv_prefix_handle },
 		{ "netmask_dec"	, 0,  4, 1, &netcsv_mask_handle },
 		{ "EA-Name"	, 0, 16, 1, &netcsv_comment_handle },
 		{ "comment"	, 0, 17, 1, &ipam_comment_handle },
-		{ NULL, 0,0,0, NULL }
+		{ NULL, 0, 0, 0, NULL }
 	};
 	struct csv_file cf;
 	struct csv_state state;
@@ -336,7 +337,7 @@ int load_ipam_no_EA(char  *name, struct subnet_file *sf, struct st_options *nof)
 		csv_field[3].name = nof->ipam_comment2;
 	}
 	init_csv_file(&cf, name, csv_field, 10, nof->ipam_delim, &simple_strtok_r);
-        cf.is_header = netcsv_is_header;
+	cf.is_header = netcsv_is_header;
 	cf.endofline_callback = netcsv_endofline_callback;
 	init_csv_state(&state, name);
 
@@ -430,7 +431,7 @@ static int bgpcsv_med_handle(char *s, void *data, struct csv_state *state)
 		i++;
 	}
 	if (s[i] != '\0') {
-                debug(LOAD_CSV, 2, "line %lu MED '%s' is not an INT\n", state->line, s);
+		debug(LOAD_CSV, 2, "line %lu MED '%s' is not an INT\n", state->line, s);
 		return CSV_INVALID_FIELD_BREAK;
 	}
 	sf->routes[sf->nr].MED = res;
@@ -451,7 +452,7 @@ static int bgpcsv_localpref_handle(char *s, void *data, struct csv_state *state)
 		i++;
 	}
 	if (s[i] != '\0') {
-                debug(LOAD_CSV, 2, "line %lu LOCAL_PREF '%s' is not an INT\n", state->line, s);
+		debug(LOAD_CSV, 2, "line %lu LOCAL_PREF '%s' is not an INT\n", state->line, s);
 		return CSV_INVALID_FIELD_BREAK;
 	}
 	sf->routes[sf->nr].LOCAL_PREF = res;
@@ -472,7 +473,7 @@ static int bgpcsv_weight_handle(char *s, void *data, struct csv_state *state)
 		i++;
 	}
 	if (s[i] != '\0') {
-                debug(LOAD_CSV, 2, "line %lu WEIGHT '%s' is not an INT\n", state->line, s);
+		debug(LOAD_CSV, 2, "line %lu WEIGHT '%s' is not an INT\n", state->line, s);
 		return CSV_INVALID_FIELD_BREAK;
 	}
 	sf->routes[sf->nr].weight = res;
@@ -486,7 +487,8 @@ static int bgpcsv_aspath_handle(char *s, void *data, struct csv_state *state)
 
 	res = strxcpy(sf->routes[sf->nr].AS_PATH, s, sizeof(sf->routes[sf->nr].AS_PATH));
 	if (res >= sizeof(sf->routes[sf->nr].AS_PATH))
-		debug(LOAD_CSV, 1, "line %lu STRING AS_PATH '%s'  too long, truncating to '%s'\n", state->line, s, sf->routes[sf->nr].AS_PATH);
+		debug(LOAD_CSV, 1, "line %lu AS_PATH '%s'  too long, truncating to '%s'\n",
+				state->line, s, sf->routes[sf->nr].AS_PATH);
 	return CSV_VALID_FIELD;
 }
 
@@ -527,7 +529,7 @@ static int bgpcsv_origin_handle(char *s, void *data, struct csv_state *state)
 		sf->routes[sf->nr].origin = s[i];
 		return CSV_VALID_FIELD;
 	} else {
-                debug(LOAD_CSV, 2, "line %lu ORIGIN CODE '%c' is invalid\n", state->line, s[i]);
+		debug(LOAD_CSV, 2, "line %lu ORIGIN CODE '%c' is invalid\n", state->line, s[i]);
 		return CSV_INVALID_FIELD_BREAK;
 	}
 }
@@ -592,12 +594,12 @@ int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof)
 		{ "ORIGIN"	, 0, 0, 1, &bgpcsv_origin_handle },
 		{ "V"		, 0, 0, 1, &bgpcsv_valid_handle },
 		{ "Proto"	, 0, 0, 1, &bgpcsv_type_handle },
-		{ NULL, 0,0,0, NULL }
+		{ NULL, 0, 0, 0, NULL }
 	};
 	struct csv_file cf;
 	struct csv_state state;
 
-        cf.is_header = NULL;
+	cf.is_header = NULL;
 	init_csv_file(&cf, name, csv_field, 12, nof->delim, &strtok_r);
 	cf.endofline_callback   = bgpcsv_endofline_callback;
 	cf.header_field_compare = bgp_field_compare;
