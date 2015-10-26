@@ -164,6 +164,7 @@ static void decode_ipv6_multicast_sn(FILE *out, const struct subnet *s)
 static void decode_ipv6_multicast(FILE *out, const struct subnet *s)
 {
 	int scope, flag;
+
 	scope = block(s->ip6, 0) & 0xf;
 	flag  = (block(s->ip6, 0) >> 4) & 0xf;
 
