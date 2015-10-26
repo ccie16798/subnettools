@@ -17,7 +17,7 @@
 
 extern char *default_fmt;
 
-void usage_en_arithmetic()
+void usage_en_arithmetic(void)
 {
 	printf("Subnet arithmetic\n");
 	printf("-----------------\n");
@@ -29,7 +29,7 @@ void usage_en_arithmetic()
 	printf("ipinfo IP|all|IPvX  : prints information about IP, or all known subnets (all, IPv4 or IPv6)\n");
 }
 
-void usage_en_simplify()
+void usage_en_simplify(void)
 {
 	printf("Route file simplification\n");
 	printf("-------------------------\n");
@@ -42,7 +42,7 @@ void usage_en_simplify()
 	printf("routesimplify2 FILE : simplify CSV subnet file;  prints redundant routes that can be removed\n");
 }
 
-void usage_en_routecompare()
+void usage_en_routecompare(void)
 {
 	printf("Route file comparison\n");
 	printf("---------------------\n");
@@ -57,7 +57,7 @@ void usage_en_routecompare()
 	printf("filter help         : prints help about bgp filters\n");
 }
 
-void usage_en_ipam()
+void usage_en_ipam(void)
 {
 	printf("IPAM tools\n");
 	printf("----------\n");
@@ -67,7 +67,7 @@ void usage_en_ipam()
 	printf("getea <IPAM> FILE   : print FILE with Extended Attributes retrieved from IPAM\n");
 }
 
-void usage_en_miscellaneous()
+void usage_en_miscellaneous(void)
 {
 	printf("Miscellaneous route file tools\n");
 	printf("------------------------------\n");
@@ -77,7 +77,7 @@ void usage_en_miscellaneous()
 	printf("sum IPv6FILE        : get total number of /64 subnets included\n");
 }
 
-void usage_en_bgp()
+void usage_en_bgp(void)
 {
 	printf("BGP route file tools\n");
 	printf("--------------------\n");
@@ -88,7 +88,7 @@ void usage_en_bgp()
 	printf("bgpfilter help      : prints help about bgp filters\n");
 }
 
-void usage_en_convert()
+void usage_en_convert(void)
 {
 	printf("IP route to CSV converters\n");
 	printf("--------------------------\n");
@@ -96,7 +96,7 @@ void usage_en_convert()
 	printf("convert help        : use '%s convert help' for available parsers \n", PROG_NAME);
 }
 
-void usage_en_debug()
+void usage_en_debug(void)
 {
 	printf("DEBUG and help\n");
 	printf("--------------\n");
@@ -108,7 +108,7 @@ void usage_en_debug()
 	printf("version             : %s version \n", PROG_NAME);
 }
 
-void usage_en_options()
+void usage_en_options(void)
 {
 	printf("\nOPTIONS := \n");
 	printf("-d <delim>      : change the default field delim (;) \n");
@@ -125,7 +125,7 @@ void usage_en_options()
 	printf("-VV             : more verbose mode; same as '-D all:1'\n");
 }
 
-void usage_en_csv()
+void usage_en_csv(void)
 {
 	printf("INPUT CSV format :=\n");
 	printf("- Input subnet/routes files SHOULD have a CSV header describing its structure (prefix, mask,, GW, comment, etc...)\n");
@@ -172,14 +172,14 @@ const struct usages usages_fr[] = {
 
 const struct usages *usages[] = {usages_en, usages_fr};
 
-void usage_brief_en()
+void usage_brief_en(void)
 {
 	int i;
 
 	printf("Commands & options are documented by section\n");
 	printf("Use '%s help <section_name>' to have help about one section\n", PROG_NAME);
 	printf("Available sections :\n[");
-	for (i = 0; ;i++) {
+	for (i = 0; ; i++) {
 		if (usages_en[i].name == NULL)
 			break;
 		printf("%s ", usages_en[i].name);
