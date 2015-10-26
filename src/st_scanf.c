@@ -925,11 +925,14 @@ static int find_expr(const char *remain, struct expr *e)
  * found in a struct sto *
  * parse_multiplier updates offset into 'in', 'fmt', the number of objects found (n_found)
  *
- * @in      : input buffer, *j its offset
- * @fmt     : fmt buffer,   *i its offset
- * @expr    : the string/expression  concerned by the multiplier
- * @o       : objects will be stored in o (max_o)
- * @n_found : num conversion specifier found so far
+ * @in       : input buffer
+ * @j        : offset in input buffer
+ * @fmt      : fmt buffer
+ * @i        : offset in fmt buffer
+ * @in_length: length of input buffer
+ * @expr     : the string/expression  concerned by the multiplier
+ * @o        : objects will be stored in o (max_o)
+ * @n_found  : num conversion specifier found so far
  *
  * returns :
  *    positive on success
