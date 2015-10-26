@@ -131,14 +131,11 @@ int filter_ea(const struct ipam_ea *ea, int ea_nr, const char *ea_name,
 	switch (op) {
 	case '=':
 		return (!strcmp(s, value));
-		break;
 	case '#':
 		return strcmp(s, value);
-		break;
 	case '~':
 		res = st_sscanf(s, value);
 		return (res < 0 ? 0 : 1);
-		break;
 	case '<':
 	case '>':
 		b = string2int(value, &err);
@@ -155,11 +152,9 @@ int filter_ea(const struct ipam_ea *ea, int ea_nr, const char *ea_name,
 		}
 		if (op == '>')
 			return (a > b);
-		else
-			return (b > a);
+		return (b > a);
 	default:
 		debug(FILTER, 1, "Unsupported op '%c' for Extended Attribute\n", op);
 		return -1;
-		break;
 	}
 }
