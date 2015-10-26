@@ -36,19 +36,20 @@ struct debug debugs[] = {
 	{0, 0}
 };
 
-char debugs_level [__D_MAX];
+char debugs_level[__D_MAX];
 struct timeval tv_start[10]; /* nested timer values (10 levels max) */
 int num_times = 0;
 
-void list_debugs()
+void list_debugs(void)
 {
 	int i;
 	char *zorglub;
 
-	for (i = 0; ;i++) {
+	for (i = 0; ; i++) {
 		if (debugs[i].name == NULL)
 			break;
-		zorglub = (debugs[i].long_desc ? (char *)debugs[i].long_desc : "No available description");
+		zorglub = (debugs[i].long_desc ?
+				(char *)debugs[i].long_desc : "No available description");
 		printf("  %-12s: %s\n", debugs[i].name, zorglub);
 	}
 }
@@ -69,7 +70,7 @@ void __debug_timing_end(const char *s, int level)
 	if (debugs_level[__D_TIMING] < level || num_times == 10)
 		return;
 	num_times--;
-	
+
 	gettimeofday(&tv_end, NULL);
 	if (tv_end.tv_usec < tv_start[num_times].tv_usec) {
 		sec  = tv_end.tv_sec - tv_start[num_times].tv_sec - 1;
@@ -104,7 +105,8 @@ void parse_debug(char *string)
 				if (isdigit(s[len - 1]))
 					debug_level = s[len - 1] - '0';
 				else
-					debug(DEBUG, 1, "invalid debug level '%c'\n", s[len - 1]);
+					debug(DEBUG, 1, "invalid debug level '%c'\n",
+							s[len - 1]);
 				s2[len - 2] = '\0';
 		}
 		for (i = 0; ; i++) {
@@ -112,7 +114,8 @@ void parse_debug(char *string)
 				break;
 			if (!strcmp(s2, debugs[i].name)) {
 				debugs_level[debugs[i].num] = debug_level;
-				debug(DEBUG, 3, "adding debug flag %s, level %d\n", debugs[i].name, debug_level);
+				debug(DEBUG, 3, "adding debug flag %s, level %d\n",
+						debugs[i].name, debug_level);
 				break;
 			}
 		}
