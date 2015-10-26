@@ -144,7 +144,7 @@ struct st_command commands[] = {
 	{ "uniq",		&run_uniq,	2},
 	{ "paip",		&run_paip,	1},
 	{ "ipam",		&run_paip,	1},
-	{ "getea",		&run_ipam_getea,1},
+	{ "getea",		&run_ipam_getea, 1},
 	{ "grep",		&run_grep,	2},
 	{ "convert",		&run_convert,	1},
 	{ "routesimplify1",	&run_routesimplify1,	1},
@@ -154,13 +154,13 @@ struct st_command commands[] = {
 	{ "sort",		&run_sort,	0},
 	{ "sortby",		&run_sortby,	1},
 	{ "filter",		&run_filter,	1},
-	{ "ipamfilter",		&run_ipam_filter,1},
-	{ "bgpfilter",		&run_bgp_filter,1},
+	{ "ipamfilter",		&run_ipam_filter, 1},
+	{ "bgpfilter",		&run_bgp_filter, 1},
 	{ "sum",		&run_sum,	1},
 	{ "subnetagg",		&run_subnetagg,	1},
 	{ "routeagg",		&run_routeagg,	1},
 	{ "removesubnet",	&run_remove,	3},
-	{ "removefile",		&run_remove_file,2},
+	{ "removefile",		&run_remove_file, 2},
 	{ "split",		&run_split,	2},
 	{ "split2",		&run_split_2,	2},
 	{ "scanf",		&run_scanf,	2},
@@ -172,7 +172,7 @@ struct st_command commands[] = {
 	{ "exprtest",	&run_gen_expr,	1, 1},
 	{ "test",	&run_test,	1, 1},
 	{ "test2",	&run_test2,	2, 1},
-	{NULL, 		NULL,		0}
+	{ NULL,		NULL,		0, 0}
 };
 
 struct st_command options[] = {
@@ -195,11 +195,15 @@ struct st_command options[] = {
 	{NULL, NULL, 0}
 };
 
-#define DIE_ON_BAD_FILE(__ffile_) \
+#define BAD_FILE(__truc) \
+		fprintf(stderr, "Invalid file %s\n", (__truc ? __truc : "<stdin>"))
+
+#define DIE_ON_BAD_FILE(__truc2) \
 	if (res < 0) { \
-		fprintf(stderr, "Invalid file %s\n", (__ffile_ ? __ffile_ : "<stdin>")); \
+		BAD_FILE(__truc2); \
 		return res; \
 	} \
+
 /*
  * COMMAND HANDLERS
  */
@@ -224,18 +228,18 @@ static int run_relation(int argc, char **argv, void *st_options)
 	}
 	res = subnet_compare(&subnet1, &subnet2);
 	switch (res) {
-		case EQUALS:
-			st_printf("%P equals %P (subnet address : %N)\n", subnet1, subnet2, subnet1);
-			break;
-		case INCLUDED:
-			st_printf("%s is included in %s\n", argv[2], argv[3]);
-			break;
-		case INCLUDES:
-			st_printf("%s includes %s\n", argv[2], argv[3]);
-			break;
-		default:
-			st_printf("%s has no relation with %s\n", argv[2], argv[3]);
-			break;
+	case EQUALS:
+		st_printf("%P equals %P (subnet address : %N)\n", subnet1, subnet2, subnet1);
+		break;
+	case INCLUDED:
+		st_printf("%s is included in %s\n", argv[2], argv[3]);
+		break;
+	case INCLUDES:
+		st_printf("%s includes %s\n", argv[2], argv[3]);
+		break;
+	default:
+		st_printf("%s has no relation with %s\n", argv[2], argv[3]);
+		break;
 	}
 	return 0;
 }
@@ -265,9 +269,9 @@ static int run_echo(int argc, char **argv, void *st_options)
 				fprintf(stderr, "Bad format string '%s'\n", s);
 				return -1;
 			}
-			if (s[i] != 'I' && s[i] != 'a' && s[i] != 'P' && tolower(s[i]) != 'm' &&
-					s[i] != 'B' && s[i] != 'N' && s[i] != 'L' && s[i] != 'U')
-			{
+			if (s[i] != 'I' && s[i] != 'a' && s[i] != 'P' &&
+					tolower(s[i]) != 'm' && s[i] != 'B' && s[i] != 'N' &&
+					s[i] != 'L' && s[i] != 'U') {
 				fprintf(stderr, "Conversion specifier '%c' not allowed"
 					" with echo command\n", s[i]);
 				return -1;
@@ -359,9 +363,14 @@ static int run_compare(int argc, char **argv, void *st_options)
 	res = load_netcsv_file(argv[2], &sf1, nof);
 	DIE_ON_BAD_FILE(argv[2]);
 	res = load_netcsv_file(argv[3], &sf2, nof);
-	DIE_ON_BAD_FILE(argv[3]);
-
+	if (res < 0) {
+		free_subnet_file(&sf1);
+		BAD_FILE(argv[3]);
+		return res;
+	}
 	compare_files(&sf1, &sf2, nof);
+	free_subnet_file(&sf1);
+	free_subnet_file(&sf2);
 	return 0;
 }
 
@@ -374,8 +383,11 @@ static int run_subnetcmp(int argc, char **argv, void *st_options)
 	res = load_netcsv_file(argv[2], &before, nof);
 	DIE_ON_BAD_FILE(argv[2]);
 	res = load_netcsv_file(argv[3], &after, nof);
-	DIE_ON_BAD_FILE(argv[3]);
-
+	if (res < 0) {
+		free_subnet_file(&before);
+		BAD_FILE(argv[3]);
+		return res;
+	}
 	res = subnet_file_cmp(&before, &after, &sf);
 	if (res < 0) {
 		free_subnet_file(&before);
@@ -401,8 +413,11 @@ static int run_missing(int argc, char **argv, void *st_options)
 	res = load_netcsv_file(argv[2], &sf1, nof);
 	DIE_ON_BAD_FILE(argv[2]);
 	res = load_netcsv_file(argv[3], &sf2, nof);
-	DIE_ON_BAD_FILE(argv[3]);
-
+	if (res < 0) {
+		free_subnet_file(&sf1);
+		BAD_FILE(argv[3]);
+		return res;
+	}
 	res = missing_routes(&sf1, &sf2, &sf3);
 	if (res < 0) {
 		free_subnet_file(&sf2);
@@ -425,8 +440,11 @@ static int run_uniq(int argc, char **argv, void *st_options)
 	res = load_netcsv_file(argv[2], &sf1, nof);
 	DIE_ON_BAD_FILE(argv[2]);
 	res = load_netcsv_file(argv[3], &sf2, nof);
-	DIE_ON_BAD_FILE(argv[3]);
-
+	if (res < 0) {
+		free_subnet_file(&sf1);
+		BAD_FILE(argv[3]);
+		return res;
+	}
 	res = uniq_routes(&sf1, &sf2, &sf3);
 	if (res < 0) {
 		free_subnet_file(&sf1);
@@ -449,8 +467,11 @@ static int run_paip(int argc, char **argv, void *st_options)
 	res = load_ipam_no_EA(argv[2], &paip, nof);
 	DIE_ON_BAD_FILE(argv[2]);
 	res = load_netcsv_file(argv[3], &sf, nof);
-	DIE_ON_BAD_FILE(argv[3]);
-
+	if (res < 0) {
+		free_subnet_file(&paip);
+		BAD_FILE(argv[3]);
+		return res;
+	}
 	print_file_against_paip(&sf, &paip, nof);
 	free_subnet_file(&sf);
 	free_subnet_file(&paip);
@@ -467,7 +488,11 @@ static int run_ipam_getea(int argc, char **argv, void *st_options)
 	res = load_ipam(argv[2], &ipam, nof);
 	DIE_ON_BAD_FILE(argv[2]);
 	res = load_netcsv_file(argv[3], &sf, nof);
-	DIE_ON_BAD_FILE(argv[3]);
+	if (res < 0) {
+		free_ipam_file(&ipam);
+		BAD_FILE(argv[3]);
+		return res;
+	}
 	if (sf.nr == 0) {
 		fprintf(stderr, "empty file %s\n", (argv[3] == NULL ? "<stdin>" : argv[3]));
 		free_subnet_file(&sf);
@@ -647,8 +672,11 @@ static int run_common(int argc, char **argv, void *st_options)
 	res = load_netcsv_file(argv[2], &sf1, nof);
 	DIE_ON_BAD_FILE(argv[2]);
 	res = load_netcsv_file(argv[3], &sf2, nof);
-	DIE_ON_BAD_FILE(argv[3]);
-
+	if (res < 0) {
+		BAD_FILE(argv[3]);
+		free_subnet_file(&sf1);
+		return res;
+	}
 	res = subnet_file_merge_common_routes(&sf1, &sf2, &sf3);
 	if (res >= 0)
 		fprint_subnet_file_fmt(nof->output_file, &sf3, nof->output_fmt);
@@ -670,8 +698,11 @@ static int run_addfiles(int argc, char **argv, void *st_options)
 	res = load_netcsv_file(argv[2], &sf1, nof);
 	DIE_ON_BAD_FILE(argv[2]);
 	res = load_netcsv_file(argv[3], &sf2, nof);
-	DIE_ON_BAD_FILE(argv[3]);
-
+	if (res < 0) {
+		BAD_FILE(argv[3]);
+		free_subnet_file(&sf1);
+		return res;
+	}
 	res = alloc_subnet_file(&sf3, sf1.nr + sf2.nr);
 	if (res < 0) {
 		free_subnet_file(&sf2);
@@ -773,8 +804,10 @@ static int run_subnetagg(int argc, char **argv, void *st_options)
 	res = load_netcsv_file(argv[2], &sf, nof);
 	DIE_ON_BAD_FILE(argv[2]);
 	res = aggregate_route_file(&sf, 0);
-	if (res < 0)
+	if (res < 0) {
+		free_subnet_file(&sf);
 		return res;
+	}
 	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
 	free_subnet_file(&sf);
 	return 0;
@@ -790,8 +823,10 @@ static int run_routeagg(int argc, char **argv, void *st_options)
 	DIE_ON_BAD_FILE(argv[2]);
 
 	res = aggregate_route_file(&sf, 1);
-	if (res < 0)
+	if (res < 0) {
+		free_subnet_file(&sf);
 		return res;
+	}
 	fprint_subnet_file_fmt(nof->output_file, &sf, nof->output_fmt);
 	free_subnet_file(&sf);
 	return 0;
@@ -806,12 +841,20 @@ static int run_remove_file(int argc, char **argv, void *st_options)
 	res = load_netcsv_file(argv[2], &sf1, nof);
 	DIE_ON_BAD_FILE(argv[2]);
 	res = load_netcsv_file(argv[3], &sf3, nof);
-	DIE_ON_BAD_FILE(argv[3]);
-
-	subnet_file_remove_file(&sf1, &sf2, &sf3);
-	if (res < 0)
+	if (res < 0) {
+		BAD_FILE(argv[3]);
+		free_subnet_file(&sf1);
 		return res;
+	}
+	subnet_file_remove_file(&sf1, &sf2, &sf3);
+	if (res < 0) {
+		free_subnet_file(&sf1);
+		free_subnet_file(&sf2);
+		free_subnet_file(&sf3);
+		return res;
+	}
 	fprint_subnet_file_fmt(nof->output_file, &sf2, nof->output_fmt);
+	free_subnet_file(&sf1);
 	free_subnet_file(&sf2);
 	free_subnet_file(&sf3);
 	return 0;
@@ -849,6 +892,7 @@ static int run_remove(int argc, char **argv, void *st_options)
 
 		res = get_subnet_or_ip(argv[4], &subnet2);
 		if (res < 0) {
+			free_subnet_file(&sf1);
 			printf("Invalid IP %s\n", argv[4]);
 			return -1;
 		}
@@ -858,7 +902,8 @@ static int run_remove(int argc, char **argv, void *st_options)
 		free_subnet_file(&sf2);
 		return 0;
 	} else {
-		fprintf(stderr, "invalid objet %s after %s, expecting 'subnet' or 'file'\n", argv[2], argv[1]);
+		fprintf(stderr, "Invalid objet %s after %s, expecting 'subnet' or 'file'\n",
+				argv[2], argv[1]);
 		return -1;
 
 	}
@@ -899,8 +944,8 @@ static int run_scanf(int argc, char **argv, void *st_options)
 {
 	int res;
 	struct sto o[40];
-	
-        res = sto_sscanf(argv[2], argv[3], o, 40);
+
+	res = sto_sscanf(argv[2], argv[3], o, 40);
 	if (res < 0) {
 		fprintf(stderr, "no match\n");
 		return res;
@@ -1037,8 +1082,8 @@ static int run_test2(int argc, char **argv, void *st_options)
 	int res;
 	struct sto o[40];
 
-        res = sto_sscanf(argv[2], argv[3], o, 40);
-	printf("%d \n", res);
+	res = sto_sscanf(argv[2], argv[3], o, 40);
+	printf("%d\n", res);
 	sto_printf("%O0 %O1 %O2 %O3 %O4 %O5 %O6 %O7\n", o, res);
 	return 0;
 }
@@ -1094,7 +1139,7 @@ static int option_output(int argc, char **argv, void *st_options)
 	debug(PARSEOPTS, 3, "changing ouput file to : \"%s\"\n", argv[1]);
 	nof->output_file = fopen(argv[1], "w");
 	if (nof->output_file == NULL) {
-		fprintf(stderr, "cannot open %s for writing, redirecting to standard output\n", argv[1]);
+		fprintf(stderr, "cannot open %s for writing, using standard output\n", argv[1]);
 		nof->output_file = stdout;
 	}
 	return 0;
@@ -1126,7 +1171,8 @@ static int option_addr_compress(int argc, char **argv, void *st_options)
 	int a, res;
 
 	if (!isUnsignedInt(argv[1])) {
-		fprintf(stderr, "expected an unsigned int after option '-p', but got '%s'\n", argv[1]);
+		fprintf(stderr, "expected an unsigned int after option '-p', but got '%s'\n",
+				argv[1]);
 		return 0;
 	}
 	a = string2int(argv[1], &res);
@@ -1204,7 +1250,7 @@ static int option_noheader(int argc, char **argv, void *st_options)
  * subnettool is bug free of course :)
  * man page says it is POSIX, let s hope so
  */
-static void allow_core_dumps()
+static void allow_core_dumps(void)
 {
 	struct rlimit limits;
 	int res;
@@ -1225,7 +1271,8 @@ int main(int argc, char **argv)
 
 	memset(&nof, 0 , sizeof(nof));
 	nof.output_file      = stdout;
-	nof.ip_compress_mode = 3; /* full IPv6 address compression  with IPv4 mapped/compatible support*/
+	/* full IPv6 address compression  with IPv4 mapped/compatible support*/
+	nof.ip_compress_mode = 3;
 	nof.print_header     = 1;
 	strcpy(nof.ipam_ea, "comment");
 	allow_core_dumps();
@@ -1263,8 +1310,8 @@ int main(int argc, char **argv)
 	if (strlen(nof.ipam_delim) == 0)
 		strcpy(nof.ipam_delim, ",\n");
 	else {
-		nof.ipam_delim[strlen(nof.ipam_delim) + 1]= '\0';
-		nof.ipam_delim[strlen(nof.ipam_delim)]= '\n';
+		nof.ipam_delim[strlen(nof.ipam_delim) + 1] = '\0';
+		nof.ipam_delim[strlen(nof.ipam_delim)] = '\n';
 	}
 	/* if the default output format has not been set */
 	if (strlen(nof.output_fmt) < 2)
