@@ -118,8 +118,8 @@ sprint_unsigned(long)
 
 void fprint_route(FILE *output, const struct route *r, int compress_level)
 {
-	char buffer[52];
-	char buffer2[52];
+	char buffer[130];
+	char buffer2[130];
 	int i;
 
 	subnet2str(&r->subnet, buffer, sizeof(buffer), compress_level);
