@@ -3,8 +3,8 @@
 
 #define __D_ALL		0
 #define __D_TIMING	1
-#define __D_MEMORY   	2
-#define __D_LOADFILE 	3  /* UNUSED */
+#define __D_MEMORY	2
+#define __D_LOADFILE	3 /* UNUSED */
 #define __D_PARSEIPV6	4
 #define __D_PARSEOPTS	5
 #define __D_PAIP	6
@@ -14,10 +14,10 @@
 #define __D_GREP	9
 #define __D_ADDRCOMP	10
 #define __D_PARSEROUTE	11
-#define __D_DEBUG    	13
-#define __D_TRYGUESS 	14
-#define __D_CONFIGFILE  15
-#define __D_CSVHEADER   16
+#define __D_DEBUG	13
+#define __D_TRYGUESS	14
+#define __D_CONFIGFILE	15
+#define __D_CSVHEADER	16
 #define __D_FMT		17
 #define __D_SCANF	18
 #define __D_AGGREGATE	30
@@ -32,18 +32,20 @@
 #define debug(__EVENT, __DEBUG_LEVEL, __FMT...) \
 	do { \
 		int ___x = (__D_##__EVENT); \
-		if (debugs_level[___x] >= __DEBUG_LEVEL || debugs_level[__D_ALL] >= __DEBUG_LEVEL) { \
-			fprintf(stderr,"%s : ", __FUNCTION__  ); \
+		if (debugs_level[___x] >= __DEBUG_LEVEL || \
+				debugs_level[__D_ALL] >= __DEBUG_LEVEL) { \
+			fprintf(stderr, "%s : ", __func__); \
 			fprintf(stderr, __FMT); \
 		} \
-	} while (0);
+	} while (0)
 
 #define debug_memory(__DEBUG_LEVEL, __FMT...) \
 	do { \
 		int ___x = __D_MEMORY; \
-		if (debugs_level[___x] >= __DEBUG_LEVEL || debugs_level[__D_ALL] >= __DEBUG_LEVEL) \
+		if (debugs_level[___x] >= __DEBUG_LEVEL || \
+				debugs_level[__D_ALL] >= __DEBUG_LEVEL) \
 			fprintf(stderr, __FMT); \
-	} while (0);
+	} while (0)
 
 struct debug {
 	const char *name;
@@ -51,13 +53,13 @@ struct debug {
 	const char *long_desc;
 };
 
-extern char debugs_level [];
+extern char debugs_level[];
 
-void list_debugs();
-void parse_debug (char *string);
+void list_debugs(void);
+void parse_debug(char *string);
 void debug_timing_start(int level);
 void __debug_timing_end(const char *s, int level);
-#define debug_timing_end(__level) __debug_timing_end(__FUNCTION__, __level)
+#define debug_timing_end(__level) __debug_timing_end(__func__, __level)
 
 #else
 #endif
