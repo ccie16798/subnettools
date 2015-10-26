@@ -15,13 +15,13 @@
 #include "debug.h"
 
 
-void inline init_list(st_list *list)
+inline void init_list(st_list *list)
 {
 	list->next = list;
 	list->prev = list;
 }
 
-int inline list_empty(st_list *list)
+inline int list_empty(st_list *list)
 {
 	return list == list->next;
 }
@@ -38,7 +38,7 @@ int list_length(st_list *list)
 /*
  * insert a nex entry after head
  */
-void inline list_add(st_list *new, st_list *head)
+inline void list_add(st_list *new, st_list *head)
 {
 	head->next->prev = new;
 	new->next  = head->next;
@@ -49,7 +49,7 @@ void inline list_add(st_list *new, st_list *head)
 /*
  * insert a nex entry at the end
  */
-void inline list_add_tail(st_list *new, st_list *head)
+inline void list_add_tail(st_list *new, st_list *head)
 {
 	new->next = head;
 	new->prev = head->prev;
@@ -57,7 +57,7 @@ void inline list_add_tail(st_list *new, st_list *head)
 	head->prev = new;
 }
 
-void inline list_del(st_list *list)
+inline void list_del(st_list *list)
 {
 	list->prev->next = list->next;
 	list->next->prev = list->prev;
@@ -144,7 +144,8 @@ static void __list_sort(st_list *head, int (*cmp)(st_list *, st_list *))
 	list_merge(&right, &left, head, cmp);
 }
 
-void list_sort(st_list *head, int (*cmp)(st_list *, st_list *)) {
+void list_sort(st_list *head, int (*cmp)(st_list *, st_list *))
+{
 	/* zero or one elem, return */
 	if (head->next == head || head->next->next == head)
 		return;
@@ -180,7 +181,8 @@ void print_list(st_list *head)
 	printf("\n");
 }
 
-void test_sort_one(int n) {
+void test_sort_one(int n)
+{
 	struct ab *a = malloc(n * sizeof(struct ab));
 	struct ab *c;
 	st_list head, *l;
@@ -188,7 +190,7 @@ void test_sort_one(int n) {
 
 	init_list(&head);
 	for (i = 0; i < n; i++) {
-		a[i].a = rand() %1000;
+		a[i].a = rand() % 1000;
 		list_add(&a[i].list, &head);
 	}
 	list_sort(&head, &ab_cmp);
@@ -223,8 +225,8 @@ void test_sort(int n)
 
 int main(int argc, char **argv)
 {
-	struct ab a, b, c,d;
-	struct ab e, f, g,h, i;
+	struct ab a, b, c, d;
+	struct ab e, f, g, h, i;
 	int toto;
 
 	st_list list, list2, res;

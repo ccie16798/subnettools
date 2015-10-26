@@ -2,11 +2,11 @@
 #define ST_LIST_H
 
 /* macros taken from linux kernel */
-#define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
+#define offsetof(TYPE, MEMBER) ((size_t)&((TYPE *)0)->MEMBER)
 #define sizeofmember(TYPE, MEMBER) sizeof(((TYPE *)0)->MEMBER)
 #define container_of(ptr, type, member) ({ \
-		const typeof( ((type *)0)->member ) *__mptr = (ptr); \
-		(type *)( (char *)__mptr - offsetof(type,member) );})
+		const typeof(((type *)0)->member)*__mptr = (ptr); \
+		(type *)((char *)__mptr - offsetof(type, member)); })
 
 /*
  * struct st_list should be embedded inside a struct XYZ
@@ -26,7 +26,7 @@
  * .....
  */
 struct st_list {
-        struct st_list *next;
+	struct st_list *next;
 	struct st_list *prev;
 };
 
