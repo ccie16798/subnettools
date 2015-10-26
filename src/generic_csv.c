@@ -106,7 +106,8 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
 		}
 	}
 	/* check for duplicate field pos
-	 * this can happen only if NO header and programming error */
+	 * this can happen only if NO header and programming error
+	 */
 	for (i = 0; ; i++) {
 		if (cf->csv_field[i].name == NULL)
 			break;
@@ -214,7 +215,8 @@ static int read_csv_body(FILE *f, struct csv_file *cf,
 					break;
 				} else if (res == CSV_VALID_FIELD_BREAK) {
 					/* found a valid field, but caller told us
-					 * nothing interesting on this line */
+					 * nothing interesting on this line
+					 */
 					debug(LOAD_CSV, 5, "Field '%s'='%s' handler ret='%s'\n",
 							csv_field->name, s,
 							"CSV_VALID_FIELD_BREAK");

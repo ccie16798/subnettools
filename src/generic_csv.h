@@ -67,7 +67,8 @@ struct csv_file {
 	const char *delim; /** delimiteur */
 	int max_mandatory_pos ; /* used to track the pos of the last mandatory field */
 	/* given a line, try to guess if its a header or plain data;
-	 * if NULL, the file REQUIRES a header */
+	 * if NULL, the file REQUIRES a header
+	 */
 	int (*is_header)(char *);
 	/* once a header has been parsed, post-validate the required fields are there */
 	int (*validate_header)(struct csv_file *, void *data);
@@ -84,7 +85,7 @@ struct csv_file {
  * strtok_r possible values are :
  * - simple_strtok_r : doesnt treat consecutive delims as one
  * - strtok_r        : treat consecutives delims as one
- * */
+ */
 void init_csv_file(struct csv_file *cf, const char *file_name,
 		struct csv_field *csv_field, int max_fields,
 		const char *delim, char * (*strtok_r)(char *, const char *, char **));
