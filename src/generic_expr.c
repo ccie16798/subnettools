@@ -18,7 +18,8 @@
 
 static inline int is_comp(char c)
 {
-	return ((c == '=') | (c == '<') | (c == '>') | (c == '~') | (c == '{') | (c == '}') | (c == '#'));
+	return ((c == '=') | (c == '<') | (c == '>') | (c == '~') |
+			(c == '{') | (c == '}') | (c == '#'));
 }
 
 void init_generic_expr(struct generic_expr *e, const char *s,
@@ -92,7 +93,8 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e)
 		debug(GEXPR, 1, "Invalid expr '%s', too many recursion level\n", e->pattern);
 		return -1;
 	}
-	strxcpy(buffer, pattern, sizeof(buffer)); /* FIXME this should die once code is stabilized */
+	/* FIXME this should die once code is stabilized */
+	strxcpy(buffer, pattern, sizeof(buffer));
 	debug(GEXPR, 9, "Pattern : '%s', len=%d, recursion=%d\n", buffer, len, e->recursion_level);
 
 	while (isspace(pattern[i]))
@@ -114,7 +116,8 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e)
 		parenthese++;
 		while (1) {
 			if (pattern[i] == '\0' || i == len) {
-				debug(GEXPR, 1, "Invalid pattern '%s', no closing ')'\n", pattern);
+				debug(GEXPR, 1, "Invalid pattern '%s', no closing ')'\n",
+						pattern);
 				return -1;
 			}
 			if (pattern[i] == '(')
@@ -141,7 +144,7 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e)
 				/* we reached end of string, just return */
 				if (pattern[i] == '\0' || len == i)
 					return res1;
-				/* let s try to take shortcuts to avoid evalutating second part of expr
+				/* take shortcuts to avoid evalutating second part of expr
 				 * downside is that if the other part of expr has a syntax error,
 				 * we don't catch it  */
 				if (res1 && pattern[i] == '|')
@@ -205,7 +208,7 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e)
 	e->recursion_level--;
 	if (res1 < 0)
 		return res1;
-	return (negate ? !res1 : res1);
+	return negate ? !res1 : res1;
 }
 
 /* used for testing purposes */
