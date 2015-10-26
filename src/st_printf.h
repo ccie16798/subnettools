@@ -54,11 +54,12 @@ void print_ipam_file_fmt(const struct ipam_file *sf, const char *fmt);
 #define st_debug(__EVENT, __DEBUG_LEVEL, __FMT...) \
 	do { \
 		int ___x = (__D_##__EVENT); \
-		if (debugs_level[___x] >= __DEBUG_LEVEL || debugs_level[__D_ALL] >= __DEBUG_LEVEL) { \
-			st_fprintf(stderr,"%s : ", __FUNCTION__  ); \
+		if (debugs_level[___x] >= __DEBUG_LEVEL || \
+				debugs_level[__D_ALL] >= __DEBUG_LEVEL) { \
+			st_fprintf(stderr, "%s : ", __func__); \
 			st_fprintf(stderr, __FMT); \
 		} \
-	} while (0);
+	} while (0)
 
 
 #else
