@@ -228,8 +228,8 @@ int main(int argc, char **argv)
 	struct ab a, b, c, d;
 	struct ab e, f, g, h, i;
 	int toto;
-
 	st_list list, list2, res;
+
 	init_list(&list);
 	init_list(&list2);
 	a.a = 10111;
