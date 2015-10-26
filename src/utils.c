@@ -94,10 +94,12 @@ int isPower2(unsigned int x)
 		x /= 2;
 	return (x == 1);
 }
+
 /* x must be power of 2 */
 int mylog2(unsigned int x)
 {
 	int a = 0;
+
 	while (x > 1) {
 		x /= 2;
 		a++;
@@ -195,7 +197,8 @@ int strxcpy_until(char *dst, const char *src, int n, char end)
 
 /* strtok variant ; treat consecutive delims one by one
  * standard strtok treats n successives delims as one,
- * which is not always what we want in CSV files*/
+ * which is not always what we want in CSV files
+ */
 char *simple_strtok(char *s, const char *delim)
 {
 	int i;

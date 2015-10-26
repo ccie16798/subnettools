@@ -13,9 +13,10 @@ int isPower2(unsigned int x);
  */
 int string2int(const char *s, int *res);
 int mylog2(unsigned int x);
+
 /* take a isxdigit char as argument;
-   returns is decimal conversion
-*/
+ *  returns is decimal conversion
+ */
 int char2int(char c);
 
 /* remove all spaces from char */
