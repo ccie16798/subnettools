@@ -13,7 +13,7 @@
 #include "debug.h"
 #include "st_memory.h"
 
-unsigned long total_memory = 0;
+unsigned long total_memory;
 
 #ifdef DEBUG_ST_MEMORY
 void *__st_malloc_nodebug(unsigned long n, const char *s,
@@ -81,7 +81,7 @@ void *__st_realloc(void *ptr, unsigned long new, unsigned long old, const char *
 					file, func, line, new / (1024 * 1024), s);
 		else if (new > 10 * 1024)
 			fprintf(stderr, "%s:%s line %d Unable to reallocate %lu Kbytes for %s\n",
-					file, func, line, new / (1024) , s);
+					file, func, line, new / (1024), s);
 		else
 			fprintf(stderr, "%s:%s line %d Unable to reallocate %lu bytes for %s\n",
 					file, func, line, new, s);
@@ -113,7 +113,7 @@ void *__st_realloc_nodebug(void *ptr, unsigned long new, unsigned long old, cons
 					file, func, line, new / (1024 * 1024), s);
 		else if (new > 10 * 1024)
 			fprintf(stderr, "%s:%s line %d Unable to reallocate %lu Kbytes for %s\n",
-					file, func, line, new / (1024) , s);
+					file, func, line, new / (1024), s);
 		else
 			fprintf(stderr, "%s:%s line %d Unable to reallocate %lu bytes for %s\n",
 					file, func, line, new, s);
