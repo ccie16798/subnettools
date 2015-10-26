@@ -845,8 +845,8 @@ static int find_not_ip(const char *remain, struct expr *e)
 		return 1;
 	buffer[i] = '\0';
 	if (get_subnet_or_ip(buffer, &s) > 0) {
-		/* remain[0...i] represents an IP, so dont try stop checking in that range */;
-		e->skip_stop = i
+		/* remain[0...i] represents an IP, so dont try stop checking in that range */
+		e->skip_stop = i;
 		return 0;
 	} else
 		return 1;
@@ -937,8 +937,8 @@ static int find_expr(const char *remain, struct expr *e)
  *   -2  : no match
  *
  */
-static int parse_multiplier(const char *in, const char *fmt, int *i, int in_length, int *j, char *expr,
-			struct sto *o, int max_o, int *n_found)
+static int parse_multiplier(const char *in, const char *fmt, int *i, int in_length, int *j,
+		char *expr, struct sto *o, int max_o, int *n_found)
 {
 
 	char c;
@@ -1039,12 +1039,15 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 				/* we must take field length into account */
 				while (isdigit(fmt[*i + k + 2]))
 					k++;
-				res = fill_char_range(e.end_expr, fmt + *i + k + 2, sizeof(e.end_expr));
+				res = fill_char_range(e.end_expr, fmt + *i + k + 2,
+						sizeof(e.end_expr));
 				if (res < 0) {
-					debug(SCANF, 1, "Invalid format '%s', unmatched '['\n", expr);
+					debug(SCANF, 1, "Invalid format '%s', unmatched '['\n",
+							expr);
 					return -1;
 				}
-				debug(SCANF, 4, "pattern matching will end on '%s'\n", e.end_expr);
+				debug(SCANF, 4, "pattern matching will end on '%s'\n",
+						e.end_expr);
 				e.early_stop = &find_expr;
 				break;
 			default:
@@ -1155,8 +1158,12 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
  * reads bytes from the buffer'in', tries to interpret/match againset regexp fmt
  * if objects (corresponding to covnersion specifiers) are found,
  * store them in struct sto_object *o table
+ * @in    ; input  buffer
+ * @fmt   : format buffer
+ * @o     : will store input data (if conversion specifiers are found)
+ * @max_o : max number of collected objects
  *
- * returns :
+ * returns:
  * 	number of objects found
  * 	-1 if no match and no conversion specifier found
  */
@@ -1180,7 +1187,8 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 		debug(SCANF, 8, "Still to parse in FMT  : '%s'\n", fmt + i);
 		debug(SCANF, 8, "Still to parse in 'in' : '%s'\n", in + j);
 		if (is_multiple_char(c)) {
-			res = parse_multiplier(in, fmt, &i, in_length, &j, expr, o, max_o, &n_found);
+			res = parse_multiplier(in, fmt, &i, in_length, &j, expr,
+					o, max_o, &n_found);
 			if (res < 0)
 				goto end_nomatch;
 			continue;
@@ -1197,7 +1205,8 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				else
 					res = fill_char_range(expr, fmt + i, sizeof(expr));
 				if (res == -1) {
-					debug(SCANF, 1, "Invalid format '%s', unmatched '%c'\n", fmt, c);
+					debug(SCANF, 1, "Invalid format '%s', unmatched '%c'\n",
+							fmt, c);
 					goto end_nomatch;
 				}
 				i += res;
@@ -1223,7 +1232,8 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				goto end_nomatch;
 		} else if (c == '%') {
 			if (n_found > max_o - 1) {
-				debug(SCANF, 1, "Cannot get more than %d objets, already found %d\n", max_o, n_found);
+				debug(SCANF, 1, "Cannot get more than %d objets,"
+						" already found %d\n", max_o, n_found);
 				return n_found;
 			}
 			res = parse_conversion_specifier(in, fmt, &i, &j, o + n_found);
@@ -1258,7 +1268,8 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 
 			num_cs = count_cs(expr);
 			if (n_found + num_cs >= max_o) {
-				debug(SCANF, 1, "Cannot get more than %d objets, already found %d\n", max_o, n_found);
+				debug(SCANF, 1, "Cannot get more than %d objets,"
+						" already found %d\n", max_o, n_found);
 				return n_found;
 			}
 			res = match_expr_single(expr, in + j, o, &n_found);
@@ -1270,17 +1281,22 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				debug(SCANF, 2, "Expr'%s' didnt match in 'in' at offset %d\n", expr, j);
 				goto end_nomatch;
 			}
-			debug(SCANF, 4, "Expr'%s' matched 'in' res=%d at offset %d, found %d objects so far\n", expr, res, j, n_found);
+			debug(SCANF, 4, "Expr'%s' matched 'in' res=%d at offset %d,"
+					" found %d objects so far\n", expr, res, j, n_found);
 			j += res;
-			if (j > in_length) { /* can happen only if there is a BUG in 'match_expr_single' and its descendant */
-				fprintf(stderr, "BUG, input buffer override in %s line %d\n", __FUNCTION__, __LINE__);
+			if (j > in_length) {
+				/* can happen only if there is a BUG in 'match_expr_single'
+				 * and its descendant */
+				fprintf(stderr, "BUG, input buffer override in %s line %d\n",
+						__FUNCTION__, __LINE__);
 				return n_found;
 			}
 		} else {
 			if (fmt[i] == '\\') {
 				c = escape_char(fmt[i + 1]);
 				if (c == '\0') {
-					debug(SCANF, 1, "Invalid format string '%s', nul char after escape char\n", fmt);
+					debug(SCANF, 1, "Invalid format string '%s',"
+							" nul char after escape char\n", fmt);
 					goto end_nomatch;
 				}
 				i++;
