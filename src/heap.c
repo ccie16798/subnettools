@@ -123,7 +123,7 @@ void *popTAS(TAS *tas)
 		i2++; /* i2 = 2 * i + 1, i2 = left son of i  */
 		if (i2 == n) { /* empty right son */
 			if (tas->compare(tas->tab[i], tas->tab[i2])) /* if father is better, stop */
-                                break;
+				break;
 			else
 				swap(tas->tab[i2], tas->tab[i]); /* swap father & left son */
 			break;
@@ -133,12 +133,14 @@ void *popTAS(TAS *tas)
 
 		/* heap[2i+1] = left son, heap[2i+2] = right son */
 		if (tas->compare(tas->tab[i2], tas->tab[i2 + 1])) {
-			if (tas->compare(tas->tab[i], tas->tab[i2])) /* if father is better, stop */
+			/* if father is better, stop */
+			if (tas->compare(tas->tab[i], tas->tab[i2]))
 				break;
 			swap(tas->tab[i2], tas->tab[i]); /* swap father & left son */
 			i = i2;
 		} else {
-			if (tas->compare(tas->tab[i], tas->tab[i2 + 1]))/* if father is better, stop */
+			/* if father is better, stop */
+			if (tas->compare(tas->tab[i], tas->tab[i2 + 1]))
 				break;
 			swap(tas->tab[i2 + 1], tas->tab[i]); /* swap father & right son */
 			i = i2 + 1;
@@ -162,7 +164,7 @@ void print_tas(TAS tas)
 		printf(" : ");
 
 		tas.print(tas.tab[i]);
-		printf(" %d \n", tas.compare(tas.tab[i], tas.tab[(i - 1) / 2]));
+		printf(" %d\n", tas.compare(tas.tab[i], tas.tab[(i - 1) / 2]));
 	}
 	printf("\n");
 }
@@ -184,16 +186,17 @@ int main(int argc, char **argv)
 {
 	TAS t;
 	int i;
-	int truc [] = {1008, 45, 56,76, 7 , 5, 8, 127, 129, 2, 5, 8, 8, 1, 2, 9, 25, 48 ,3, 2, 100, 200, 41, 50, 54, 67,88, 89, 101, 150, 123, 45, 67};
+	int truc[] = {1008, 45, 56, 76, 7, 5, 8, 127, 129, 2, 5, 8,
+		8, 1, 2, 9, 25, 48, 3, 2, 100, 200, 41, 50, 54, 67,
+		88, 89, 101, 150, 123, 45, 67};
 	int j;
 
 	t.tab = (void **)malloc(100 * sizeof(void *));
 	t.compare = &compare_int;
 	t.print = &printint;
 	t.nr = 0;
-	for (i = 0; i < sizeof(truc)/4; i++) {
+	for (i = 0; i < sizeof(truc)/4; i++)
 		addTAS(&t, (void *)&truc[i]);
-	}
 	print_tas(t);
 	for (i = 0; i < sizeof(truc)/4; i++) {
 		j = *((int *)popTAS(&t));
