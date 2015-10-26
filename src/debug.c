@@ -38,7 +38,7 @@ struct debug debugs[] = {
 
 char debugs_level[__D_MAX];
 struct timeval tv_start[10]; /* nested timer values (10 levels max) */
-int num_times = 0;
+int num_times;
 
 void list_debugs(void)
 {
@@ -102,12 +102,12 @@ void parse_debug(char *string)
 			return;
 		}
 		if (len > 1 && s2[len - 2] == ':') {
-				if (isdigit(s[len - 1]))
-					debug_level = s[len - 1] - '0';
-				else
-					debug(DEBUG, 1, "invalid debug level '%c'\n",
-							s[len - 1]);
-				s2[len - 2] = '\0';
+			if (isdigit(s[len - 1]))
+				debug_level = s[len - 1] - '0';
+			else
+				debug(DEBUG, 1, "invalid debug level '%c'\n",
+						s[len - 1]);
+			s2[len - 2] = '\0';
 		}
 		for (i = 0; ; i++) {
 			if (debugs[i].name == NULL)
