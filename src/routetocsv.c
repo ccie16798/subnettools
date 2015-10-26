@@ -110,13 +110,14 @@ int run_csvconverter(char *name, char *filename, struct st_options *o)
 	return 0;
 }
 
-#define BAD_LINE_CONTINUE \
-	debug(PARSEROUTE, 1, "%s line %lu invalid : '%s'", name, line, buffer); \
-	zero_route_ea(&route); \
-	badline++; \
-	continue; \
+#define BAD_LINE \
+	do { \
+		debug(PARSEROUTE, 1, "%s line %lu invalid : '%s'", name, line, buffer); \
+		zero_route_ea(&route); \
+		badline++; \
+	} while (0)
 
-#define CHECK_IP_VER  \
+#define CHECK_IP_VER \
 	if (ip_ver == -1) { \
 		ip_ver = route.subnet.ip_ver; \
 	} else if (route.subnet.ip_ver != ip_ver) { \
@@ -125,7 +126,7 @@ int run_csvconverter(char *name, char *filename, struct st_options *o)
 		continue; \
 	}
 
-#define CHECK_GW_IP_VER  \
+#define CHECK_GW_IP_VER \
 	if (route.gw.ip_ver && (route.subnet.ip_ver != route.gw.ip_ver)) { \
 		debug(PARSEROUTE, 1, "line %lu Invalid '%s', inconsistent IP version\n", line, s); \
 		badline++; \
@@ -180,7 +181,8 @@ int palo_to_csv(char *name, FILE *f, struct st_options *o)
 		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
 		res = st_sscanf(s, "%P *%I.*$%32s", &route.subnet, &route.gw, route.device);
 		if (res < 1) {
-			BAD_LINE_CONTINUE
+			BAD_LINE;
+			continue;
 		}
 		CHECK_IP_VER
 		CHECK_GW_IP_VER
@@ -222,7 +224,8 @@ int ipso_route_to_csv(char *name, FILE *f, struct st_options *o)
 			zero_route_ea(&route);
 			res = st_sscanf(s, ".*%Q.*$%32s", &route.subnet, route.device);
 			if (res < 2) {
-				BAD_LINE_CONTINUE
+				BAD_LINE;
+				continue;
 			}
 			CHECK_IP_VER
 			type = 'C';
@@ -235,10 +238,12 @@ int ipso_route_to_csv(char *name, FILE *f, struct st_options *o)
 				res = st_sscanf(s, ".*(via) %I.*%32[^ ,]",
 						&route.gw, route.device);
 				if (res < 2) {
-					BAD_LINE_CONTINUE
+					BAD_LINE;
+					continue;
 				}
 			} else {
-				BAD_LINE_CONTINUE
+				BAD_LINE;
+				continue;
 			}
 			CHECK_GW_IP_VER
 			if (nhop == 0 || o->ecmp)
@@ -252,7 +257,8 @@ int ipso_route_to_csv(char *name, FILE *f, struct st_options *o)
 				&route.subnet, &route.gw, route.device);
 		type = s[0];
 		if (res < 3) {
-			BAD_LINE_CONTINUE
+			BAD_LINE;
+			continue;
 		}
 		CHECK_IP_VER
 		SET_COMMENT;
@@ -282,17 +288,18 @@ int cisco_nexus_to_csv(char *name, FILE *f, struct st_options *o)
 			debug(PARSEROUTE, 1, "%s line %lu too long, discarding %d chars\n",
 					name, line, res);
 		debug(PARSEROUTE, 9, "line %lu buffer '%s'\n", line, buffer);
+		/*	    *via 128.90.8.22, Vlan35, [170/512256], 2w0d, eigrp-WAN, external */
+		/*   *via 128.90.8.34, [1/0], 11w0d, static, tag 65159
+		 *
+		 *   THAT pattern is fun
+		 */
 		if (strstr(s, "*via ")) {
-/*	    *via 128.90.8.22, Vlan35, [170/512256], 2w0d, eigrp-WAN, external, tag 1387965159 */
-/*   *via 128.90.8.34, [1/0], 11w0d, static, tag 65159
- *
- *   THAT pattern is fun
- */
 			res = st_sscanf(s,
 					" *(*via) %I(, %32[][0-9/]%32s|, %32[^,], %32[^,],).*, %128[^,]",
 					 &route.gw, route.device, poubelle, route.ea[0].value);
 			if (res <= 0) {
-				BAD_LINE_CONTINUE
+				BAD_LINE;
+				continue;
 			}
 			if (res == 1)
 				strcpy(route.device, "NA");
@@ -309,7 +316,8 @@ int cisco_nexus_to_csv(char *name, FILE *f, struct st_options *o)
 			zero_route_ea(&route);
 			res = st_sscanf(s, "%P", &route.subnet);
 			if (res <= 0) {
-				BAD_LINE_CONTINUE
+				BAD_LINE;
+				continue;
 			}
 			nhop = 0;
 		}
@@ -375,7 +383,8 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o)
 			res = st_sscanf(s, ".*%P.*$%32s", &route.subnet, route.device);
 			type = 'C';
 			if (res < 2) {
-				BAD_LINE_CONTINUE
+				BAD_LINE;
+				continue;
 			}
 			CHECK_IP_VER
 			SET_COMMENT;
@@ -389,23 +398,24 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o)
 		if (isspace(s[0])) {
 			if (strstr(s, "via ")) {
 				/* format is not the same in IPv6 or IPv4 */
-				if (ip_ver == IPV4_A)
-				/*
+				/* IPv4
 				 O E1    10.150.10.128/25
 					[110/45] via 10.138.2.131, 1w5d, TenGigabitEthernet8/1
 				*/
-					res = st_sscanf(s, ".*(via) (%I)?.*$%32[^, \n]",
-							&route.gw, route.device);
-				else
-				/*
+				/* IPv6
 					S   2A02:8400:0:41::2:2/128 [1/0]
 						     via FE80::253, Vlan491
 				*/
+				if (ip_ver == IPV4_A)
+					res = st_sscanf(s, ".*(via) (%I)?.*$%32[^, \n]",
+							&route.gw, route.device);
+				else
 					res = st_sscanf(s, " *(via) (%I)?.*%32[^, \n]",
 							&route.gw, route.device);
 				if (res <= 0) {
 					find_hop = 0;
-					BAD_LINE_CONTINUE
+					BAD_LINE;
+					continue;
 				}
 				if (res == 1)
 					strcpy(route.device, "NA");
@@ -417,7 +427,8 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o)
 				}
 			} else {
 				find_hop = 0;
-				BAD_LINE_CONTINUE
+				BAD_LINE;
+				continue;
 			}
 			if (route.gw.ip_ver != 0) {
 				CHECK_GW_IP_VER
@@ -432,7 +443,8 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o)
 				&type, &route.subnet, &route.gw, route.device);
 		/* a valid route begin with a non space char */
 		if (res <= 1 || isspace(type)) {
-			BAD_LINE_CONTINUE
+			BAD_LINE;
+			continue;
 		} else if (res == 2) { /* in case next-hop appears on next line */
 			find_hop = 1;
 			SET_COMMENT;
@@ -483,7 +495,8 @@ int cisco_fw_to_csv(char *name, FILE *f, struct st_options *o)
 		if (find_hop) {
 			res = st_sscanf(s, ".*(via )%I.*$%32s", &route.gw, route.device);
 			if (res < 2) {
-				BAD_LINE_CONTINUE
+				BAD_LINE;
+				continue;
 			}
 			CHECK_GW_IP_VER
 			SET_COMMENT;
@@ -497,7 +510,8 @@ int cisco_fw_to_csv(char *name, FILE *f, struct st_options *o)
 					&type, &route.subnet.ip_addr, &route.subnet.mask,
 					route.device);
 			if (res < 4) {
-				BAD_LINE_CONTINUE
+				BAD_LINE;
+				continue;
 			}
 			CHECK_IP_VER
 			SET_COMMENT;
@@ -513,7 +527,8 @@ int cisco_fw_to_csv(char *name, FILE *f, struct st_options *o)
 				continue;
 			}
 			if (res < 5) {
-				BAD_LINE_CONTINUE
+				BAD_LINE;
+				continue;
 			}
 		}
 		CHECK_IP_VER
@@ -552,7 +567,8 @@ int cisco_fw_conf_to_csv(char *name, FILE *f, struct st_options *o)
 				route.device, &route.subnet.ip_addr,
 				&route.subnet.mask, &route.gw);
 		if (res < 4) {
-			BAD_LINE_CONTINUE
+			BAD_LINE;
+			continue;
 		}
 		CHECK_IP_VER
 		CHECK_GW_IP_VER
@@ -584,7 +600,8 @@ int cisco_routeconf_to_csv(char *name, FILE *f, struct st_options *o)
 		debug(PARSEROUTE, 9, "line %lu buffer : '%s'", line, s);
 		res = sto_sscanf(buffer, "ip(v6)? route.*%I.%M (%32S)? *%I.*(name) %128s", sto, 6);
 		if (res < 2) {
-			BAD_LINE_CONTINUE
+			BAD_LINE;
+			continue;
 		}
 		copy_ipaddr(&route.subnet.ip_addr, &sto[0].s_addr);
 		route.subnet.mask = sto[1].s_int;
