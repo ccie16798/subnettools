@@ -541,6 +541,8 @@ static int run_filter(int argc, char **argv, void *st_options)
 		res = load_netcsv_file(NULL, &sf, nof);
 		if (res < 0)
 			return res;
+		if (nof->print_header)
+			fprint_route_header(nof->output_file, &sf.routes[0], nof->output_fmt);
 		res = subnet_file_filter(&sf, argv[2]);
 	} else {
 		res = load_netcsv_file(argv[2], &sf, nof);
