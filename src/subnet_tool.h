@@ -22,9 +22,9 @@ int subnet_file_filter(struct subnet_file *sf, char *expr);
 /* remove duplicate/included entries, and sort */
 int subnet_file_simplify(struct subnet_file *sf);
 /* same but take GW into account, must be equal
- if mode == 0, prints the simplified route file
- if mode == 1, prints the routes that can be removed
-*/
+ * if mode == 0, prints the simplified route file
+ * if mode == 1, prints the routes that can be removed
+ */
 int route_file_simplify(struct subnet_file *sf,  int mode);
 /* aggregates entries from 'sf' as much as possible
  * mode == 1 means we take the GW into acoount
@@ -45,7 +45,8 @@ int subnet_file_remove_file(struct subnet_file *sf1, struct subnet_file *sf2,
  *   first split 's' n times,
  *   second splits resulting subnet m times
  *   last splits resulting subnet k times
- *   split will produce 'n * m * k' subnets */
+ *   split will produce 'n * m * k' subnets
+ */
 int subnet_split(FILE *out, const struct subnet *s, char *string_levels);
 /* split2 s, "n,m,k" means :
  *   first split 's' into /n mask,

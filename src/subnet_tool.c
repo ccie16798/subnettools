@@ -162,6 +162,7 @@ static int __heap_subnet_is_superior(void *v1, void *v2)
 {
 	struct subnet *s1 = &((struct route *)v1)->subnet;
 	struct subnet *s2 = &((struct route *)v2)->subnet;
+
 	return subnet_is_superior(s1, s2);
 }
 
@@ -306,8 +307,7 @@ void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *
 		ea_strdup(&sf1->routes[i].ea[0], "NOT FOUND");
 		fprint_route_fmt(nof->output_file, &sf1->routes[i], nof->output_fmt);
 
-		/* we look a second time for a match
-		 * we could avoid doing 2 runs if both files are sorted */
+		/* we look a second time for a non-equal match */
 		for (j = 0; j < paip->nr; j++) {
 			mask = paip->routes[j].subnet.mask;
 			res = subnet_compare(&sf1->routes[i].subnet, &paip->routes[j].subnet);
@@ -395,9 +395,11 @@ int network_grep_file(char *name, struct st_options *nof, char *ip)
 			if (s == NULL)
 				break;
 			/* previous token was an IP without a mask,
-			 * try to get a mask on this field */
+			 * try to get a mask on this field
+			 */
 			if (find_ip) {
 				int lmask = string2mask(s, 21);
+
 				if (subnet.ip_ver == IPV4_A)
 					subnet.mask = (lmask == BAD_MASK ? 32 : lmask);
 				if (subnet.ip_ver == IPV6_A)
@@ -503,7 +505,8 @@ int subnet_file_simplify(struct subnet_file *sf)
 		if (r == NULL)
 			break;
 		/* because the 'new_r' list is sorted,
-		 * we know the only network to consider is i - 1 */
+		 * we know the only network to consider is i - 1
+		 */
 		res = subnet_compare(&r->subnet, &new_r[i - 1].subnet);
 		if (res == INCLUDED || res == EQUALS) {
 			st_debug(ADDRCOMP, 3, "%P is included in %P, skipping\n",
@@ -567,7 +570,8 @@ int route_file_simplify(struct subnet_file *sf,  int mode)
 				/* because the 'new_r' list is sorted,
 				 * we know the first 'backward'
 				 * match is the longest one and the longest match
-				 * is the one that matters */
+				 * is the one that matters
+				 */
 				if (is_equal_gw(r, &new_r[a])) {
 					st_debug(ADDRCOMP, 3, "%P is included in %P, discarding it\n",
 							r->subnet, new_r[a].subnet);
@@ -666,7 +670,8 @@ int aggregate_route_file(struct subnet_file *sf, int mode)
 			return -1;
 		}
 		/* rewinding and aggregating backwards as much as we can;
-		 * the aggregate we just created may aggregate with j - 1 */
+		 * the aggregate we just created may aggregate with j - 1
+		 */
 		while (j > 0) {
 			if (mode == 1 && !is_equal_gw(&new_r[j], &new_r[j - 1]))
 				break;
@@ -747,7 +752,8 @@ int subnet_file_merge_common_routes(const struct subnet_file *sf1,  const struct
 			} else if (res == EQUALS) {/* already added, skipping */
 				can_add = 0;
 				 /* maybe the route we are matching is included in something;
-				  * in that case we wont add it again */
+				  * in that case we wont add it again
+				  */
 				break;
 			}
 		}
@@ -942,7 +948,8 @@ static int sum_log_to(int *level, int n, int max_n)
 }
 
 /* split subnet 's' 'string_levels' times
- * split n,m means split 's' n times, and each resulting subnet m times */
+ * split n,m means split 's' n times, and each resulting subnet m times
+ */
 int subnet_split(FILE *out, const struct subnet *s, char *string_levels)
 {
 	int k, res;
@@ -958,7 +965,8 @@ int subnet_split(FILE *out, const struct subnet *s, char *string_levels)
 	n_levels = res;
 	res = sum_log_to(levels, 0, n_levels);
 	/* make sure the splits levels are not too large;
-	 * for IPv6, we can loop more than 2^(ulong bits) */
+	 * for IPv6, we can loop more than 2^(ulong bits)
+	 */
 	if  ((s->ip_ver == IPV4_A && res > (32 - s->mask))
 			|| (s->ip_ver == IPV6_A && res > (128 - s->mask))
 			|| res > sizeof(sum) * 4) {
@@ -1253,16 +1261,12 @@ static int route_filter(const char *s, const char *value, char op, void *object)
 		switch (op) {
 		case '=':
 			return route->subnet.mask == res;
-			break;
 		case '#':
 			return route->subnet.mask != res;
-			break;
 		case '<':
 			return route->subnet.mask < res;
-			break;
 		case '>':
 			return route->subnet.mask > res;
-			break;
 		default:
 			debug(FILTER, 1, "Unsupported op '%c' for mask\n", op);
 			return 0;
@@ -1271,10 +1275,8 @@ static int route_filter(const char *s, const char *value, char op, void *object)
 		switch (op) {
 		case '=':
 			return !strcmp(route->device, value);
-			break;
 		case '#':
 			return !!strcmp(route->device, value);
-			break;
 		case '~':
 			res = st_sscanf(route->device, value);
 			if (res == -1)
