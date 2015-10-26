@@ -117,7 +117,7 @@ static int ipam_mask_handle(char *s, void *data, struct csv_state *state)
 
 static int ipam_ea_handle(char *s, void *data, struct csv_state *state)
 {
-        struct ipam_file *sf = data;
+	struct ipam_file *sf = data;
 	int ea_nr;
 	int found = 0;
 
@@ -272,15 +272,17 @@ static int ipam_filter(const char *s, const char *value, char op, void *object)
 	if (!strcmp(s, "prefix")) {
 		res = get_subnet_or_ip(value, &subnet);
 		if (res < 0) {
-			debug(FILTER, 1, "Filtering on prefix %c '%s',  but it is not an IP\n", op, value);
+			debug(FILTER, 1, "Filtering on prefix %c '%s',  but it is not an IP\n",
+					op, value);
 			return -1;
 		}
 		return subnet_filter(&ipam->subnet, &subnet, op);
-	}
-	else if (!strcmp(s, "mask")) {
+	} else if (!strcmp(s, "mask")) {
 		res =  string2mask(value, 42);
 		if (res < 0) {
-			debug(FILTER, 1, "Filtering on mask %c '%s',  but it is valid\n", op, value);
+			debug(FILTER, 1,
+					"Filtering on mask %c '%s',  but it is not valid\n",
+					op, value);
 			return -1;
 		}
 		switch (op) {
@@ -300,8 +302,7 @@ static int ipam_filter(const char *s, const char *value, char op, void *object)
 			debug(FILTER, 1, "Unsupported op '%c' for mask\n", op);
 			return -1;
 		}
-	}
-	else
+	} else
 		return filter_ea(ipam->ea, ipam->ea_nr, s, value, op);
 }
 
@@ -335,7 +336,8 @@ int ipam_file_filter(struct ipam_file *sf, char *expr)
 			return -1;
 		}
 		if (res) {
-			st_debug(FILTER, 5, "Matching filter '%s' on %P\n", expr, sf->lines[i].subnet);
+			st_debug(FILTER, 5, "Matching filter '%s' on %P\n",
+					expr, sf->lines[i].subnet);
 			memcpy(&new_ipam[j], &sf->lines[i], sizeof(struct ipam_line));
 			j++;
 		} else
@@ -388,7 +390,8 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 				found_j = j;
 				break; /* we break on exact match */
 			} else if (res == INCLUDED) {
-				st_debug(IPAM, 4, "found included match %P\n", ipam->lines[j].subnet);
+				st_debug(IPAM, 4, "found included match %P\n",
+						ipam->lines[j].subnet);
 				mask = ipam->lines[j].subnet.mask;
 				if (mask < found_mask)
 					continue; /* we have a better mask */
@@ -399,7 +402,7 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 		k = 1;
 		if (found_mask == -1) {
 			for (j = 0; j < ipam->ea_nr; j++) {
-				/* 'comment' EA has a special treatment; it is included in struct route
+				/* 'comment' get special treatment; it is included in struct route
 				 * by default as routes->ea[0]; so if we get 'comment' EA from ipam
 				 *  we need to overwrite it with IPAM value
 				 * and free some memory (we reserve 1 more struct ea) */
@@ -417,12 +420,14 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 			for (j = 0; j < ipam->ea_nr; j++) {
 				if (!strcasecmp(ipam->ea[j].name, "comment")) {
 					sf->routes[i].ea[0].name  = ipam->ea[j].name;
-					ea_strdup(&sf->routes[i].ea[0], ipam->lines[found_j].ea[j].value);
+					ea_strdup(&sf->routes[i].ea[0],
+							ipam->lines[found_j].ea[j].value);
 					has_comment = 1;
 				} else {
 					sf->routes[i].ea[k].name  = ipam->ea[j].name;
 					st_free_string(sf->routes[i].ea[k].value);
-					ea_strdup(&sf->routes[i].ea[k], ipam->lines[found_j].ea[j].value);
+					ea_strdup(&sf->routes[i].ea[k],
+							ipam->lines[found_j].ea[j].value);
 					k++;
 				}
 			}
