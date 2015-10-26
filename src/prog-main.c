@@ -907,13 +907,10 @@ static int run_remove(int argc, char **argv, void *st_options)
 		free_subnet_file(&sf1);
 		free_subnet_file(&sf2);
 		return 0;
-	} else {
-		fprintf(stderr, "Invalid objet %s after %s, expecting 'subnet' or 'file'\n",
-				argv[2], argv[1]);
-		return -1;
-
 	}
-	return 0;
+	fprintf(stderr, "Invalid objet %s after %s, expecting 'subnet' or 'file'\n",
+			argv[2], argv[1]);
+	return -1;
 }
 
 static int run_split(int argc, char **argv, void *st_options)
@@ -1275,7 +1272,7 @@ int main(int argc, char **argv)
 	char *s;
 	char conf_abs_path[256];
 
-	memset(&nof, 0 , sizeof(nof));
+	memset(&nof, 0, sizeof(nof));
 	nof.output_file      = stdout;
 	/* full IPv6 address compression  with IPv4 mapped/compatible support*/
 	nof.ip_compress_mode = 3;
