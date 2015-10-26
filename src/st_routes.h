@@ -20,8 +20,8 @@ void copy_route(struct route *dst, const struct route *src);
  * if dest had alloc'ed buffer, free tham
  *
  * returns:
- * 	1  on success
- * 	-1 on failure (ENOMEM)
+ *	1  on success
+ *	-1 on failure (ENOMEM)
  */
 int clone_route(struct route *dst, const struct route *src);
 
@@ -29,8 +29,8 @@ int clone_route(struct route *dst, const struct route *src);
  * doesnt free dest buffers, so make sure it hasnt
  *
  * returns:
- * 	1  on success
- * 	-1 on failure (ENOMEM)
+ *	1  on success
+ *	-1 on failure (ENOMEM)
  */
 int clone_route_nofree(struct route *dst, const struct route *src);
 
@@ -43,8 +43,8 @@ void zero_route_ea(struct route *a);
  * @r	: the route
  * @n	: the number of Extended Attributes to alloc
  * returns:
- * 	1  on SUCCESS
- * 	-1 on failure (ENOMEM)
+ *	1  on SUCCESS
+ *	-1 on failure (ENOMEM)
  */
 int alloc_route_ea(struct route *r, int n);
 
@@ -54,7 +54,8 @@ int alloc_route_ea(struct route *r, int n);
  * @r	: the route
  * @n	: the new number of Extended Attributes to alloc
  * returns:
- * 	1  on SUCCESS
+ *	1  on SUCCESS
+ *	-1 onf failure (ENOME)
  */
 int realloc_route_ea(struct route *r, int new_n);
 void free_route(struct route *r);
