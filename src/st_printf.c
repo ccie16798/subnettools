@@ -106,7 +106,7 @@ sprint_unsigned(long)
 
 /* if fprint_route_fmt or fprint_bgp_route_fmt are called with route == NULL
  * it will print a subnet_file or bgp_file HEADER */
-#define PRINT_FILE_HEADER(__val) \
+#define PRINT_FILE_HEADER(__val) ({ \
 	if (r == NULL) { \
 		strcpy(buffer, #__val); \
 		res = strlen(buffer); \
@@ -114,7 +114,7 @@ sprint_unsigned(long)
 				res, field_width, pad_left, pad_value); \
 		j += res; \
 		break; \
-	}
+	} })
 
 void fprint_route(FILE *output, const struct route *r, int compress_level)
 {
@@ -284,7 +284,7 @@ static int __print_ea(char *outbuf, size_t buffer_len,
 	}
 }
 
-#define IPAM_HEADER(__val) \
+#define IPAM_HEADER(__val) ({ \
 	if (header) { \
 		strcpy(buffer, __val); \
 		res = strlen(buffer); \
@@ -293,6 +293,7 @@ static int __print_ea(char *outbuf, size_t buffer_len,
 		j += res; \
 		break; \
 	} \
+	})
 
 /* a very specialized function to print a struct route */
 static int __fprint_route_fmt(FILE *output, const struct route *r, const char *fmt, int header)
