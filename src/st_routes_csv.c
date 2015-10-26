@@ -240,7 +240,8 @@ static int netcsv_validate_header(struct csv_file *cf, void *data)
 		debug(LOAD_CSV, 3, "Need to register %d EA, sf->ea_nr=%d\n", new_n, new_n);
 
 		/* we alloc memory for sf->ea[i].name
-		 * except comment because it is already alloc'ed */
+		 * except comment because it is already alloc'ed
+		 */
 		for (i = 5; i < cf->num_fields_registered; i++) {
 			sf->ea[i - 4].name = st_strdup(cf->csv_field[i].name);
 			debug(LOAD_CSV, 3, "Register handler '%s' for EA=%d\n",
@@ -315,10 +316,10 @@ int load_ipam_no_EA(char  *name, struct subnet_file *sf, struct st_options *nof)
 	 * obviously if you have a different IPAM please describe it in the config file
 	 */
 	struct csv_field csv_field[] = {
-		{ "address*"	, 0,  3, 1, &netcsv_prefix_handle },
-		{ "netmask_dec"	, 0,  4, 1, &netcsv_mask_handle },
-		{ "EA-Name"	, 0, 16, 1, &netcsv_comment_handle },
-		{ "comment"	, 0, 17, 1, &ipam_comment_handle },
+		{ "address*",	0,  3, 1, &netcsv_prefix_handle },
+		{ "netmask_dec", 0,  4, 1, &netcsv_mask_handle },
+		{ "EA-Name",	0, 16, 1, &netcsv_comment_handle },
+		{ "comment",	0, 17, 1, &ipam_comment_handle },
 		{ NULL, 0, 0, 0, NULL }
 	};
 	struct csv_file cf;
@@ -528,10 +529,9 @@ static int bgpcsv_origin_handle(char *s, void *data, struct csv_state *state)
 	if (s[i] == 'e' || s[i] == 'i' || s[i] == '?') {
 		sf->routes[sf->nr].origin = s[i];
 		return CSV_VALID_FIELD;
-	} else {
-		debug(LOAD_CSV, 2, "line %lu ORIGIN CODE '%c' is invalid\n", state->line, s[i]);
-		return CSV_INVALID_FIELD_BREAK;
 	}
+	debug(LOAD_CSV, 2, "line %lu ORIGIN CODE '%c' is invalid\n", state->line, s[i]);
+	return CSV_INVALID_FIELD_BREAK;
 }
 
 static int bgpcsv_valid_handle(char *s, void *data, struct csv_state *state)
@@ -584,16 +584,16 @@ static int bgp_field_compare(const char *s1, const char *s2)
 int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof)
 {
 	struct csv_field csv_field[] = {
-		{ "prefix"	, 0, 0, 1, &bgpcsv_prefix_handle },
-		{ "GW"		, 0, 0, 1, &bgpcsv_GW_handle },
-		{ "LOCAL_PREF"	, 0, 0, 1, &bgpcsv_localpref_handle },
-		{ "MED"		, 0, 0, 1, &bgpcsv_med_handle },
-		{ "WEIGHT"	, 0, 0, 1, &bgpcsv_weight_handle },
-		{ "AS_PATH"	, 0, 0, 0, &bgpcsv_aspath_handle },
-		{ "BEST"	, 0, 0, 1, &bgpcsv_best_handle },
-		{ "ORIGIN"	, 0, 0, 1, &bgpcsv_origin_handle },
-		{ "V"		, 0, 0, 1, &bgpcsv_valid_handle },
-		{ "Proto"	, 0, 0, 1, &bgpcsv_type_handle },
+		{ "prefix",	0, 0, 1, &bgpcsv_prefix_handle },
+		{ "GW",		0, 0, 1, &bgpcsv_GW_handle },
+		{ "LOCAL_PREF",	0, 0, 1, &bgpcsv_localpref_handle },
+		{ "MED",	0, 0, 1, &bgpcsv_med_handle },
+		{ "WEIGHT",	0, 0, 1, &bgpcsv_weight_handle },
+		{ "AS_PATH",	0, 0, 0, &bgpcsv_aspath_handle },
+		{ "BEST",	0, 0, 1, &bgpcsv_best_handle },
+		{ "ORIGIN",	0, 0, 1, &bgpcsv_origin_handle },
+		{ "V",		0, 0, 1, &bgpcsv_valid_handle },
+		{ "Proto",	0, 0, 1, &bgpcsv_type_handle },
 		{ NULL, 0, 0, 0, NULL }
 	};
 	struct csv_file cf;
