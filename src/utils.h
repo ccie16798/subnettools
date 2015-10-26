@@ -68,13 +68,21 @@ char *fgets_truncate_buffer(char *buffer, int size, FILE *stream, int *res);
 		(void) (&_max1 == &_max2); \
 		_max1 > _max2 ? _max1 : _max2; })
 
-
 #define min(x, y) ({ \
 		typeof(x) _max1 = (x); \
 		typeof(y) _max2 = (y); \
 		(void) (&_max1 == &_max2); \
 		_max1 < _max2 ? _max1 : _max2; })
 
+#define min_t(type, x, y) ({ \
+		type _max1 = (x); \
+		type _max2 = (y); \
+		_max1 < _max2 ? _max1 : _max2; })
+
+#define max_t(type, x, y) ({ \
+		type _max1 = (x); \
+		type _max2 = (y); \
+		_max1 > _max2 ? _max1 : _max2; })
 
 /*
  * Integer to String MACROs
@@ -153,7 +161,7 @@ static inline int  snprint_hex##__type(char *s, unsigned __type a, size_t __len)
 		a >>= 4; \
 		i++; \
 	} while (a); \
-	for (j = 0; j < min(i, (int)__len); j++) \
+	for (j = 0; j < min_t(int, i, __len); j++) \
 		s[j] = c[i - j - 1]; \
 	return j; \
 }
@@ -169,7 +177,7 @@ static inline int snprint_u##__type(char *s, unsigned __type a, size_t __len) \
 		a /= 10; \
 		i++; \
 	} while (a); \
-	for (j = 0; j < min(i, (int)__len); j++) \
+	for (j = 0; j < min_t(int, i, __len); j++) \
 		s[j] = c[i - j - 1]; \
 	return j; \
 }
