@@ -33,27 +33,27 @@ int open_config_file(char *name, void *nof)
 	debug(CONFIGFILE, 3, "Opening config file '%s'\n", name);
 
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &i))) {
-			line++;
-			if (i) {
-				debug(CONFIGFILE, 1, "%s line %lu is longer than max size %d\n",
-						name, line, (int)sizeof(buffer));
-			}
-			s = strtok(s, " =\n");
-			if (s == NULL) {
-				debug(CONFIGFILE, 6, "%s line %lu is empty\n", name, line);
-				continue;
-			}
-			if (s[0] == '#') {
-				debug(CONFIGFILE, 5, "%s line %lu is a comment\n", name, line);
-				continue;
-			}
-			found = 0;
-			for (i = 0; ; i++) {
-				if (fileoptions[i].name == NULL)
-					break;
-				if (!strcmp(s, fileoptions[i].name)) {
-					found = 1;
-					break;
+		line++;
+		if (i) {
+			debug(CONFIGFILE, 1, "%s line %lu is longer than max size %d\n",
+					name, line, (int)sizeof(buffer));
+		}
+		s = strtok(s, " =\n");
+		if (s == NULL) {
+			debug(CONFIGFILE, 6, "%s line %lu is empty\n", name, line);
+			continue;
+		}
+		if (s[0] == '#') {
+			debug(CONFIGFILE, 5, "%s line %lu is a comment\n", name, line);
+			continue;
+		}
+		found = 0;
+		for (i = 0; ; i++) {
+			if (fileoptions[i].name == NULL)
+				break;
+			if (!strcmp(s, fileoptions[i].name)) {
+				found = 1;
+				break;
 				}
 			}
 			if (found == 0) {
@@ -68,7 +68,6 @@ int open_config_file(char *name, void *nof)
 				debug(CONFIGFILE, 2, "%s line %lu no value found\n", name, line);
 				continue;
 			}
-
 			offset = fileoptions[i].object_offset;
 			switch (fileoptions[i].type) {
 			case TYPE_STRING:
@@ -123,6 +122,7 @@ void config_file_describe(void)
 int main(int argc, char **argv)
 {
 	struct st_options opt;
+
 	debugs_level[__D_CONFIGFILE] = 6;
 	open_config_file("st.conf", &opt);
 

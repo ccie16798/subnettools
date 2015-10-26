@@ -10,7 +10,8 @@ struct file_options {
 	int size;
 	size_t object_offset;
 	/* offset in a  struct; don't set it manually,
-	 * set it with offsetof(struct mystruct, my_field */
+	 * set it with offsetof(struct mystruct, my_field
+	 */
 	char *long_desc;
 };
 
