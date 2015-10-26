@@ -21,7 +21,8 @@ const struct subnet class_c = { .ip_ver = IPV4_A, .ip = (6 << 29), .mask = 3};
 const struct subnet class_d = { .ip_ver = IPV4_A, .ip = (14 << 28), .mask = 4};
 const struct subnet class_e = { .ip_ver = IPV4_A, .ip = (15 << 28), .mask = 4};
 
-#define S_IPV4_CONST(DIGIT1, DIGIT2, __MASK)  { .ip_ver = IPV4_A, .ip = (DIGIT1 << 24) + (DIGIT2 << 16), .mask = __MASK }
+#define S_IPV4_CONST(DIGIT1, DIGIT2, __MASK) \
+{ .ip_ver = IPV4_A, .ip = (DIGIT1 << 24) + (DIGIT2 << 16), .mask = __MASK }
 const struct subnet ipv4_broadcast	= { .ip_ver = IPV4_A, .ip = -1, .mask = 32};
 const struct subnet ipv4_default	= S_IPV4_CONST(0,  0,   0);
 const struct subnet ipv4_unspecified	= S_IPV4_CONST(0,  0,   32);
@@ -32,17 +33,20 @@ const struct subnet ipv4_loopback	= S_IPV4_CONST(127, 0,   8);
 const struct subnet ipv4_rfc3927_ll	= S_IPV4_CONST(169, 254, 16);
 const struct subnet ipv4_rfc6598_sasr	= S_IPV4_CONST(100, 64,  10);
 const struct subnet ipv4_bench		= S_IPV4_CONST(198, 18,  15);
-#define S_IPV4_CONST3(DIGIT1, DIGIT2, DIGIT3,__MASK)  { .ip_ver = 4, .ip = (DIGIT1 << 24) + (DIGIT2 << 16) + (DIGIT3 << 8), .mask = __MASK }
+#define S_IPV4_CONST3(DIGIT1, DIGIT2, DIGIT3, __MASK) \
+{ .ip_ver = 4, .ip = (DIGIT1 << 24) + (DIGIT2 << 16) + (DIGIT3 << 8), .mask = __MASK }
 const struct subnet ipv4_test1		= S_IPV4_CONST3(192, 0, 2, 24);
 const struct subnet ipv4_test2		= S_IPV4_CONST3(198, 51, 100, 24);
 const struct subnet ipv4_test3		= S_IPV4_CONST3(203, 0, 113, 24);
 
-const struct subnet ipv4_mcast_ll	= S_IPV4_CONST(224,0, 8);
-const struct subnet ipv4_mcast_ssm	= S_IPV4_CONST(232,0, 8);
-const struct subnet ipv4_mcast_glop	= S_IPV4_CONST(233,0, 8);
-const struct subnet ipv4_mcast_site	= S_IPV4_CONST(239,0, 8);
+const struct subnet ipv4_mcast_ll	= S_IPV4_CONST(224, 0, 8);
+const struct subnet ipv4_mcast_ssm	= S_IPV4_CONST(232, 0, 8);
+const struct subnet ipv4_mcast_glop	= S_IPV4_CONST(233, 0, 8);
+const struct subnet ipv4_mcast_site	= S_IPV4_CONST(239, 0, 8);
 
-#define S_IPV6_CONST(DIGIT1, DIGIT2, __MASK)  { .ip_ver = 6, block(.ip6, 0) = DIGIT1, block(.ip6, 1) = DIGIT2, .mask = __MASK }
+#define S_IPV6_CONST(DIGIT1, DIGIT2, __MASK) \
+{ .ip_ver = 6, block(.ip6, 0) = DIGIT1, block(.ip6, 1) = DIGIT2, .mask = __MASK }
+
 const struct subnet ipv6_default	= S_IPV6_CONST(0x0000, 0, 0);
 const struct subnet ipv6_unspecified	= S_IPV6_CONST(0x0000, 0, 128);
 const struct subnet ipv6_global		= S_IPV6_CONST(0x2000, 0, 3);
@@ -53,23 +57,29 @@ const struct subnet ipv6_multicast	= S_IPV6_CONST(0xff00, 0, 8);
 const struct subnet ipv6_6to4		= S_IPV6_CONST(0x2002, 0, 16);
 const struct subnet ipv6_rfc4380_teredo = S_IPV6_CONST(0x2001, 0, 32);
 const struct subnet ipv6_rfc3849_doc	= S_IPV6_CONST(0x2001, 0x0DB8, 32);
-const struct subnet ipv6_rfc6052_pat 	= S_IPV6_CONST(0x0064, 0xff9b, 96);
-const struct subnet ipv6_isatap_priv_ll	= {.ip_ver = 6, block(.ip6, 0) = 0xFE80, block(.ip6, 5) = 0x5EFE, .mask = 96};
-const struct subnet ipv6_isatap_pub_ll	= {.ip_ver = 6, block(.ip6, 0) = 0xFE80, block(.ip6, 4) = 0x0200, block(.ip6, 5) = 0x5EFE, .mask = 96};
-const struct subnet ipv6_mapped_ipv4	= {.ip_ver = 6, block(.ip6, 5) = 0xFFFF, .mask = 96}; /* ::FFFF:/96 */
-const struct subnet ipv6_mcast_sn	= {.ip_ver = 6, block(.ip6, 0) = 0xFF02, block(.ip6, 5) = 0x1, block(.ip6, 6) = 0xFF00, .mask = 104};
+const struct subnet ipv6_rfc6052_pat	= S_IPV6_CONST(0x0064, 0xff9b, 96);
+const struct subnet ipv6_isatap_priv_ll	= {.ip_ver = 6, block(.ip6, 0) = 0xFE80,
+	block(.ip6, 5) = 0x5EFE, .mask = 96};
+const struct subnet ipv6_isatap_pub_ll	= {.ip_ver = 6, block(.ip6, 0) = 0xFE80,
+	block(.ip6, 4) = 0x0200, block(.ip6, 5) = 0x5EFE, .mask = 96};
+const struct subnet ipv6_mapped_ipv4	= {.ip_ver = 6, block(.ip6, 5) = 0xFFFF,
+	.mask = 96}; /* ::FFFF:/96 */
+const struct subnet ipv6_mcast_sn	= {.ip_ver = 6, block(.ip6, 0) = 0xFF02,
+	block(.ip6, 5) = 0x1, block(.ip6, 6) = 0xFF00, .mask = 104};
 const struct subnet ipv6_compat_ipv4	= {.ip_ver = 6, .mask = 96}; /* ::/96 */
-const struct subnet ipv6_loopback 	= {.ip_ver = 6, block(.ip6, 7) = 1, .mask = 128}; /* ::1/128 */
+const struct subnet ipv6_loopback	= {.ip_ver = 6, block(.ip6, 7) = 1, .mask = 128};
 
 static void decode_6to4(FILE *out, const struct subnet *s)
 {
-	fprintf(out, "6to4 IPv4 destination address : %d.%d.%d.%d\n", block(s->ip6, 1) >> 8, block(s->ip6, 1) & 0xFF,
+	fprintf(out, "6to4 IPv4 destination address : %d.%d.%d.%d\n",
+			block(s->ip6, 1) >> 8, block(s->ip6, 1) & 0xFF,
 			block(s->ip6, 2) >> 8, block(s->ip6, 2) & 0xFF);
 }
 
 static void decode_teredo(FILE *out, const struct subnet *s)
 {
-	fprintf(out, "Teredo server : %d.%d.%d.%d\n", block(s->ip6, 2) >> 8, block(s->ip6, 2) & 0xFF,
+	fprintf(out, "Teredo server : %d.%d.%d.%d\n",
+			block(s->ip6, 2) >> 8, block(s->ip6, 2) & 0xFF,
 			block(s->ip6, 3) >> 8, block(s->ip6, 3) & 0xFF);
 	fprintf(out, "Client IP     : %d.%d.%d.%d\n", (block(s->ip6, 6) >> 8) ^ 0xFF,
 			(block(s->ip6, 6) & 0xFF) ^ 0xFF,
@@ -96,7 +106,7 @@ static void decode_ipv4_multicast(FILE *out, const struct subnet *s)
 	int found_mask, found_i;
 
 	found_mask = -1;
-	for (i = 0; ;i++) {
+	for (i = 0; ; i++) {
 		if (k[i].s == NULL)
 			break;
 		res = subnet_compare(s, k[i].s);
@@ -146,7 +156,7 @@ static void decode_ipv6_embedded_rp(FILE *out, const struct subnet *s)
 /* solicitted node address */
 static void decode_ipv6_multicast_sn(FILE *out, const struct subnet *s)
 {
-	fprintf(out, "Sollicited Address for any address like : XX:XX:XX:XX:XX:XX:X%02x:%x\n", 
+	fprintf(out, "Sollicited Address for any address like : XX:XX:XX:XX:XX:XX:X%02x:%x\n",
 			block(s->ip6, 6) & 0xFF, block(s->ip6, 7));
 }
 
@@ -159,24 +169,24 @@ static void decode_ipv6_multicast(FILE *out, const struct subnet *s)
 
 	fprintf(out, "Scope : ");
 	switch (scope) {
-		case 1:
-			fprintf(out, "Host Local\n");
-			break;
-		case 2:
-			fprintf(out, "Link Local\n");
-			break;
-		case 5:
-			fprintf(out, "Site Local\n");
-			break;
-		case 8:
-			fprintf(out, "Organisation Local\n");
-			break;
-		case 14:
-			fprintf(out, "Global\n");
-			break;
-		default:
-			fprintf(out, "Invalid : %d\n", scope);
-			break;
+	case 1:
+		fprintf(out, "Host Local\n");
+		break;
+	case 2:
+		fprintf(out, "Link Local\n");
+		break;
+	case 5:
+		fprintf(out, "Site Local\n");
+		break;
+	case 8:
+		fprintf(out, "Organisation Local\n");
+		break;
+	case 14:
+		fprintf(out, "Global\n");
+		break;
+	default:
+		fprintf(out, "Invalid : %d\n", scope);
+		break;
 	}
 	fprintf(out, "Flags : %d\n", flag);
 	if (flag & 4)
@@ -221,7 +231,8 @@ const struct known_subnet_desc ipv6_known_subnets[] = {
 	{&ipv6_sitelocal,	"IPv6 Site Local address (deprecated)"},
 	{&ipv6_linklocal,	"IPv6 link-local address"},
 	{&ipv6_multicast,	"IPv6 multicast address", 1, &decode_ipv6_multicast},
-	{&ipv6_mcast_sn,	"IPv6 multicast Solicited Node Address", 1, &decode_ipv6_multicast_sn},
+	{&ipv6_mcast_sn,	"IPv6 multicast Solicited Node Address", 1,
+		&decode_ipv6_multicast_sn},
 	{&ipv6_6to4,		"IPv6 6to4", 1, &decode_6to4},
 	{&ipv6_rfc4380_teredo,	"IPv6 rfc4380 Teredo", 1, &decode_teredo},
 	{&ipv6_rfc3849_doc,	"IPv6 rfc3849 Documentation-reserved addresses"},
@@ -263,7 +274,7 @@ static void fprint_ip_membership(FILE *out, const struct subnet *s)
 	else
 		return;
 	found_mask = -1;
-	for (i = 0; ;i++) {
+	for (i = 0; ; i++) {
 		if (k[i].s == NULL)
 			break;
 		res = subnet_compare(s, k[i].s);
@@ -329,7 +340,8 @@ static void fprint_ipv6_info(FILE *out, const struct subnet *s)
 			mac[3] = (block(s->ip6, 6) & 0xFF);
 			mac[4] = (block(s->ip6, 7) >> 8);
 			mac[5] = (block(s->ip6, 7) & 0xFF);
-			fprintf(out, "MAC address : %02x:%02x:%02x:%02x:%02x:%02x\n", mac[0], mac[1], mac[2],
+			fprintf(out, "MAC address : %02x:%02x:%02x:%02x:%02x:%02x\n",
+					mac[0], mac[1], mac[2],
 					mac[3], mac[4], mac[5]);
 		} else
 			fprintf(out, "Not in EUI-64 format\n");
@@ -359,7 +371,8 @@ static void fprint_ipv4_known_mcast_subnets(FILE *out)
 	for (i = 0; ; i++) {
 		if (k[i].desc == NULL)
 			break;
-		st_fprintf(out, "%-18P : [%-15N - %-16B] -- %s\n", *k[i].s, *k[i].s, *k[i].s, k[i].desc);
+		st_fprintf(out, "%-18P : [%-15N - %-16B] -- %s\n",
+				*k[i].s, *k[i].s, *k[i].s, k[i].desc);
 	}
 }
 
@@ -371,7 +384,8 @@ void fprint_ipv4_known_subnets(FILE *out)
 	for (i = 0; ; i++) {
 		if (k[i].desc == NULL)
 			break;
-		st_fprintf(out, "%-18P : [%-15N - %-16B] -- %s\n", *k[i].s, *k[i].s, *k[i].s, k[i].desc);
+		st_fprintf(out, "%-18P : [%-15N - %-16B] -- %s\n",
+				*k[i].s, *k[i].s, *k[i].s, k[i].desc);
 	}
 	fprint_ipv4_known_mcast_subnets(out);
 }
@@ -384,6 +398,7 @@ void fprint_ipv6_known_subnets(FILE *out)
 	for (i = 0; ; i++) {
 		if (k[i].desc == NULL)
 			break;
-		st_fprintf(out, "%-21P : [%-18N - %-40B] -- %s\n", *k[i].s, *k[i].s, *k[i].s, k[i].desc);
+		st_fprintf(out, "%-21P : [%-18N - %-40B] -- %s\n",
+				*k[i].s, *k[i].s, *k[i].s, k[i].desc);
 	}
 }
