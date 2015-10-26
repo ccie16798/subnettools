@@ -303,6 +303,10 @@ reg_test print invalid_ips_masks.txt
 #basic print to test fmt
 reg_test -c st-fmt.conf print route_aggipv6-2
 reg_test -c st-fmt.conf print route_aggipv4
+reg_test subnetcmp uniq1 uniq2
+reg_test subnetcmp uniq2 uniq1
+reg_test compare uniq1 uniq2
+reg_test compare uniq2 uniq1
 reg_test missing  BURP2 BURP
 reg_test uniq  BURP2 BURP
 reg_test uniq  uniq1 uniq2
