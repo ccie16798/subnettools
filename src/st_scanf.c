@@ -207,7 +207,14 @@ static int find_hex(const char *remain, struct expr *e)
 
 /*
  * from fmt string starting with '[', fill expr with the range
- * a bit like strxpy_until, but not quite since a ']' is allowed right after the opening '[' or a '^' if present
+ * a bit like strxpy_until, but not quite since a ']' is allowed right
+ * after the opening '[' or a '^' if present
+ * @expr  : the buffer to fill
+ * @fmt   : the format string (fmt[0] ) '[' in this function)
+ * @n     : max number of char to store in expr (including NUL)
+ * returns:
+ *     strlen(expr) on SUCCESS
+ *     -1 if fmt is badly formatted (no closing ']')
  */
 static int fill_char_range(char *expr, const char *fmt, int n)
 {
@@ -236,8 +243,10 @@ static int fill_char_range(char *expr, const char *fmt, int n)
 	return i + 1;
 }
 /*
- * match character c against STRING expr like [acde-g]
- * *i is a pointer to curr index in expr
+ * match character c against STRING 'expr' like [acde-g]
+ * @c    : the char to match
+ * @expr : the expr to test c against
+ * @i    : an index inside 'expr', will be updated
  * returns :
  *    1 if a match is found
  *    0 if no match
@@ -285,14 +294,16 @@ static int match_char_against_range(char c, const char *expr, int *i)
 	return (invert ? !res : res);
 }
 /* parse STRING 'in' at index *j according to fmt at index *i
-   fmt[*i] == '%' when the function starts
-   store output in o if not NULL, else put it to thrash
-   fmt = FORMAT buffer
-   in  = input buffer
-   i   = index in fmt
-   j   = index in in
-   returns the number of conversion specifier is found (0 or 1)
-   *i and *j are updated if a CS is found
+ * fmt[*i] == '%' when the function starts
+ * store output in o if not NULL, else put it to thrash
+ * @in  : input buffer
+ * @fmt : FORMAT buffer
+ * @i   : index in fmt
+ * @j   : index in in
+ * @o   : a struct to store a found objet; if NULL, discard found data
+ * returns:
+ *	the number of conversion specifiers found (0 or 1)
+ *	*i and *j are updated if a CS is found
 */
 static int parse_conversion_specifier(const char *in, const char *fmt,
 		int *i, int *j, struct sto *o)
