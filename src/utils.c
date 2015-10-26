@@ -79,9 +79,12 @@ int string2int(const char *s, int *res)
 
 inline int char2int(char c)
 {
-	if (c >= 'A' && c <= 'F') return (10 + c - 'A');
-	if (c >= 'a' && c <= 'f') return (10 + c - 'a');
-	if (c >= '0' && c <= '9') return (c - '0');
+	if (c >= 'A' && c <= 'F')
+		return (10 + c - 'A');
+	if (c >= 'a' && c <= 'f')
+		return (10 + c - 'a');
+	if (c >= '0' && c <= '9')
+		return (c - '0');
 	return 0;
 }
 
@@ -190,9 +193,9 @@ int strxcpy_until(char *dst, const char *src, int n, char end)
 	}
 }
 
-
 /* strtok variant ; treat consecutive delims one by one
- * standard strtok treats n successives delims as one, which is not always what we want in CSV files*/
+ * standard strtok treats n successives delims as one,
+ * which is not always what we want in CSV files*/
 char *simple_strtok(char *s, const char *delim)
 {
 	int i;
@@ -207,7 +210,6 @@ char *simple_strtok(char *s, const char *delim)
 
 	if (s2 == NULL)
 		return NULL;
-
 	while (*s != '\0') {
 		for (i = 0; i < strlen(delim); i++) {
 			if (*s == delim[i]) {
@@ -234,11 +236,10 @@ char *simple_strtok_r(char *s, const char *delim, char **s2)
 
 	if (*s2 == NULL)
 		return NULL;
-
 	while (*s != '\0') {
 		for (i = 0; i < strlen(delim); i++) {
 			if (*s == delim[i]) {
-				*s  ='\0';
+				*s = '\0';
 				*s2 = s + 1;
 				return s3;
 			}
@@ -255,7 +256,8 @@ char *fgets_truncate_buffer(char *buffer, int size, FILE *stream, int *res)
 
 	s = fgets(buffer, size, stream);
 	*res = 0;
-	if (s == NULL || s[0] == '\0') /* not sure s[0] can be 0 here but better be safe than sorry*/
+	/* not sure s[0] can be 0 here but better be safe than sorry*/
+	if (s == NULL || s[0] == '\0')
 		return s;
 	i = 0;
 	if (s[strlen(s) - 1] != '\n') { /* BFB; BIG FUCKING BUFFER; try to handle that  */
