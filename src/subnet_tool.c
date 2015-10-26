@@ -114,15 +114,16 @@ int subnet_file_cmp(const struct subnet_file *before, const struct subnet_file *
 			ea_strdup(&sf->routes[k].ea[ea_nr], "removed");
 			ea_strdup(&sf->routes[k].ea[ea_nr + 1], "removed");
 		} else {
-			if ( (!is_equal_gw(&after->routes[j], &before->routes[i])) &&
-					(strcmp(after->routes[j].device, before->routes[i].device))) {
+			if (!is_equal_gw(&after->routes[j], &before->routes[i]) &&
+					strcmp(after->routes[j].device, before->routes[i].device)) {
 				ea_strdup(&sf->routes[k].ea[ea_nr], "changed");
 				st_snprintf(buffer, sizeof(buffer), "new Device/GW: %s/%a",
 						after->routes[j].device, after->routes[j].gw);
 				ea_strdup(&sf->routes[k].ea[ea_nr + 1], buffer);
 			} else if (!is_equal_gw(&after->routes[j], &before->routes[i])) {
 				ea_strdup(&sf->routes[k].ea[ea_nr], "changed");
-				st_snprintf(buffer, sizeof(buffer), "new GW: %a", after->routes[j].gw);
+				st_snprintf(buffer, sizeof(buffer), "new GW: %a",
+						after->routes[j].gw);
 				ea_strdup(&sf->routes[k].ea[ea_nr + 1], buffer);
 			 } else if (strcmp(after->routes[j].device, before->routes[i].device)) {
 				ea_strdup(&sf->routes[k].ea[ea_nr], "changed");
@@ -166,7 +167,7 @@ static int __heap_subnet_is_superior(void *v1, void *v2)
 
 static void __heap_print_subnet(void *v)
 {
-	struct subnet *s = &((struct route*)v)->subnet;
+	struct subnet *s = &((struct route *)v)->subnet;
 
 	st_printf("%P", *s);
 }
@@ -240,7 +241,7 @@ int missing_routes(const struct subnet_file *sf1, const struct subnet_file *sf2,
 {
 	unsigned long i, j, k;
 	int res, find;
-	
+
 	res = alloc_subnet_file(sf3, sf1->max_nr);
 	if (res < 0)
 		return res;
@@ -250,7 +251,8 @@ int missing_routes(const struct subnet_file *sf1, const struct subnet_file *sf2,
 		for (j = 0; j < sf2->nr; j++) {
 			res = subnet_compare(&sf1->routes[i].subnet, &sf2->routes[j].subnet);
 			if (res == INCLUDED || res == EQUALS) {
-				st_debug(ADDRCOMP, 2, "skipping %P, included in %P\n", sf1->routes[i].subnet,
+				st_debug(ADDRCOMP, 2, "skipping %P, included in %P\n",
+						sf1->routes[i].subnet,
 						sf2->routes[j].subnet);
 				find = 1;
 				break;
@@ -288,7 +290,8 @@ void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *
 			if (res == EQUALS) {
 				st_free_string(sf1->routes[i].ea[0].value);
 				ea_strdup(&sf1->routes[i].ea[0], paip->routes[j].ea[0].value);
-				fprint_route_fmt(nof->output_file, &sf1->routes[i], nof->output_fmt);
+				fprint_route_fmt(nof->output_file, &sf1->routes[i],
+						nof->output_fmt);
 				find_equals = 1;
 				break;
 			}
@@ -303,14 +306,11 @@ void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *
 		ea_strdup(&sf1->routes[i].ea[0], "NOT FOUND");
 		fprint_route_fmt(nof->output_file, &sf1->routes[i], nof->output_fmt);
 
-		/**
-		 ** we look a second time for a match
- 		 ** we could avoid doing 2 runs if both files are sorted
-		 **
-		 **/
+		/* we look a second time for a match
+		 * we could avoid doing 2 runs if both files are sorted */
 		for (j = 0; j < paip->nr; j++) {
 			mask = paip->routes[j].subnet.mask;
-			res = subnet_compare( &sf1->routes[i].subnet, &paip->routes[j].subnet);
+			res = subnet_compare(&sf1->routes[i].subnet, &paip->routes[j].subnet);
 			if (res == INCLUDED) {
 				find_included = 1;
 				/* we  get the largest including mask only */
@@ -325,7 +325,8 @@ void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *
 				includes++;
 				st_fprintf(nof->output_file, "###%I;%d includes %I;%d;%s\n",
 						sf1->routes[i].subnet, sf1->routes[i].subnet.mask,
-						paip->routes[j].subnet, mask, paip->routes[j].ea[0].value);
+						paip->routes[j].subnet, mask,
+						paip->routes[j].ea[0].value);
 			}
 		}
 		if (find_included) {
@@ -393,7 +394,8 @@ int network_grep_file(char *name, struct st_options *nof, char *ip)
 			reevaluate = 0;
 			if (s == NULL)
 				break;
-			/* previous token was an IP without a mask, try to get a mask on this field*/
+			/* previous token was an IP without a mask,
+			 * try to get a mask on this field */
 			if (find_ip) {
 				int lmask = string2mask(s, 21);
 				if (subnet.ip_ver == IPV4_A)
@@ -404,59 +406,65 @@ int network_grep_file(char *name, struct st_options *nof, char *ip)
 				find_ip     = 0;
 				do_compare  = 1;
 				if (lmask == BAD_MASK)
-					reevaluate = 1; /* we need to reeavulate s, it could be an IP */
+					/* we need to reeavulate s, it could be an IP */
+					reevaluate = 1;
 			} else {
 				res = get_subnet_or_ip(s, &subnet);
 				if (res < 0 && nof->grep_field)  {
-					debug(GREP, 2, "field %s line %lu not an IP, bad grep_offset value?\n",
+					debug(GREP, 2, "field %s line %lu not an IP\n",
 							s, line);
 					break;
-				} else if (res > 1000) {/* c pas une IP */
-					debug(GREP, 5, "field %s line %lu not an IP\n",  s, line);
+				} else if (res < 0) {/* c pas une IP */
+					debug(GREP, 5, "field %s line %lu not an IP\n",
+							s, line);
 					continue;
 				} else if (res == IPV4_A) { /* une IP sans masque */
 					find_ip = 1;
-					debug(GREP, 5, "field %s line %lu IS an IP\n",  s, line);
+					debug(GREP, 5, "field %s line %lu IS an IP\n",
+							s, line);
 				} else if (res == IPV4_N) { /* IP+masque, time to compare */
 					do_compare = 1;
-					debug(GREP, 5, "field %s line %lu IS a IP/mask \n",  s, line);
+					debug(GREP, 5, "field %s line %lu IS a IP/mask\n",
+							s, line);
 				} else if (res == IPV6_N) {
 					do_compare = 1;
-					debug(GREP, 5, "field %s line %lu IS a IPv6/mask \n",  s, line);
-				 } else if (res == IPV6_A) {
+					debug(GREP, 5, "field %s line %lu IS a IPv6/mask\n",
+							s, line);
+				} else if (res == IPV6_A) {
 					find_ip = 1;
-					debug(GREP, 5, "field %s line %lu IS an IPv6\n",  s, line);
+					debug(GREP, 5, "field %s line %lu IS an IPv6\n",
+							s, line);
 				}
 			}
 
 			if (do_compare == 1) {
-				 switch (subnet_compare(&subnet,  &subnet1)) {
-					case EQUALS:
-						fprintf(nof->output_file, "%s", save_buffer);
-						debug(GREP, 5, "field %s line %lu equals\n",  s, line);
-						do_compare = 2;
-						break;
-					case INCLUDES:
-						fprintf(nof->output_file, "%s", save_buffer);
-						debug(GREP, 5, "field %s line %lu includes\n",  s, line);
-						do_compare = 2;
-						break;
-					case INCLUDED:
-						fprintf(nof->output_file, "%s", save_buffer);
-						debug(GREP, 5, "field %s line %lu included\n",  s, line);
-						do_compare = 2;
-						break;
-					default:
-						do_compare = 0;
-						break;
-				 }
+				switch (subnet_compare(&subnet,  &subnet1)) {
+				case EQUALS:
+					fprintf(nof->output_file, "%s", save_buffer);
+					debug(GREP, 5, "field %s line %lu equals\n",  s, line);
+					do_compare = 2;
+					break;
+				case INCLUDES:
+					fprintf(nof->output_file, "%s", save_buffer);
+					debug(GREP, 5, "field %s line %lu includes\n",  s, line);
+					do_compare = 2;
+					break;
+				case INCLUDED:
+					fprintf(nof->output_file, "%s", save_buffer);
+					debug(GREP, 5, "field %s line %lu included\n",  s, line);
+					do_compare = 2;
+					break;
+				default:
+					do_compare = 0;
+					break;
+				}
 			}
 			if (do_compare == 2) /*  one match found, next line please */
 				break;
 			if (nof->grep_field && find_ip == 0)
 				break; /* no match found but we wanted only THIS field */
 		} while (1);
-	} // for fgets
+	} /* for fgets */
 	fclose(f);
 	debug_timing_end(2);
 	return 1;
@@ -491,12 +499,13 @@ int subnet_file_simplify(struct subnet_file *sf)
 	copy_route(&new_r[0], r);
 	i = 1;
 	while (1) {
-                r = popTAS(&tas);
-                if (r == NULL)
-                        break;
-		/* because the 'new_r' list is sorted, we know the only network to consider is i - 1 */
+		r = popTAS(&tas);
+		if (r == NULL)
+			break;
+		/* because the 'new_r' list is sorted,
+		 * we know the only network to consider is i - 1 */
 		res = subnet_compare(&r->subnet, &new_r[i - 1].subnet);
-		if (res == INCLUDED || res == EQUALS ) {
+		if (res == INCLUDED || res == EQUALS) {
 			st_debug(ADDRCOMP, 3, "%P is included in %P, skipping\n",
 					r->subnet, new_r[i - 1].subnet);
 			free_route(r);
@@ -504,10 +513,10 @@ int subnet_file_simplify(struct subnet_file *sf)
 		}
 		copy_route(&new_r[i], r);
 		i++;
-        }
+	}
 	st_free(sf->routes, sf->max_nr * sizeof(struct route));
 	sf->max_nr = sf->nr;
-        sf->nr = i;
+	sf->nr = i;
 	free_tas(&tas);
 	sf->routes = new_r;
 	debug_timing_end(2);
@@ -547,17 +556,18 @@ int route_file_simplify(struct subnet_file *sf,  int mode)
 	i = 1; /* index in the 'new_r' struct */
 	j = 0; /* index in the 'discard' struct */
 	while (1) {
-                r = popTAS(&tas);
-                if (r == NULL)
-                        break;
+		r = popTAS(&tas);
+		if (r == NULL)
+			break;
 		a = i - 1;
 		skip = 0;
 		while (1) {
 			res = subnet_compare(&r->subnet, &new_r[a].subnet);
 			if (res == INCLUDED || res == EQUALS) {
-				/* because the 'new_r' list is sorted, we know the first 'backward'
-				 * match is the longest one and the longest match is the one that matters
-				 */
+				/* because the 'new_r' list is sorted,
+				 * we know the first 'backward'
+				 * match is the longest one and the longest match
+				 * is the one that matters */
 				if (is_equal_gw(r, &new_r[a])) {
 					st_debug(ADDRCOMP, 3, "%P is included in %P, discarding it\n",
 							r->subnet, new_r[a].subnet);
@@ -576,18 +586,18 @@ int route_file_simplify(struct subnet_file *sf,  int mode)
 			copy_route(&new_r[i++], r);
 		else
 			copy_route(&discard[j++], r);
-        }
+	}
 	free_tas(&tas);
 	st_free(sf->routes, sf->max_nr * sizeof(struct route));
 	sf->max_nr = sf->nr;
 	if (mode == 0) {
-        	sf->nr = i;
+		sf->nr = i;
 		sf->routes = new_r;
 		for (k = 0; k < j; k++)
 			free_route(&discard[k]);
 		st_free(discard, sf->max_nr * sizeof(struct route));
 	} else {
-        	sf->nr = j;
+		sf->nr = j;
 		sf->routes = discard;
 		for (k = 0; k < i; k++)
 			free_route(&new_r[k]);
@@ -671,7 +681,7 @@ int aggregate_route_file(struct subnet_file *sf, int mode)
 				if (mode == 1)
 					copy_ipaddr(&new_r[j].gw, &sf->routes[i].gw);
 				else
-					zero_ipaddr(&new_r[j].gw); /* the aggregate route has null gateway */
+					zero_ipaddr(&new_r[j].gw);
 				st_free_string(new_r[j].ea[0].value);
 				ea_strdup(&new_r[j].ea[0], "AGGREGATE");
 				if (new_r[j].ea[0].value == NULL) {
@@ -774,7 +784,8 @@ unsigned long long sum_subnet_file(struct subnet_file *sf)
 			continue;
 		if (ipver == IPV4_A)
 			sum += 1ULL << (32 - sf->routes[i].subnet.mask); /*power of 2  */
-		if (ipver == IPV6_A) { /* we count only /64 not single host; hosts are unlimited in IPv6 (2^64) */
+		if (ipver == IPV6_A) {
+			/* we count only /64 not single host; hosts are unlimited in IPv6 (2^64) */
 			if (sf->routes[i].subnet.mask <= 64)
 				sum += 1ULL << (64 - sf->routes[i].subnet.mask);
 		}
@@ -791,7 +802,7 @@ int subnet_file_remove_subnet(const struct subnet_file *sf1, struct subnet_file 
 	int res, n;
 	struct subnet *r;
 	struct route *new_r;
-	
+
 	j = 0;
 	res = alloc_subnet_file(sf2, sf1->max_nr);
 	if (res < 0)
@@ -801,7 +812,8 @@ int subnet_file_remove_subnet(const struct subnet_file *sf1, struct subnet_file 
 		if (res == NOMATCH || res == INCLUDED) {
 			clone_route_nofree(&sf2->routes[j],  &sf1->routes[i]);
 			j++;
-			st_debug(ADDRREMOVE, 4, "%P is not included in %P\n", *subnet, sf1->routes[i]);
+			st_debug(ADDRREMOVE, 4, "%P is not included in %P\n",
+					*subnet, sf1->routes[i]);
 			continue;
 		} else if (res == EQUALS) {
 			st_debug(ADDRREMOVE, 4, "removing entire subnet %P\n", *subnet);
@@ -809,7 +821,7 @@ int subnet_file_remove_subnet(const struct subnet_file *sf1, struct subnet_file 
 		}
 		r = subnet_remove(&sf1->routes[i].subnet, subnet, &n);
 		if (n == -1) {
-			fprintf(stderr, "%s : no memory\n", __FUNCTION__);
+			fprintf(stderr, "%s : no memory\n", __func__);
 			return n;
 		}
 		/* realloc memory if necessary */
@@ -822,7 +834,8 @@ int subnet_file_remove_subnet(const struct subnet_file *sf1, struct subnet_file 
 			sf2->max_nr *= 2;
 		}
 		for (res = 0; res < n; res++) {
-			clone_route_nofree(&sf2->routes[j], &sf1->routes[i]); /* copy comment, device ... */
+			/* copy comment, device ... */
+			clone_route_nofree(&sf2->routes[j], &sf1->routes[i]);
 			copy_subnet(&sf2->routes[j].subnet, &r[res]);
 			j++;
 		}
@@ -863,10 +876,11 @@ int subnet_file_remove_file(struct subnet_file *sf1, struct subnet_file *sf2,
 
 /*
  * parse splits levels
- * levels are M,N,O like 2,4,8 meaning split in 2, then split the result in 4, then split the result in 8
+ * levels are M,N,O like 2,4,8 meaning split in 2, then split the result in 4,
+ * then split the result in 8
  */
 static int split_parse_levels(char *s, int *levels)
-{ 
+{
 	int i = 0, current = 0;
 	int n_levels = 0;
 
@@ -881,12 +895,13 @@ static int split_parse_levels(char *s, int *levels)
 			fprintf(stderr, "Invalid level string '%s', 2 consecutives ','\n", s);
 			return -1;
 		} else if (s[i] == ',' && s[i + 1] == '\0') {
-                        fprintf(stderr, "Invalid level string '%s', ends with','\n", s);
-                        return -1;
+			fprintf(stderr, "Invalid level string '%s', ends with','\n", s);
+			return -1;
 		}
 		if (s[i] == ',') {
 			if (!isPower2(current)) {
-				fprintf(stderr, "split level %d is not a power of two\n", current);
+				fprintf(stderr, "split level %d is not a power of two\n",
+						current);
 				return -1;
 			}
 			levels[n_levels] = current;
@@ -901,7 +916,8 @@ static int split_parse_levels(char *s, int *levels)
 			current *= 10;
 			current += (s[i] - '0');
 		} else {
-			fprintf(stderr, "Invalid level string '%s', invalid char '%c'\n", s, s[i]);
+			fprintf(stderr, "Invalid level string '%s', invalid char '%c'\n",
+					s, s[i]);
 			return -1;
 		}
 		i++;
@@ -941,9 +957,11 @@ int subnet_split(FILE *out, const struct subnet *s, char *string_levels)
 		return res;
 	n_levels = res;
 	res = sum_log_to(levels, 0, n_levels);
-	/* make sure the splits levels are not too large; for IPv6, we can loop more than 2^(ulong bits) */
+	/* make sure the splits levels are not too large;
+	 * for IPv6, we can loop more than 2^(ulong bits) */
 	if  ((s->ip_ver == IPV4_A && res > (32 - s->mask))
-			|| (s->ip_ver == IPV6_A && res > (128 - s->mask)) || res > sizeof(sum) * 4) {
+			|| (s->ip_ver == IPV6_A && res > (128 - s->mask))
+			|| res > sizeof(sum) * 4) {
 		fprintf(stderr, "Too many splits required, aborting\n");
 		return -1;
 	}
@@ -971,8 +989,8 @@ int subnet_split(FILE *out, const struct subnet *s, char *string_levels)
 
 /*
  * parse splits levels, second version
- * levels are M,N,O like 24,28,30 meaning split in /24, then split the result in /28, then split the result in 
- * /30
+ * levels are M,N,O like 24,28,30 meaning split in /24, then split the result in /28,
+ * then split the result in * /30
  */
 static int split_parse_levels_2(char *s, int *levels)
 {
@@ -990,13 +1008,14 @@ static int split_parse_levels_2(char *s, int *levels)
 			fprintf(stderr, "Invalid level string '%s', 2 consecutives ','\n", s);
 			return -1;
 		} else if (s[i] == ',' && s[i + 1] == '\0') {
-                        fprintf(stderr, "Invalid level string '%s', ends with','\n", s);
-                        return -1;
+			fprintf(stderr, "Invalid level string '%s', ends with','\n", s);
+			return -1;
 		}
 		if (s[i] == ',') {
 			levels[n_levels] = current;
 			if (n_levels && current <= levels[n_levels - 1]) {
-				fprintf(stderr, "Invalid split, %d >= %d\n", levels[n_levels - 1], current);
+				fprintf(stderr, "Invalid split, %d >= %d\n",
+						levels[n_levels - 1], current);
 				return -1;
 			}
 			debug(SPLIT, 5, "split level#%d = %d\n", n_levels, levels[n_levels]);
@@ -1010,7 +1029,8 @@ static int split_parse_levels_2(char *s, int *levels)
 			current *= 10;
 			current += (s[i] - '0');
 		} else {
-			fprintf(stderr, "Invalid level string '%s', invalid char '%c'\n", s, s[i]);
+			fprintf(stderr, "Invalid level string '%s', invalid char '%c'\n",
+					s, s[i]);
 			return -1;
 		}
 		i++;
@@ -1208,25 +1228,26 @@ static int route_filter(const char *s, const char *value, char op, void *object)
 	if (!strcmp(s, "prefix")) {
 		res = get_subnet_or_ip(value, &subnet);
 		if (res < 0) {
-			debug(FILTER, 1, "Filtering on prefix %c '%s',  but it is not an IP\n", op, value);
+			debug(FILTER, 1, "Filtering on prefix %c '%s',  but it is not an IP\n",
+					op, value);
 			return -1;
 		}
 		return subnet_filter(&route->subnet, &subnet, op);
-	}
-	else if (!strcmp(s, "gw")) {
+	} else if (!strcmp(s, "gw")) {
 		if (route->gw.ip_ver == 0)
 			return 0;
 		res = get_subnet_or_ip(value, &subnet);
 		if (res < 0) {
-			debug(FILTER, 1, "Filtering on gw %c '%s',  but it is not an IP\n", op, value);
+			debug(FILTER, 1, "Filtering on gw %c '%s',  but it is not an IP\n",
+					op, value);
 			return -1;
 		}
 		return addr_filter(&route->gw, &subnet, op);
-	}
-	else if (!strcmp(s, "mask")) {
+	} else if (!strcmp(s, "mask")) {
 		res =  string2mask(value, 42);
 		if (res < 0) {
-			debug(FILTER, 1, "Filtering on mask %c '%s',  but it is valid\n", op, value);
+			debug(FILTER, 1, "Filtering on mask %c '%s',  but it is valid\n",
+					op, value);
 			return -1;
 		}
 		switch (op) {
@@ -1246,8 +1267,7 @@ static int route_filter(const char *s, const char *value, char op, void *object)
 			debug(FILTER, 1, "Unsupported op '%c' for mask\n", op);
 			return 0;
 		}
-	}
-	else if (!strcmp(s, "device")) {
+	} else if (!strcmp(s, "device")) {
 		switch (op) {
 		case '=':
 			return !strcmp(route->device, value);
@@ -1306,7 +1326,8 @@ int subnet_file_filter(struct subnet_file *sf, char *expr)
 			return -1;
 		}
 		if (res) {
-			st_debug(FILTER, 5, "Matching filter '%s' on %P\n", expr, sf->routes[i].subnet);
+			st_debug(FILTER, 5, "Matching filter '%s' on %P\n",
+					expr, sf->routes[i].subnet);
 			copy_route(&new_r[j], &sf->routes[i]);
 			j++;
 		} else
