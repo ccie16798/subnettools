@@ -11,20 +11,20 @@ struct  ipam_ea {
 int ea_size(const struct ipam_ea *ea);
 
 /* set value of 'ea' to 'value'
- * returns : 	-1 if no memory
- *		1  if SUCCESS
+ * returns:
+ *	-1 if no memory
+ *	1  if SUCCESS
  **/
 int ea_strdup(struct ipam_ea *ea, const char *value);
 
 void free_ea_array(struct ipam_ea *ea, int n);
 
-/*
- *  alloc_ea_array
+/*  alloc_ea_array
  *  alloc an array of Extended Attributes
- *  @n 	: number of Extended Attributes
+ *	@n : number of Extended Attributes
  *  returns:
- *  	a pointer to a struct ipam_ea
- *  	NULL if ENOMEM
+ *	a pointer to a struct ipam_ea
+ *	NULL if ENOMEM
  */
 struct ipam_ea *alloc_ea_array(int n);
 
@@ -35,8 +35,8 @@ struct ipam_ea *alloc_ea_array(int n);
  *  @old_n : previous array size
  *  @new_n : new array size
  *  returns:
- *  	a pointer to a new struct ipam_ea
- *  	NULL if ENOMEM
+ *	a pointer to a new struct ipam_ea
+ *	NULL if ENOMEM
  */
 struct ipam_ea *realloc_ea_array(struct ipam_ea *ea, int old_n, int new_n);
 
@@ -48,9 +48,9 @@ struct ipam_ea *realloc_ea_array(struct ipam_ea *ea, int old_n, int new_n);
  * @value   : the value to match
  * @op      : the operator (=, #, <, >, ~)
  * returns:
- * 	1  if match
- * 	0  if no match
- * 	-1 on error
+ *	1  if match
+ *	0  if no match
+ *	-1 on error
  */
 int filter_ea(const struct ipam_ea *ea, int ea_nr, const char *ea_name,
 		const char *value, char op);
