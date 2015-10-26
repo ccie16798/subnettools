@@ -65,6 +65,7 @@ void print_bitmap(MYTYPE *buffer, int len)
 	int i;
 	int i1, i2;
 	int a;
+
 	for (i = 0; i < len * TYPE_SIZE; i++) {
 		i1 = i / TYPE_SIZE;
 		i2 = TYPE_SIZE - 1 - i % TYPE_SIZE;
@@ -97,8 +98,7 @@ void increase_bitmap(MYTYPE *buffer, int len)
 	for (  ; i >= 0; i--) {
 		if (buffer[i] != TYPE_MAX)
 			break;
-		else
-			buffer[i] = 0;
+		buffer[i] = 0;
 	}
 	if (i >= 0)
 		buffer[i]++;
@@ -111,12 +111,12 @@ void decrease_bitmap(MYTYPE *buffer, int len)
 	for (  ; i >= 0; i--) {
 		if (buffer[i] != 0)
 			break;
-		else
-			buffer[i] = TYPE_MAX;
+		buffer[i] = TYPE_MAX;
 	}
 	if (i >= 0)
 		buffer[i]--;
 }
+
 /*
 int main(int argc, char **argv)
 {
