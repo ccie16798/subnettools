@@ -337,7 +337,7 @@ int addr2bitmask(const struct ip_addr *a, char *out, size_t len)
 		return addrv42bitmask(a->ip, out, len);
 	if (a->ip_ver == IPV6_A)
 		return addrv62bitmask(a->ip6, out, len);
-	out = '\0';
+	out[0] = '\0';
 	return -1;
 }
 
