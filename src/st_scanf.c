@@ -27,9 +27,11 @@ struct expr {
 	char end_of_expr; /* if remain[i] = end_of_expr , we can stop*/
 	char end_expr[64];
 	int match_last; /* if set, the expansion will stop the last time ->stop return positive
-			 *  value && and previous stop DIDNOT*/
+			 *  value && and previous stop DIDNOT
+			 */
 	int last_match; /* the last pos in input string where the ->stop(remain, e) matched and
-			   ->stop(remain - 1, e) DIDNOT */
+			 * ->stop(remain - 1, e) DIDNOT
+			 */
 	int last_nmatch;
 	int has_stopped; /* set when ->early_stop decide to stop */
 	int min_match; /* in case of multiplier like {3,6} the number of minimun required matches */
@@ -150,17 +152,14 @@ static int parse_brace_multiplier(const char *s, int *min, int *max)
 				return -1;
 			}
 			return i;
-		} else {
-			debug(SCANF, 1, "Invalid range '%s' contains invalid char '%c'\n", s, s[i]);
-			return -1;
 		}
+		debug(SCANF, 1, "Invalid range '%s' contains invalid char '%c'\n", s, s[i]);
+		return -1;
 	} else if (s[i] == '}') {
 		*max = *min;
 		return i;
-	} else {
-		debug(SCANF, 1, "Invalid range '%s' contains invalid char '%c'\n", s, s[i]);
-		return -1;
 	}
+	debug(SCANF, 1, "Invalid range '%s' contains invalid char '%c'\n", s, s[i]);
 	return -1;
 }
 /* count number of consersion specifier in an expr
@@ -230,7 +229,8 @@ static int fill_char_range(char *expr, const char *fmt, int n)
 	int i = 1;
 
 	/* to include a ']' in a range, it must be right after the opening ']' or after '^'
-	 * we need to copy it before we enter the generic loop  */
+	 * we need to copy it before we enter the generic loop
+	 */
 	expr[0] = '[';
 	if (fmt[i] == '^') {
 		expr[i] = '^';
@@ -285,7 +285,8 @@ static int match_char_against_range(char c, const char *expr, int *i)
 			return -1;
 		}
 		/* expr[*i + 2] != ']' means we can match a '-' only if it is right
-		 * before the ending ']'*/
+		 * before the ending ']'
+		 */
 		if (expr[*i + 1] == '-' && expr[*i + 2] != ']') {
 			high = expr[*i + 2];
 			if (high == '\0') {
@@ -643,7 +644,8 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 		*i += (i2 - 1);
 		i2 = 0;
 		/* match_char_against_range cant return -1 here,
-		 *  fill_char_range above would have caught a bad expr */
+		 * fill_char_range above would have caught a bad expr
+		 */
 		while (match_char_against_range(in[j2], expr, &i2) &&
 				j2 - *j < max_field_length - 1) {
 			if (in[j2] == '\0')
@@ -807,14 +809,14 @@ static int match_expr(struct expr *e, const char *in, struct sto *o, int *num_o)
 	/* e->skip_stop positive means we wont try to early-stop
 	 * skip_stop will be set if we want to stop on say an IP address
 	 * in[i....i +  n] represent an IP ==> we set skip_stop to 'n'
-	 **/
+	 */
 	if (e->skip_stop > 0) {
 		e->skip_stop -= res;
 		return res;
 	}
 	/* if a min match is required, dont try to early-stop expr matching
 	 * min_match is set for exemple if we have a {4,5} EXPR_MULTIPLIER
-	 * */
+	 */
 	if (e->min_match) {
 		e->min_match -= 1;
 		return res;
@@ -830,14 +832,16 @@ static int match_expr(struct expr *e, const char *in, struct sto *o, int *num_o)
 	}
 	if (res2) {
 		/* if we matched a CS but decide we need to stop, we must restore
-		  *num_o to its  original value */
+		 * num_o to its  original value
+		 */
 		*num_o = saved_num_o;
 		if (e->match_last) { /* if we need find the last match, lie about the result */
 			e->has_stopped = 1;
 			return res;
 		}
 		/* it is possible to end EXPR_MULTIPLIER (think of '.*') expansion here,
-		 *  so lets pretend 'expr' didnt match */
+		 * so lets pretend 'expr' didnt match
+		 */
 		return 0;
 	}
 	return res;
@@ -1003,7 +1007,8 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 		*i += 1;
 	}
 	/* we need to find when the expr expansion will end,
-	 * in case it matches something like '.*' */
+	 * in case it matches something like '.*'
+	 */
 	if (fmt[*i + 1] == '%') {
 		c = conversion_specifier(fmt + *i + 2);
 
@@ -1100,12 +1105,12 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 			break;
 		n_match++;
 		/* to set 'last_match', we check if the previous loop had stopped or not
-		   last_match is set if current loop HAS stopped and previous has not
-		   e.has_stopped ==> expression has stopped on j
-		   e_has_stopped ==> expression has stopped on previous j
-		   scanf("abdsdfdsf t e 121.1.1.1", ".*$I") should return '121.1.1.1' not '1.1.1.1'
-		   scanf("abdsdfdsf t e STRING", ".*$s") should return 'STRING' not just 'G'
-		   */
+		 * last_match is set if current loop HAS stopped and previous has not
+		 * e.has_stopped ==> expression has stopped on j
+		 * e_has_stopped ==> expression has stopped on previous j
+		 * scanf("abdsdfdsf t e 121.1.1.1", ".*$I") should return '121.1.1.1' not '1.1.1.1'
+		 * scanf("abdsdfdsf t e STRING", ".*$s") should return 'STRING' not just 'G'
+		 */
 		if (e.has_stopped && e_has_stopped == 0) {
 			e.last_match  = *j;
 			e.last_nmatch = n_match;
@@ -1193,6 +1198,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 	char expr[128];
 	int in_length;
 	int num_cs; /* number of conversion specifier found in an expression */
+	int min_m = -1, max_m;
 
 	i = 0; /* index in fmt */
 	j = 0; /* index in in */
@@ -1215,7 +1221,6 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 		else if (c == '\0')
 			goto end_nomatch;
 		else if (in[j] == '\0') { /* expr[i .... ] can match void, like '.*' */
-			int min_m = -1, max_m;
 			if (c == '(' || c == '[') {
 				if (c == '(')
 					res = strxcpy_until(expr, fmt + i, sizeof(expr), ')');
@@ -1245,8 +1250,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				goto end_nomatch;
 			if (min_m == 0) /* if the expr can match zero time, the match was perfect */
 				return n_found;
-			else
-				goto end_nomatch;
+			goto end_nomatch;
 		} else if (c == '%') {
 			if (n_found > max_o - 1) {
 				debug(SCANF, 1, "Max objets %d, already found %d\n",
@@ -1305,7 +1309,8 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			j += res;
 			if (j > in_length) {
 				/* can happen only if there is a BUG in 'match_expr_single'
-				 * and its descendant */
+				 * and its descendant
+				 */
 				fprintf(stderr, "BUG, input buffer override in %s line %d\n",
 						__func__, __LINE__);
 				return n_found;
