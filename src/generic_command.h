@@ -7,6 +7,11 @@ struct st_command {
 	int required_args;
 	int hidden;
 };
+
+/* those struct MUST be filled in the main program */
+extern struct st_command commands[];
+extern struct st_command options[];
+
 /* generic command line parser
  * command line syntax for software using this library is :
  * $MY_PROG -opt1 @opt1_args -opt2 @opt2_args ... -optN @optN_args COMMAND @command_args
@@ -34,7 +39,7 @@ struct st_command {
 
  res = generic_parse_options(argc, argv, PROG_NAME, &nof);
  if (res < 0)
- 	exit(1);
+	exit(1);
  argc = argc - res;
  argv = argv + res;
  DO_WHATEVER_WITH(options);
