@@ -684,7 +684,7 @@ static inline int expr_try_again(const char *expr)
  * match a single pattern 'expr' against 'in'
  * @expr  : the expression to match
  * @in    : the input buffer
- * @o     : will store input data (if conversion specifier are found)
+ * @o     : will store input data (if conversion specifiers are found)
  * @num_o : number of found objects (will be updated)
  * returns:
  *  0 if it doesnt match,
@@ -766,9 +766,13 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 }
 
 /* match expression 'e' against input buffer 'in'
+ * @e     : expression to match
+ * @in    : input buffer
+ * @o     : will store input data (if conversion specifiers are found)
+ * @num_o : number of found objects (will be updated)
  * will return :
- * 0 if it doesnt match (or if e->early_stop allows)
- * number of matched chars otherwise
+ * 	0 if it doesnt match (or if e->early_stop allows)
+ * 	number of matched chars in input buffer otherwise
  */
 static int match_expr(struct expr *e, const char *in, struct sto *o, int *num_o)
 {
@@ -777,7 +781,8 @@ static int match_expr(struct expr *e, const char *in, struct sto *o, int *num_o)
 	int saved_num_o = *num_o;
 
 	res = match_expr_single(e->expr, in, o, num_o);
-	debug(SCANF, 4, "Matching expr '%s' against in '%s' res=%d numo='%d'\n", e->expr, in, res, *num_o);
+	debug(SCANF, 4, "Matching expr '%s' against in '%s' res=%d numo='%d'\n",
+			e->expr, in, res, *num_o);
 	if (res < 0)
 		return res;
 	if (res == 0) {
@@ -789,7 +794,9 @@ static int match_expr(struct expr *e, const char *in, struct sto *o, int *num_o)
 		e->skip_stop -= res;
 		return res;
 	}
-	/* if a min match is required, dont try to early-stop expr matching */
+	/* if a min match is required, dont try to early-stop expr matching
+	 * min_match is set for exemple if we have a {4,5} EXPR_MULTIPLIER
+	 * */
 	if (e->min_match) {
 		e->min_match -= 1;
 		return res;
