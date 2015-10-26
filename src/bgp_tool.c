@@ -240,6 +240,7 @@ static int __heap_aspath_is_superior(void *v1, void *v2)
 		if (!strcmp(s1, s2)) {
 			struct subnet *sub1 = &((struct bgp_route *)v1)->subnet;
 			struct subnet *sub2 = &((struct bgp_route *)v2)->subnet;
+
 			return subnet_is_superior(sub1, sub2);
 		}
 		return strcmp(s1, s2);
@@ -331,16 +332,12 @@ int bgp_sort_by(struct bgp_file *sf, char *name)
 		switch (op) { \
 		case '=': \
 			return route->__VAR == res; \
-			break; \
 		case '#': \
 			return route->__VAR != res; \
-			break; \
 		case '<': \
 			return route->__VAR < res; \
-			break; \
 		case '>': \
 			return route->__VAR > res; \
-			break; \
 		default: \
 			debug(FILTER, 1, "Unsupported op '%c' for %s\n", op, #__VAR); \
 			return -1; \
@@ -434,7 +431,8 @@ static int bgp_route_filter(const char *s, const char *value, char op, void *obj
 		BLOCK_INT(LOCAL_PREF);
 	} else if (!strcasecmp(s, "aspath") || !strcasecmp(s, "as_path")) {
 		/* we compare AS_PATH length, except with ~ compator
-		 * that comparator uses pattern matching */
+		 * that comparator uses pattern matching
+		 */
 		if (op == '~') {
 			res = st_sscanf(route->AS_PATH, value);
 			return (res < 0 ? 0 : 1);
@@ -449,20 +447,15 @@ static int bgp_route_filter(const char *s, const char *value, char op, void *obj
 		switch (op) {
 		case '=':
 			return (as_path_length(route->AS_PATH) == res);
-			break;
 		case '#':
 			return (as_path_length(route->AS_PATH) != res);
-			break;
 		case '<':
 			return (as_path_length(route->AS_PATH) < res);
-			break;
 		case '>':
 			return (as_path_length(route->AS_PATH) > res);
-			break;
 		default:
 			debug(FILTER, 1, "Unsupported op '%c' for AS_PATH\n", op);
 			return -1;
-			break;
 		}
 	} else if (!strcasecmp(s, "best")) {
 		res =  string2int(value, &err);
@@ -475,23 +468,18 @@ static int bgp_route_filter(const char *s, const char *value, char op, void *obj
 		switch (op) {
 		case '=':
 			return route->best == res;
-			break;
 		case '#':
 			return route->best != res;
-			break;
 		default:
 			debug(FILTER, 1, "Unsupported op '%c' for best\n", op);
 			return -1;
-			break;
 		}
 	} else if (!strcasecmp(s, "type")) {
 		switch (op) {
 		case '=':
 			return route->type == *value;
-			break;
 		case '#':
 			return route->type != *value;
-			break;
 		default:
 			debug(FILTER, 1, "Unsupported op '%c' for type\n", op);
 			return -1;
@@ -500,10 +488,8 @@ static int bgp_route_filter(const char *s, const char *value, char op, void *obj
 		switch (op) {
 		case '=':
 			return route->origin == *value;
-			break;
 		case '#':
 			return route->origin != *value;
-			break;
 		default:
 			debug(FILTER, 1, "Unsupported op '%c' for origin\n", op);
 			return -1;
