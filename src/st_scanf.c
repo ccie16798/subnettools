@@ -682,12 +682,13 @@ static inline int expr_try_again(const char *expr)
 
 /*
  * match a single pattern 'expr' against 'in'
- *
- * returns :
+ * @expr  : the expression to match
+ * @in    : the input buffer
+ * @o     : will store input data (if conversion specifier are found)
+ * @num_o : number of found objects (will be updated)
+ * returns:
  *  0 if it doesnt match,
  *  number of matched chars in input buffer if it matches
- *
- * if 'expr' includes conversion specifiers, put the result in 'o' and update 'num_o'
  */
 static int match_expr_single(const char *expr, const char *in, struct sto *o, int *num_o)
 {
