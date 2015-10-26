@@ -11,13 +11,14 @@
 
 
 struct st_options {
-        int subnet_off;
+	int subnet_off;
 	int print_header;
-        int grep_field; /** when grepping, grep only on this field **/
-        int simplify_mode; /* mode == 0 means we print the simplified routes, == 1 print the routes we can discard */
+	int grep_field; /** when grepping, grep only on this field **/
+	int simplify_mode; /* == 0 means we print the simplified routes,
+			      == 1 print the routes we can discard */
 	char *config_file; /* config file name; default is 'st.conf' */
-        char delim[MAX_DELIM];
-        FILE *output_file;
+	char delim[MAX_DELIM];
+	FILE *output_file;
 	int ip_compress_mode; /* IPv6 address compression */
 	char output_fmt[FMT_LEN];
 	char bgp_output_fmt[FMT_LEN];
