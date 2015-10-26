@@ -423,7 +423,8 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 		case 'h':
 			*i += 1;
 			if (fmt[*i + 1] != 'd' && fmt[*i + 1] != 'u' && fmt[*i + 1] != 'x') {
-				debug(SCANF, 1, "Invalid format '%s', only specifier allowed after %%h are 'd', 'u', 'x'\n", fmt);
+				debug(SCANF, 1, "Invalid format '%s', only specifier allowed"
+						" after %%h are 'd', 'u', 'x'\n", fmt);
 				return n_found;
 			}
 			ARG_SET(v_short, short *);
@@ -460,7 +461,8 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 				}
 				*v_short *= sign;
 				if (fmt[*i + 1] == 'u') {
-					debug(SCANF, 5, "found USHORT '%hu' at offset %d\n", (unsigned short)*v_short, *j);
+					debug(SCANF, 5, "found USHORT '%hu' at offset %d\n",
+							(unsigned short)*v_short, *j);
 				} else {
 					debug(SCANF, 5, "found SHORT '%hd' at offset %d\n", *v_short, *j);
 				}
@@ -470,7 +472,8 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 		case 'l':
 			*i += 1;
 			if (fmt[*i + 1] != 'd' && fmt[*i + 1] != 'u' && fmt[*i + 1] != 'x') {
-				debug(SCANF, 1, "Invalid format '%s', only specifier allowed after %%l are 'd', 'u', 'x'\n", fmt);
+				debug(SCANF, 1, "Invalid format '%s', only specifier allowed"
+						" after %%l are 'd', 'u', 'x'\n", fmt);
 				return n_found;
 			}
 			ARG_SET(v_long, long *);
@@ -489,7 +492,8 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 					*v_long += char2int(in[j2]);
 					j2++;
 				}
-				debug(SCANF, 5, "found long HEX '%lx' at offset %d\n", (unsigned long)*v_long, *j);
+				debug(SCANF, 5, "found long HEX '%lx' at offset %d\n",
+						(unsigned long)*v_long, *j);
 			} else {
 				if (in[*j] == '-' && fmt[*i + 1] == 'd') {
 					sign = -1;
@@ -507,7 +511,8 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 				}
 				*v_long *= sign;
 				if (fmt[*i + 1] == 'u') {
-					debug(SCANF, 5, "found ULONG '%lu' at offset %d\n", (unsigned long)*v_long, *j);
+					debug(SCANF, 5, "found ULONG '%lu' at offset %d\n",
+							(unsigned long)*v_long, *j);
 				} else {
 					debug(SCANF, 5, "found LONG '%ld' at offset %d\n", *v_long, *j);
 				}
@@ -592,7 +597,8 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 			if (fmt[*i + 1] == 'S') {
 				res = get_subnet_or_ip(v_s, (struct subnet *)&poubelle);
 				if (res > 0) {
-					debug(SCANF, 3, "STRING '%s' at offset %d is an IP, refusing it\n", v_s, *j);
+					debug(SCANF, 3, "STRING '%s' at offset %d is an IP, refusing it\n",
+							v_s, *j);
 					return n_found;
 				}
 			}
@@ -622,7 +628,8 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 			}
 			*i += (i2 - 1);
 			i2 = 0;
-			/* match_char_against_range cant return -1 here, fill_char_range above would have caught a bad expr */
+			/* match_char_against_range cant return -1 here,
+			 *  fill_char_range above would have caught a bad expr */
 			while (match_char_against_range(in[j2], expr, &i2) &&
 					j2 - *j < max_field_length - 1) {
 				if (in[j2] == '\0')
@@ -675,6 +682,7 @@ static inline int expr_try_again(const char *expr)
 
 /*
  * match a single pattern 'expr' against 'in'
+ *
  * returns :
  *  0 if it doesnt match,
  *  number of matched chars in input buffer if it matches
