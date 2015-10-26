@@ -15,8 +15,6 @@
 #include "prog-main.h"
 #include "st_help.h"
 
-extern char *default_fmt;
-
 void usage_en_arithmetic(void)
 {
 	printf("Subnet arithmetic\n");
@@ -50,8 +48,8 @@ void usage_en_routecompare(void)
 	printf("subnetcmp befo afte : compare 'befo' and 'after', showing new/removed/changed routes\n");
 	printf("missing FILE1 FILE2 : prints subnets from FILE1 that are not covered by FILE2; GW is not checked\n");
 	printf("uniq FILE1 FILE2    : prints unique subnets from FILE1 and FILE2\n");
-	printf("common FILE1 FILE2  : merge CSV subnet files FILE1 & FILE2; prints common routes only; GW isn't checked\n");
-	printf("addfiles FILE1 FILE2: merge CSV subnet files FILE1 & FILE2; prints the sum of both files\n");
+	printf("common FILE1 FILE2  : merge FILE1 & FILE2; prints common routes only; GW isn't checked\n");
+	printf("addfiles FILE1 FILE2: merge FILE1 & FILE2; prints the sum of both files\n");
 	printf("grep FILE prefix    : grep FILE for prefix/mask\n");
 	printf("filter FILE EXPR    : grep netcsv   FILE using regexp EXPR\n");
 	printf("filter help         : prints help about bgp filters\n");
@@ -93,7 +91,7 @@ void usage_en_convert(void)
 	printf("IP route to CSV converters\n");
 	printf("--------------------------\n");
 	printf("convert PARSER FILE1: convert FILE1 to csv using parser PARSER\n");
-	printf("convert help        : use '%s convert help' for available parsers \n", PROG_NAME);
+	printf("convert help        : use '%s convert help' for available parsers\n", PROG_NAME);
 }
 
 void usage_en_debug(void)
@@ -104,17 +102,17 @@ void usage_en_debug(void)
 	printf("scanf STRING1 FMT   : scan STRING1 according to scanf-like format FMT\n");
 	printf("fscanf FILE   FMT   : scan FILE according to scanf-like format FMT\n");
 	printf("confdesc            : print a small explanation of %s configuration file\n", PROG_NAME);
-	printf("help                : This HELP \n");
-	printf("version             : %s version \n", PROG_NAME);
+	printf("help                : This HELP\n");
+	printf("version             : %s version\n", PROG_NAME);
 }
 
 void usage_en_options(void)
 {
-	printf("\nOPTIONS := \n");
-	printf("-d <delim>      : change the default field delim (;) \n");
+	printf("\nOPTIONS :=\n");
+	printf("-d <delim>      : change the default field delim (;\n");
 	printf("-ipamea EA1,EA2 : load Extended Attributes in IPAM files; use ',' to select more\n");
 	printf("-c <file >      : use config file <file>  instead of st.conf\n");
-	printf("-o <file >      : write output in <file> \n");
+	printf("-o <file >      : write output in <file>\n");
 	printf("-rt		: when converting routing table, set route type as comment\n");
 	printf("-ecmp		: when converting routing table, print all routes in case of ECMP\n");
 	printf("-noheader|-nh	: dont print netcsv header file\n");
@@ -128,11 +126,13 @@ void usage_en_options(void)
 void usage_en_csv(void)
 {
 	printf("INPUT CSV format :=\n");
-	printf("- Input subnet/routes files SHOULD have a CSV header describing its structure (prefix, mask,, GW, comment, etc...)\n");
-	printf("- Input subnet/routes files without a CSV header are assumed to be :"
+	printf("- Input subnet/routes files SHOULD have a CSV header describing its structure:\n"
+			"(prefix, mask,, GW, comment, etc...)\n");
+	printf("- Input subnet/routes files without a CSV header are assumed to be :\n"
 			"prefix;mask;GW;comment or prefix;mask;comment\n");
 	printf("- default CSV header is 'prefix;mask;device;GW;comment'\n");
-	printf("- CSV header can be changed by using the configuration file (subnettools confdesc for more info)\n");
+	printf("- CSV header can be changed by using the configuration file\n"
+				"subnettools confdesc for more info)\n");
 	printf("- IPAM CSV header MUST be described in the configuration file\n");
 }
 
@@ -200,7 +200,7 @@ void usage_all(int language)
 	u = usages[language];
 	printf("Usage: %s [OPTIONS] COMMAND ARGUMENTS ....\n", PROG_NAME);
 	printf("\n");
-	printf("\nCOMMAND := \n");
+	printf("\nCOMMAND :=\n");
 	printf("\n");
 	for (i = 0; ; i++) {
 		if (u[i].name == NULL)
@@ -235,14 +235,14 @@ void usage(int argc, char **argv, struct st_options *o)
 	}
 }
 
-void debug_usage()
+void debug_usage(void)
 {
-	printf("Usage: %s -D Debugs [OPTIONS] COMMAND FILES \n", PROG_NAME);
+	printf("Usage: %s -D Debugs [OPTIONS] COMMAND FILES\n", PROG_NAME);
 	printf("Debugs looks like : symbol1:level,symbol2:level;...\n");
 	printf("symbol is the  symbol to  debug, increasing level gives more info, ie :\n");
 	printf("level 1 : get more infos on errors (badly formatted file, bad IP etc...)\n");
-	printf("level 4+ : print  internal program debug info ; wont tell you anything without source code \n");
-	printf("level 9 : if implemented, print info for each loop of the program \n");
+	printf("level 4+ : print  internal program debug info ; wont tell you anything without source code\n");
+	printf("level 9 : if implemented, print info for each loop of the program\n");
 	printf("Example 1 :\n");
 	printf("'%s -D memory:1,parseopts:2,trucmuche:3 simplify1 MYFILE'\n", PROG_NAME);
 	printf("Example 2 :\n");

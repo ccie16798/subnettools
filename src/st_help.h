@@ -8,8 +8,10 @@
 #define LANG_FR  0
 
 #include "st_options.h"
+extern char *default_fmt;
+
 void usage(int argc, char **argv, struct st_options *o);
-void debug_usage();
+void debug_usage(void);
 
 #else
 #endif
