@@ -22,12 +22,14 @@
 
 struct expr {
 	char *expr;
-	 /* even if expr, matches ->early_stop may force a return; useful ie to break '.*' expansion  */
+	 /* even if expr matches ->early_stop may force a return; used to break '.*' expansion */
 	int (*early_stop)(const char *remain, struct expr *e);
 	char end_of_expr; /* if remain[i] = end_of_expr , we can stop*/
 	char end_expr[64];
-	int match_last; /* if set, the expansion will stop the last time ->stop return positive value && and previous stop DIDNOT*/
-	int last_match; /* the last pos in input string where the ->stop(remain, e) matched and ->stop(remain - 1, e) DIDNOT */
+	int match_last; /* if set, the expansion will stop the last time ->stop return positive
+			 *  value && and previous stop DIDNOT*/
+	int last_match; /* the last pos in input string where the ->stop(remain, e) matched and
+			   ->stop(remain - 1, e) DIDNOT */
 	int last_nmatch;
 	int has_stopped; /* set when ->early_stop decide to stop */
 	int min_match; /* in case of multiplier like {3,6} the number of minimun required matches */
@@ -42,17 +44,17 @@ static inline char escape_char(char input_c)
 
 	c = input_c;
 	switch (c) {
-		case '\0':
-			debug(SCANF, 2, "Nul char after Escape Char '\\' \n");
-			break;
-		case 't':
-			c = '\t';
-			break;
-		case 'n':
-			c = '\n';
-			break;
-		default:
-			break;
+	case '\0':
+		debug(SCANF, 2, "Nul char after Escape Char '\\'\n");
+		break;
+	case 't':
+		c = '\t';
+		break;
+	case 'n':
+		c = '\n';
+		break;
+	default:
+		break;
 	}
 	return c;
 }
@@ -67,7 +69,7 @@ static inline int is_multiple_char(char c)
  * (since it can the followed by a max_field_length)
  */
 static inline char conversion_specifier(const char *fmt)
- {
+{
 	int i = 0;
 
 	while (1) {
@@ -84,18 +86,24 @@ static inline char conversion_specifier(const char *fmt)
 
 static inline int max_match(char c)
 {
-	if (c == '*') return ST_STRING_INFINITY;
-	if (c == '+') return ST_STRING_INFINITY;
-	if (c == '?') return 1;
+	if (c == '*')
+		return ST_STRING_INFINITY;
+	if (c == '+')
+		return ST_STRING_INFINITY;
+	if (c == '?')
+		return 1;
 	debug(SCANF, 1, "BUG, Invalid multiplier char '%c'\n", c);
 	return 0;
 }
 
 static inline int min_match(char c)
 {
-	if (c == '*') return 0;
-	if (c == '+') return 1;
-	if (c == '?') return 0;
+	if (c == '*')
+		return 0;
+	if (c == '+')
+		return 1;
+	if (c == '?')
+		return 0;
 	debug(SCANF, 1, "BUG, Invalid multiplier char '%c'\n", c);
 	return 0;
 }
@@ -104,8 +112,8 @@ static inline int min_match(char c)
  * parse a brace multiplier like {,1} or {2} or {3,4} {4,}
  * min & max are set by this helper
  * returns :
- * 	-1 if string is invalid
- * 	number of matched chars
+ *	-1 if string is invalid
+ *	number of matched chars
  */
 static int parse_brace_multiplier(const char *s, int *min, int *max)
 {
@@ -165,10 +173,11 @@ static int count_cs(const char *expr)
 
 	if (expr[0] == '%')
 		n++;
-	for (i = 1; ;i++) {
+	for (i = 1; ; i++) {
 		if (expr[i] == '\0')
 			return n;
-		if (expr[i] == '%' && expr[i - 1] != '\\') /* unlike regular scanf, escape char is '\' and only that */
+		/* unlike regular scanf, escape char is '\' and only that */
+		if (expr[i] == '%' && expr[i - 1] != '\\')
 			n++;
 	}
 	return 0;
@@ -227,7 +236,7 @@ static int fill_char_range(char *expr, const char *fmt, int n)
 		expr[i] = '^';
 		i++;
 	}
-	if (fmt[i] == ']') { 
+	if (fmt[i] == ']') {
 		expr[i] = ']';
 		i++;
 	}
@@ -272,10 +281,11 @@ static int match_char_against_range(char c, const char *expr, int *i)
 	while (expr[*i] != ']') {
 		low = expr[*i];
 		if (low == '\0') {
-				debug(SCANF, 1, "Invalid expr '%s', no closing ']' found\n", expr);
-				return -1;
+			debug(SCANF, 1, "Invalid expr '%s', no closing ']' found\n", expr);
+			return -1;
 		}
-		/* expr[*i + 2] != ']' means we can match a '-' only if it is right before the ending ']' */
+		/* expr[*i + 2] != ']' means we can match a '-' only if it is right
+		 * before the ending ']'*/
 		if (expr[*i + 1] == '-' && expr[*i + 2] != ']') {
 			high = expr[*i + 2];
 			if (high == '\0') {
@@ -291,7 +301,7 @@ static int match_char_against_range(char c, const char *expr, int *i)
 		*i += 1;
 	}
 	*i += 1;
-	return (invert ? !res : res);
+	return invert ? !res : res;
 }
 /* parse STRING 'in' at index *j according to fmt at index *i
  * fmt[*i] == '%' when the function starts
@@ -324,15 +334,16 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 	unsigned int *v_uint;
 	int sign;
 
-#define ARG_SET(__NAME, __TYPE) do { \
-	if (o == NULL) \
-	__NAME = (__TYPE)&poubelle;  \
-	else { \
-	__NAME = (__TYPE)&o->s_char; \
-	o->type = fmt[*i + 1]; \
-	o->conversion = 0; \
-	} \
-} while (0);
+#define ARG_SET(__NAME, __TYPE) \
+	do { \
+		if (o == NULL) \
+			__NAME = (__TYPE)&poubelle; \
+		else { \
+			__NAME = (__TYPE)&o->s_char; \
+			o->type = fmt[*i + 1]; \
+			o->conversion = 0; \
+		} \
+	} while (0)
 
 	j2 = *j;
 	/* computing field length */
@@ -352,310 +363,313 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 		max_field_length = sizeof(buffer) - 2;
 
 	switch (fmt[*i + 1]) {
-		case '\0':
-			debug(SCANF, 1, "Invalid format '%s', ends with %%\n", fmt);
+	case '\0':
+		debug(SCANF, 1, "Invalid format '%s', ends with %%\n", fmt);
+		return n_found;
+	case 'Q': /* classfull subnet */
+	case 'P':
+		ARG_SET(v_sub, struct subnet *);
+		while ((is_ip_char(in[j2]) || in[j2] == '/')) {
+			buffer[j2 - *j] = in[j2];
+			j2++;
+		}
+		buffer[j2 - *j] = '\0';
+		if (j2 - *j <= 2) {
+			debug(SCANF, 3, "no IP found at offset %d\n", *j);
 			return n_found;
-		case 'Q': /* classfull subnet */
-		case 'P':
-			ARG_SET(v_sub, struct subnet *);
-			while ((is_ip_char(in[j2]) || in[j2] == '/')) {
-				buffer[j2 - *j] = in[j2];
-				j2++;
-			}
-			buffer[j2 - *j] = '\0';
-			if (j2 - *j <= 2) {
-				debug(SCANF, 3, "no IP found at offset %d\n", *j);
-				return n_found;
-			}
-			if (fmt[*i + 1] == 'P')
-				res = get_subnet_or_ip(buffer, v_sub);
-			else
-				res = classfull_get_subnet(buffer, v_sub);
-			if (res > 0) {
-				debug(SCANF, 5, "'%s' is a valid IP\n", buffer);
-				n_found++;
-			} else {
-				debug(SCANF, 3, "'%s' is an invalid IP\n", buffer);
-				return n_found;
-			}
-			break;
-		case 'I':
-			ARG_SET(v_addr, struct ip_addr *);
-			while (is_ip_char(in[j2])) {
-				buffer[j2 - *j] = in[j2];
-				j2++;
-			}
-			buffer[j2 - *j] = '\0';
-			if (j2 - *j <= 1) {
-				debug(SCANF, 3, "no IP found at offset %d\n", *j);
-				return n_found;
-			}
-			res = string2addr(in + *j, v_addr, j2 -*j);
-			if (res > 0) {
-				debug(SCANF, 5, "'%s' is a valid IP\n", buffer);
-				n_found++;
-			} else {
-				debug(SCANF, 3, "'%s' is an invalid IP\n", buffer);
-				return n_found;
-			}
-			break;
-		case 'M':
-			ARG_SET(v_int, int *);
-			while (isdigit(in[j2]) || in[j2] == '.') {
-				buffer[j2 - *j] = in[j2];
-				j2++;
-			}
-			buffer[j2 - *j] = '\0';
-			if (j2 - *j == 0) {
-				debug(SCANF, 3, "no MASK found at offset %d\n", *j);
-				return n_found;
-			}
-			res = string2mask(buffer, 21);
-			if (res != BAD_MASK) {
-				debug(SCANF, 5, "'%s' is a valid MASK\n", buffer);
-				n_found++;
-			} else {
-				debug(SCANF, 3, "'%s' is an invalid MASK\n", buffer);
-				return n_found;
-			}
-			*v_int = res;
-			break;
-		case 'h':
-			*i += 1;
-			if (fmt[*i + 1] != 'd' && fmt[*i + 1] != 'u' && fmt[*i + 1] != 'x') {
-				debug(SCANF, 1, "Invalid format '%s', only specifier allowed"
-						" after %%h are 'd', 'u', 'x'\n", fmt);
-				return n_found;
-			}
-			ARG_SET(v_short, short *);
-			if (o)
-				o->conversion = 'h';
-			*v_short = 0;
-			if (fmt[*i + 1] == 'x') {
-				if (in[j2] == '0' && in[j2 + 1] == 'x')
-					j2 += 2;
-				if (!isxdigit(in[j2])) {
-					debug(SCANF, 3, "no HEX found at offset %d \n", *j);
-					return n_found;
-				}
-				while (isxdigit(in[j2])) {
-					*v_short <<= 4;
-					*v_short += char2int(in[j2]);
-					j2++;
-				}
-				debug(SCANF, 5, "found short HEX '%x' at offset %d\n", *v_short, *j);
-			} else {
-				if (in[*j] == '-' && fmt[*i + 1] == 'd') {
-					sign = -1;
-					j2++;
-				} else
-					sign = 1;
-				if (!isdigit(in[j2])) {
-					debug(SCANF, 3, "no SHORT found at offset %d \n", *j);
-					return n_found;
-				}
-				while (isdigit(in[j2])) {
-					*v_short *= 10;
-					*v_short += (in[j2] - '0') ;
-					j2++;
-				}
-				*v_short *= sign;
-				if (fmt[*i + 1] == 'u') {
-					debug(SCANF, 5, "found USHORT '%hu' at offset %d\n",
-							(unsigned short)*v_short, *j);
-				} else {
-					debug(SCANF, 5, "found SHORT '%hd' at offset %d\n", *v_short, *j);
-				}
-			}
+		}
+		if (fmt[*i + 1] == 'P')
+			res = get_subnet_or_ip(buffer, v_sub);
+		else
+			res = classfull_get_subnet(buffer, v_sub);
+		if (res > 0) {
+			debug(SCANF, 5, "'%s' is a valid IP\n", buffer);
 			n_found++;
-			break;
-		case 'l':
-			*i += 1;
-			if (fmt[*i + 1] != 'd' && fmt[*i + 1] != 'u' && fmt[*i + 1] != 'x') {
-				debug(SCANF, 1, "Invalid format '%s', only specifier allowed"
-						" after %%l are 'd', 'u', 'x'\n", fmt);
+		} else {
+			debug(SCANF, 3, "'%s' is an invalid IP\n", buffer);
+			return n_found;
+		}
+		break;
+	case 'I':
+		ARG_SET(v_addr, struct ip_addr *);
+		while (is_ip_char(in[j2])) {
+			buffer[j2 - *j] = in[j2];
+			j2++;
+		}
+		buffer[j2 - *j] = '\0';
+		if (j2 - *j <= 1) {
+			debug(SCANF, 3, "no IP found at offset %d\n", *j);
+			return n_found;
+		}
+		res = string2addr(in + *j, v_addr, j2 - *j);
+		if (res > 0) {
+			debug(SCANF, 5, "'%s' is a valid IP\n", buffer);
+			n_found++;
+		} else {
+			debug(SCANF, 3, "'%s' is an invalid IP\n", buffer);
+			return n_found;
+		}
+		break;
+	case 'M':
+		ARG_SET(v_int, int *);
+		while (isdigit(in[j2]) || in[j2] == '.') {
+			buffer[j2 - *j] = in[j2];
+			j2++;
+		}
+		buffer[j2 - *j] = '\0';
+		if (j2 - *j == 0) {
+			debug(SCANF, 3, "no MASK found at offset %d\n", *j);
+			return n_found;
+		}
+		res = string2mask(buffer, 21);
+		if (res != BAD_MASK) {
+			debug(SCANF, 5, "'%s' is a valid MASK\n", buffer);
+			n_found++;
+		} else {
+			debug(SCANF, 3, "'%s' is an invalid MASK\n", buffer);
+			return n_found;
+		}
+		*v_int = res;
+		break;
+	case 'h':
+		*i += 1;
+		if (fmt[*i + 1] != 'd' && fmt[*i + 1] != 'u' && fmt[*i + 1] != 'x') {
+			debug(SCANF, 1, "Invalid format '%s', wrong char '%c' after 'h'\n",
+					fmt, fmt[*i + 1]);
+			return n_found;
+		}
+		ARG_SET(v_short, short *);
+		if (o)
+			o->conversion = 'h';
+		*v_short = 0;
+		if (fmt[*i + 1] == 'x') {
+			if (in[j2] == '0' && in[j2 + 1] == 'x')
+				j2 += 2;
+			if (!isxdigit(in[j2])) {
+				debug(SCANF, 3, "no HEX found at offset %d\n", *j);
 				return n_found;
 			}
-			ARG_SET(v_long, long *);
-			if (o)
-				o->conversion = 'l';
-			*v_long = 0;
-			if (fmt[*i + 1] == 'x') {
-				if (in[j2] == '0' && in[j2 + 1] == 'x')
-					j2 += 2;
-				if (!isxdigit(in[j2])) {
-					debug(SCANF, 3, "no HEX found at offset %d \n", *j);
-					return n_found;
-				}
-				while (isxdigit(in[j2])) {
-					*v_long <<= 4;
-					*v_long += char2int(in[j2]);
-					j2++;
-				}
-				debug(SCANF, 5, "found long HEX '%lx' at offset %d\n",
-						(unsigned long)*v_long, *j);
-			} else {
-				if (in[*j] == '-' && fmt[*i + 1] == 'd') {
-					sign = -1;
-					j2++;
-				} else
-					sign = 1;
-				if (!isdigit(in[j2])) {
-					debug(SCANF, 3, "no LONG found at offset %d \n", *j);
-					return n_found;
-				}
-				while (isdigit(in[j2])) {
-					*v_long *= 10UL;
-					*v_long += (in[j2] - '0') ;
-					j2++;
-				}
-				*v_long *= sign;
-				if (fmt[*i + 1] == 'u') {
-					debug(SCANF, 5, "found ULONG '%lu' at offset %d\n",
-							(unsigned long)*v_long, *j);
-				} else {
-					debug(SCANF, 5, "found LONG '%ld' at offset %d\n", *v_long, *j);
-				}
+			while (isxdigit(in[j2])) {
+				*v_short <<= 4;
+				*v_short += char2int(in[j2]);
+				j2++;
 			}
-			n_found++;
-			break;
-		case 'd':
-			ARG_SET(v_int, int *);
-			*v_int = 0;
-			if (in[*j] == '-') {
+			debug(SCANF, 5, "found short HEX '%x' at offset %d\n",
+					*v_short, *j);
+		} else {
+			if (in[*j] == '-' && fmt[*i + 1] == 'd') {
 				sign = -1;
 				j2++;
 			} else
 				sign = 1;
 			if (!isdigit(in[j2])) {
-				debug(SCANF, 3, "no INT found at offset %d \n", *j);
+				debug(SCANF, 3, "no SHORT found at offset %d\n", *j);
 				return n_found;
 			}
 			while (isdigit(in[j2])) {
-				*v_int *= 10;
-				*v_int += (in[j2] - '0') ;
+				*v_short *= 10;
+				*v_short += (in[j2] - '0');
 				j2++;
 			}
-			*v_int *= sign;
-			debug(SCANF, 5, "found INT '%d' at offset %d\n", *v_int, *j);
-			n_found++;
-			break;
-		case 'u':
-			ARG_SET(v_uint, unsigned int *);
-			*v_uint = 0;
-			if (!isdigit(in[j2])) {
-				debug(SCANF, 3, "no UINT found at offset %d \n", *j);
-				return n_found;
+			*v_short *= sign;
+			if (fmt[*i + 1] == 'u') {
+				debug(SCANF, 5, "found USHORT '%hu' at offset %d\n",
+						(unsigned short)*v_short, *j);
+			} else {
+				debug(SCANF, 5, "found SHORT '%hd' at offset %d\n",
+						*v_short, *j);
 			}
-			while (isdigit(in[j2])) {
-				*v_uint *= 10;
-				*v_uint += (in[j2] - '0') ;
-				j2++;
-			}
-			debug(SCANF, 5, "found UINT '%u' at offset %d\n", *v_uint, *j);
-			n_found++;
-			break;
-		case 'x':
-			ARG_SET(v_uint, unsigned int *);
-			*v_uint = 0;
+		}
+		n_found++;
+		break;
+	case 'l':
+		*i += 1;
+		if (fmt[*i + 1] != 'd' && fmt[*i + 1] != 'u' && fmt[*i + 1] != 'x') {
+			debug(SCANF, 1, "Invalid format '%s', wrong char '%c' after 'l'\n",
+					fmt, fmt[*i + 1]);
+			return n_found;
+		}
+		ARG_SET(v_long, long *);
+		if (o)
+			o->conversion = 'l';
+		*v_long = 0;
+		if (fmt[*i + 1] == 'x') {
 			if (in[j2] == '0' && in[j2 + 1] == 'x')
 				j2 += 2;
 			if (!isxdigit(in[j2])) {
-				debug(SCANF, 3, "no HEX found at offset %d \n", *j);
+				debug(SCANF, 3, "no HEX found at offset %d\n", *j);
 				return n_found;
 			}
 			while (isxdigit(in[j2])) {
-				*v_uint <<= 4;
-				*v_uint += char2int(in[j2]);
+				*v_long <<= 4;
+				*v_long += char2int(in[j2]);
 				j2++;
 			}
-			debug(SCANF, 5, "found HEX '%x' at offset %d\n", *v_uint, *j);
-			n_found++;
-			break;
-		case 'S': /* a special STRING that doesnt represent an IP */
-		case 's':
-			ARG_SET(v_s, char *);
-			c = fmt[*i + 2];
-			if (c == '.') {
-				debug(SCANF, 1, "Invalid format '%s', found '.' after %%s\n", fmt);
-				return n_found;
-			} else if (c == '%') {
-				debug(SCANF, 1, "Invalid format '%s', found '%%' after %%s\n", fmt);
+			debug(SCANF, 5, "found long HEX '%lx' at offset %d\n",
+					(unsigned long)*v_long, *j);
+		} else {
+			if (in[*j] == '-' && fmt[*i + 1] == 'd') {
+				sign = -1;
+				j2++;
+			} else
+				sign = 1;
+			if (!isdigit(in[j2])) {
+				debug(SCANF, 3, "no LONG found at offset %d\n", *j);
 				return n_found;
 			}
-			while (!isspace(in[j2]) && j2 - *j < max_field_length - 1) {
-				if (in[j2] == '\0')
-					break;
-				v_s[j2 - *j] = in[j2];
+			while (isdigit(in[j2])) {
+				*v_long *= 10UL;
+				*v_long += (in[j2] - '0');
 				j2++;
 			}
-			if (j2 == *j) {
-				debug(SCANF, 3, "no STRING found at offset %d \n", *j);
+			*v_long *= sign;
+			if (fmt[*i + 1] == 'u') {
+				debug(SCANF, 5, "found ULONG '%lu' at offset %d\n",
+						(unsigned long)*v_long, *j);
+			} else {
+				debug(SCANF, 5, "found LONG '%ld' at offset %d\n",
+						*v_long, *j);
+			}
+		}
+		n_found++;
+		break;
+	case 'd':
+		ARG_SET(v_int, int *);
+		*v_int = 0;
+		if (in[*j] == '-') {
+			sign = -1;
+			j2++;
+		} else
+			sign = 1;
+		if (!isdigit(in[j2])) {
+			debug(SCANF, 3, "no INT found at offset %d\n", *j);
+			return n_found;
+		}
+		while (isdigit(in[j2])) {
+			*v_int *= 10;
+			*v_int += (in[j2] - '0');
+			j2++;
+		}
+		*v_int *= sign;
+		debug(SCANF, 5, "found INT '%d' at offset %d\n", *v_int, *j);
+		n_found++;
+		break;
+	case 'u':
+		ARG_SET(v_uint, unsigned int *);
+		*v_uint = 0;
+		if (!isdigit(in[j2])) {
+			debug(SCANF, 3, "no UINT found at offset %d\n", *j);
+			return n_found;
+		}
+		while (isdigit(in[j2])) {
+			*v_uint *= 10;
+			*v_uint += (in[j2] - '0');
+			j2++;
+		}
+		debug(SCANF, 5, "found UINT '%u' at offset %d\n", *v_uint, *j);
+		n_found++;
+		break;
+	case 'x':
+		ARG_SET(v_uint, unsigned int *);
+		*v_uint = 0;
+		if (in[j2] == '0' && in[j2 + 1] == 'x')
+			j2 += 2;
+		if (!isxdigit(in[j2])) {
+			debug(SCANF, 3, "no HEX found at offset %d\n", *j);
+			return n_found;
+		}
+		while (isxdigit(in[j2])) {
+			*v_uint <<= 4;
+			*v_uint += char2int(in[j2]);
+			j2++;
+		}
+		debug(SCANF, 5, "found HEX '%x' at offset %d\n", *v_uint, *j);
+		n_found++;
+		break;
+	case 'S': /* a special STRING that doesnt represent an IP */
+	case 's':
+		ARG_SET(v_s, char *);
+		c = fmt[*i + 2];
+		if (c == '.') {
+			debug(SCANF, 1, "Invalid format '%s', found '.' after %%s\n", fmt);
+			return n_found;
+		} else if (c == '%') {
+			debug(SCANF, 1, "Invalid format '%s', found '%%' after %%s\n", fmt);
+			return n_found;
+		}
+		while (!isspace(in[j2]) && j2 - *j < max_field_length - 1) {
+			if (in[j2] == '\0')
+				break;
+			v_s[j2 - *j] = in[j2];
+			j2++;
+		}
+		if (j2 == *j) {
+			debug(SCANF, 3, "no STRING found at offset %d\n", *j);
+			return n_found;
+		}
+		v_s[j2 - *j] = '\0';
+		if (fmt[*i + 1] == 'S') {
+			res = get_subnet_or_ip(v_s, (struct subnet *)&poubelle);
+			if (res > 0) {
+				debug(SCANF, 3, "STRING '%s' at offset %d is an IP\n",
+						v_s, *j);
 				return n_found;
 			}
-			v_s[j2 - *j] = '\0';
-			if (fmt[*i + 1] == 'S') {
-				res = get_subnet_or_ip(v_s, (struct subnet *)&poubelle);
-				if (res > 0) {
-					debug(SCANF, 3, "STRING '%s' at offset %d is an IP, refusing it\n",
-							v_s, *j);
-					return n_found;
-				}
-			}
-			debug(SCANF, 5, "found STRING '%s' starting at offset %d \n", v_s, *j);
-			n_found++;
-			break;
-		case 'W':
-			ARG_SET(v_s, char *);
-			while (isalpha(in[j2]) && j2 - *j < max_field_length - 1) {
-				v_s[j2 - *j] = in[j2];
-				j2++;
-			}
-			if (j2 == *j) {
-				debug(SCANF, 3, "no WORD found at offset %d\n", *j);
-				return 0;
-			}
-			v_s[j2 - *j] = '\0';
-			debug(SCANF, 5, "WORD '%s' found at offset %d\n", v_s,  *j);
-			n_found++;
-			break;
-		case '[':
-			ARG_SET(v_s, char *);
-			i2 = fill_char_range(expr, fmt + *i + 1, sizeof(expr));
-			if (i2 == -1) {
-				debug(SCANF, 1, "Invalid format '%s', no closing ']'\n", fmt);
-				return n_found;
-			}
-			*i += (i2 - 1);
+		}
+		debug(SCANF, 5, "found STRING '%s' starting at offset %d\n", v_s, *j);
+		n_found++;
+		break;
+	case 'W':
+		ARG_SET(v_s, char *);
+		while (isalpha(in[j2]) && j2 - *j < max_field_length - 1) {
+			v_s[j2 - *j] = in[j2];
+			j2++;
+		}
+		if (j2 == *j) {
+			debug(SCANF, 3, "no WORD found at offset %d\n", *j);
+			return 0;
+		}
+		v_s[j2 - *j] = '\0';
+		debug(SCANF, 5, "WORD '%s' found at offset %d\n", v_s,  *j);
+		n_found++;
+		break;
+	case '[':
+		ARG_SET(v_s, char *);
+		i2 = fill_char_range(expr, fmt + *i + 1, sizeof(expr));
+		if (i2 == -1) {
+			debug(SCANF, 1, "Invalid format '%s', no closing ']'\n", fmt);
+			return n_found;
+		}
+		*i += (i2 - 1);
+		i2 = 0;
+		/* match_char_against_range cant return -1 here,
+		 *  fill_char_range above would have caught a bad expr */
+		while (match_char_against_range(in[j2], expr, &i2) &&
+				j2 - *j < max_field_length - 1) {
+			if (in[j2] == '\0')
+				break;
+			v_s[j2 - *j] = in[j2];
 			i2 = 0;
-			/* match_char_against_range cant return -1 here,
-			 *  fill_char_range above would have caught a bad expr */
-			while (match_char_against_range(in[j2], expr, &i2) &&
-					j2 - *j < max_field_length - 1) {
-				if (in[j2] == '\0')
-					break;
-				v_s[j2 - *j] = in[j2];
-				i2 = 0;
-				j2++;
-			}
-			if (j2 == *j) {
-				debug(SCANF, 3, "no CHAR RANGE found at offset %d\n", *j);
-				return 0;
-			}
-			v_s[j2 - *j] = '\0';
-			debug(SCANF, 5, "CHAR RANGE '%s' found at offset %d\n", v_s,  *j);
-			n_found++;
-			break;
-		case 'c':
-			ARG_SET(v_s, char *);
-			v_s[0] = in[*j];
-			debug(SCANF, 5, "CHAR '%c' found at offset %d\n", *v_s,  *j);
-			j2 = *j + 1;
-			n_found++;
-			break;
-		default:
-			debug(SCANF, 1, "Unknown conversion specifier '%c'\n", fmt[*i + 1]);
-			break;
+			j2++;
+		}
+		if (j2 == *j) {
+			debug(SCANF, 3, "no CHAR RANGE found at offset %d\n", *j);
+			return 0;
+		}
+		v_s[j2 - *j] = '\0';
+		debug(SCANF, 5, "CHAR RANGE '%s' found at offset %d\n", v_s,  *j);
+		n_found++;
+		break;
+	case 'c':
+		ARG_SET(v_s, char *);
+		v_s[0] = in[*j];
+		debug(SCANF, 5, "CHAR '%c' found at offset %d\n", *v_s,  *j);
+		j2 = *j + 1;
+		n_found++;
+		break;
+	default:
+		debug(SCANF, 1, "Unknown conversion specifier '%c'\n", fmt[*i + 1]);
+		break;
 	} /* switch */
 	*j = j2;
 	*i += 2;
@@ -706,62 +720,63 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 		debug(SCANF, 8, "remaining in  ='%s'\n", in + j);
 		debug(SCANF, 8, "remaining expr='%s'\n", expr + i);
 		switch (c) {
-			case '(':
-				i++;
-				break;
-			case ')':
-				i++;
-				break;
-			case '.':
-				i++;
-				j++;
-				break;
-			case '[': /* try to handle char range like [a-Zbce-f] */
-				res = match_char_against_range(in[j], expr, &i);
-				if (res <= 0)
-					goto try_again;
-				j++;
-				break;
-			case '%':
-				debug(SCANF, 3, "conversion specifier to handle %lu\n",
-						(unsigned long)(o + *num_o));
-				res = parse_conversion_specifier(in, expr, &i, &j, &o[*num_o]);
-				if (res == 0)
-					goto try_again;
-				if (o) {
-					debug(SCANF, 4, "conv specifier successfull '%c' for %d\n",
-							o[*num_o].type, *num_o);
-				} else {
-					debug(SCANF, 4, "conv specifier successfull\n");
-				}
-				*num_o += 1;
-				break;
-			case '\\':
-				i++;
-				c = escape_char(expr[i]);
-				if (c == '\0') {
-					debug(SCANF, 1, "Invalid expr '%s', '\\' at end of string\n", expr);
-					return 0;
-				}
-			default:
-				if (c == '|')
-					return j;
-				if (in[j] != c)
-					goto try_again;
-				i++;
-				j++;
-				break;
+		case '(':
+			i++;
+			break;
+		case ')':
+			i++;
+			break;
+		case '.':
+			i++;
+			j++;
+			break;
+		case '[': /* try to handle char range like [a-Zbce-f] */
+			res = match_char_against_range(in[j], expr, &i);
+			if (res <= 0)
+				goto try_again;
+			j++;
+			break;
+		case '%':
+			debug(SCANF, 3, "conversion specifier to handle %lu\n",
+					(unsigned long)(o + *num_o));
+			res = parse_conversion_specifier(in, expr, &i, &j, &o[*num_o]);
+			if (res == 0)
+				goto try_again;
+			if (o) {
+				debug(SCANF, 4, "conv specifier successfull '%c' for %d\n",
+						o[*num_o].type, *num_o);
+			} else {
+				debug(SCANF, 4, "conv specifier successfull\n");
+			}
+			*num_o += 1;
+			break;
+		case '\\':
+			i++;
+			c = escape_char(expr[i]);
+			if (c == '\0') {
+				debug(SCANF, 1, "Invalid expr '%s', '\\' at end of string\n",
+						expr);
+				return 0;
+			}
+		default:
+			if (c == '|')
+				return j;
+			if (in[j] != c)
+				goto try_again;
+			i++;
+			j++;
+			break;
 		}
 		continue;
-		try_again:
-			res = expr_try_again(expr + i);
-			if (res == -1) /* no '|' */
-				return 0;
-			i += res;
-			j = 0;
-			*num_o = saved_num_o;
-			debug(SCANF, 4, "Logical OR found, trying again on expr '%s'\n",
-					expr + i);
+try_again:
+		res = expr_try_again(expr + i);
+		if (res == -1) /* no '|' */
+			return 0;
+		i += res;
+		j = 0;
+		*num_o = saved_num_o;
+		debug(SCANF, 4, "Logical OR found, trying again on expr '%s'\n",
+				expr + i);
 	}
 }
 
@@ -771,8 +786,8 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
  * @o     : will store input data (if conversion specifiers are found)
  * @num_o : number of found objects (will be updated)
  * will return :
- * 	0 if it doesnt match (or if e->early_stop allows)
- * 	number of matched chars in input buffer otherwise
+ *	0 if it doesnt match (or if e->early_stop allows)
+ *	number of matched chars in input buffer otherwise
  */
 static int match_expr(struct expr *e, const char *in, struct sto *o, int *num_o)
 {
@@ -868,8 +883,7 @@ static int find_ip(const char *remain, struct expr *e)
 	if (get_subnet_or_ip(buffer, &s) > 0) {
 		e->skip_stop = i; /* useful for .$* matching */
 		return 1;
-	}
-	else
+	} else
 		return 0;
 }
 
@@ -889,8 +903,7 @@ static int find_classfull_subnet(const char *remain, struct expr *e)
 	if (classfull_get_subnet(buffer, &s) > 0) {
 		e->skip_stop = i; /* useful for .$* matching */
 		return 1;
-	}
-	else
+	} else
 		return 0;
 }
 
@@ -980,8 +993,8 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 			expr, c, num_cs);
 	if (fmt[*i + 1] == '$') {
 		if (max_m < 2) {
-			debug(SCANF, 1, "'$' special char is only allowed"
-					" after mutiple expansion chars like '*', '+'\n");
+			debug(SCANF, 1, "'$' not allowed in this context, max expansion=%d\n",
+				max_m);
 
 		} else {
 			e.match_last = 1;
@@ -989,72 +1002,73 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 		}
 		*i += 1;
 	}
-	/* we need to find when the expr expansion will end, in case it matches anything like '.*' */
+	/* we need to find when the expr expansion will end,
+	 * in case it matches something like '.*' */
 	if (fmt[*i + 1] == '%') {
 		c = conversion_specifier(fmt + *i + 2);
 
 		switch (c) {
-			case '\0':
-				debug(SCANF, 1, "Invalid format string '%s', ends with %%\n",
-						fmt);
-				return -1;
-			case 'd':
+		case '\0':
+			debug(SCANF, 1, "Invalid format string '%s', ends with %%\n",
+					fmt);
+			return -1;
+		case 'd':
+			e.early_stop = &find_int;
+			break;
+		case 'u':
+			e.early_stop = &find_uint;
+			break;
+		case 'x':
+			e.early_stop = &find_hex;
+			break;
+		case 'l':
+		case 'h':
+			if (fmt[*i + 3] == 'd')
 				e.early_stop = &find_int;
-				break;
-			case 'u':
+			else if (fmt[*i + 3] == 'u')
 				e.early_stop = &find_uint;
-				break;
-			case 'x':
+			else if (fmt[*i + 3] == 'x')
 				e.early_stop = &find_hex;
-				break;
-			case 'l':
-			case 'h':
-				if (fmt[*i + 3] == 'd')
-					e.early_stop = &find_int;
-				else if (fmt[*i + 3] == 'u')
-					e.early_stop = &find_uint;
-				else if (fmt[*i + 3] == 'x')
-					e.early_stop = &find_hex;
-				break;
-			case 'I':
-				e.early_stop = &find_ip;
-				break;
-			case 'Q':
-				e.early_stop = &find_classfull_subnet;
-				break;
-			case 'P':
-				e.early_stop = &find_ip;
-				break;
-			case 'S':
-				e.early_stop = &find_not_ip;
-				break;
-			case 'M':
-				e.early_stop = &find_mask;
-				break;
-			case 'W':
-				e.early_stop = &find_word;
-				break;
-			case 's':
-				e.early_stop = &find_string;
-				break;
-			case '[':
-				k = 0;
-				/* we must take field length into account */
-				while (isdigit(fmt[*i + k + 2]))
-					k++;
-				res = fill_char_range(e.end_expr, fmt + *i + k + 2,
-						sizeof(e.end_expr));
-				if (res < 0) {
-					debug(SCANF, 1, "Invalid format '%s', unmatched '['\n",
-							expr);
-					return -1;
-				}
-				debug(SCANF, 4, "pattern matching will end on '%s'\n",
-						e.end_expr);
-				e.early_stop = &find_expr;
-				break;
-			default:
-				break;
+			break;
+		case 'I':
+			e.early_stop = &find_ip;
+			break;
+		case 'Q':
+			e.early_stop = &find_classfull_subnet;
+			break;
+		case 'P':
+			e.early_stop = &find_ip;
+			break;
+		case 'S':
+			e.early_stop = &find_not_ip;
+			break;
+		case 'M':
+			e.early_stop = &find_mask;
+			break;
+		case 'W':
+			e.early_stop = &find_word;
+			break;
+		case 's':
+			e.early_stop = &find_string;
+			break;
+		case '[':
+			k = 0;
+			/* we must take field length into account */
+			while (isdigit(fmt[*i + k + 2]))
+				k++;
+			res = fill_char_range(e.end_expr, fmt + *i + k + 2,
+					sizeof(e.end_expr));
+			if (res < 0) {
+				debug(SCANF, 1, "Invalid format '%s', unmatched '['\n",
+						expr);
+				return -1;
+			}
+			debug(SCANF, 4, "pattern matching will end on '%s'\n",
+					e.end_expr);
+			e.early_stop = &find_expr;
+			break;
+		default:
+			break;
 		} /* switch c */
 	} else if (fmt[*i + 1] == '(') {
 		res = strxcpy_until(e.end_expr, fmt + *i + 1, sizeof(e.end_expr), ')');
@@ -1101,7 +1115,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 		if (*j > in_length) {
 			/* can happen only if there is a BUG in 'match_expr' and its descendant */
 			fprintf(stderr, "BUG, input buffer override in %s line %d\n",
-					__FUNCTION__, __LINE__);
+					__func__, __LINE__);
 			return -5;
 		}
 		if (in[*j] == '\0') {
@@ -1167,8 +1181,8 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
  * @max_o : max number of collected objects
  *
  * returns:
- * 	number of objects found
- * 	-1 if no match and no conversion specifier found
+ *	number of objects found
+ *	-1 if no match and no conversion specifier found
  */
 int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 {
@@ -1235,8 +1249,8 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				goto end_nomatch;
 		} else if (c == '%') {
 			if (n_found > max_o - 1) {
-				debug(SCANF, 1, "Cannot get more than %d objets,"
-						" already found %d\n", max_o, n_found);
+				debug(SCANF, 1, "Max objets %d, already found %d\n",
+						max_o, n_found);
 				return n_found;
 			}
 			res = parse_conversion_specifier(in, fmt, &i, &j, o + n_found);
@@ -1271,8 +1285,8 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 
 			num_cs = count_cs(expr);
 			if (n_found + num_cs >= max_o) {
-				debug(SCANF, 1, "Cannot get more than %d objets,"
-						" already found %d\n", max_o, n_found);
+				debug(SCANF, 1, "Max objets %d, already found %d\n",
+						max_o, n_found);
 				return n_found;
 			}
 			res = match_expr_single(expr, in + j, o, &n_found);
@@ -1281,25 +1295,26 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				return n_found;
 			}
 			if (res == 0) {
-				debug(SCANF, 2, "Expr'%s' didnt match in 'in' at offset %d\n", expr, j);
+				debug(SCANF, 2, "Expr'%s' didnt match 'in' at offset %d\n",
+						expr, j);
 				goto end_nomatch;
 			}
-			debug(SCANF, 4, "Expr'%s' matched 'in' res=%d at offset %d,"
-					" found %d objects so far\n", expr, res, j, n_found);
+			debug(SCANF, 4, "Expr '%s' matched 'in' res=%d at offset %d\n",
+					expr, res, j);
+			debug(SCANF, 4, "Found %d objects so far\n", n_found);
 			j += res;
 			if (j > in_length) {
 				/* can happen only if there is a BUG in 'match_expr_single'
 				 * and its descendant */
 				fprintf(stderr, "BUG, input buffer override in %s line %d\n",
-						__FUNCTION__, __LINE__);
+						__func__, __LINE__);
 				return n_found;
 			}
 		} else {
 			if (fmt[i] == '\\') {
 				c = escape_char(fmt[i + 1]);
 				if (c == '\0') {
-					debug(SCANF, 1, "Invalid format string '%s',"
-							" nul char after escape char\n", fmt);
+					debug(SCANF, 1, "Invalid format string '%s'\n", fmt);
 					goto end_nomatch;
 				}
 				i++;
