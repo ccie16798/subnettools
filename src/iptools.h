@@ -53,7 +53,7 @@ typedef struct ipv6_a ipv6;
 	u16 cur = (__ip6 >> ((7 - __n) * 16)) & 0xFF; \
 	cur ^= __value; \
 	__ip6 ^= (cur << ((7 - __n) * 16)); \
-} while (0); /* not sure about this one :) */
+} while (0) /* not sure about this one :) */
 #define shift_ipv6_left(__z, __len) (__z <<= __n)
 #define shift_ipv6_right(__z, __len) (__z >>= __n)
 #define increase_ipv6(__z) (__z++)
@@ -151,7 +151,7 @@ int addr2bitmask(const struct ip_addr *a, char *out, size_t len);
 
 /* read len chars from 's' and try to convert to a struct ip_addr
  * s doesnt need to be '\0' ended
- * returns :
+ * returns:
  *    IPV4_A if addr is valid IPv4
  *    IPV6_A if addr is valid IPv6
  *    BAD_IP otherwise
@@ -167,8 +167,10 @@ int string2addr(const char *s, struct ip_addr *addr, size_t len);
 int string2mask(const char *s, size_t len);
 
 
-/* fills struct subnet from a string
- * returns :
+/* get_subnet_or_ip: fills struct subnet * from a string
+ * @s      : the string to read
+ * @subnet : a pointer to a struct subnet to fill
+ * returns:
  *    IPV4_A : IPv4 without mask
  *    IPV4_N : IPv4 + mask
  *    IPV6_A : IPv6 without mask
@@ -188,7 +190,8 @@ int get_subnet_or_ip(const char *s, struct subnet *subnet);
 int classfull_get_subnet(const char *string, struct subnet *subnet);
 
 /* try to aggregate s1 & s2, putting the result 'in aggregated_subnet' if possible
- * returns negative if impossible to aggregate, positive if possible */
+ * returns negative if impossible to aggregate, positive if possible
+ */
 int aggregate_subnet(const struct subnet *s1, const struct subnet *s2,
 		struct subnet *aggregated_subnet);
 

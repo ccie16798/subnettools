@@ -91,8 +91,6 @@ static inline int subnet_compare_ipv6(ipv6 ip1, u32 mask1, ipv6 ip2, u32 mask2)
 	if (mask1 > mask2) {
 		shift_ipv6_right(ip1, (128 - mask2));
 		shift_ipv6_right(ip2, (128 - mask2));
-		/*print_bitmap(ip1.n16, 8);
-		print_bitmap(ip2.n16, 8);	*/
 		if (is_equal_ipv6(ip1, ip2))
 			return INCLUDED;
 		else
@@ -100,8 +98,6 @@ static inline int subnet_compare_ipv6(ipv6 ip1, u32 mask1, ipv6 ip2, u32 mask2)
 	} else if (mask1 < mask2) {
 		shift_ipv6_right(ip1, (128 - mask1));
 		shift_ipv6_right(ip2, (128 - mask1));
-		/*print_bitmap(ip1.n16, 8);
-		print_bitmap(ip2.n16, 8); */
 		if (is_equal_ipv6(ip1, ip2))
 			return INCLUDES;
 		else
@@ -223,7 +219,8 @@ static inline int addrv62str(ipv6 z, char *out_buffer, size_t len, int compress)
 	}
 	if (compress == 0) {
 		/* no need for snprintf since we made sure len is at least 40 and
-		 * we can't print more than 40 chars here */
+		 * we can't print more than 40 chars here
+		 */
 		a = sprintf(out_buffer, "%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x",
 				block(z, 0), block(z, 1), block(z, 2), block(z, 3),
 				block(z, 4), block(z, 5), block(z, 6), block(z, 7));
@@ -234,9 +231,7 @@ static inline int addrv62str(ipv6 z, char *out_buffer, size_t len, int compress)
 				block(z, 4), block(z, 5), block(z, 6), block(z, 7));
 		return a;
 	}
-	/**
-	 ** longest 0000 block sequence will be replaced
-	 */
+	/* longest 0000 block sequence will be replaced */
 	for (i = 0; i < 8; i++) {
 		if (block(z, i) == 0) {
 			if (skip == 0)  {
@@ -247,7 +242,8 @@ static inline int addrv62str(ipv6 z, char *out_buffer, size_t len, int compress)
 		} else {
 			if (skip) {
 				/* in case of egality, we prefer to replace block to the right
-				* if you want to replace the left block change to '>' */
+				 * if you want to replace the left block change to '>'
+				 */
 				if (skip >= max_skip) {
 					debug(PARSEIPV6, 8, "skip index %d better\n", skip_index);
 					max_skip = skip;
@@ -259,7 +255,8 @@ static inline int addrv62str(ipv6 z, char *out_buffer, size_t len, int compress)
 	}
 	if (skip && (skip >= max_skip)) {
 		/* happens in case address ENDS with :0000,
-		 * we then left the loop without setting max_skip__ */
+		 * we then left the loop without setting max_skip
+		 */
 		max_skip =  skip;
 		max_skip_index = skip_index;
 	}
@@ -834,7 +831,7 @@ int ipv4_get_classfull_mask(const struct subnet *s)
 /* some platforms will print IPv4 classfull subnet and remove 0 like 10/8, 172.30/16 etc
  * or sh ip bgp will not print the mask in case of a classfull subnet
  * thanks CISCO for keeping that 1980's crap into our memories ...
- * ... */
+ */
 int classfull_get_subnet(const char *s, struct subnet *subnet)
 {
 	int truc[4];
@@ -884,7 +881,8 @@ int classfull_get_subnet(const char *s, struct subnet *subnet)
 			continue;
 		} else if (s[i] == ':') {
 			/* that may be IPv6 and IPv6 is classless,
-			 * so fall-back to a regular get_subnet_or_ip */
+			 * so fall-back to a regular get_subnet_or_ip
+			 */
 			return get_subnet_or_ip(s, subnet);
 		} else {
 			debug(PARSEIP, 3, "Invalid IP '%s',  contains '%c'\n", s, s[i]);
@@ -1009,22 +1007,16 @@ int subnet_filter(const struct subnet *test, const struct subnet *against, char 
 	switch (op) {
 	case '=':
 		return (res == EQUALS);
-		break;
 	case '#':
 		return !(res == EQUALS);
-		break;
 	case '<':
 		return subnet_is_superior(test, against);
-		break;
 	case '>':
 		return !subnet_is_superior(test, against) && res != EQUALS;
-		break;
 	case '{':
 		return (res == INCLUDED || res == EQUALS);
-		break;
 	case '}':
 		return (res == INCLUDES || res == EQUALS);
-		break;
 	default:
 		debug(FILTER, 1, "Unsupported op '%c' for subnet_filter\n", op);
 		return -1;
@@ -1039,32 +1031,25 @@ int addr_filter(const struct ip_addr *test, const struct subnet *against, char o
 	switch (op) {
 	case '=':
 		return (res == EQUALS);
-		break;
 	case '#':
 		return !(res == EQUALS);
-		break;
 	case '<':
 		return addr_is_superior(test, &against->ip_addr);
-		break;
 	case '>':
 		return !addr_is_superior(test, &against->ip_addr) && res != EQUALS;
-		break;
 	case '{':
 		return (res == INCLUDED || res == EQUALS);
-		break;
 	case '}':
 		return (res == INCLUDES || res == EQUALS);
-		break;
 	default:
 		debug(FILTER, 1, "Unsupported op '%c' for addr_filter\n", op);
 		return -1;
 	}
 }
 
-/* try to aggregate s1 & s2, putting the result in s3 if possible
- * returns negative if impossible to aggregate, positive if possible */
-/* try to aggregate s1 & s2, putting the result in s3 if possible
- * returns negative if impossible to aggregate, positive if possible */
+/* try to aggregate s1 & s2, putting the result in res if possible
+ * returns negative if impossible to aggregate, positive if possible
+ */
 static int aggregate_subnet_ipv4(const struct subnet *s1, const struct subnet *s2,
 		struct subnet *res)
 {
@@ -1141,7 +1126,8 @@ int aggregate_subnet(const struct subnet *s1, const struct subnet *s2, struct su
 }
 
 /* network address of a prefix; named first_ip becoz in IPv6 ...
- * well network address is a regular address  */
+ * well network address is a regular address
+ */
 void first_ip(struct subnet *s)
 {
 	if (s->ip_ver == IPV4_A) {
@@ -1263,22 +1249,22 @@ struct subnet *subnet_remove(const struct subnet *s1, const struct subnet *s2, i
 	copy_subnet(&test, s1);
 	first_ip(&test);
 	i = 0;
-	/** strategy is as follow :
-	test = S1;
-	do
-		do
-			increase test mask
-		until test doesn't include S2 any more
-
-		test = test + 1 (next subnet)
-	until test != S2
-
-	test = S2
-	do
-		test = test +1 (next subnet)
-		decrease test mask as much as we can (aggregation)
-	until test included in S1
-	  */
+	/* strategy is as follow :
+	* test = S1;
+	* do
+	*	do
+	*		increase test mask
+	*	until test doesn't include S2 any more
+	*
+	*	test = test + 1 (next subnet)
+	* until test != S2
+	*
+	* test = S2
+	* do
+	*	test = test +1 (next subnet)
+	*	decrease test mask as much as we can (aggregation)
+	*until test included in S1
+	*/
 	while (1) { /* getting subnet before s2*/
 		a = 0;
 		while (1) {
@@ -1303,16 +1289,14 @@ struct subnet *subnet_remove(const struct subnet *s1, const struct subnet *s2, i
 				break;
 			}
 		}
-		if (a) {
+		if (a)
 			break;
-		} else {
-			next_subnet(&test);
-			st_debug(ADDRREMOVE, 5, "Loop#1 advancing to %P\n", test);
-			res = subnet_compare(&test, s2);
-			if (res == EQUALS) {
-				st_debug(ADDRREMOVE, 5, "Loop#1 finally we reached %P\n", *s2);
-				break;
-			}
+		next_subnet(&test);
+		st_debug(ADDRREMOVE, 5, "Loop#1 advancing to %P\n", test);
+		res = subnet_compare(&test, s2);
+		if (res == EQUALS) {
+			st_debug(ADDRREMOVE, 5, "Loop#1 finally we reached %P\n", *s2);
+			break;
 		}
 	}
 	/* getting subnet after s2 */
