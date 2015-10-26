@@ -399,13 +399,13 @@ int cisco_route_to_csv(char *name, FILE *f, struct st_options *o)
 			if (strstr(s, "via ")) {
 				/* format is not the same in IPv6 or IPv4 */
 				/* IPv4
-				 O E1    10.150.10.128/25
-					[110/45] via 10.138.2.131, 1w5d, TenGigabitEthernet8/1
-				*/
-				/* IPv6
-					S   2A02:8400:0:41::2:2/128 [1/0]
-						     via FE80::253, Vlan491
-				*/
+				 * O E1    10.150.10.128/25
+				 *	[110/45] via 10.138.2.131, 1w5d, TenGigabitEthernet8/1
+				 *
+				 * IPv6
+				 *		S   2A02:8400:0:41::2:2/128 [1/0]
+				 *		     via FE80::253, Vlan491
+				 */
 				if (ip_ver == IPV4_A)
 					res = st_sscanf(s, ".*(via) (%I)?.*$%32[^, \n]",
 							&route.gw, route.device);
@@ -682,19 +682,17 @@ int ciscobgp_to_csv(char *name, FILE *f, struct st_options *o)
 				&route.MED,
 				&route.LOCAL_PREF, &route.weight);
 		if (res != 3) {
-				debug(PARSEROUTE, 1,
-						"Line %lu Invalid, no MED, WEIGHT or LOCAL_PREF\n",
-						line);
-				badline++;
-				continue;
+			debug(PARSEROUTE, 1, "Line %lu Invalid, no MED, WEIGHT or LOCAL_PREF\n",
+					line);
+			badline++;
+			continue;
 		}
 		res = st_sscanf(s + aspath_offset, "(%256[0-9: ])?%c",
 				&route.AS_PATH, &route.origin);
 		if (res != 2) {
-				debug(PARSEROUTE, 1,
-						"Line %lu Invalid, no ASP_PATH/ORIGIN\n", line);
-				badline++;
-				continue;
+			debug(PARSEROUTE, 1, "Line %lu Invalid, no ASP_PATH/ORIGIN\n", line);
+			badline++;
+			continue;
 		}
 		remove_ending_space(route.AS_PATH);
 		fprint_bgp_route(o->output_file, &route);
