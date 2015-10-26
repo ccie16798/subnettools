@@ -105,7 +105,8 @@ sprint_unsigned(long)
 	} while (0)
 
 /* if fprint_route_fmt or fprint_bgp_route_fmt are called with route == NULL
- * it will print a subnet_file or bgp_file HEADER */
+ * it will print a subnet_file or bgp_file HEADER
+ */
 #define PRINT_FILE_HEADER(__val) ({ \
 	if (r == NULL) { \
 		strcpy(buffer, #__val); \
@@ -278,10 +279,9 @@ static int __print_ea(char *outbuf, size_t buffer_len,
 		res = pad_buffer_out(outbuf,  buffer_len, buffer,
 				res, field_width, pad_left, ' ');
 		return res;
-	} else {
-		debug(FMT, 1, "Invalid char '%c' after %%O\n", fmt[*i + 2]);
-		return 0;
 	}
+	debug(FMT, 1, "Invalid char '%c' after %%O\n", fmt[*i + 2]);
+	return 0;
 }
 
 #define IPAM_HEADER(__val) ({ \
@@ -795,6 +795,7 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap,
 	int res;
 	char c;
 	char buffer[ST_PRINTF_MAX_STRING_SIZE];
+	char buffer2[ST_PRINTF_MAX_STRING_SIZE];
 	int field_width;
 	int pad_left, pad_value;
 	int o_num;
@@ -988,7 +989,6 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap,
 				SET_IP_COMPRESSION_LEVEL(fmt[i2 + 1]);
 
 				if (v_sub.ip_ver == IPV4_A || v_sub.ip_ver == IPV6_A) {
-					char buffer2[128];
 					subnet2str(&v_sub, buffer2,
 							sizeof(buffer2), compression_level);
 					res = sprintf(buffer, "%s/%d", buffer2, (int)v_sub.mask);
