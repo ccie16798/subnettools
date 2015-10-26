@@ -1,5 +1,5 @@
 /*
- * generic bitmap functions 
+ * generic bitmap functions
  * (use to manipulate IPv6 addresses)
  *
  * Copyright (C) 2014 Etienne Basset <etienne POINT basset AT ensta POINT org>
@@ -68,7 +68,7 @@ void print_bitmap(MYTYPE *buffer, int len)
 	for (i = 0; i < len * TYPE_SIZE; i++) {
 		i1 = i / TYPE_SIZE;
 		i2 = TYPE_SIZE - 1 - i % TYPE_SIZE;
-		a = !! ((buffer[i1]) & (1 << i2));
+		a = !!((buffer[i1]) & (1 << i2));
 		printf("%d", a);
 	}
 	printf("\n");
@@ -83,7 +83,7 @@ int sprint_bitmap(char *outbuf, MYTYPE *buffer, int len)
 	for (i = 0; i < len * TYPE_SIZE; i++) {
 		i1 = i / TYPE_SIZE;
 		i2 = TYPE_SIZE - 1 - i % TYPE_SIZE;
-		a = !! ((buffer[i1]) & (1 << i2));
+		a = !!((buffer[i1]) & (1 << i2));
 		b += sprintf(outbuf++, "%d", a);
 	}
 	*outbuf = '\0';
