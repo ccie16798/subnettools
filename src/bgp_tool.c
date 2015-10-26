@@ -42,7 +42,8 @@ void fprint_bgp_file(FILE *output, struct bgp_file *bf)
 
 void fprint_bgp_file_header(FILE *out)
 {
-	fprintf(out, "V;Proto;BEST;          prefix;              GW;       MED;LOCAL_PREF;    WEIGHT;ORIGIN;AS_PATH;\n");
+	fprintf(out, "V;Proto;BEST;          prefix;              GW;       MED;"
+			"LOCAL_PREF;    WEIGHT;ORIGIN;AS_PATH;\n");
 }
 
 void copy_bgproute(struct bgp_route *a, const struct bgp_route *b)
@@ -62,11 +63,11 @@ int compare_bgp_file(const struct bgp_file *sf1, const struct bgp_file *sf2, str
 
 	debug(BGPCMP, 6, "file1 : %ld routes, file2 : %ld routes\n", sf1->nr, sf2->nr);
 	for (i = 0; i < sf1->nr; i++) {
-		st_debug(BGPCMP, 9, "testing %P via %I\n", sf1->routes[i].subnet, 
+		st_debug(BGPCMP, 9, "testing %P via %I\n", sf1->routes[i].subnet,
 					sf1->routes[i].gw);
 		if (sf1->routes[i].best == 0 || sf1->routes[i].valid != 1) {
-			st_debug(BGPCMP, 5, "%P via %I is not a best route, skipping\n", sf1->routes[i].subnet, 
-					sf1->routes[i].gw);
+			st_debug(BGPCMP, 5, "%P via %I is not a best route, skipping\n",
+					sf1->routes[i].subnet, sf1->routes[i].gw);
 			continue;
 		}
 		found   = 0;
@@ -75,7 +76,8 @@ int compare_bgp_file(const struct bgp_file *sf1, const struct bgp_file *sf2, str
 			changed = 0;
 			if (sf2->routes[j].best == 0 || sf2->routes[j].valid != 1)
 				continue;
-			if (subnet_compare(&sf1->routes[i].subnet, &sf2->routes[j].subnet) != EQUALS)
+			if (subnet_compare(&sf1->routes[i].subnet,
+						&sf2->routes[j].subnet) != EQUALS)
 				continue;
 			found = 1;
 			if (is_equal_ip(&sf1->routes[i].gw, &sf2->routes[j].gw) == 0)
@@ -101,7 +103,7 @@ int compare_bgp_file(const struct bgp_file *sf1, const struct bgp_file *sf2, str
 			}
 		}
 		if (found == 0) {
-			st_fprintf(o->output_file, "WITHDRAWN;"); 
+			st_fprintf(o->output_file, "WITHDRAWN;");
 			fprint_bgp_route(o->output_file, &sf1->routes[i]);
 			continue;
 		}
@@ -147,8 +149,7 @@ int as_path_length(const char *s)
 		else if (c == ')' && in_confed) {
 			in_confed = 0;
 			continue;
-		}
-		else if (c == '}' && in_asset) {
+		} else if (c == '}' && in_asset) {
 			in_asset = 0;
 			continue;
 		}
@@ -217,9 +218,9 @@ static int __heap_localpref_is_superior(void *v1, void *v2)
 	int LOCAL_PREF1 = ((struct bgp_route *)v1)->LOCAL_PREF;
 	int LOCAL_PREF2 = ((struct bgp_route *)v2)->LOCAL_PREF;
 
-	if (LOCAL_PREF1 == LOCAL_PREF2) {
+	if (LOCAL_PREF1 == LOCAL_PREF2)
 		return subnet_is_superior(s1, s2);
-	} else
+	else
 		return (LOCAL_PREF1 > LOCAL_PREF2);
 }
 
@@ -236,7 +237,7 @@ static int __heap_aspath_is_superior(void *v1, void *v2)
 	l1 = as_path_length(s1);
 	l2 = as_path_length(s2);
 	if (l1 == l2) {
-		if (!strcmp(s1,s2)) {
+		if (!strcmp(s1, s2)) {
 			struct subnet *sub1 = &((struct bgp_route *)v1)->subnet;
 			struct subnet *sub2 = &((struct bgp_route *)v2)->subnet;
 			return subnet_is_superior(sub1, sub2);
@@ -324,6 +325,7 @@ int bgp_sort_by(struct bgp_file *sf, char *name)
 }
 
 #define BLOCK_INT(__VAR) \
+	do { \
 		if (res < 0) \
 			return 0; \
 		switch (op) { \
@@ -343,6 +345,7 @@ int bgp_sort_by(struct bgp_file *sf, char *name)
 			debug(FILTER, 1, "Unsupported op '%c' for %s\n", op, #__VAR); \
 			return -1; \
 		} \
+	} while (0)
 
 int fprint_bgpfilter_help(FILE *out)
 {
@@ -353,7 +356,8 @@ int fprint_bgpfilter_help(FILE *out)
 			" -gw\n"
 			" -LOCAL_PREF, MED, weight\n"
 			" -Valid, Best\n"
-			" -AS_PATH (=, <, > and # compare AS_PATH length; to compare actual AS_PATH, use '~')\n\n"
+			" -AS_PATH (=, <, > and # compare AS_PATH length;"
+			" to compare actual AS_PATH, use '~')\n\n"
 			"operator are :\n"
 			"- '=' (EQUALS)\n"
 			"- '#' (DIFFERENT)\n"
@@ -376,63 +380,64 @@ static int bgp_route_filter(const char *s, const char *value, char op, void *obj
 	if (!strcmp(s, "prefix")) {
 		res = get_subnet_or_ip(value, &subnet);
 		if (res < 0) {
-			debug(FILTER, 1, "Filtering on prefix %c '%s',  but it is not an IP\n", op, value);
+			debug(FILTER, 1, "Filtering on prefix %c '%s',  but it is not an IP\n",
+					op, value);
 			return -1;
 		}
 		return subnet_filter(&route->subnet, &subnet, op);
-	}
-	else if (!strcmp(s, "gw")) {
+	} else if (!strcmp(s, "gw")) {
 		if (route->gw.ip_ver == 0)
 			return 0;
 		res = get_subnet_or_ip(value, &subnet);
 		if (res < 0) {
-			debug(FILTER, 1, "Filtering on gw %c '%s',  but it is not an IP\n", op, value);
+			debug(FILTER, 1, "Filtering on gw %c '%s',"
+					" but it is not an IP\n", op, value);
 			return -1;
 		}
 		return addr_filter(&route->gw, &subnet, op);
-	}
-	else if (!strcmp(s, "mask")) {
+	} else if (!strcmp(s, "mask")) {
 		res =  string2mask(value, 42);
 		if (res < 0) {
-			debug(FILTER, 1, "Filtering on mask %c '%s',  but it is valid\n", op, value);
+			debug(FILTER, 1, "Filtering on mask %c '%s',"
+					" but it is valid\n", op, value);
 			return -1;
 		}
 		BLOCK_INT(subnet.mask);
-	}
-	else if (!strcasecmp(s, "med")) {
+	} else if (!strcasecmp(s, "med")) {
 		res =  string2int(value, &err);
 		if (err < 0) {
-			debug(FILTER, 1, "Filtering on MED %c '%s',  but it is not valid \n", op, value);
+			debug(FILTER, 1, "Filtering on MED %c '%s',"
+					" but it is not valid\n", op, value);
 			return -1;
 		}
 		BLOCK_INT(MED);
-	}
-	else if (!strcasecmp(s, "weight")) {
+	} else if (!strcasecmp(s, "weight")) {
 		res =  string2int(value, &err);
 		if (err < 0) {
-			debug(FILTER, 1, "Filtering on WEIGHT %c '%s',  but it is not valid \n", op, value);
+			debug(FILTER, 1, "Filtering on WEIGHT %c '%s',"
+					" but it is not valid\n", op, value);
 			return -1;
 		}
 		BLOCK_INT(weight);
-	}
-	else if (!strcasecmp(s, "LOCALPREF") || !strcasecmp(s, "local_pref")) {
+	} else if (!strcasecmp(s, "LOCALPREF") || !strcasecmp(s, "local_pref")) {
 		res =  string2int(value, &err);
 		if (err < 0) {
-			debug(FILTER, 1, "Filtering on LOCAL_PREF %c '%s',  but it is not valid \n", op, value);
+			debug(FILTER, 1, "Filtering on LOCAL_PREF %c '%s',"
+					" but it is not valid\n", op, value);
 			return -1;
 		}
 		BLOCK_INT(LOCAL_PREF);
-	}
-	/* we compare AS_PATH length, except with ~ compator
-	 * that comparator uses pattern matching */
-	else if (!strcasecmp(s, "aspath") || !strcasecmp(s, "as_path")) {
+	} else if (!strcasecmp(s, "aspath") || !strcasecmp(s, "as_path")) {
+		/* we compare AS_PATH length, except with ~ compator
+		 * that comparator uses pattern matching */
 		if (op == '~') {
 			res = st_sscanf(route->AS_PATH, value);
 			return (res < 0 ? 0 : 1);
 		}
 		res =  string2int(value, &err);
 		if (err < 0) {
-			debug(FILTER, 1, "Filtering on AS_PATH length %c '%s',  but it is not valid \n", op, value);
+			debug(FILTER, 1, "Filtering on AS_PATH length %c '%s',"
+					" but it is not valid\n", op, value);
 			return -1;
 		}
 		switch (op) {
@@ -453,11 +458,11 @@ static int bgp_route_filter(const char *s, const char *value, char op, void *obj
 			return -1;
 			break;
 		}
-	}
-	else if (!strcasecmp(s, "best")) {
+	} else if (!strcasecmp(s, "best")) {
 		res =  string2int(value, &err);
 		if (err < 0) {
-			debug(FILTER, 1, "Filtering on Best %c '%s',  but it is not valid \n", op, value);
+			debug(FILTER, 1, "Filtering on Best %c '%s',"
+					 "but it is not valid\n", op, value);
 			return -1;
 		}
 		switch (op) {
@@ -472,8 +477,7 @@ static int bgp_route_filter(const char *s, const char *value, char op, void *obj
 			return -1;
 			break;
 		}
-	}
-	else if (!strcasecmp(s, "type")) {
+	} else if (!strcasecmp(s, "type")) {
 		switch (op) {
 		case '=':
 			return route->type == *value;
@@ -485,8 +489,7 @@ static int bgp_route_filter(const char *s, const char *value, char op, void *obj
 			debug(FILTER, 1, "Unsupported op '%c' for type\n", op);
 			return -1;
 		}
-	}
-	else if (!strcasecmp(s, "origin")) {
+	} else if (!strcasecmp(s, "origin")) {
 		switch (op) {
 		case '=':
 			return route->origin == *value;
@@ -533,7 +536,8 @@ int bgp_file_filter(struct bgp_file *sf, char *expr)
 			return -1;
 		}
 		if (res) {
-			st_debug(FILTER, 5, "Matching filter '%s' on %P\n", expr, sf->routes[i].subnet);
+			st_debug(FILTER, 5, "Matching filter '%s' on %P\n",
+					expr, sf->routes[i].subnet);
 			copy_bgproute(&new_r[j], &sf->routes[i]);
 			j++;
 		}
