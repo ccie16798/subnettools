@@ -78,7 +78,7 @@ void usage_en_bgp(void)
 {
 	printf("BGP route file tools\n");
 	printf("--------------------\n");
-	printf("bgpprint FILE1      : just read & print FILE1; best used with -fmt FMT");
+	printf("bgpprint FILE1      : just read & print FILE1; best used with -fmt FMT\n");
 	printf("bgpcmp before after : show what changed in BGP file before & after\n");
 	printf("bgpsortby name file : sort file by prefix, MED, etc.. prefix is a tie-breaker\n");
 	printf("bgpsortby help	    : print available sort options\n");
