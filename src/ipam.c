@@ -288,16 +288,12 @@ static int ipam_filter(const char *s, const char *value, char op, void *object)
 		switch (op) {
 		case '=':
 			return (ipam->subnet.mask == res);
-			break;
 		case '#':
 			return !(ipam->subnet.mask == res);
-			break;
 		case '<':
 			return (ipam->subnet.mask < res);
-			break;
 		case '>':
 			return (ipam->subnet.mask > res);
-			break;
 		default:
 			debug(FILTER, 1, "Unsupported op '%c' for mask\n", op);
 			return -1;
@@ -405,7 +401,8 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 				/* 'comment' get special treatment; it is included in struct route
 				 * by default as routes->ea[0]; so if we get 'comment' EA from ipam
 				 *  we need to overwrite it with IPAM value
-				 * and free some memory (we reserve 1 more struct ea) */
+				 * and free some memory (we reserve 1 more struct ea)
+				 */
 				if (!strcasecmp(ipam->ea[j].name, "comment")) {
 					sf->routes[i].ea[0].name  = ipam->ea[j].name;
 					sf->routes[i].ea[0].value = NULL;
