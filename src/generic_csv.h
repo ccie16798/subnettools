@@ -4,10 +4,10 @@
 #define CSV_MAX_LINE_LEN 1024
 
 /* csv_field->handler return values */
-#define CSV_INVALID_FIELD_BREAK  -1
-#define CSV_VALID_FIELD 	  1
-#define CSV_VALID_FIELD_BREAK     2
-#define CSV_VALID_FIELD_SKIP      3
+#define CSV_INVALID_FIELD_BREAK	-1
+#define CSV_VALID_FIELD		1
+#define CSV_VALID_FIELD_BREAK	2
+#define CSV_VALID_FIELD_SKIP	3
 
 /* csv_file->endofline return values */
 #define CSV_CATASTROPHIC_FAILURE -3 /* unrecoverable failure, like a malloc */
@@ -52,7 +52,7 @@ struct csv_state {
 struct csv_field {
 	char *name;
 	int pos; /* pos starts at 1, pos == 0 means it is not set */
-	int default_pos; /* used in  CSV files where there is no HEADER, and only if there is no header */
+	int default_pos; /* used in CSV files where there is no HEADER */
 	int mandatory;
 	int (*handle)(char *token, void *data, struct csv_state *state);
 	int dyn_alloc; /* set to one if name was malloc'ed */
@@ -66,7 +66,8 @@ struct csv_file {
 	int max_fields; /* max number of fields */
 	const char *delim; /** delimiteur */
 	int max_mandatory_pos ; /* used to track the pos of the last mandatory field */
-	/* given a line, try to guess if its a header or plain data; if NULL, the file REQUIRES a header */
+	/* given a line, try to guess if its a header or plain data;
+	 * if NULL, the file REQUIRES a header */
 	int (*is_header)(char *);
 	/* once a header has been parsed, post-validate the required fields are there */
 	int (*validate_header)(struct csv_file *, void *data);
@@ -118,8 +119,9 @@ int register_dyn_csv_field(struct csv_file *csv_file, char *name, int pos,
  * @cf       : struct csv_file, must have been init before
  * @state    : a generic state object used by run_body, to store data between callbacks
  * @data     : this will point to a struct you want to fill with data read from the file
- * */
-int generic_load_csv(const char *filename, struct csv_file *cf, struct csv_state *state, void *data);
+ */
+int generic_load_csv(const char *filename, struct csv_file *cf,
+		struct csv_state *state, void *data);
 
 #else
 #endif

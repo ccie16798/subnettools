@@ -48,18 +48,22 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
 				if (!cf->header_field_compare(s, cf->csv_field[i].name)) {
 					cf->csv_field[i].pos = pos;
 					found = 1;
-					debug(CSVHEADER, 3, "found header field '%s' at pos %d\n", s, pos);
+					debug(CSVHEADER, 3,
+							"found header field '%s' at pos %d\n",
+							s, pos);
 					break;
 				}
 			}
 			if (found == 0) {
 				if (cf->default_handler) {
-					debug(CSVHEADER, 3, "using default handler for field '%s' at pos %d\n",
+					debug(CSVHEADER, 3,
+							"default handler for field '%s' at pos %d\n",
 							s, pos);
 					s2 = st_strdup(s);
 					if (s2 == NULL)
 						return CSV_ENOMEM;
-					i = register_dyn_csv_field(cf, s2, pos, cf->default_handler);
+					i = register_dyn_csv_field(cf, s2,
+							pos, cf->default_handler);
 					if (i < 0)
 						st_free_string(s2);
 				} else {
@@ -103,15 +107,16 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
 	}
 	/* check for duplicate field pos
 	 * this can happen only if NO header and programming error */
-	 for (i = 0; ; i++) {
-                if (cf->csv_field[i].name == NULL)
+	for (i = 0; ; i++) {
+		if (cf->csv_field[i].name == NULL)
 			break;
 		for (j = 0; ; j++) {
 			if (cf->csv_field[j].name == NULL)
 				break;
 			if (i == j)
 				continue;
-			if (cf->csv_field[i].pos == cf->csv_field[j].pos && cf->csv_field[j].pos ) {
+			if (cf->csv_field[i].pos == cf->csv_field[j].pos
+					&& cf->csv_field[j].pos) {
 				bad_header++;
 				debug(CSVHEADER, 1, "pos for %s == pos for %s : %d\n",
 						cf->csv_field[i].name, cf->csv_field[j].name,
@@ -133,14 +138,14 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
 /*
  * the CSV Body engine
  * it is a private function
- * @f 	  : the CSV file to parse
- * @cf	  : a struct csv_file describing the fields
+ * @f	  : the CSV file to parse
+ * @cf    : a struct csv_file describing the fields
  * @state : a CSV state; can be set before
  * @date  : a generic structure where you will store the data
  * @init_buffer : if non-NULL, will contain the first line of the file
- * returns :
- * 	>0 on success
- * 	<0 on ERROR
+ * returns:
+ *	>0 on success
+ *	<0 on ERROR
  */
 static int read_csv_body(FILE *f, struct csv_file *cf,
 		struct csv_state *state, void *data,
@@ -172,21 +177,21 @@ static int read_csv_body(FILE *f, struct csv_file *cf,
 		}
 		state->line++;
 		if (res) { /* BFB; BIG FUCKING BUFFER; try to handle that  */
-			debug(LOAD_CSV, 1, "File %s line %lu is longer than max %d, discarding %d chars\n",
+			debug(LOAD_CSV, 1, "File %s line %lu longer than %d, discarding %d chars\n",
 					cf->file_name, state->line, (int)sizeof(buffer), res);
 		}
-		debug(LOAD_CSV, 5, "Parsing line %lu : %s \n", state->line, s);
+		debug(LOAD_CSV, 5, "Parsing line %lu : '%s'\n", state->line, s);
 		s = cf->csv_strtok_r(s, cf->delim, &save_s);
 		pos  = 0;
 		state->badline = 0;
 		while (s) {
 			pos++;
 			if (pos > cf->num_fields) {
-				debug(LOAD_CSV, 1, "Line %lu too many tokens \n", state->line);
+				debug(LOAD_CSV, 1, "Line %lu too many tokens\n", state->line);
 				break;
 			}
 			csv_field    = NULL;
-			debug(LOAD_CSV, 5, "Parsing token '%s' pos %d \n", s, pos);
+			debug(LOAD_CSV, 5, "Parsing token '%s' pos %d\n", s, pos);
 			/* try to find the handler */
 			for (i = 0; ; i++) {
 				if (cf->csv_field[i].name == NULL)
@@ -194,7 +199,7 @@ static int read_csv_body(FILE *f, struct csv_file *cf,
 				if (pos == cf->csv_field[i].pos) {
 					csv_field = &cf->csv_field[i];
 					state->csv_field = csv_field->name;
-					debug(LOAD_CSV, 5, "found field handler#%d='%s' pos=%d data : '%s'\n",
+					debug(LOAD_CSV, 5, "handler#%d='%s' pos=%d data='%s'\n",
 							i, csv_field->name, pos, s);
 					break;
 				}
@@ -202,15 +207,17 @@ static int read_csv_body(FILE *f, struct csv_file *cf,
 			if (csv_field && csv_field->handle) {
 				res = csv_field->handle(s, data, state);
 				if (res == CSV_INVALID_FIELD_BREAK) {
-					debug(LOAD_CSV, 2, "Field '%s' data '%s' handler returned %s\n",
-							csv_field->name, s, "CSV_INVALID_FIELD_BREAK");
+					debug(LOAD_CSV, 2, "Field '%s'='%s' handler ret='%s'\n",
+							csv_field->name, s,
+							"CSV_INVALID_FIELD_BREAK");
 					state->badline = 1;
 					break;
 				} else if (res == CSV_VALID_FIELD_BREAK) {
 					/* found a valid field, but caller told us
 					 * nothing interesting on this line */
-					debug(LOAD_CSV, 5, "Field '%s' data '%s' handler returned %s\n",
-							csv_field->name, s, "CSV_VALID_FIELD_BREAK");
+					debug(LOAD_CSV, 5, "Field '%s'='%s' handler ret='%s'\n",
+							csv_field->name, s,
+							"CSV_VALID_FIELD_BREAK");
 					break;
 				} else if (res == CSV_VALID_FIELD_SKIP) {
 					debug(LOAD_CSV, 5, "Field '%s' told us to skip %d fields\n",
@@ -221,8 +228,10 @@ static int read_csv_body(FILE *f, struct csv_file *cf,
 					}
 					if (s == NULL)
 						break;
-				} else if (res == CSV_CATASTROPHIC_FAILURE) {/* FATAL ERROR like no more memory*/
-					debug(LOAD_CSV, 1,  "line %lu : fatal error, aborting\n", state->line);
+				} else if (res == CSV_CATASTROPHIC_FAILURE) {
+					/* FATAL ERROR like no more memory*/
+					debug(LOAD_CSV, 1,  "line %lu : fatal error, aborting\n",
+							state->line);
 					debug_timing_end(2);
 					return -2;
 				}
@@ -234,18 +243,19 @@ static int read_csv_body(FILE *f, struct csv_file *cf,
 		} /* while s */
 		if (pos < cf->max_mandatory_pos) {
 			state->badline++;
-			debug(LOAD_CSV, 2, "Parsing line %lu, not enough fields : %d, requires : %d\n",
+			debug(LOAD_CSV, 2, "line %lu, not enough fields : %d, requires : %d\n",
 					state->line, pos, cf->max_mandatory_pos);
 		}
 
 		if (cf->endofline_callback) {
 			res = cf->endofline_callback(state, data);
 			if (res == CSV_CATASTROPHIC_FAILURE) {/* FATAL ERROR like no more memory*/
-				debug(LOAD_CSV, 1,  "line %lu : fatal error, aborting\n", state->line);
+				debug(LOAD_CSV, 1,  "line %lu : fatal error, aborting\n",
+						state->line);
 				debug_timing_end(2);
 				return res;
 			} else if (res == CSV_END_FILE) {
-				debug(LOAD_CSV, 4, "line %lu : endofline callback told us to stop\n",
+				debug(LOAD_CSV, 4, "line %lu : endofline callback asks stop\n",
 						state->line);
 				break;
 			}
@@ -277,7 +287,8 @@ static void free_csv_field(struct csv_field *cf)
 	}
 }
 
-int generic_load_csv(const char *filename, struct csv_file *cf, struct csv_state* state, void *data)
+int generic_load_csv(const char *filename, struct csv_file *cf,
+		struct csv_state *state, void *data)
 {
 	FILE *f;
 	char buffer[CSV_MAX_LINE_LEN];
@@ -302,7 +313,7 @@ int generic_load_csv(const char *filename, struct csv_file *cf, struct csv_state
 		fprintf(stderr, "empty file %s\n", filename ? filename : "<stdin>");
 		fclose(f);
 		return CSV_EMPTY_FILE;
-        } else if (res) {
+	} else if (res) {
 		fprintf(stderr, "%s CSV header is longer than the allowed size %d\n",
 			 (filename ? filename : "<stdin>"), (int)sizeof(buffer));
 		fclose(f);
@@ -352,7 +363,7 @@ void init_csv_file(struct csv_file *cf, const char *file_name, struct csv_field 
 	cf->csv_field	 = csv_field;
 	cf->delim	 = delim;
 	cf->csv_strtok_r = func;
-	cf->file_name 	 = (file_name ? file_name : "<stdin>");
+	cf->file_name    = (file_name ? file_name : "<stdin>");
 	cf->max_fields   = max_fields;
 	/* optional fields */
 	cf->is_header		 = NULL;
@@ -361,7 +372,7 @@ void init_csv_file(struct csv_file *cf, const char *file_name, struct csv_field 
 	cf->endofline_callback	 = NULL;
 	cf->endoffile_callback	 = NULL;
 	cf->header_field_compare = generic_header_cmp;
-	cf->num_fields_registered= 0;
+	cf->num_fields_registered = 0;
 }
 
 void init_csv_state(struct csv_state *cs, const char *file_name)
@@ -377,16 +388,17 @@ int register_csv_field(struct csv_file *csv_file, char *name, int mandatory, int
 	struct csv_field *cf = csv_file->csv_field;
 
 	if (i == csv_file->max_fields - 1) {
-		debug(CSVHEADER, 1, "Cannot register more than %d fields, dropping '%s\n", i, name);
+		debug(CSVHEADER, 1, "Cannot register more than %d fields, dropping '%s\n",
+				i, name);
 		return -1;
 	}
 	cf[i].name        = name;
 	cf[i].handle      = handle;
 	cf[i].mandatory   = mandatory;
-	cf[i].pos 	  = 0;
+	cf[i].pos         = 0;
 	cf[i].dyn_alloc	  = 0;
 	cf[i].default_pos = default_pos;
-	cf[i + 1].name 	  = NULL;
+	cf[i + 1].name    = NULL;
 	csv_file->num_fields_registered++;
 	debug(CSVHEADER, 3, "Registering handler #%d '%s'\n", i, name);
 	return i;
@@ -400,16 +412,17 @@ int register_dyn_csv_field(struct csv_file *csv_file, char *name, int pos,
 	struct csv_field *cf = csv_file->csv_field;
 
 	if (i == csv_file->max_fields - 1) {
-		debug(CSVHEADER, 1, "Cannot register more than %d fields, dropping '%s\n", i, name);
+		debug(CSVHEADER, 1, "Cannot register more than %d fields, dropping '%s\n",
+				i, name);
 		return -1;
 	}
 	cf[i].name        = name;
 	cf[i].handle      = handle;
 	cf[i].mandatory   = 0;
-	cf[i].pos 	  = pos;
+	cf[i].pos         = pos;
 	cf[i].dyn_alloc	  = 1;
 	cf[i].default_pos = 0;
-	cf[i + 1].name 	  = NULL;
+	cf[i + 1].name    = NULL;
 	csv_file->num_fields_registered++;
 	debug(CSVHEADER, 3, "Registering handler #%d '%s'\n", i, name);
 	return i;
