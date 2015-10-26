@@ -11,17 +11,46 @@ struct tas {
 
 typedef struct tas TAS;
 
+/* alloc_tas: allocate a new heap structure
+ * @tas     : the heap to initialize
+ * @n       : the number of elements it can hold
+ * @compare : a compare function
+ * returns:
+ *	positive on SUCCESS
+ *	negative on ENOMEM
+ */
 int alloc_tas(TAS *tas, unsigned long n, int (*compare)(void *v1, void *v2));
+
+/* free_tas: free a heap structure
+ * @tas  : the heap to free
+ */
 void free_tas(TAS *tas);
-/* it is up to the caller to make sure t->tab is large enough
- * addTAS itself cannot fail but horrible things could happen if ->tab is not large enough
+
+/* addTAS: add an elem to the heap
+ * it is up to the caller to make sure t->tab is large enough
+ * @t    : the heap to add the element
+ * @elem : the element to add
+ * returns:
+ *	cannot fail, but horrible things will happen if heap is not large enough
  */
 void addTAS(TAS *t, void *elem);
 
-/* if you are unsure, use this one
- * checking the return value is mandatory */
+/* addTAS_mayfail: add an elem to the heap
+ * @t    : the heap to add the element
+ * @elem : the element to add
+ * returns:
+ *	positive on SUCCESS
+ *	negative on ENOMEM (if it needs to realloc the heap)
+ */
 int addTAS_may_fail(TAS *tas, void *elem) __attribute__ ((warn_unused_result));
-void *popTAS(TAS *);
+
+/* popTAS: remove one element from the heap (the best)
+ * @tas   : the heap to remove from
+ * returns:
+ *	NULL if no more elements
+ *	the best remaining element
+ */
+void *popTAS(TAS *tas);
 void print_tas(TAS tas);
 
 #else

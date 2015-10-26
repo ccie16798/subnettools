@@ -124,8 +124,7 @@ void *popTAS(TAS *tas)
 		if (i2 == n) { /* empty right son */
 			if (tas->compare(tas->tab[i], tas->tab[i2])) /* if father is better, stop */
 				break;
-			else
-				swap(tas->tab[i2], tas->tab[i]); /* swap father & left son */
+			swap(tas->tab[i2], tas->tab[i]); /* swap father & left son */
 			break;
 		}
 		if (i2 > n) /* no more sons */
@@ -172,6 +171,7 @@ void print_tas(TAS tas)
 static int compare_int(void *a, void *b)
 {
 	int a1, b1;
+
 	a1 = *((int *)a);
 	b1 = *((int *)b);
 	return (a1 < b1);
