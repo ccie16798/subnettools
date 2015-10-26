@@ -90,7 +90,7 @@ struct ipam_ea *realloc_ea_array(struct ipam_ea *ea, int old_n, int new_n)
 	struct ipam_ea *new_ea;
 
 	if (new_n <= old_n) {
-		fprintf(stderr, "BUG, realloc_ea_array called new size < old_size \n");
+		fprintf(stderr, "BUG, realloc_ea_array called new size < old_size\n");
 		return NULL;
 	}
 	new_ea = st_realloc_nodebug(ea, new_n * sizeof(struct ipam_ea),
@@ -128,38 +128,38 @@ int filter_ea(const struct ipam_ea *ea, int ea_nr, const char *ea_name,
 	s = ea[j].value;
 	if (s == NULL) /* EA Value has not been set */
 		return 0;
-	switch(op) {
-		case '=':
-			return (!strcmp(s, value));
-			break;
-		case '#':
-			return (strcmp(s, value));
-			break;
-		case '~':
-			res = st_sscanf(s, value);
-			return (res < 0 ? 0 : 1);
-			break;
-		case '<':
-		case '>':
-			b = string2int(value, &err);
-			if (err < 0) {
-				debug(FILTER, 1, "Cannot interpret Field '%s' as an INT\n", value);
-				return -1;
-			}
-			a = string2int(s, &err);
-			/* if Extended Attribute is not Int we don't return an error, just no match
-			*/
-			if (err < 0) {
-				debug(FILTER, 4, "Cannot interpret EA '%s' as an INT\n", s);
-				return 0;
-			}
-			if (op == '>')
-				return (a > b);
-			else
-				return (b > a);
-		default:
-			debug(FILTER, 1, "Unsupported op '%c' for Extended Attribute\n", op);
+	switch (op) {
+	case '=':
+		return (!strcmp(s, value));
+		break;
+	case '#':
+		return strcmp(s, value);
+		break;
+	case '~':
+		res = st_sscanf(s, value);
+		return (res < 0 ? 0 : 1);
+		break;
+	case '<':
+	case '>':
+		b = string2int(value, &err);
+		if (err < 0) {
+			debug(FILTER, 1, "Cannot interpret Field '%s' as an INT\n", value);
 			return -1;
-			break;
+		}
+		a = string2int(s, &err);
+		/* if Extended Attribute is not Int we don't return an error, just no match
+		*/
+		if (err < 0) {
+			debug(FILTER, 4, "Cannot interpret EA '%s' as an INT\n", s);
+			return 0;
+		}
+		if (op == '>')
+			return (a > b);
+		else
+			return (b > a);
+	default:
+		debug(FILTER, 1, "Unsupported op '%c' for Extended Attribute\n", op);
+		return -1;
+		break;
 	}
 }
