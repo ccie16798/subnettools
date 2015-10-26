@@ -199,10 +199,12 @@ struct st_command options[] = {
 		fprintf(stderr, "Invalid file %s\n", (__truc ? __truc : "<stdin>"))
 
 #define DIE_ON_BAD_FILE(__truc2) \
-	if (res < 0) { \
-		BAD_FILE(__truc2); \
-		return res; \
-	} \
+	do { \
+		if (res < 0) { \
+			BAD_FILE(__truc2); \
+			return res; \
+		} \
+	} while (0)
 
 /*
  * COMMAND HANDLERS
@@ -272,8 +274,9 @@ static int run_echo(int argc, char **argv, void *st_options)
 			if (s[i] != 'I' && s[i] != 'a' && s[i] != 'P' &&
 					tolower(s[i]) != 'm' && s[i] != 'B' && s[i] != 'N' &&
 					s[i] != 'L' && s[i] != 'U') {
-				fprintf(stderr, "Conversion specifier '%c' not allowed"
-					" with echo command\n", s[i]);
+				fprintf(stderr,
+						"Cannot use Conversion Specifier '%c' with echo\n",
+						s[i]);
 				return -1;
 			}
 		}
