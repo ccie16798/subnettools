@@ -91,14 +91,12 @@ static int ipam_prefix_handle(char *s, void *data, struct csv_state *state)
 {
 	struct ipam_file *sf = data;
 	int res;
-	struct subnet subnet;
 
-	res = get_subnet_or_ip(s, &subnet);
+	res = get_subnet_or_ip(s, &sf->lines[sf->nr].subnet);
 	if (res < 0) {
 		debug(LOAD_CSV, 2, "invalid IP %s line %lu\n", s, state->line);
 		return CSV_INVALID_FIELD_BREAK;
 	}
-	copy_subnet(&sf->lines[sf->nr].subnet,  &subnet);
 	return CSV_VALID_FIELD;
 }
 
