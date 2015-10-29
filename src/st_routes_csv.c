@@ -87,17 +87,15 @@ static int netcsv_prefix_handle(char *s, void *data, struct csv_state *state)
 {
 	struct subnet_file *sf = data;
 	int res;
-	struct subnet subnet;
 	int mask;
 
 	if (state->state[0])
 		mask = sf->routes[sf->nr].subnet.mask;
-	res = get_subnet_or_ip(s, &subnet);
+	res = get_subnet_or_ip(s, &sf->routes[sf->nr].subnet);
 	if (res < 0) {
 		debug(LOAD_CSV, 2, "invalid IP %s line %lu\n", s, state->line);
 		return CSV_INVALID_FIELD_BREAK;
 	}
-	copy_subnet(&sf->routes[sf->nr].subnet,  &subnet);
 	if (state->state[0]) /* if we found a mask before finding a subnet */
 		sf->routes[sf->nr].subnet.mask = mask;
 	return CSV_VALID_FIELD;
@@ -137,7 +135,7 @@ static int netcsv_GW_handle(char *s, void *data, struct csv_state *state)
 
 	res = string2addr(s, &addr, 41);
 	/* we accept that there's no gateway but we treat it has a comment instead */
-	if (res != IPV4_A && res != IPV6_A && strlen(s)) {
+	if (res != IPV4_A && res != IPV6_A && s[0] != '\0') {
 		/* we dont care if memory alloc failed here */
 		ea_strdup(&sf->routes[sf->nr].ea[0], s);
 	} else {
