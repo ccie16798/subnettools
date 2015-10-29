@@ -15,7 +15,7 @@ struct sto {
 		unsigned int	s_uint;
 		long		s_long;
 		unsigned long	s_ulong;
-		char		s_char[64];
+		char		s_char[30];
 	};
 };
 
