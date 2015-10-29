@@ -88,6 +88,11 @@ char *fgets_truncate_buffer(char *buffer, int size, FILE *stream, int *res);
 		type _max2 = (y); \
 		_max1 > _max2 ? _max1 : _max2; })
 
+/* v - 0x01010101 ==> bytes will have higher bit to 1 if ZERO OR > 0x80
+ * ~v & 0x80808080 ==> high bit will be set only if byte < 0x80
+ */
+#define haszero(v) (((v) - 0x01010101UL) & ~(v) & 0x80808080UL)
+
 /*
  * Integer to String MACROs
  * Strings ARE NOT Nul-terminated

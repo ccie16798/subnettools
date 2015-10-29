@@ -90,9 +90,8 @@ inline int char2int(char c)
 
 int isPower2(unsigned int x)
 {
-	while (((x % 2) == 0) && x > 1) /* if each time we divide x%2 == 0, x is power of two */
-		x /= 2;
-	return (x == 1);
+	/* if x power of two, x - 1 will clear its only high bit and set all bits below to 1 */
+	return x && !(x & (x - 1));
 }
 
 /* x must be power of 2 */
