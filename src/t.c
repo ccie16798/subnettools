@@ -39,7 +39,11 @@ int main(int argc, char **argv)
 	short a;
 	int b = -1234;
 	int res;
+	unsigned long long l;
 
+	b = atoi(argv[1]);
+	l = atoi(argv[1]) + (unsigned long long)atoi(argv[1]) << 32;
+	printf("%d %llu\n", nextPow2_32(b), nextPow2_64(l));
 	res = strxcpy(buff, argv[1], sizeof(buff));
 	printf("'%s' '%s' res=%d\n", argv[1], buff, res);
 	printf("%d %d\n", sizeof(long), sizeof(unsigned long long));

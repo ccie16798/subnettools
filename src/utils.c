@@ -107,6 +107,32 @@ int mylog2(unsigned int x)
 	return a;
 }
 
+unsigned nextPow2_32(unsigned x)
+{
+	x--;
+	x |= x >> 1;
+	x |= x >> 2;
+	x |= x >> 4;
+	x |= x >> 8;
+	x |= x >> 16;
+	x++;
+	return x;
+}
+
+
+unsigned long long nextPow2_64(unsigned long long x)
+{
+	x--;
+	x |= x >> 1;
+	x |= x >> 2;
+	x |= x >> 4;
+	x |= x >> 8;
+	x |= x >> 16;
+	x |= x >> 32;
+	x++;
+	return x;
+}
+
 char *remove_space(char *s)
 {
 	int i = 0, j = 0;
