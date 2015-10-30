@@ -114,7 +114,7 @@ int my_read(struct st_file *f, char *buff, size_t size)
 	/* if we found a newline within 'size' char lets return */ 
 	if (t != NULL) {
 		//fprintf(stderr, "GOOD1: len = %d offset=%d bytes=%d\n", t - p, f->offset, f->bytes);
-		if (t - p < size) {
+		if (t - p <= size) {
 			len = t - p;
 			memcpy(buff, p, len);
 			buff[len]  = '\0';
@@ -128,7 +128,7 @@ int my_read(struct st_file *f, char *buff, size_t size)
 			len = t - p;
 			f->bytes  -= (len + 1);
 			f->offset += (len + 1);
-			fprintf(stderr, "Trunc '%s' discarding %d chars\n", buff, len - size);
+			fprintf(stderr, "Trunc1 '%s' discarding %d chars\n", buff, len - size);
 			return size + 1;
 		}
 	}
@@ -149,7 +149,7 @@ int my_read(struct st_file *f, char *buff, size_t size)
 	p = f->buffer + f->offset;
 	t = memchr(p, '\n', f->bytes);
 	if (t != NULL) {
-		if (t - p < size) {
+		if (t - p <= size) {
 			len = t - p;
 			memcpy(buff, p, len);
 			buff[len] = '\0';
@@ -163,7 +163,7 @@ int my_read(struct st_file *f, char *buff, size_t size)
 			len = t - p;
 			f->bytes  -= (len + 1);
 			f->offset += (len + 1);
-			fprintf(stderr, "Trunc '%s' discarding %d chars\n", buff, len - size);
+			fprintf(stderr, "Trunc2 '%s' discarding %d chars\n", buff, len - size);
 			return size + 1;
 		}
 	}
