@@ -2,8 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <fcntl.h>
-
-char buffer[4*1024];
+#include <unistd.h>
 
 struct st_file {
 	int fileno;
@@ -13,6 +12,7 @@ struct st_file {
 	char *buffer;
 	int buffer_size;
 };
+
 
 int st_open(struct st_file *f, const char *name, int buffer_size)
 {
@@ -34,6 +34,20 @@ int st_open(struct st_file *f, const char *name, int buffer_size)
 	return 1;
 }
 
+void st_close(struct st_file *f)
+{
+	close(f->fileno);
+	free(f->buffer);
+	memset(f, 0, sizeof(struct st_file));
+}
+
+/* refill: refill a struct file internal buffer
+ * @f  : a pointer to a struct file
+ * returns:
+ *	number of char read on success
+ *	0 on EOF
+ *	-1 on error
+ */
 static int refill(struct st_file *f)
 {
 	int i;
@@ -55,15 +69,20 @@ static int refill(struct st_file *f)
 	return i;
 }
 
+/* read one line from a file
+ * @f      : struct file 
+ * @buffer : where to store data read
+ * @size   : read at most size char on each line
+ * returns:
+ *	number of char written in buff (strlen(buff) + 1)
+ *	0 on EOF or error
+ */
 int my_read(struct st_file *f, char *buff, size_t size)
 {
 	int i, len;
-	int end = 0;
-	char *p, *t = NULL;
-	int orig_size;
+	char *p, *t;
 
 	size--; /* for NUL char */
-	orig_size = size;
 
 	p = f->buffer + f->offset;
 	t = memchr(p, '\n', f->bytes);
@@ -100,7 +119,7 @@ int my_read(struct st_file *f, char *buff, size_t size)
 		return size + 1;
 
 	}
-	p = buffer + f->offset;
+	p = f->buffer + f->offset;
 	t = memchr(p, '\n', size);
 	if (t != NULL) {
 		len = t - p;
@@ -123,8 +142,8 @@ int my_read(struct st_file *f, char *buff, size_t size)
 		p = f->buffer + f->offset;
 		t = memchr(p, '\n', f->bytes);
 		if (t != NULL || f->endoffile ) {
-			fprintf(stderr, "Trunc#2 discarding %d chars\n", len - size);
 			len = t - p;
+			fprintf(stderr, "Trunc#2 discarding %d chars\n", len);
 			f->bytes -= (len + 1);
 			f->offset += len + 1;
 			break;
@@ -138,16 +157,11 @@ int my_read(struct st_file *f, char *buff, size_t size)
 
 int main(int argc, char **argv)
 {
-	char buf[512];
+	char buf[64];
 	int f;
 	struct st_file sf;
 	
-	//st_open(&sf, argv[1], 4096);
-
-       memset(&sf, 0, sizeof(sf));
-       sf.fileno = open(argv[1], 0);
-       sf.buffer = buffer;
-	sf.buffer_size = sizeof(buffer);
+	st_open(&sf, argv[1], 4096);
 	if (sf.fileno < 0)
 		exit(1);
 	while (my_read(&sf, buf, sizeof(buf))) {
