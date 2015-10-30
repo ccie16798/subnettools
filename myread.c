@@ -96,6 +96,7 @@ static void discard_bytes(struct st_file *f)
 }
 
 /* read one line from a file
+ * if strlen(line) > size, chars are DISCARDED
  * @f      : struct file
  * @buffer : where to store data read
  * @size   : read at most size char on each line
