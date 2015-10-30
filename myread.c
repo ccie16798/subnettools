@@ -48,17 +48,18 @@ void st_close(struct st_file *f)
  *	0 on EOF
  *	-1 on error
  */
-static int refill(struct st_file *f)
+static int refill(struct st_file *f, char *buff)
 {
-	int i;
+	int i, size;
 
 	fprintf(stderr, "refill bytes: %d offset:%d\n", f->bytes, f->offset);
 	if (f->offset + f->bytes > f->buffer_size / 2) { /* buffer has gone too big */
-		fprintf(stderr, "Moving %d bytes of data\n", f->bytes);
+		fprintf(stderr, "Moving#%s %d bytes of data\n", buff, f->bytes);
 		memcpy(f->buffer, f->buffer + f->offset, f->bytes);
 		f->offset = 0;
 	}
-	i = read(f->fileno, f->buffer + f->offset + f->bytes, f->buffer_size / 2);
+	size = f->buffer_size / 2;
+	i = read(f->fileno, f->buffer + f->offset + f->bytes, size);
 	if (i < 0)
 		return i;
 	if (i == 0) {
@@ -77,7 +78,7 @@ static void discard_bytes(struct st_file *f)
 
 	while (1) {
 		/* refill buffer until we find a newline */
-		i = refill(f);
+		i = refill(f, NULL);
 		p = f->buffer + f->offset;
 		t = memchr(p, '\n', f->bytes);
 		if (t != NULL || f->endoffile) {
@@ -112,7 +113,7 @@ int my_read(struct st_file *f, char *buff, size_t size)
 	t = memchr(p, '\n', f->bytes);
 	/* if we found a newline within 'size' char lets return */ 
 	if (t != NULL) {
-		fprintf(stderr, "GOOD1: len = %d offset=%d bytes=%d\n", t - p, f->offset, f->bytes);
+		//fprintf(stderr, "GOOD1: len = %d offset=%d bytes=%d\n", t - p, f->offset, f->bytes);
 		if (t - p < size) {
 			len = t - p;
 			memcpy(buff, p, len);
@@ -127,13 +128,13 @@ int my_read(struct st_file *f, char *buff, size_t size)
 			len = t - p;
 			f->bytes  -= (len + 1);
 			f->offset += (len + 1);
-			fprintf(stderr, "Trunc#1 discarding %d chars\n", len - size);
+			fprintf(stderr, "Trunc '%s' discarding %d chars\n", buff, len - size);
 			return size + 1;
 		}
 	}
 	/* we are sure there is no newline for up to f->bytes */
 	if (f->bytes < size) { /** need to refill **/
-		i = refill(f);
+		i = refill(f, "tst");
 		if (i == 0)
 			size = f->bytes;
 	} else {
@@ -144,17 +145,27 @@ int my_read(struct st_file *f, char *buff, size_t size)
 		buff[size] = '\0';
 		discard_bytes(f);
 		return size + 1;
-
 	}
 	p = f->buffer + f->offset;
-	t = memchr(p, '\n', size);
+	t = memchr(p, '\n', f->bytes);
 	if (t != NULL) {
-		len = t - p;
-		memcpy(buff, p, len);
-		buff[len] = '\0';
-		f->bytes  -= (len + 1);
-		f->offset += (len + 1);
-		return len + 1;
+		if (t - p < size) {
+			len = t - p;
+			memcpy(buff, p, len);
+			buff[len] = '\0';
+			len++; /* return strlen(buff) + 1 */
+			f->bytes  -= len;
+			f->offset += len;
+			return len;
+		} else {
+			memcpy(buff, p, size);
+			buff[size] = '\0';
+			len = t - p;
+			f->bytes  -= (len + 1);
+			f->offset += (len + 1);
+			fprintf(stderr, "Trunc '%s' discarding %d chars\n", buff, len - size);
+			return size + 1;
+		}
 	}
 	memcpy(buff, p, size);
 	buff[size] = '\0';
@@ -162,7 +173,6 @@ int my_read(struct st_file *f, char *buff, size_t size)
 	f->bytes  -= size;
 	if (f->endoffile)
 		return size;
-	fprintf(stderr, "Trunc #2\n" );
 	discard_bytes(f);
 	return size + 1;
 }
