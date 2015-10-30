@@ -1,5 +1,7 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <fcntl.h>
 
 char buffer[4*1024];
 
@@ -9,20 +11,40 @@ struct st_file {
 	unsigned long bytes;
 	int endoffile;
 	char *buffer;
+	int buffer_size;
 };
 
+int st_open(struct st_file *f, const char *name, int buffer_size)
+{
+	int a;
+
+	a = open(name, O_RDONLY);
+	if (f < 0)
+		return a;
+	f->buffer = malloc(buffer_size);
+	if (f->buffer == NULL) {
+		close(a);
+		return -2;
+	}
+	f->buffer_size = buffer_size;
+	f->endoffile = 0;
+	f->fileno = a;
+	f->offset = 0;
+	f->bytes  = 0;
+	return 1;
+}
 
 static int refill(struct st_file *f)
 {
 	int i;
 
 	fprintf(stderr, "refill bytes: %d offset:%d\n", f->bytes, f->offset);
-	if (f->offset + f->bytes + sizeof(buffer)/2 > sizeof(buffer)) {
+	if (f->offset + f->bytes > f->buffer_size / 2) { /* buffer has gone too big */
 		fprintf(stderr, "Moving %d bytes of data\n", f->bytes);
 		memcpy(f->buffer, f->buffer + f->offset, f->bytes);
 		f->offset = 0;
 	}
-	i = read(f->fileno, f->buffer + f->offset + f->bytes, sizeof(buffer) / 2);
+	i = read(f->fileno, f->buffer + f->offset + f->bytes, f->buffer_size / 2);
 	if (i < 0)
 		return i;
 	if (i == 0) {
@@ -119,10 +141,13 @@ int main(int argc, char **argv)
 	char buf[512];
 	int f;
 	struct st_file sf;
+	
+	//st_open(&sf, argv[1], 4096);
 
-	memset(&sf, 0, sizeof(sf));
-	sf.fileno = open(argv[1], 0);
-	sf.buffer = buffer;
+       memset(&sf, 0, sizeof(sf));
+       sf.fileno = open(argv[1], 0);
+       sf.buffer = buffer;
+	sf.buffer_size = sizeof(buffer);
 	if (sf.fileno < 0)
 		exit(1);
 	while (my_read(&sf, buf, sizeof(buf))) {
