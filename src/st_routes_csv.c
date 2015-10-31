@@ -265,7 +265,10 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 	int res;
 	char *s;
 
-	init_csv_file(&cf, name, csv_field, 20, nof->delim, &st_strtok_r);
+	if (nof->delim[1] == '\0')
+		init_csv_file(&cf, name, csv_field, 20, nof->delim, &st_strtok_r1);
+	else
+		init_csv_file(&cf, name, csv_field, 20, nof->delim, &st_strtok_r);
 	init_csv_state(&state, name);
 	cf.is_header          = &netcsv_is_header;
 	cf.endofline_callback = &netcsv_endofline_callback;

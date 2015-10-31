@@ -190,7 +190,10 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 	csv_field = st_malloc(ea_memory, "IPAM CSV field");
 	if (csv_field == NULL)
 		return -1;
-	init_csv_file(&cf, name, csv_field, ea_nr + 4, nof->ipam_delim, &st_strtok_r);
+	if (nof->ipam_delim[1] == '\0')
+		init_csv_file(&cf, name, csv_field, ea_nr + 4, nof->ipam_delim, &st_strtok_r1);
+	else
+		init_csv_file(&cf, name, csv_field, ea_nr + 4, nof->ipam_delim, &st_strtok_r);
 	init_csv_state(&state, name);
 	cf.endofline_callback = ipam_endofline_callback;
 	cf.endoffile_callback = ipam_endoffile_callback;
