@@ -1111,10 +1111,9 @@ static int option_delim(int argc, char **argv, void *st_options)
 	int i;
 
 	debug(PARSEOPTS, 3, "changing delim to : '%s'\n", argv[1]);
-	/* we need to reserve on last byte in nof.delim for '\n' */
-	i = strxcpy(nof->delim, argv[1], sizeof(nof->delim) - 1);
+	i = strxcpy(nof->delim, argv[1], sizeof(nof->delim));
 	if (i >= sizeof(nof->delim))
-		fprintf(stderr, "too many delimiters, MAX %d\n", MAX_DELIM - 1);
+		fprintf(stderr, "too many delimiters, MAX %d\n", MAX_DELIM);
 	return 0;
 }
 
@@ -1305,11 +1304,7 @@ int main(int argc, char **argv)
 
 	/* if delims are not set, set the default one*/
 	if (strlen(nof.delim) == 0)
-		strcpy(nof.delim, ";\n");
-	else {
-		nof.delim[strlen(nof.delim) + 1] = '\0';
-		nof.delim[strlen(nof.delim)] = '\n';
-	}
+		strcpy(nof.delim, ";");
 	if (strlen(nof.ipam_delim) == 0)
 		strcpy(nof.ipam_delim, ",\n");
 	else {
