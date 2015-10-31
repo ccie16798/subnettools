@@ -775,8 +775,10 @@ int get_subnet_or_ip(const char *s, struct subnet *subnet)
 		return BAD_IP;
 	}
 	debug(PARSEIP, 9, "prefix %s length %d\n", s, (int)strlen(s));
-	for (i = 0; i < strlen(s); i++) {
-		if (s[i] == '/') {
+	for (i = 0; ; i++) {
+		if (s[i] == '\0')
+			break;
+		else if (s[i] == '/') {
 			count_slash++;
 			slash_i = i;
 		} else if (isxdigit(s[i]) || s[i] == '.' || s[i] == ':' || s[i] == ' ')
