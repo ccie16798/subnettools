@@ -1306,11 +1306,7 @@ int main(int argc, char **argv)
 	if (strlen(nof.delim) == 0)
 		strcpy(nof.delim, ";");
 	if (strlen(nof.ipam_delim) == 0)
-		strcpy(nof.ipam_delim, ",\n");
-	else {
-		nof.ipam_delim[strlen(nof.ipam_delim) + 1] = '\0';
-		nof.ipam_delim[strlen(nof.ipam_delim)] = '\n';
-	}
+		strcpy(nof.ipam_delim, ",");
 	/* if the default output format has not been set */
 	if (strlen(nof.output_fmt) < 2)
 		strcpy(nof.output_fmt, default_fmt);
