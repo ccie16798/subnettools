@@ -283,6 +283,33 @@ char *st_strtok_r(char *s, const char *delim, char **s2)
 	return s3;
 }
 
+/* just one delim */
+char *st_strtok_r1(char *s, const char *delim, char **s2)
+{
+	char *s3;
+
+	if (s == NULL)
+		s = *s2;
+	else
+		*s2 = s;
+	s3 = s;
+
+	if (*s2 == NULL)
+		return NULL;
+	while (*s != '\0') {
+		if (*s == *delim) {
+			*s = '\0';
+			*s2 = s + 1;
+			return s3;
+		}
+		s++;
+	}
+	if (s3 == s)
+		return NULL;
+	*s2 = NULL;
+	return s3;
+}
+
 char *fgets_truncate_buffer(char *buffer, int size, FILE *stream, int *res)
 {
 	char *s;
