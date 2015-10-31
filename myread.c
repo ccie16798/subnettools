@@ -19,7 +19,7 @@ int read_debug_level = 3;
 	do { \
 		if (level > read_debug_level) \
 			fprintf(stderr, FMT); \
-	} while (0);
+	} while (0)
 #else
 #define debug_read(level, FMT...)
 #endif
@@ -122,7 +122,7 @@ int my_read(struct st_file *f, char *buff, size_t size)
 	size--; /* for NUL char */
 	p = f->buffer + f->offset;
 	t = memchr(p, '\n', f->bytes);
-	/* if we found a newline within 'size' char lets return */ 
+	/* if we found a newline within 'size' char lets return */
 	if (t != NULL) {
 		debug_read(8, "GOOD1: len = %d offset=%d bytes=%d\n", t - p, f->offset, f->bytes);
 		if (t - p <= size) {
@@ -132,16 +132,15 @@ int my_read(struct st_file *f, char *buff, size_t size)
 			f->bytes  -= (len + 1);
 			f->offset += (len + 1);
 			return len + 1;
-		} else {
-			/* discarding bytes */
-			memcpy(buff, p, size);
-			buff[size] = '\0';
-			len = t - p;
-			f->bytes  -= (len + 1);
-			f->offset += (len + 1);
-			debug_read(8, "Trunc1 '%s' discarding %d chars\n", buff, len - size);
-			return size + 1;
 		}
+		/* line too long, discarding bytes */
+		memcpy(buff, p, size);
+		buff[size] = '\0';
+		len = t - p;
+		f->bytes  -= (len + 1);
+		f->offset += (len + 1);
+		debug_read(8, "Trunc1 '%s' discarding %d chars\n", buff, len - size);
+		return size + 1;
 	}
 	/* we are sure there is no newline for up to f->bytes */
 	if (f->bytes < size) { /** need to refill **/
@@ -168,15 +167,15 @@ int my_read(struct st_file *f, char *buff, size_t size)
 			f->bytes  -= len;
 			f->offset += len;
 			return len;
-		} else {
-			memcpy(buff, p, size);
-			buff[size] = '\0';
-			len = t - p;
-			f->bytes  -= (len + 1);
-			f->offset += (len + 1);
-			debug_read(5, "Trunc2 '%s' discarding %d chars\n", buff, len - size);
-			return size + 1;
 		}
+		/* line too long, discarding bytes */
+		memcpy(buff, p, size);
+		buff[size] = '\0';
+		len = t - p;
+		f->bytes  -= (len + 1);
+		f->offset += (len + 1);
+		debug_read(5, "Trunc2 '%s' discarding %d chars\n", buff, len - size);
+		return size + 1;
 	}
 	memcpy(buff, p, size);
 	buff[size] = '\0';
@@ -187,7 +186,6 @@ int my_read(struct st_file *f, char *buff, size_t size)
 	discard_bytes(f);
 	return size + 1;
 }
-
 
 int main(int argc, char **argv)
 {
