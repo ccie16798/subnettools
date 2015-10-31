@@ -263,10 +263,9 @@ char *st_strtok_r(char *s, const char *delim, char **s2)
 		s = *s2;
 	else
 		*s2 = s;
-	s3 = s;
-
 	if (*s2 == NULL)
 		return NULL;
+	s3 = s;
 	while (*s != '\0') {
 		for (i = 0; i < strlen(delim); i++) {
 			if (*s == delim[i]) {
@@ -292,10 +291,9 @@ char *st_strtok_r1(char *s, const char *delim, char **s2)
 		s = *s2;
 	else
 		*s2 = s;
-	s3 = s;
-
 	if (*s2 == NULL)
 		return NULL;
+	s3 = s;
 	while (*s != '\0') {
 		if (*s == *delim) {
 			*s = '\0';
