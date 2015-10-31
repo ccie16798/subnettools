@@ -26,6 +26,7 @@ struct expr {
 	int (*early_stop)(const char *remain, struct expr *e);
 	char end_of_expr; /* if remain[i] = end_of_expr , we can stop*/
 	char end_expr[64];
+	int expr_len;
 	int match_last; /* if set, the expansion will stop the last time ->stop return positive
 			 *  value && and previous stop DIDNOT
 			 */
@@ -683,12 +684,12 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
  * return -1 if none found, the next expression if one is found
  * if expr = AB | CD | EF, expr_try_again will return '4' (index of the space char after '|')
  */
-static inline int expr_try_again(const char *expr)
+static inline int expr_try_again(const char *expr, int len)
 {
 	int i;
 
 	for (i = 0; ; i++) {
-		if (expr[i] == '\0')
+		if (expr[i] == '\0' || i == len)
 			return -1;
 		if (expr[i] == '|')
 			return i + 1;
@@ -699,6 +700,7 @@ static inline int expr_try_again(const char *expr)
 /*
  * match a single pattern 'expr' against 'in'
  * @expr  : the expression to match
+ * @len   ; the len of the expression
  * @in    : the input buffer
  * @o     : will store input data (if conversion specifiers are found)
  * @num_o : number of found objects (will be updated)
@@ -706,7 +708,8 @@ static inline int expr_try_again(const char *expr)
  *  0 if it doesnt match,
  *  number of matched chars in input buffer if it matches
  */
-static int match_expr_single(const char *expr, const char *in, struct sto *o, int *num_o)
+static int match_expr_single(const char *expr, int len, const char *in,
+		struct sto *o, int *num_o)
 {
 	int i, j, res;
 	char c;
@@ -717,7 +720,7 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 
 	while (1) {
 		c = expr[i];
-		if (c == '\0' || c == '|')
+		if (c == '\0' || c == '|' || i == len)
 			return j;
 		debug(SCANF, 8, "remaining in  ='%s'\n", in + j);
 		debug(SCANF, 8, "remaining expr='%s'\n", expr + i);
@@ -771,7 +774,7 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 		}
 		continue;
 try_again:
-		res = expr_try_again(expr + i);
+		res = expr_try_again(expr + i, len - i);
 		if (res == -1) /* no '|' */
 			return 0;
 		i += res;
@@ -797,7 +800,7 @@ static int match_expr(struct expr *e, const char *in, struct sto *o, int *num_o)
 	int res2;
 	int saved_num_o = *num_o;
 
-	res = match_expr_single(e->expr, in, o, num_o);
+	res = match_expr_single(e->expr, e->expr_len, in, o, num_o);
 	debug(SCANF, 4, "Matching expr '%s' against in '%s' res=%d numo='%d'\n",
 			e->expr, in, res, *num_o);
 	if (res < 0)
@@ -932,7 +935,7 @@ static int find_expr(const char *remain, struct expr *e)
 	int i = 0;
 	int res;
 
-	res = match_expr_single(e->end_expr, remain, NULL, &i);
+	res = match_expr_single(e->end_expr, e->expr_len, remain, NULL, &i);
 	return res;
 }
 
@@ -958,7 +961,7 @@ static int find_expr(const char *remain, struct expr *e)
  *
  */
 static int parse_multiplier(const char *in, const char *fmt, int *i, int in_length, int *j,
-		char *expr, struct sto *o, int max_o, int *n_found)
+		char *expr, int expr_len, struct sto *o, int max_o, int *n_found)
 {
 
 	char c;
@@ -980,6 +983,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 		max_m = max_match(c);
 	}
 	e.expr = expr;
+	e.expr_len = expr_len;
 	e.end_of_expr = fmt[*i + 1]; /* if necessary */
 	e.early_stop  = NULL;
 	e.last_match  = -1;
@@ -1081,6 +1085,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 			debug(SCANF, 1, "Invalid format '%s', unmatched '('\n", expr);
 			return -1;
 		}
+		e.expr_len = res - 1;
 		debug(SCANF, 4, "pattern matching will end on '%s'\n", e.end_expr);
 		e.early_stop = &find_expr;
 	} else if (fmt[*i + 1] == '[') {
@@ -1090,6 +1095,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 			return -1;
 		}
 		debug(SCANF, 4, "pattern matching will end on '%s'\n", e.end_expr);
+		e.expr_len = res - 1;
 		e.early_stop = &find_expr;
 	}
 	n_match = 0; /* number of time expression 'e' matches input*/
@@ -1210,7 +1216,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 		debug(SCANF, 8, "Still to parse in FMT  : '%s'\n", fmt + i);
 		debug(SCANF, 8, "Still to parse in 'in' : '%s'\n", in + j);
 		if (is_multiple_char(c)) {
-			res = parse_multiplier(in, fmt, &i, in_length, &j, expr,
+			res = parse_multiplier(in, fmt, &i, in_length, &j, expr, res,
 					o, max_o, &n_found);
 			if (res < 0)
 				goto end_nomatch;
@@ -1266,6 +1272,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			if (is_multiple_char(fmt[i + 1])) {
 				expr[0] = c;
 				expr[1] = '\0';
+				res = 1;
 				i++;
 				continue;
 			}
@@ -1282,7 +1289,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				debug(SCANF, 1, "Invalid format '%s', unmatched '%c'\n", fmt, c);
 				return n_found;
 			}
-			debug(SCANF, 8, "found expr '%s'\n", expr);
+			debug(SCANF, 8, "found expr '%s' len=%d\n", expr, res);
 			i += res;
 			if (is_multiple_char(fmt[i]))
 				continue;
@@ -1293,7 +1300,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 						max_o, n_found);
 				return n_found;
 			}
-			res = match_expr_single(expr, in + j, o, &n_found);
+			res = match_expr_single(expr, res, in + j, o, &n_found);
 			if (res < 0) {
 				debug(SCANF, 1, "Invalid format '%s'\n", fmt);
 				return n_found;
@@ -1327,6 +1334,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 					expr[0] = '\\';
 					expr[1] = c;
 					expr[2] = '\0';
+					res = 2;
 					i++;
 					continue;
 				}
@@ -1334,6 +1342,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			if (is_multiple_char(fmt[i + 1]))  {
 				expr[0] = c;
 				expr[1] = '\0';
+				res = 1;
 				i++;
 				continue;
 			}
