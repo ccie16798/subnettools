@@ -432,7 +432,7 @@ int string2mask(const char *s, size_t len)
 				debug(PARSEIP, 3, "Invalid DDN mask '%s', consecutive '.'\n", s);
 				return BAD_MASK;
 			}
-			if (s[i + 1] == '\0') {
+			if (s[i + 1] == '\0' || i + 1 == len ) {
 				debug(PARSEIP, 3, "Invalid DDN mask '%s', ends with '.'\n", s);
 				return BAD_MASK;
 			}
@@ -513,7 +513,7 @@ static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 				debug(PARSEIP, 3, "Invalid IP '%s', 2 consecutives '.'\n", s);
 				return BAD_IP;
 			}
-			if  (s[i + 1] == '\0') {
+			if  (s[i + 1] == '\0' || i + 1 == len) {
 				debug(PARSEIP, 3, "Invalid IP '%s', ends with '.'\n", s);
 				return BAD_IP;
 			}
