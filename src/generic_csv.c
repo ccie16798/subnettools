@@ -16,6 +16,7 @@
 #include "generic_csv.h"
 #include "utils.h"
 #include "st_memory.h"
+#include "st_readline.h"
 
 static int read_csv_header(const char *buffer, struct csv_file *cf)
 {
