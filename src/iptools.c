@@ -390,8 +390,6 @@ int string2mask(const char *s, size_t len)
 	u32 a = 0, prev_a = 0;
 	int count_dot = 0;
 
-	if (s[i] == '/') /* leading / is permitted */
-		i++;
 	if (s[i] == '\0') {
 		debug(PARSEIP, 3, "Invalid mask '%s', no digits found\n", s);
 		return BAD_MASK;
