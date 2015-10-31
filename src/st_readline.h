@@ -3,7 +3,6 @@
 
 struct st_file {
 	int fileno;
-	unsigned long offset;
 	unsigned long bytes;
 	int endoffile;
 	int need_discard;
@@ -14,14 +13,13 @@ struct st_file {
 
 
 /* st_open: open a file R/O
- * @f    : a pointer to a struct st_file
  * @name : name of the file
  * @buffer_size : size of internal buffer
  * returns:
- *	fileno on SUCCESS
- *	Negative on error (cannot access file, or malloc failure)
+ *	pointer to malloc struct on SUCCESS
+ *	NULL on error (cannot access file, or malloc failure)
  */
-int st_open(struct st_file *f, const char *name, int buffer_size);
+struct st_file *st_open(const char *name, int buffer_size);
 
 /* st_open: release resource attached to a st_file
  * @f    : a pointer to a struct st_file

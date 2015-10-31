@@ -27,17 +27,24 @@ int read_debug_level = 3;
 #define debug_read(level, FMT...)
 #endif
 
-int st_open(struct st_file *f, const char *name, int buffer_size)
+struct st_file *st_open(const char *name, int buffer_size)
 {
 	int a;
+	struct st_file *f;
 
 	a = open(name, O_RDONLY);
 	if (f < 0)
-		return a;
+		return NULL;
+	f = malloc(sizeof(struct st_file));
+	if (f == NULL) {
+		close(a);
+		return NULL;
+	}
 	f->buffer = malloc(buffer_size);
 	if (f->buffer == NULL) {
+		free(f);
 		close(a);
-		return -2;
+		return NULL;
 	}
 	f->buffer_size = buffer_size;
 	f->endoffile = 0;
@@ -45,14 +52,14 @@ int st_open(struct st_file *f, const char *name, int buffer_size)
 	f->bp = f->buffer;
 	f->fileno = a;
 	f->bytes  = 0;
-	return 1;
+	return f;
 }
 
 void st_close(struct st_file *f)
 {
 	close(f->fileno);
 	free(f->buffer);
-	memset(f, 0, sizeof(struct st_file));
+	free(f);
 }
 
 /* refill: refill a struct file internal buffer
@@ -203,13 +210,14 @@ int main(int argc, char **argv)
 {
 	char buf[64];
 	int f, i;
-	struct st_file sf;
+	struct st_file *sf;
 	char *s;
 
-	f = st_open(&sf, argv[1], 32900);
-	if (f < 0)
+	sf = st_open(argv[1], 40960);
+	if (sf == NULL)
 		exit(1);
-	while (s = st_getline_truncate(&sf, 64, &i, &f))
+	while (s = st_getline_truncate(sf, 64, &i, &f))
 		printf("%s\n", s);
+	st_close(sf);
 }
 #endif
