@@ -6,7 +6,9 @@ struct st_file {
 	unsigned long offset;
 	unsigned long bytes;
 	int endoffile;
+	int need_discard;
 	char *buffer;
+	char *bp; /* curr pointer */
 	int buffer_size;
 };
 
@@ -26,15 +28,16 @@ int st_open(struct st_file *f, const char *name, int buffer_size);
  */
 void st_close(struct st_file *f);
 
-/* read_line_truncate! read one line from a file
+/* st_getline_truncate: read one line from a file
  * if strlen(line) > size, chars are DISCARDED
- * @f      : struct file
- * @buffer : where to store data read
- * @size   : read at most size char on each line
+ * @f         : struct file
+ * @size      : read at most size char on each line
+ * @read      : pointer to the number of char read (strlen(s) + 1)
+ * @discarded : number of discarded chars (if any)
  * returns:
- *	number of char written in buff (strlen(buff) + 1)
- *	0 on EOF or error
+ *	pointer to the line
+ *	NULL on error or EOF
  */
-int read_line_truncate(struct st_file *f, char *buff, size_t size);
+char *st_getline_truncate(struct st_file *f, size_t size, int *read, int *discarded);
 #else
 #endif
