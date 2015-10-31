@@ -81,6 +81,8 @@ static void discard_bytes(struct st_file *f)
 	while (1) {
 		/* refill buffer until we find a newline */
 		i = refill(f, NULL);
+		if (i < 0) /* IO/error */
+			return;
 		p = f->buffer + f->offset;
 		t = memchr(p, '\n', f->bytes);
 		if (t != NULL || f->endoffile) {
