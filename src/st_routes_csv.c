@@ -598,7 +598,7 @@ int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof)
 	struct csv_state state;
 
 	cf.is_header = NULL;
-	init_csv_file(&cf, name, csv_field, 12, nof->delim, &strtok_r);
+	init_csv_file(&cf, name, csv_field, 12, nof->delim, &simple_strtok_r);
 	cf.endofline_callback   = bgpcsv_endofline_callback;
 	cf.header_field_compare = bgp_field_compare;
 	init_csv_state(&state, name);
