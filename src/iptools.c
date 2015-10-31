@@ -726,7 +726,7 @@ int string2addr(const char *s, struct ip_addr *addr, size_t len)
 {
 	int i;
 
-	for (i = 0; i < len; i++) {
+	for (i = 0; i < 5; i++) {
 		if (s[i] == '.')
 			return string2addrv4(s, addr, len);
 		else if (s[i] == ':')
