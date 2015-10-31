@@ -248,7 +248,10 @@ char *simple_strtok(char *s, const char *delim)
 		}
 		s++;
 	}
-	return NULL;
+	if (s3 == s)
+		return NULL;
+	s2 = NULL;
+	return s3;
 }
 
 char *simple_strtok_r(char *s, const char *delim, char **s2)
@@ -274,13 +277,16 @@ char *simple_strtok_r(char *s, const char *delim, char **s2)
 		}
 		s++;
 	}
-	return NULL;
+	if (s3 == s)
+		return NULL;
+	*s2 = NULL;
+	return s3;
 }
 
 char *fgets_truncate_buffer(char *buffer, int size, FILE *stream, int *res)
 {
 	char *s;
-	int a, i;
+	int a, i, len;
 
 	s = fgets(buffer, size, stream);
 	*res = 0;
@@ -288,13 +294,15 @@ char *fgets_truncate_buffer(char *buffer, int size, FILE *stream, int *res)
 	if (s == NULL || s[0] == '\0')
 		return s;
 	i = 0;
-	if (s[strlen(s) - 1] != '\n') { /* BFB; BIG FUCKING BUFFER; try to handle that  */
+	len = strlen(s) - 1;
+	if (s[len] != '\n') { /* BFB; BIG FUCKING BUFFER; try to handle that  */
 		while ((a = fgetc(stream)) != EOF) {
 			i++;
 			if (a == '\n')
 				break;
 		}
-	}
+	} else
+		s[len] = '\0'; /* remove next-line */
 	*res = i;
 	return s;
 }
