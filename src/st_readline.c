@@ -3,15 +3,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
-
-struct st_file {
-	int fileno;
-	unsigned long offset;
-	unsigned long bytes;
-	int endoffile;
-	char *buffer;
-	int buffer_size;
-};
+#include "st_readline.h"
 
 #ifdef DEBUG_READ
 int read_debug_level = 3;
@@ -105,16 +97,7 @@ static void discard_bytes(struct st_file *f)
 	}
 }
 
-/* read one line from a file
- * if strlen(line) > size, chars are DISCARDED
- * @f      : struct file
- * @buffer : where to store data read
- * @size   : read at most size char on each line
- * returns:
- *	number of char written in buff (strlen(buff) + 1)
- *	0 on EOF or error
- */
-int my_read(struct st_file *f, char *buff, size_t size)
+int read_line_truncate(struct st_file *f, char *buff, size_t size)
 {
 	int i, len;
 	char *p, *t;
@@ -187,6 +170,7 @@ int my_read(struct st_file *f, char *buff, size_t size)
 	return size + 1;
 }
 
+#ifdef TEST_READ
 int main(int argc, char **argv)
 {
 	char buf[64];
@@ -196,6 +180,7 @@ int main(int argc, char **argv)
 	f = st_open(&sf, argv[1], 8192);
 	if (f < 0)
 		exit(1);
-	while ( i = my_read(&sf, buf, sizeof(buf)))
+	while (i = read_line_truncate(&sf, buf, sizeof(buf)))
 		printf("%s\n", buf);
 }
+#endif
