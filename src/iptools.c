@@ -757,7 +757,6 @@ int get_subnet_or_ip(const char *s, struct subnet *subnet)
 	int i, a;
 	u32 mask;
 	int count_slash = 0;
-	int slash_i = 0;
 
 	if (*s == '\0' || *s == '/') {
 		debug(PARSEIP, 3, "Invalid prefix %s, null IP\n", s);
@@ -767,14 +766,9 @@ int get_subnet_or_ip(const char *s, struct subnet *subnet)
 	for (i = 0; ; i++) {
 		if (s[i] == '\0')
 			break;
-		else if (s[i] == '/') {
+		if (s[i] == '/') {
 			count_slash++;
-			slash_i = i;
-		} else if (isxdigit(s[i]) || s[i] == '.' || s[i] == ':' || s[i] == ' ')
-			continue;
-		else {
-			debug(PARSEIP, 3, "Invalid prefix '%s', contains '%c'\n", s, s[i]);
-			return BAD_IP;
+			break;
 		}
 	}
 
@@ -784,22 +778,21 @@ int get_subnet_or_ip(const char *s, struct subnet *subnet)
 			return a;
 		subnet->mask = (a == IPV6_A ? 128 : 32);
 		return a;
-	} else if (count_slash == 1) {
-		debug(PARSEIP, 5, "trying to parse ip/mask %s\n", s);
-		a = string2addr(s, &subnet->ip_addr, slash_i);
-		if (a == BAD_IP)
-			return a;
-		mask = string2mask(s + slash_i + 1, 41);
-		if (mask == BAD_MASK)
-			return BAD_MASK;
-		subnet->mask = mask;
-		if (a == IPV4_A)
-			return IPV4_N;
-		else if (a == IPV6_A)
-			return IPV6_N;
 	}
-	debug(PARSEIP, 3, "Invalid prefix '%s'\n", s);
-	return BAD_IP;
+	debug(PARSEIP, 5, "trying to parse ip/mask %s\n", s);
+	a = string2addr(s, &subnet->ip_addr, i);
+	if (a == BAD_IP)
+		return a;
+	mask = string2mask(s + i + 1, 41);
+	if (mask == BAD_MASK)
+		return BAD_MASK;
+	subnet->mask = mask;
+	if (a == IPV4_A)
+		return IPV4_N;
+	else if (a == IPV6_A)
+		return IPV6_N;
+	else
+		return BAD_IP;
 }
 
 int ipv4_get_classfull_mask(const struct subnet *s)
