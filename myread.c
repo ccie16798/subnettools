@@ -190,12 +190,12 @@ int my_read(struct st_file *f, char *buff, size_t size)
 int main(int argc, char **argv)
 {
 	char buf[64];
-	int f;
+	int f, i;
 	struct st_file sf;
 
 	f = st_open(&sf, argv[1], 8192);
 	if (f < 0)
 		exit(1);
-	while (my_read(&sf, buf, sizeof(buf)))
+	while ( i = my_read(&sf, buf, sizeof(buf)))
 		printf("%s\n", buf);
 }
