@@ -40,7 +40,7 @@ reg_test_scanf() {
 	local output_file
 	local n
 
-	n=30
+	n=31
 	$PROG scanf "1.1.1.1 zob    1.1.1.2    name 25" " *%I (%S )?.*%I *(name) %d" > res/scanf1 
 	$PROG scanf "1.1.1.1   1.1.1.2    name 25" " *%I (%S )?.*%I *(name) %d" > res/scanf2 
 	$PROG scanf "1.1.1.1  1.1.1.2 2.2.2.2 toto   r" " *%I .*%S" > res/scanf3
@@ -85,7 +85,8 @@ reg_test_scanf() {
 	$PROG scan "1234567890a" ".{4,}%c" > res/scanf29
 	#complex end of char range returns ' local hh'
 	$PROG scan "    *via 10.24.133.5, Vlan600, [0/0], 1y7w, local hh" ".*$%[^,]" > res/scanf30
-
+	#end on char range
+	$PROF scan "a 1.1.11.1 abc" ".*%I.*[abc]%c" > res/scanf31
 
 	for i in `seq 1 $n`; do
 		output_file=scanf$i
