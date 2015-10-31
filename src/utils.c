@@ -224,7 +224,7 @@ int strxcpy_until(char *dst, const char *src, int n, char end)
  * standard strtok treats n successives delims as one,
  * which is not always what we want in CSV files
  */
-char *simple_strtok(char *s, const char *delim)
+char *st_strtok(char *s, const char *delim)
 {
 	int i;
 	static char *s2;
@@ -254,7 +254,7 @@ char *simple_strtok(char *s, const char *delim)
 	return s3;
 }
 
-char *simple_strtok_r(char *s, const char *delim, char **s2)
+char *st_strtok_r(char *s, const char *delim, char **s2)
 {
 	int i;
 	char *s3;

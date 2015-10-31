@@ -265,7 +265,7 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 	int res;
 	char *s;
 
-	init_csv_file(&cf, name, csv_field, 20, nof->delim, &simple_strtok_r);
+	init_csv_file(&cf, name, csv_field, 20, nof->delim, &st_strtok_r);
 	init_csv_state(&state, name);
 	cf.is_header          = &netcsv_is_header;
 	cf.endofline_callback = &netcsv_endofline_callback;
@@ -335,7 +335,7 @@ int load_ipam_no_EA(char  *name, struct subnet_file *sf, struct st_options *nof)
 		 */
 		csv_field[3].name = nof->ipam_comment2;
 	}
-	init_csv_file(&cf, name, csv_field, 10, nof->ipam_delim, &simple_strtok_r);
+	init_csv_file(&cf, name, csv_field, 10, nof->ipam_delim, &st_strtok_r);
 	cf.is_header = netcsv_is_header;
 	cf.endofline_callback = netcsv_endofline_callback;
 	init_csv_state(&state, name);
@@ -598,7 +598,7 @@ int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof)
 	struct csv_state state;
 
 	cf.is_header = NULL;
-	init_csv_file(&cf, name, csv_field, 12, nof->delim, &simple_strtok_r);
+	init_csv_file(&cf, name, csv_field, 12, nof->delim, &st_strtok_r);
 	cf.endofline_callback   = bgpcsv_endofline_callback;
 	cf.header_field_compare = bgp_field_compare;
 	init_csv_state(&state, name);

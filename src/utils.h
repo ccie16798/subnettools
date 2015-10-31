@@ -34,8 +34,8 @@ void remove_ending_space(char *s);
 int count_char(const char *s, char c);
 
 /* strtok variants ; dont treat consecutive delim chars as one */
-char *simple_strtok(char *s, const char *delim);
-char *simple_strtok_r(char *s, const char *delim, char **save_ptr);
+char *st_strtok(char *s, const char *delim);
+char *st_strtok_r(char *s, const char *delim, char **save_ptr);
 
 /* equivalent to strlcpy on some platforms
  * @dest  : destination string
