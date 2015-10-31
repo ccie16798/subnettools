@@ -725,32 +725,23 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 int string2addr(const char *s, struct ip_addr *addr, size_t len)
 {
 	int i;
-	int may_ipv4 = 0, may_ipv6 = 0;
 
 	for (i = 0; i < len; i++) {
-		if (s[i] == '.' && !may_ipv6) {
-			may_ipv4 = 1;
-			break;
-		} else if (s[i] == ':') {
-			may_ipv6 = 1;
-			break;
-		} else if (isdigit(s[i]))
+		if (s[i] == '.')
+			return string2addrv4(s, addr, len);
+		else if (s[i] == ':')
+			return string2addrv6(s, addr, len);
+		else if (isdigit(s[i]))
 			continue;
 		else if (s[i] == '\0')
 			break;
-		else if ((s[i] >= 'a' && s[i] <= 'f') || (s[i] >= 'A' && s[i] <= 'F')) {
-			may_ipv6 = 2;
-			continue; /* this is valid for IPv6 only */
-		} else {
-			debug(PARSEIP, 3, "Invalid IP %s,  contains [%c]\n", s, s[i]);
+		else if ((s[i] >= 'a' && s[i] <= 'f') || (s[i] >= 'A' && s[i] <= 'F'))
+			return string2addrv6(s, addr, len);
+		else {
+			debug(PARSEIP, 3, "Invalid IP %s,  contains '%c'\n", s, s[i]);
 			return BAD_IP;
 		}
 	}
-	if (may_ipv4)
-		return string2addrv4(s, addr, len);
-	if (may_ipv6 == 1)
-		return string2addrv6(s, addr, len);
-
 	debug(PARSEIP, 3, "Invalid IPv4 or IPv6 : %s\n", s);
 	return BAD_IP;
 }
