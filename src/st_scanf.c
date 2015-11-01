@@ -387,21 +387,18 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 		break;
 	case 'I':
 		ARG_SET(v_addr, struct ip_addr *);
-		while (is_ip_char(in[j2])) {
-			buffer[j2 - *j] = in[j2];
+		while (is_ip_char(in[j2]))
 			j2++;
-		}
-		buffer[j2 - *j] = '\0';
 		if (j2 - *j <= 1) {
 			debug(SCANF, 3, "no IP found at offset %d\n", *j);
 			return n_found;
 		}
 		res = string2addr(in + *j, v_addr, j2 - *j);
 		if (res > 0) {
-			debug(SCANF, 5, "'%s' is a valid IP\n", buffer);
+			debug(SCANF, 5, "valid IP at offset:%d\n", *j);
 			n_found++;
 		} else {
-			debug(SCANF, 3, "'%s' is an invalid IP\n", buffer);
+			debug(SCANF, 3, "invalid IP at offset:%d\n", *j);
 			return n_found;
 		}
 		break;
