@@ -404,21 +404,18 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 		break;
 	case 'M':
 		ARG_SET(v_int, int *);
-		while (isdigit(in[j2]) || in[j2] == '.') {
-			buffer[j2 - *j] = in[j2];
+		while (isdigit(in[j2]) || in[j2] == '.')
 			j2++;
-		}
-		buffer[j2 - *j] = '\0';
 		if (j2 - *j == 0) {
 			debug(SCANF, 3, "no MASK found at offset %d\n", *j);
 			return n_found;
 		}
-		res = string2mask(buffer, 21);
+		res = string2mask(in + *j, j2 - *j);
 		if (res != BAD_MASK) {
-			debug(SCANF, 5, "'%s' is a valid MASK\n", buffer);
+			debug(SCANF, 5, "Valid MASK found at offset:%d\n", *j);
 			n_found++;
 		} else {
-			debug(SCANF, 3, "'%s' is an invalid MASK\n", buffer);
+			debug(SCANF, 3, "Invalid MASK at offset:%d\n", *j);
 			return n_found;
 		}
 		*v_int = res;
