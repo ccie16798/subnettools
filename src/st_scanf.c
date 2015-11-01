@@ -159,7 +159,7 @@ static int parse_brace_multiplier(const char *s, int *min, int *max)
 /* count number of consersion specifier in an expr
  * doesnt validate CS are valid
  */
-static int count_cs(const char *expr)
+static inline int count_cs(const char *expr)
 {
 	int i;
 	int n = 0;
@@ -236,7 +236,7 @@ static int fill_char_range(char *expr, const char *fmt, int n)
 	}
 
 	while (fmt[i] != ']') {
-		if (fmt[i] == '\0' || i == n - 1)
+		if (fmt[i] == '\0' || i == n - 2)
 			return -1;
 		expr[i] = fmt[i];
 		i++;
