@@ -247,13 +247,13 @@ static int fill_char_range(char *expr, const char *fmt, int n)
 }
 /*
  * match character c against STRING 'expr' like [acde-g]
+ * the range is guaranteed to be valid by previous 'fill_char_range' call
  * @c    : the char to match
  * @expr : the expr to test c against
  * @i    : an index inside 'expr', will be updated
  * returns :
  *    1 if a match is found
  *    0 if no match
- *    -1 if range is invalid
  */
 static int match_char_against_range(char c, const char *expr, int *i)
 {
@@ -274,19 +274,11 @@ static int match_char_against_range(char c, const char *expr, int *i)
 
 	while (expr[*i] != ']') {
 		low = expr[*i];
-		if (low == '\0') {
-			debug(SCANF, 1, "Invalid expr '%s', no closing ']' found\n", expr);
-			return -1;
-		}
 		/* expr[*i + 2] != ']' means we can match a '-' only if it is right
 		 * before the ending ']'
 		 */
 		if (expr[*i + 1] == '-' && expr[*i + 2] != ']') {
 			high = expr[*i + 2];
-			if (high == '\0') {
-				debug(SCANF, 1, "Invalid expr '%s', incomplete range\n", expr);
-				return -1;
-			}
 			if (c >= low && c <= high)
 				res = 1;
 		} else {
@@ -631,9 +623,7 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 		}
 		*i += (i2 - 1);
 		i2 = 0;
-		/* match_char_against_range cant return -1 here,
-		 * fill_char_range above would have caught a bad expr
-		 */
+
 		while (match_char_against_range(in[j2], expr, &i2) &&
 				j2 - *j < max_field_length - 1) {
 			if (in[j2] == '\0')
