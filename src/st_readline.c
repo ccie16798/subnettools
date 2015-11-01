@@ -15,7 +15,7 @@
 #include <unistd.h>
 #include "st_readline.h"
 
-/* #define DEBUG_READ */
+//#define DEBUG_READ
 #ifdef DEBUG_READ
 int read_debug_level = 3;
 #define debug_read(level, FMT...) \
@@ -40,18 +40,20 @@ struct st_file *st_open(const char *name, int buffer_size)
 		close(a);
 		return NULL;
 	}
+	if (buffer_size < 1024)
+		buffer_size = 1024;
 	f->buffer = malloc(buffer_size);
 	if (f->buffer == NULL) {
 		free(f);
 		close(a);
 		return NULL;
 	}
-	f->buffer_size = buffer_size;
-	f->endoffile = 0;
+	f->buffer_size  = buffer_size;
+	f->endoffile    = 0;
 	f->need_discard = 0;
-	f->bp = f->buffer;
-	f->fileno = a;
-	f->bytes  = 0;
+	f->bp           = f->buffer;
+	f->fileno       = a;
+	f->bytes        = 0;
 	return f;
 }
 
@@ -122,6 +124,8 @@ char *st_getline_truncate(struct st_file *f, size_t size, int *read, int *discar
 	int i, len;
 	char *t, *p;
 
+	if (size < 2)
+		return NULL;
 	size--; /* for NUL char */
 	if (f->need_discard) {
 		discard_bytes(f);
@@ -135,19 +139,21 @@ char *st_getline_truncate(struct st_file *f, size_t size, int *read, int *discar
 		len = t - p;
 		if (len <= size) {
 			*t  = '\0';
-			f->bytes  -= (len + 1);
-			f->bp     += (len + 1);
+			len++;
+			f->bytes  -= len;
+			f->bp     += len;
 			*discarded = 0;
-			*read = len + 1;
+			*read = len;
 			return p;
 		}
 		/* line too long, discarding bytes */
 		p[size]    = '\0';
-		f->bytes  -= (len + 1);
-		f->bp     += (len + 1);
+		len++;
+		f->bytes  -= len;
+		f->bp     += len;
 		*discarded = len - size;
 		*read = size + 1;
-		debug_read(8, "Trunc1 discarding %d chars\n", len - size);
+		debug_read(8, "Trunc1 discarding %d chars\n", *discarded);
 		return p;
 	}
 	/* we are sure there is no newline for up to f->bytes */
@@ -160,11 +166,12 @@ char *st_getline_truncate(struct st_file *f, size_t size, int *read, int *discar
 	} else {
 		/* no newline found for a FBB (fucking Big Buffer), suspicious */
 		p[size]    = '\0';
-		f->bp     += size + 1;
-		f->bytes  -= size + 1;
+		size++;
+		f->bp     += size;
+		f->bytes  -= size;
 		*discarded = f->bytes + 1; /* at least */
 		f->need_discard++;
-		*read = size + 1;
+		*read = size;
 		return p;
 	}
 	/* f->bytes >= size here */
@@ -174,19 +181,21 @@ char *st_getline_truncate(struct st_file *f, size_t size, int *read, int *discar
 		len = t - p;
 		if (len <= size) {
 			*t  = '\0';
-			f->bytes  -= (len + 1);
-			f->bp     += (len + 1);
+			len++;
+			f->bytes  -= len;
+			f->bp     += len;
 			*discarded = 0;
-			*read = len + 1;
+			*read = len;
 			return p;
 		}
 		/* line too long, discarding bytes */
 		p[size]    = '\0';
-		f->bytes  -= (len + 1);
-		f->bp     += (len + 1);
+		len++;
+		f->bytes  -= len;
+		f->bp     += len;
 		*discarded = len - size;
 		*read = size + 1;
-		debug_read(5, "Trunc2 discarding %d chars\n", len - size);
+		debug_read(5, "Trunc2 discarding %d chars\n", *discarded);
 		return p;
 	}
 	p[size]    = '\0';
@@ -209,15 +218,17 @@ char *st_getline_truncate(struct st_file *f, size_t size, int *read, int *discar
 int main(int argc, char **argv)
 {
 	char buf[64];
-	int f, i;
+	int f, i, line_l = 64;
 	struct st_file *sf;
 	char *s;
 
-	sf = st_open(argv[1], 40960);
+	sf = st_open(argv[1], 2048);
 	if (sf == NULL)
 		exit(1);
-	while (s = st_getline_truncate(sf, 64, &i, &f))
-		printf("%s\n", s);
+	if (argc >= 3)
+		line_l = atoi(argv[2]);
+	while (s = st_getline_truncate(sf, line_l, &i, &f))
+		printf("%s %d %d\n", s, i, f);
 	st_close(sf);
 }
 #endif
