@@ -27,3 +27,9 @@ test_diff ref/zob_128 res/zob_128
 echo -n "pathetic file : "
 $TEST_READ pathetic_file > res/pathetic_file
 test_diff ref/pathetic_file res/pathetic_file
+echo -n "pathetic file 79 : "
+$TEST_READ pathetic_file 79 > res/pathetic_file_79
+test_diff ref/pathetic_file_79 res/pathetic_file_79
+echo -n "pathetic file 77 : "
+$TEST_READ pathetic_file 77 > res/pathetic_file_77
+test_diff ref/pathetic_file_77 res/pathetic_file_77
