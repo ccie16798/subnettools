@@ -1,3 +1,13 @@
+/*
+ * generic HASH TABLE functions (stat hash table)
+ * hash functions alogrithms from DJ Bernstein & Fowler-Noll-Vo
+ *
+ * Copyright (C) 2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of version 2 of the GNU General Public License
+ * as published by the Free Software Foundation.
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -164,7 +174,8 @@ struct stat_bucket *increase_key_stat(struct hash_table *ht, char *key, int key_
 	list_for_each_entry(sb, &ht->tab[h], list) {
 		if (!strncmp(key, sb->key, key_len)) {
 			sb->count++;
-			debug(HASHT, 5, "Key %s already there, increase count to %lu\n", key, sb->count);
+			debug(HASHT, 5, "Key %s already there, increase count to %lu\n",
+					key, sb->count);
 			return sb;
 		}
 	}
