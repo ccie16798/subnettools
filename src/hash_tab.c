@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "utils.h"
 #include "debug.h"
 #include "hash_tab.h"
@@ -59,12 +60,55 @@ int alloc_hash_tab(struct hash_table *ht, unsigned long nr, unsigned (*hash)(voi
 	ht->max_nr     = new_nr;
 	ht->table_mask = new_nr - 1;
 	ht->hash_fn    = hash;
+	ht->nr         = 0;
+	ht->collisions = 0;
 	return new_nr;
 }
 
 void hash_insert(struct hash_table *ht, struct st_bucket *bucket)
 {
-	unsigned h = ht->hash_fn(bucket->key, bucket->key_len) & ht->table_mask;	
+	unsigned h = ht->hash_fn(bucket->key, bucket->key_len) & ht->table_mask;
 	
-	list_add(&bucket->list, ht->table[h]);
+	if (!list_empty(&ht->tab[h]))
+		ht->collisions++;
+	list_add(&bucket->list, &ht->tab[h]);
+	ht->nr++;
+}
+
+struct st_bucket *find_key(struct hash_table *ht, char *key, int key_len)
+{
+	
+	unsigned h = ht->hash_fn(key, key_len) & ht->table_mask;
+	struct st_bucket *b;
+
+	if (list_empty(&ht->tab[h]))
+		return NULL;
+	list_for_each_entry(b, &ht->tab[h], list) {
+		if (!strncmp(key, b->key, key_len))
+			return b;
+	}
+	return NULL;
+}
+
+int main(int argc, char **argv)
+{
+	struct hash_table ht;
+	struct st_bucket *b;
+	char buffer[64];
+	int i;
+
+	alloc_hash_tab(&ht, 10000, &djb_hash);
+	for (i = 0; i < 1000; i++) {
+		b = malloc(sizeof(struct st_bucket));
+		sprintf(buffer, "KEY %d", i);
+		b->key = strdup(buffer);
+		b->key_len = strlen(b->key);
+		sprintf(b->value, "VALUE %d", i);
+		hash_insert(&ht, b);
+	}
+	printf("%d elements inserted, %d collisions\n", ht.nr, ht.collisions);
+	b = find_key(&ht, "KEY 4", 5);
+	if (b)
+		printf("value=%s\n", b->value);
+
 }
