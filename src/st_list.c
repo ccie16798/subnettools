@@ -110,7 +110,7 @@ void list_merge(st_list *l1, st_list *l2, st_list *res,
  */
 static void __list_sort(st_list *head, int (*cmp)(st_list *, st_list *))
 {
-	st_list right, left, *r, *l, *next;
+	st_list right, left, *r, *l;
 	/* split list in right and left lists
 	* we do not bother updating ->prev pointers, list_merge will
 	**/
