@@ -1,6 +1,7 @@
 /*
  * optimized FILE format/reader to read lines from from a file with a MAX line length
- * bytes over line limit are discarded
+ * bytes over line length are discarded
+ * such a pity there is no such function in standard file reading functions
  *
  * Copyright (C) 2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
@@ -217,6 +218,7 @@ char *st_getline_truncate(struct st_file *f, size_t size, int *read, int *discar
 	*discarded = f->bytes; /*at least */
 	return p;
 }
+
 #ifdef TEST_READ
 int main(int argc, char **argv)
 {

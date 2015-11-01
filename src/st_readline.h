@@ -21,17 +21,17 @@ struct st_file {
  */
 struct st_file *st_open(const char *name, int buffer_size);
 
-/* st_open: release resource attached to a st_file
+/* st_open: release resources attached to a st_file
  * @f    : a pointer to a struct st_file
  */
 void st_close(struct st_file *f);
 
-/* st_getline_truncate: read one line from a file
- * if strlen(line) > size, chars are DISCARDED
+/* st_getline_truncate: read one line from a file, truncate if line too long
+ * if strlen(line) > size, chars are DISCARDED until a NEWLINE is found
  * @f         : struct file
  * @size      : read at most size char on each line
- * @read      : pointer to the number of char read (strlen(s) + 1)
- * @discarded : number of discarded chars (if any)
+ * @read      : pointer to the number of char read (equals to strlen(s) + 1)
+ * @discarded : number of discarded chars (not always precise)
  * returns:
  *	pointer to the line
  *	NULL on error or EOF
