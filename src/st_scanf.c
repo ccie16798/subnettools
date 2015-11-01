@@ -667,24 +667,6 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 }
 
 /*
- * try to find a '|' char in the remaining expr
- * return -1 if none found, the next expression if one is found
- * if expr = AB | CD | EF, expr_try_again will return '4' (index of the space char after '|')
- */
-static inline int expr_try_again(const char *expr)
-{
-	int i;
-
-	for (i = 0; ; i++) {
-		if (expr[i] == '\0')
-			return -1;
-		if (expr[i] == '|')
-			return i + 1;
-	}
-	return -1;
-}
-
-/*
  * match a single pattern 'expr' against 'in'
  * @expr  : the expression to match
  * @in    : the input buffer
@@ -698,6 +680,7 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 {
 	int i, j, res;
 	char c;
+	char *p;
 	int saved_num_o = *num_o;
 
 	i = 0; /* index in expr */
@@ -756,14 +739,15 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 			continue;
 		}
 try_again:
-		res = expr_try_again(expr + i);
-		if (res == -1) /* no '|' */
+		p = strchr(expr + i, '|');
+		if (p == NULL)
 			return 0;
-		i += res;
 		j = 0;
+		i = (p - expr) + 1;
 		*num_o = saved_num_o;
 		debug(SCANF, 4, "Logical OR found, trying again on expr '%s'\n",
 				expr + i);
+		continue;
 	}
 }
 
