@@ -10,6 +10,14 @@ struct st_bucket {
 	char value[32];
 };
 
+struct stat_bucket {
+	void *key;
+	int key_len;
+	st_list list;
+	unsigned long count;
+};
+
+
 struct hash_table {
 	unsigned max_nr; /* power of two */
 	unsigned table_mask; /* table_size - 1, used to do MODULUS */
