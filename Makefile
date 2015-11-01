@@ -11,5 +11,9 @@ test-printf: src/*.c src/*.h
 test: src/*.c src/*.h
 	cd src; make test
 
+test-read: src/st_readline.c src/st_readline.h
+	cd src; make test-read
+	mv src/test-read .
+
 regtest: src/*.c src/*.h
 	cd regtest; sh ./regtest.sh

@@ -21,3 +21,6 @@ test-printf: test-printf.o debug.o utils.o st_printf.o iptools.o bitmap.o st_obj
 
 test : generic_csv.o debug.o utils.o
 	$(CC) -o $@ $^ $(CFLAGS) -DGENERICCSV_TEST
+
+test-read: st_readline.c
+	$(CC) -o $@ $^ $(CFLAGS) -D TEST_READ
