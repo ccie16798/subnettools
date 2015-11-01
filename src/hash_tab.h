@@ -27,6 +27,16 @@ struct hash_table {
 	unsigned (*hash_fn)(void *, int);
 };
 
+/* hlist_for_each_entry: iterate over all elements in a hash_table
+ * @elem   : the iterator (the list embedded inside must be named 'list')
+ * @__ht   : the hash table
+ * @__i    : an unsigned to iterate over the table
+ */
+#define hlist_for_each_entry(elem, __ht, __i) \
+	for (__i = 0; __i < (__ht)->max_nr; __i++)  \
+		if (!list_empty(&(__ht)->tab[__i])) \
+			list_for_each_entry(elem, &(__ht)->tab[__i], list)
+
 /* alloc_hash_tab: setup a new hash table with nr elements
  * @ht   : an existing hash table
  * @nr   : the size of the hash table (will be rounded to next power of 2)

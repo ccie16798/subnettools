@@ -105,10 +105,8 @@ void free_stat_hash_table(struct hash_table *ht)
 	unsigned i;
 	struct stat_bucket *sb;
 
-	for (i = 0; i < ht->max_nr; i++)
-		if (!list_empty(&ht->tab[i]))
-			list_for_each_entry(sb, &ht->tab[i], list)
-				free_stat_bucket(sb);
+	hlist_for_each_entry(sb, ht, i)
+		free_stat_bucket(sb);
 	st_free(ht->tab, ht->max_nr * sizeof(struct st_list));
 	memset(ht, 0, sizeof(struct hash_table));
 }
@@ -214,19 +212,14 @@ int main(int argc, char **argv)
 	srand(time(NULL));
 	alloc_hash_tab(&ht, 1000, &fnv_hash);
 	for (i = 0; i < 5000; i++) {
-		sprintf(buffer, "KEY#%d", rand()%10);
+		sprintf(buffer, "KEY#%d", rand()%100);
 		increase_key_stat(&ht, buffer, strlen(buffer));
 	}
 	printf("%d elements inserted, %d collisions\n", ht.nr, ht.collisions);
 	b = find_key(&ht, "KEY 4", 5);
 
-	for (i = 0; i < 1000; i++) {
-		if (list_empty(&ht.tab[i]))
-			continue;
-		list_for_each_entry(sb, &ht.tab[i], list) {
-			printf("KEY: %s count: %lu\n", (char *)sb->key, sb->count);
-			free_stat_bucket(sb);
-		}
-
+	hlist_for_each_entry(sb, &ht, i) {
+		printf("KEY: %s count:%lu\n", (char *)sb->key, sb->count);
+		free_stat_bucket(sb);
 	}
 }
