@@ -172,7 +172,6 @@ int ab_cmp(st_list *l1, st_list *l2)
 
 void print_list(st_list *head)
 {
-	struct st_list *l;
 	struct ab *a;
 
 	list_for_each_entry(a, head, list) {
@@ -185,7 +184,7 @@ void test_sort_one(int n)
 {
 	struct ab *a = malloc(n * sizeof(struct ab));
 	struct ab *c;
-	st_list head, *l;
+	st_list head;
 	int i, prev;
 
 	init_list(&head);
@@ -196,8 +195,7 @@ void test_sort_one(int n)
 	list_sort(&head, &ab_cmp);
 	prev = 10000;
 	i = 0;
-	list_for_each(l, &head) {
-		c = container_of(l, struct ab, list);
+	list_for_each_entry(c, &head, list) {
 		if (prev < c->a) {
 			printf("FAIL %d < %d\n", prev, c->a);
 			print_list(&head);
@@ -226,34 +224,17 @@ void test_sort(int n)
 int main(int argc, char **argv)
 {
 	struct ab a, b, c, d;
-	struct ab e, f, g, h, i;
-	int toto;
-	st_list list, list2, res;
+	st_list list;
 
 	init_list(&list);
-	init_list(&list2);
 	a.a = 10111;
 	b.a = 1664;
 	c.a = 3;
-	e.a = 6;
-	f.a = 11;
-	g.a = 124;
-	h.a = 1379;
-	i.a = 1664;
 	list_add_tail(&a.list, &list);
 	list_add(&b.list, &list);
 	list_add(&c.list, &list);
 	list_add(&d.list, &list);
-	list_add(&e.list, &list);
-	list_add(&f.list, &list);
-	list_add(&g.list, &list);
-	list_add(&h.list, &list);
-	list_add(&i.list, &list);
 	print_list(&list);
-	list_sort(&list, &ab_cmp);
-	list_del(&i.list);
-	print_list(&list);
-	printf("len=%d\n", list_length(&list));
 	test_sort(1000);
 }
 #endif
