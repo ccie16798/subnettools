@@ -12,6 +12,7 @@ struct debug debugs[] = {
 	{ "timing",	__D_TIMING,	"records time to execute some functions" },
 	{ "memory",	__D_MEMORY,	"trace memory allocations" },
 	{ "list",	__D_LIST,	"debug linked-list operations" },
+	{ "hash",	__D_HASHT,	"debug Hash Table" },
 	{ "debug",	__D_DEBUG,	"debug DEBUG, yes we can! :)" },
 	{ "parseipv6",	__D_PARSEIPV6,	"debug IPv6 parsing functions" },
 	{ "parseip",	__D_PARSEIP,	"debug IPv4 parsing functions" },

@@ -27,6 +27,7 @@
 #define __D_GEXPR	50
 #define __D_FILTER	51
 #define __D_LIST	55
+#define __D_HASHT	56
 #define __D_MAX		100
 
 #define debug(__EVENT, __DEBUG_LEVEL, __FMT...) \
