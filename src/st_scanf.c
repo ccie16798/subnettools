@@ -40,25 +40,19 @@ struct expr {
 
 
 /* return the escaped char */
-static inline char escape_char(char input_c)
+static inline char escape_char(char c)
 {
-	char c;
-
-	c = input_c;
 	switch (c) {
 	case '\0':
 		debug(SCANF, 2, "Nul char after Escape Char '\\'\n");
-		break;
+		return '\0';
 	case 't':
-		c = '\t';
-		break;
+		return '\t';
 	case 'n':
-		c = '\n';
-		break;
+		return '\n';
 	default:
-		break;
+		return c;
 	}
-	return c;
 }
 
 static inline int is_multiple_char(char c)
