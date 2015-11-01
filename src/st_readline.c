@@ -17,10 +17,10 @@
 
 //#define DEBUG_READ
 #ifdef DEBUG_READ
-int read_debug_level = 3;
+int read_debug_level = 5;
 #define debug_read(level, FMT...) \
 	do { \
-		if (level > read_debug_level) \
+		if (level <= read_debug_level) \
 			fprintf(stderr, FMT); \
 	} while (0)
 #else
@@ -101,6 +101,7 @@ static void discard_bytes(struct st_file *f)
 
 	while (1) {
 		/* refill buffer until we find a newline */
+		debug_read(5, "discarding need refill %d\n", f->bytes);
 		i = refill(f, NULL);
 		if (i < 0) /* IO/error */
 			return;
@@ -157,7 +158,7 @@ char *st_getline_truncate(struct st_file *f, size_t size, int *read, int *discar
 		return p;
 	}
 	/* we are sure there is no newline for up to f->bytes */
-	if (f->bytes < size) { /** need to refill **/
+	if (f->bytes <= size) { /** need to refill **/
 		i = refill(f, "tst");
 		if (i < 0)
 			return NULL;
@@ -166,6 +167,7 @@ char *st_getline_truncate(struct st_file *f, size_t size, int *read, int *discar
 	} else {
 		/* no newline found for a FBB (fucking Big Buffer), suspicious */
 		p[size]    = '\0';
+		debug_read(3, "Need discard#1 : bytes=%d, size=%d\n", f->bytes, size);
 		size++;
 		f->bp     += size;
 		f->bytes  -= size;
@@ -209,6 +211,7 @@ char *st_getline_truncate(struct st_file *f, size_t size, int *read, int *discar
 	}
 	if (f->endoffile)
 		return p;
+	debug_read(3, "Need discard#2 : %d\n", f->bytes);
 	f->need_discard++;
 	*read = size + 1;
 	*discarded = f->bytes; /*at least */
@@ -217,7 +220,6 @@ char *st_getline_truncate(struct st_file *f, size_t size, int *read, int *discar
 #ifdef TEST_READ
 int main(int argc, char **argv)
 {
-	char buf[64];
 	int f, i, line_l = 64;
 	struct st_file *sf;
 	char *s;
@@ -227,8 +229,12 @@ int main(int argc, char **argv)
 		exit(1);
 	if (argc >= 3)
 		line_l = atoi(argv[2]);
-	while (s = st_getline_truncate(sf, line_l, &i, &f))
-		printf("%s %d %d\n", s, i, f);
+	while ((s = st_getline_truncate(sf, line_l, &i, &f))) {
+		printf("%s\n", s);
+		if (strlen(s) != i - 1)
+			fprintf(stderr, "BUG, st_get_line for %s return value=%d, len=%d\n",
+				s, i, (int)strlen(s));
+	}
 	st_close(sf);
 }
 #endif
