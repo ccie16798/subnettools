@@ -86,7 +86,7 @@ reg_test_scanf() {
 	#complex end of char range returns ' local hh'
 	$PROG scan "    *via 10.24.133.5, Vlan600, [0/0], 1y7w, local hh" ".*$%[^,]" > res/scanf30
 	#end on char range
-	$PROF scan "a 1.1.11.1 abc" ".*%I.*[abc]%c" > res/scanf31
+	$PROG scan "a 1.1.11.1 abc" ".*%I.*[abc]%c" > res/scanf31
 
 	for i in `seq 1 $n`; do
 		output_file=scanf$i
