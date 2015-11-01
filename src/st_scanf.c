@@ -738,6 +738,7 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 			j++;
 			continue;
 		}
+		/* we didnt match, but give a chance to try again if an 'OR' is found */
 		p = strchr(expr + i, '|');
 		if (p == NULL)
 			return 0;
