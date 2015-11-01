@@ -68,7 +68,7 @@ int alloc_hash_tab(struct hash_table *ht, unsigned long nr, unsigned (*hash)(voi
 void hash_insert(struct hash_table *ht, struct st_bucket *bucket)
 {
 	unsigned h = ht->hash_fn(bucket->key, bucket->key_len) & ht->table_mask;
-	
+
 	if (!list_empty(&ht->tab[h]))
 		ht->collisions++;
 	list_add(&bucket->list, &ht->tab[h]);
@@ -86,6 +86,26 @@ struct st_bucket *find_key(struct hash_table *ht, char *key, int key_len)
 	list_for_each_entry(b, &ht->tab[h], list) {
 		if (!strncmp(key, b->key, key_len))
 			return b;
+	}
+	return NULL;
+}
+
+struct st_bucket *remove_key(struct hash_table *ht, char *key, int key_len)
+{
+
+	unsigned h = ht->hash_fn(key, key_len) & ht->table_mask;
+	struct st_bucket *b;
+
+	if (list_empty(&ht->tab[h]))
+		return NULL;
+	list_for_each_entry(b, &ht->tab[h], list) {
+		if (!strncmp(key, b->key, key_len)) {
+			list_del(&b->list);
+			if (list_empty(&ht->tab[h]))
+				ht->collisions--;
+			ht->nr--;
+			return b;
+		}
 	}
 	return NULL;
 }
