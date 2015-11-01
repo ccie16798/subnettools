@@ -65,7 +65,45 @@ int alloc_hash_tab(struct hash_table *ht, unsigned long nr, unsigned (*hash)(voi
 	return new_nr;
 }
 
-void hash_insert(struct hash_table *ht, struct st_bucket *bucket)
+struct stat_bucket *new_stat_bucket(char *key, int key_len)
+{
+	struct stat_bucket *sb;
+
+	sb = st_malloc(sizeof(struct stat_bucket), "Stat bucket");
+	if (sb == NULL)
+		return NULL;
+	sb->key = st_strdup(key);
+	if (sb->key == NULL) {
+		st_free(sb, sizeof(struct stat_bucket));
+		return NULL;
+	}
+	sb->key_len = key_len;
+	sb->count   = 1;
+	init_list(&sb->list);
+	return sb;
+}
+
+void free_stat_bucket(struct stat_bucket *sb)
+{
+	list_del(&sb->list);
+	st_free_string(sb->key);
+	st_free(sb, sizeof(struct stat_bucket));
+}
+
+void free_stat_hash_table(struct hash_table *ht)
+{
+	unsigned i;
+	struct stat_bucket *sb;
+
+	for (i = 0; i < ht->max_nr; i++)
+		if (!list_empty(&ht->tab[i]))
+			list_for_each_entry(sb, &ht->tab[i], list)
+				free_stat_bucket(sb);
+	st_free(ht->tab, ht->max_nr * sizeof(struct st_list));
+	memset(ht, 0, sizeof(struct hash_table));
+}
+
+void insert_bucket(struct hash_table *ht, struct st_bucket *bucket)
 {
 	unsigned h = ht->hash_fn(bucket->key, bucket->key_len) & ht->table_mask;
 
@@ -77,7 +115,6 @@ void hash_insert(struct hash_table *ht, struct st_bucket *bucket)
 
 struct st_bucket *find_key(struct hash_table *ht, char *key, int key_len)
 {
-	
 	unsigned h = ht->hash_fn(key, key_len) & ht->table_mask;
 	struct st_bucket *b;
 
@@ -110,25 +147,75 @@ struct st_bucket *remove_key(struct hash_table *ht, char *key, int key_len)
 	return NULL;
 }
 
+struct stat_bucket *increase_key_stat(struct hash_table *ht, char *key, int key_len)
+{
+	unsigned h = ht->hash_fn(key, key_len) & ht->table_mask;
+	struct stat_bucket *sb;
+
+	if (list_empty(&ht->tab[h])) {
+		debug(HASHT, 5, "Insert key:%s\n", key);
+		sb = new_stat_bucket(key, key_len);
+		if (sb == NULL)
+			return NULL;
+		list_add(&sb->list, &ht->tab[h]);
+		ht->nr++;
+		return sb;
+	}
+	list_for_each_entry(sb, &ht->tab[h], list) {
+		if (!strncmp(key, sb->key, key_len)) {
+			sb->count++;
+			debug(HASHT, 5, "Key %s already there, increase count to %lu\n", key, sb->count);
+			return sb;
+		}
+	}
+	debug(HASHT, 5, "Insert key:%s\n", key);
+	sb = new_stat_bucket(key, key_len);
+	if (sb == NULL)
+		return NULL;
+	list_add(&sb->list, &ht->tab[h]);
+	ht->collisions++;
+	ht->nr++;
+	return sb;
+}
+
+struct stat_bucket *get_key_stat(struct hash_table *ht, char *key, int key_len)
+{
+	unsigned h = ht->hash_fn(key, key_len) & ht->table_mask;
+	struct stat_bucket *sb;
+
+	if (list_empty(&ht->tab[h]))
+		return NULL;
+	list_for_each_entry(sb, &ht->tab[h], list) {
+		if (!strncmp(key, sb->key, key_len))
+			return sb;
+	}
+	return NULL;
+}
+
 int main(int argc, char **argv)
 {
 	struct hash_table ht;
 	struct st_bucket *b;
+	struct stat_bucket *sb;
 	char buffer[64];
 	int i;
 
-	alloc_hash_tab(&ht, 10000, &djb_hash);
-	for (i = 0; i < 1000; i++) {
-		b = malloc(sizeof(struct st_bucket));
-		sprintf(buffer, "KEY %d", i);
-		b->key = strdup(buffer);
-		b->key_len = strlen(b->key);
-		sprintf(b->value, "VALUE %d", i);
-		hash_insert(&ht, b);
+	srand(time(NULL));
+	alloc_hash_tab(&ht, 1000, &fnv_hash);
+	for (i = 0; i < 5000; i++) {
+		sprintf(buffer, "KEY#%d", rand()%10);
+		increase_key_stat(&ht, buffer, strlen(buffer));
 	}
 	printf("%d elements inserted, %d collisions\n", ht.nr, ht.collisions);
 	b = find_key(&ht, "KEY 4", 5);
-	if (b)
-		printf("value=%s\n", b->value);
 
+	for (i = 0; i < 1000; i++) {
+		if (list_empty(&ht.tab[i]))
+			continue;
+		list_for_each_entry(sb, &ht.tab[i], list) {
+			printf("KEY: %s count: %lu\n", (char *)sb->key, sb->count);
+			free_stat_bucket(sb);
+		}
+
+	}
 }
