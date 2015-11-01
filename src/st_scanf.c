@@ -712,20 +712,20 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 		switch (c) {
 		case '(':
 			i++;
-			break;
+			continue;
 		case ')':
 			i++;
-			break;
+			continue;
 		case '.':
 			i++;
 			j++;
-			break;
+			continue;
 		case '[': /* try to handle char range like [a-Zbce-f] */
 			res = match_char_against_range(in[j], expr, &i);
 			if (res <= 0)
 				goto try_again;
 			j++;
-			break;
+			continue;
 		case '%':
 			debug(SCANF, 3, "conversion specifier to handle %lu\n",
 					(unsigned long)(o + *num_o));
@@ -739,7 +739,7 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 				debug(SCANF, 4, "conv specifier successfull\n");
 			}
 			*num_o += 1;
-			break;
+			continue;
 		case '\\':
 			i++;
 			c = escape_char(expr[i]);
@@ -749,15 +749,12 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 				return 0;
 			}
 		default:
-			if (c == '|')
-				return j;
 			if (in[j] != c)
 				goto try_again;
 			i++;
 			j++;
-			break;
+			continue;
 		}
-		continue;
 try_again:
 		res = expr_try_again(expr + i);
 		if (res == -1) /* no '|' */
