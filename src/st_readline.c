@@ -33,7 +33,7 @@ struct st_file *st_open(const char *name, int buffer_size)
 	struct st_file *f;
 
 	a = open(name, O_RDONLY);
-	if (f < 0)
+	if (a < 0)
 		return NULL;
 	f = malloc(sizeof(struct st_file));
 	if (f == NULL) {
