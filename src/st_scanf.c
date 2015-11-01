@@ -706,7 +706,7 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 		case '[': /* try to handle char range like [a-Zbce-f] */
 			res = match_char_against_range(in[j], expr, &i);
 			if (res <= 0)
-				goto try_again;
+				break;
 			j++;
 			continue;
 		case '%':
@@ -714,7 +714,7 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 					(unsigned long)(o + *num_o));
 			res = parse_conversion_specifier(in, expr, &i, &j, &o[*num_o]);
 			if (res == 0)
-				goto try_again;
+				break;
 			if (o) {
 				debug(SCANF, 4, "conv specifier successfull '%c' for %d\n",
 						o[*num_o].type, *num_o);
@@ -733,12 +733,11 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 			}
 		default:
 			if (in[j] != c)
-				goto try_again;
+				break;
 			i++;
 			j++;
 			continue;
 		}
-try_again:
 		p = strchr(expr + i, '|');
 		if (p == NULL)
 			return 0;
