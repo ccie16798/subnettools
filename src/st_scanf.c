@@ -1163,6 +1163,8 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 			memcpy(&o[*n_found], &e.sto[k], sizeof(struct sto));
 			*n_found += 1;
 		}
+		while (isdigit(fmt[*i])) /* remove field width */
+			*i += 1;
 		*i += 2;
 		*j += e.skip_stop;
 	}
