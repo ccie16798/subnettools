@@ -912,6 +912,15 @@ static int find_expr(const char *remain, struct expr *e)
 	return res;
 }
 
+
+static int find_char_range(const char *remain, struct expr *e)
+{
+	int res, i = 0;
+
+	res = match_char_against_range(*remain, e->end_expr, &i);
+	return res;
+}
+
 /*
  * parse_multiplier starts when fmt[*i] is a st_scanf multiplier char (*, +, ?, {a,b})
  * it will try to consume as many bytes as possible from 'in' and put objects
@@ -1047,7 +1056,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 			}
 			debug(SCANF, 4, "pattern matching will end on '%s'\n",
 					e.end_expr);
-			e.early_stop = &find_expr;
+			e.early_stop = &find_char_range;
 			break;
 		default:
 			break;
@@ -1067,7 +1076,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 			return -1;
 		}
 		debug(SCANF, 4, "pattern matching will end on '%s'\n", e.end_expr);
-		e.early_stop = &find_expr;
+		e.early_stop = &find_char_range;
 	} else if (fmt[*i + 1] == '\\')
 		e.end_of_expr = escape_char(fmt[*i + 2]);
 	n_match = 0; /* number of time expression 'e' matches input*/
