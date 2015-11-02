@@ -345,7 +345,7 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 		*i -= 1;
 		if (max_field_length > sizeof(buffer) - 2)
 			max_field_length = sizeof(buffer) - 2;
-		debug(SCANF, 5, "Found max field length %d\n", max_field_length);
+		debug(SCANF, 9, "Found max field length %d\n", max_field_length);
 	} else
 		max_field_length = sizeof(buffer) - 2;
 
