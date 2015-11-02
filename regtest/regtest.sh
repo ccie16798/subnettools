@@ -40,7 +40,7 @@ reg_test_scanf() {
 	local output_file
 	local n
 
-	n=32
+	n=33
 	$PROG scanf "1.1.1.1 zob    1.1.1.2    name 25" " *%I (%S )?.*%I *(name) %d" > res/scanf1 
 	$PROG scanf "1.1.1.1   1.1.1.2    name 25" " *%I (%S )?.*%I *(name) %d" > res/scanf2 
 	$PROG scanf "1.1.1.1  1.1.1.2 2.2.2.2 toto   r" " *%I .*%S" > res/scanf3
@@ -88,6 +88,7 @@ reg_test_scanf() {
 	#end on char range
 	$PROG scan "a 1.1.11.1 abc" ".*%I.*[abc]%c" > res/scanf31
 	$PROG scan "64.242.88.10 - - [07/Mar/2004:17:50:44 -0800] \"GET /twiki/bin/view/TWiki/SvenDowideit HTTP/1.1\" 200 3616" "%I.*\[%[^]].*\"%s %s" > res/scanf32
+	$PROG scan scanf "3.3.3.3   2.2.2.2 1.1.1.1" ".*$%I" > res/scanf33
 
 	for i in `seq 1 $n`; do
 		output_file=scanf$i
