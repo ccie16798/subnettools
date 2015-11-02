@@ -1050,7 +1050,8 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 		}
 		debug(SCANF, 4, "pattern matching will end on '%s'\n", e.end_expr);
 		e.early_stop = &find_expr;
-	}
+	} else if (fmt[*i + 1] == '\\')
+		e.end_of_expr = escape_char(fmt[*i + 2]);
 	n_match = 0; /* number of time expression 'e' matches input*/
 	/* try to find at most max_m expr */
 	e_has_stopped = 0;
