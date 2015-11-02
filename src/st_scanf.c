@@ -936,11 +936,10 @@ static int find_char_range(const char *remain, struct expr *e)
  * @o        : objects will be stored in o (max_o)
  * @n_found  : num conversion specifier found so far
  *
- * returns :
+ * returns:
  *    positive on success
  *   -1  : format error
  *   -2  : no match
- *
  */
 static int parse_multiplier(const char *in, const char *fmt, int *i, int in_length, int *j,
 		char *expr, struct sto *o, int max_o, int *n_found)
