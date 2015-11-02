@@ -1093,6 +1093,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 			e.last_match  = *j;
 			e.last_nmatch = n_match;
 			*j += e.can_skip - 1;
+			e.can_skip = 0;
 		}
 		e_has_stopped = e.has_stopped;
 		*j += res;
