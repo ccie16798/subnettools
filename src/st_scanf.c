@@ -36,6 +36,8 @@ struct expr {
 	int has_stopped; /* set when ->early_stop decide to stop */
 	int min_match; /* in case of multiplier like {3,6} the number of minimun required matches */
 	int skip_stop; /* if positive, dont run e->stop */
+	struct sto sto[10]; /* object collected by find_xxx */
+	int num_o; /* number of object collected by find_xxxx*/
 };
 
 
@@ -830,21 +832,39 @@ static int find_not_ip(const char *remain, struct expr *e)
 		return 1;
 }
 
-static int find_ip(const char *remain, struct expr *e)
+static int find_subnet(const char *remain, struct expr *e)
 {
 	char buffer[64];
 	int i = 0;
-	struct subnet s;
 
-	while (is_ip_char(remain[i]) && i < sizeof(buffer)) {
+	while ((is_ip_char(remain[i]) || remain[i] == '/') && i < sizeof(buffer)) {
 		buffer[i] = remain[i];
 		i++;
 	}
 	if (i <= 1)
 		return 0;
 	buffer[i] = '\0';
-	if (get_subnet_or_ip(buffer, &s) > 0) {
+	if (get_subnet_or_ip(buffer, &e->sto[0].s_subnet) > 0) {
 		e->skip_stop = i; /* useful for .$* matching */
+		e->num_o = 1;
+		e->sto[0].type = 'P';
+		return 1;
+	} else
+		return 0;
+}
+
+static int find_ip(const char *remain, struct expr *e)
+{
+	int i = 0;
+
+	while (is_ip_char(remain[i]))
+		i++;
+	if (i <= 1)
+		return 0;
+	if (string2addr(remain, &e->sto[0].s_addr, i) > 0) {
+		e->skip_stop = i; /* useful for .$* matching */
+		e->num_o = 1;
+		e->sto[0].type = 'I';
 		return 1;
 	} else
 		return 0;
@@ -854,7 +874,6 @@ static int find_classfull_subnet(const char *remain, struct expr *e)
 {
 	char buffer[64];
 	int i = 0;
-	struct subnet s;
 
 	while ((is_ip_char(remain[i]) || remain[i] == '/') && i < sizeof(buffer)) {
 		buffer[i] = remain[i];
@@ -863,8 +882,10 @@ static int find_classfull_subnet(const char *remain, struct expr *e)
 	if (i <= 2)
 		return 0;
 	buffer[i] = '\0';
-	if (classfull_get_subnet(buffer, &s) > 0) {
+	if (classfull_get_subnet(buffer, &e->sto[e->num_o].s_subnet) > 0) {
 		e->skip_stop = i; /* useful for .$* matching */
+		e->num_o = 1;
+		e->sto[0].type = 'Q';
 		return 1;
 	} else
 		return 0;
@@ -938,7 +959,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 		min_m = min_match(c);
 		max_m = max_match(c);
 	}
-	e.expr = expr;
+	e.expr        = expr;
 	e.end_of_expr = fmt[*i + 1]; /* if necessary */
 	e.early_stop  = NULL;
 	e.last_match  = -1;
@@ -946,6 +967,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	e.min_match   = min_m;
 	e.match_last  = 0;
 	e.skip_stop   = 0;
+	e.num_o       = 0;
 	num_cs = count_cs(expr);
 	if (*n_found + num_cs > max_o) {
 		debug(SCANF, 1, "Cannot get more than %d objets, already found %d\n",
@@ -1001,7 +1023,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 			e.early_stop = &find_classfull_subnet;
 			break;
 		case 'P':
-			e.early_stop = &find_ip;
+			e.early_stop = &find_subnet;
 			break;
 		case 'S':
 			e.early_stop = &find_not_ip;
@@ -1088,8 +1110,8 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 			break;
 		}
 	}
-	debug(SCANF, 3, "Exiting loop with expr '%s' matched %d times, found %d objects\n",
-			expr, n_match, *n_found);
+	debug(SCANF, 3, "Expr '%s' matched %d times, found %d objects, has_stopped=%d, skip=%d\n",
+			expr, n_match, *n_found, e.has_stopped, e.skip_stop);
 	/* in case of last match, we must update position in 'in' and n_match */
 	if (e.match_last) {
 		*j      = e.last_match;
@@ -1129,6 +1151,21 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 		}
 	}
 	*i += 1;
+	/* if we stop a multiplier expansion on a complex conversion specifier, we may
+	 * have recorded it in e->sto, to avoid anaylising it again
+	 * ie scanf('.*%I a', '    1.1.1.1 a', must fully analyse 1.1.1.1 in '.*' expansion
+	 * 1.1.1.1 was stored by 'find_ip' so use this instead of reanalysing again
+	 */
+	if (e.skip_stop) {
+		debug(SCANF, 3, "Trying to skip %d char already analysed\n", e.skip_stop);
+		for (k = 0; k < e.num_o; k++) {
+			debug(SCANF, 3, "Restoring analysed object '%c'\n", e.sto[k].type);
+			memcpy(&o[*n_found], &e.sto[k], sizeof(struct sto));
+			*n_found += 1;
+		}
+		*i += 2;
+		*j += e.skip_stop;
+	}
 	/* multiplier went to the end of 'in', but without matching the end */
 	if (in[*j] == '\0' && fmt[*i] != '\0')
 		return -2;
