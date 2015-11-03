@@ -757,13 +757,6 @@ static int match_expr(struct expr *e, const char *in, struct sto *o, int *num_o)
 	int res = 1;
 	int res2;
 
-	/* if a min match is required, dont try to early-stop expr matching
-	 * min_match is set for exemple if we have a {4,5} EXPR_MULTIPLIER
-	 */
-	if (e->min_match) {
-		e->min_match -= 1;
-		return res;
-	}
 	/* see if we can early stop */
 	e->has_stopped = 0;
 	if (e->early_stop) {
@@ -1133,8 +1126,12 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	} else if (fmt[*i + 1] == '\\')
 		e.end_of_expr = escape_char(fmt[*i + 2]);
 	n_match = 0; /* number of time expression 'e' matches input*/
+
 	/* try to find at most max_m expr */
 	e_has_stopped = 0;
+	/* skipping min_m char, useless to match */
+	*j      += min_m;
+	n_match += min_m;
 	while (n_match < max_m) {
 		res = match_expr(&e, in + *j, o, n_found);
 		if (res < 0) {
