@@ -756,7 +756,6 @@ static int match_expr(struct expr *e, const char *in, struct sto *o, int *num_o)
 {
 	int res = 1;
 	int res2;
-	int saved_num_o = *num_o;
 
 	/* if a min match is required, dont try to early-stop expr matching
 	 * min_match is set for exemple if we have a {4,5} EXPR_MULTIPLIER
@@ -775,17 +774,11 @@ static int match_expr(struct expr *e, const char *in, struct sto *o, int *num_o)
 		debug(SCANF, 4, "trying to stop on char '%c', res=%d\n", e->end_of_expr, res2);
 	}
 	if (res2) {
-		/* if we matched a CS but decide we need to stop, we must restore
-		 * num_o to its  original value
-		 */
-		*num_o = saved_num_o;
 		if (e->match_last) { /* if we need find the last match, lie about the result */
 			e->has_stopped = 1;
 			return 1;
 		}
-		/* it is possible to end EXPR_MULTIPLIER (think of '.*') expansion here,
-		 * so lets pretend 'expr' didnt match
-		 */
+		/* so lets pretend 'expr' didnt match */
 		return 0;
 	}
 	if (e->can_skip) {
