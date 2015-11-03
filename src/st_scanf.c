@@ -992,6 +992,32 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 		}
 		*i += 1;
 	}
+	/* simple case, we match a single char {n,m} times */
+	if (expr[0] != '.' && expr[1] == '\0') {
+		n_match = 0;
+		debug(SCANF, 4, "Pattern expansion will end when in[j] != %c\n", *expr);
+		while (n_match < max_m) {
+			res = (*expr == in[*j]);
+			//res = match_expr(&e, in + *j, o, n_found);
+			if (res == 0)
+				break;
+			*j += 1;
+			n_match++;
+			if (in[*j] == '\0') {
+				debug(SCANF, 3, "reached end of input scanning 'in'\n");
+				break;
+			}
+		}
+		if (n_match < min_m) {
+			debug(SCANF, 3, "found char '%c' %d times, but required %d\n",
+					*expr, n_match, min_m);
+			return -2;
+		}
+		*i += 1;
+		if (in[*j] == '\0' && fmt[*i] != '\0')
+			return -2;
+		return 1;
+	}
 	/* we need to find when the expr expansion will end,
 	 * in case it matches something like '.*'
 	 */
