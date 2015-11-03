@@ -1182,28 +1182,6 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 				expr, n_match, min_m);
 		return -2;
 	}
-	/* we found conversions specifiers
-	 *  if they were found inside an expression with multiplier
-	 *  st_scanf "1 1 1 1 3.3.3.3", "(%d ){1,8}%I"
-	 *  ==> this is legal only with sto_sscanf because it will fill sto objects
-	 *  st_scanf has no way to know how many times (%d ){1,8} will match
-	 */
-	if (num_cs) {
-		if (n_match) {
-			debug(SCANF, 4, "found %d CS so far\n", *n_found);
-		} else {
-			/* 0 match but we found 'num_cs' conversion specifiers
-			 * we must consume them because the caller add provisionned
-			 * space for it
-			 */
-			debug(SCANF, 4, "0 match but there was %d CS so consume them\n",
-					num_cs);
-			for (k = 0; k < num_cs; k++) {
-				o[*n_found].type = 0;
-				*n_found += 1;
-			}
-		}
-	}
 	*i += 1;
 	/* if we stop a multiplier expansion on a complex conversion specifier, we may
 	 * have recorded it in e->sto, to avoid anaylising it again
