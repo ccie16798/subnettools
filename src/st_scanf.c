@@ -944,9 +944,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	if (expr[0] != '.' && expr[1] == '\0') {
 		debug(SCANF, 4, "Pattern expansion will end when in[j] != '%c'\n", *expr);
 		while (n_match < max_m) {
-			res = (*expr == in[*j]);
-			//res = match_expr(&e, in + *j, o, n_found);
-			if (res == 0)
+			if (*expr != in[*j])
 				break;
 			*j += 1;
 			n_match++;
