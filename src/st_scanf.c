@@ -754,19 +754,10 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
  */
 static int match_expr(struct expr *e, const char *in, struct sto *o, int *num_o)
 {
-	int res = 0;
+	int res = 1;
 	int res2;
 	int saved_num_o = *num_o;
 
-	res = match_expr_single(e->expr, in, o, num_o);
-	debug(SCANF, 4, "Matching expr '%s' against in '%s' res=%d numo='%d'\n",
-			e->expr, in, res, *num_o);
-	if (res < 0)
-		return res;
-	if (res == 0) {
-		*num_o = saved_num_o;
-		return 0;
-	}
 	/* if a min match is required, dont try to early-stop expr matching
 	 * min_match is set for exemple if we have a {4,5} EXPR_MULTIPLIER
 	 */
@@ -790,7 +781,7 @@ static int match_expr(struct expr *e, const char *in, struct sto *o, int *num_o)
 		*num_o = saved_num_o;
 		if (e->match_last) { /* if we need find the last match, lie about the result */
 			e->has_stopped = 1;
-			return res;
+			return 1;
 		}
 		/* it is possible to end EXPR_MULTIPLIER (think of '.*') expansion here,
 		 * so lets pretend 'expr' didnt match
@@ -798,7 +789,7 @@ static int match_expr(struct expr *e, const char *in, struct sto *o, int *num_o)
 		return 0;
 	}
 	if (e->can_skip) {
-		res += e->can_skip - 1;
+		res = e->can_skip;
 		e->can_skip = 0;
 	}
 	return res;
