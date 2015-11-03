@@ -33,7 +33,6 @@ struct expr {
 			 * ->stop(remain - 1, e) DIDNOT
 			 */
 	int last_nmatch;
-	int has_stopped; /* set when ->early_stop decide to stop */
 	int can_skip; /* number of char we can skip in next iteration */
 	struct sto sto[10]; /* object collected by find_xxx */
 	int num_o; /* number of object collected by find_xxxx*/
@@ -899,7 +898,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	int n_match = 0;
 	int num_cs;
 	struct expr e;
-	int e_has_stopped;
+	int could_stop, previous_could_stop;
 
 	c = fmt[*i];
 	if (c == '{') {
@@ -992,9 +991,9 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	e.last_nmatch = -1;
 	e.can_skip    = 0;
 	e.num_o       = 0;
-	e.has_stopped = 0;
 	e.match_last  = 0;
-	e_has_stopped = 0;
+	could_stop    = 0;
+	previous_could_stop = 0;
 	if (fmt[*i + 1] == '$') {
 		if (max_m < 2) {
 			debug(SCANF, 1, "'$' not allowed in this context, max expansion=%d\n",
@@ -1096,7 +1095,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	n_match += min_m;
 	/* try to find at most max_m expr */
 	while (n_match < max_m) {
-		e.has_stopped = 0;
+		could_stop = 0;
 		e.can_skip = 0;
 		/* try to stop expansion */
 		if (e.early_stop) {
@@ -1108,7 +1107,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 		}
 		if (res) {
 			if (e.match_last)
-				e.has_stopped = 1;
+				could_stop = 1;
 			else
 				break;
 		}
@@ -1117,18 +1116,17 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 		else
 			res = 1;
 		n_match++;
-		/* to set 'last_match', we check if the previous loop had stopped or not
-		 * last_match is set if current loop HAS stopped and previous has not
-		 * e.has_stopped ==> expression has stopped on j
-		 * e_has_stopped ==> expression has stopped on previous j
-		 * scanf("abdsdfdsf t e 121.1.1.1", ".*$I") should return '121.1.1.1' not '1.1.1.1'
-		 * scanf("abdsdfdsf t e STRING", ".*$s") should return 'STRING' not just 'G'
+		/*
+		 * last_match is set if current loop can stop AND previous cannot
+		 *
+		 * scanf("abdef t e 121.1.1.1", ".*$I") should return '121.1.1.1' not '1.1.1.1'
+		 * scanf("abdef t e STRING", ".*$s")    should return 'STRING' not just 'G'
 		 */
-		if (e.has_stopped && e_has_stopped == 0) {
+		if (could_stop && previous_could_stop == 0) {
 			e.last_match  = *j;
 			e.last_nmatch = n_match;
 		}
-		e_has_stopped = e.has_stopped;
+		previous_could_stop = could_stop;
 		*j += res;
 
 		if (*j > in_length) {
@@ -1142,8 +1140,8 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 			break;
 		}
 	}
-	debug(SCANF, 3, "Expr '%s' matched %d times, found %d objects, has_stopped=%d, skip=%d\n",
-			expr, n_match, *n_found, e.has_stopped, e.can_skip);
+	debug(SCANF, 3, "Expr '.' matched %d times, could_stop=%d, skip=%d\n",
+			 n_match, could_stop, e.can_skip);
 	/* in case of last match, we must update position in 'in' and n_match */
 	if (e.match_last) {
 		*j      = e.last_match;
