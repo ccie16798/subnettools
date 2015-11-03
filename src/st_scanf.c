@@ -1146,12 +1146,6 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 			return -2;
 		}
 	}
-
-	if (n_match < min_m) {
-		debug(SCANF, 3, "found expr '%s' %d times, but required %d\n",
-				expr, n_match, min_m);
-		return -2;
-	}
 	*i += 1;
 	/* if we stop a multiplier expansion on a complex conversion specifier, we may
 	 * have recorded it in e->sto, to avoid anaylising it again
