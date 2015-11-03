@@ -927,7 +927,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	int n_match = 0;
 	int num_cs;
 	struct expr e;
-	int e_has_stopped = 0;
+	int e_has_stopped;
 
 	c = fmt[*i];
 	if (c == '{') {
@@ -1024,6 +1024,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	e.num_o       = 0;
 	e.has_stopped = 0;
 	e.match_last  = 0;
+	e_has_stopped = 0;
 	if (fmt[*i + 1] == '$') {
 		if (max_m < 2) {
 			debug(SCANF, 1, "'$' not allowed in this context, max expansion=%d\n",
@@ -1120,7 +1121,6 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	} else if (fmt[*i + 1] == '\\')
 		e.end_of_expr = escape_char(fmt[*i + 2]);
 
-	e_has_stopped = 0;
 	/* skipping min_m char, useless to match */
 	*j      += min_m;
 	n_match += min_m;
