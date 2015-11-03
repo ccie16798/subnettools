@@ -757,6 +757,7 @@ static int match_expr(struct expr *e, const char *in, struct sto *o, int *num_o)
 
 	/* see if we can early stop */
 	e->has_stopped = 0;
+	e->can_skip = 0;
 	if (e->early_stop) {
 		res2 = e->early_stop(in, e);
 		debug(SCANF, 4, "trying to stop on  remaining '%s', res=%d\n", in, res2);
@@ -772,11 +773,8 @@ static int match_expr(struct expr *e, const char *in, struct sto *o, int *num_o)
 		/* so lets pretend 'expr' didnt match */
 		return 0;
 	}
-	if (e->can_skip) {
-		res2 = e->can_skip;
-		e->can_skip = 0;
-		return res2;
-	}
+	if (e->can_skip)
+		return e->can_skip;
 	return 1;
 }
 
