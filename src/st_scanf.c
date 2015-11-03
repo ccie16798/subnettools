@@ -963,16 +963,6 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 		min_m = min_match(c);
 		max_m = max_match(c);
 	}
-	e.expr        = expr;
-	e.end_of_expr = fmt[*i + 1]; /* if necessary */
-	e.early_stop  = NULL;
-	e.last_match  = -1;
-	e.last_nmatch = -1;
-	e.min_match   = min_m;
-	e.match_last  = 0;
-	e.can_skip   = 0;
-	e.num_o       = 0;
-	e.has_stopped = 0;
 	num_cs = count_cs(expr);
 	if (*n_found + num_cs > max_o) {
 		debug(SCANF, 1, "Cannot get more than %d objets, already found %d\n",
@@ -981,6 +971,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	}
 	debug(SCANF, 5, "need to find expression '%s' %c time, with %d conversion specifiers\n",
 			expr, c, num_cs);
+	e.match_last  = 0;
 	if (fmt[*i + 1] == '$') {
 		if (max_m < 2) {
 			debug(SCANF, 1, "'$' not allowed in this context, max expansion=%d\n",
@@ -1062,9 +1053,17 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 			return -2;
 		return 1;
 	}
-	/* we need to find when the expr expansion will end,
-	 * in case it matches something like '.*'
-	 */
+	/*  '.*' handling ... BIG MESS */
+	e.expr        = expr;
+	e.end_of_expr = fmt[*i + 1]; /* if necessary */
+	e.early_stop  = NULL;
+	e.last_match  = -1;
+	e.last_nmatch = -1;
+	e.min_match   = min_m;
+	e.can_skip   = 0;
+	e.num_o       = 0;
+	e.has_stopped = 0;
+	/* we need to find when the expr expansion will end */
 	if (fmt[*i + 1] == '%') {
 		c = conversion_specifier(fmt + *i + 2);
 
