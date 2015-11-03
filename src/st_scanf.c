@@ -21,8 +21,8 @@
 #define ST_STRING_INFINITY 1000000000  /* Subnet tool definition of infinity */
 
 struct expr {
-	 /* even if expr matches ->early_stop may force a return; used to break '.*' expansion */
-	int (*early_stop)(const char *remain, struct expr *e);
+	 /* used to break '.*' expansion */
+	int (*can_stop)(const char *remain, struct expr *e);
 	char end_of_expr; /* if remain[i] = end_of_expr , we can stop*/
 	char end_expr[64];
 	int can_skip; /* number of char we can skip in next iteration */
@@ -978,7 +978,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	}
 	/*  '.*' handling ... BIG MESS */
 	e.end_of_expr = fmt[*i + 1]; /* if necessary */
-	e.early_stop  = NULL;
+	e.can_stop  = NULL;
 	e.can_skip    = 0;
 	e.num_o       = 0;
 
@@ -1006,43 +1006,43 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 					fmt);
 			return -1;
 		case 'd':
-			e.early_stop = &find_int;
+			e.can_stop = &find_int;
 			break;
 		case 'u':
-			e.early_stop = &find_uint;
+			e.can_stop = &find_uint;
 			break;
 		case 'x':
-			e.early_stop = &find_hex;
+			e.can_stop = &find_hex;
 			break;
 		case 'l':
 		case 'h':
 			if (fmt[*i + 3] == 'd')
-				e.early_stop = &find_int;
+				e.can_stop = &find_int;
 			else if (fmt[*i + 3] == 'u')
-				e.early_stop = &find_uint;
+				e.can_stop = &find_uint;
 			else if (fmt[*i + 3] == 'x')
-				e.early_stop = &find_hex;
+				e.can_stop = &find_hex;
 			break;
 		case 'I':
-			e.early_stop = &find_ip;
+			e.can_stop = &find_ip;
 			break;
 		case 'Q':
-			e.early_stop = &find_classfull_subnet;
+			e.can_stop = &find_classfull_subnet;
 			break;
 		case 'P':
-			e.early_stop = &find_subnet;
+			e.can_stop = &find_subnet;
 			break;
 		case 'S':
-			e.early_stop = &find_not_ip;
+			e.can_stop = &find_not_ip;
 			break;
 		case 'M':
-			e.early_stop = &find_mask;
+			e.can_stop = &find_mask;
 			break;
 		case 'W':
-			e.early_stop = &find_word;
+			e.can_stop = &find_word;
 			break;
 		case 's':
-			e.early_stop = &find_string;
+			e.can_stop = &find_string;
 			break;
 		case '[':
 			k = 0;
@@ -1058,7 +1058,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 			}
 			debug(SCANF, 4, "pattern matching will end on '%s'\n",
 					e.end_expr);
-			e.early_stop = &find_char_range;
+			e.can_stop = &find_char_range;
 			break;
 		default:
 			break;
@@ -1070,7 +1070,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 			return -1;
 		}
 		debug(SCANF, 4, "pattern matching will end on '%s'\n", e.end_expr);
-		e.early_stop = &find_expr;
+		e.can_stop = &find_expr;
 	} else if (fmt[*i + 1] == '[') {
 		res = fill_char_range(e.end_expr, fmt + *i + 1, sizeof(e.end_expr));
 		if (res < 0) {
@@ -1078,7 +1078,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 			return -1;
 		}
 		debug(SCANF, 4, "pattern matching will end on '%s'\n", e.end_expr);
-		e.early_stop = &find_char_range;
+		e.can_stop = &find_char_range;
 	} else if (fmt[*i + 1] == '\\')
 		e.end_of_expr = escape_char(fmt[*i + 2]);
 
@@ -1090,8 +1090,8 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 		could_stop = 0;
 		e.can_skip = 0;
 		/* try to stop expansion */
-		if (e.early_stop) {
-			res = e.early_stop(in + *j, &e);
+		if (e.can_stop) {
+			res = e.can_stop(in + *j, &e);
 			debug(SCANF, 4, "trying to stop on remaining '%s', res=%d\n", in + *j, res);
 		} else {
 			res = (in[*j] == e.end_of_expr);
