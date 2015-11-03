@@ -21,7 +21,6 @@
 #define ST_STRING_INFINITY 1000000000  /* Subnet tool definition of infinity */
 
 struct expr {
-	char *expr;
 	 /* even if expr matches ->early_stop may force a return; used to break '.*' expansion */
 	int (*early_stop)(const char *remain, struct expr *e);
 	char end_of_expr; /* if remain[i] = end_of_expr , we can stop*/
@@ -978,7 +977,6 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 		return 1;
 	}
 	/*  '.*' handling ... BIG MESS */
-	e.expr        = expr;
 	e.end_of_expr = fmt[*i + 1]; /* if necessary */
 	e.early_stop  = NULL;
 	e.can_skip    = 0;
@@ -1134,7 +1132,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	}
 	debug(SCANF, 3, "Expr '.' matched %d times, could_stop=%d, skip=%d\n",
 			 n_match, could_stop, e.can_skip);
-	/* in case of last match, we must update position in 'in' and n_match */
+	/* in case of last match, we must rewind position in 'in'*/
 	if (match_last) {
 		*j = last_match_index;
 		debug(SCANF, 4, "last match asked, rewind to index '%d'\n",  *j);
