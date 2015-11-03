@@ -742,42 +742,6 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 	}
 }
 
-/* match expression 'e' against input buffer 'in'
- * @e     : expression to match
- * @in    : input buffer
- * @o     : will store input data (if conversion specifiers are found)
- * @num_o : number of found objects (will be updated)
- * will return :
- *	0 if it doesnt match (or if e->early_stop allows)
- *	number of matched chars in input buffer otherwise
- */
-static int match_expr(struct expr *e, const char *in, struct sto *o, int *num_o)
-{
-	int res2;
-
-	/* see if we can early stop */
-	e->has_stopped = 0;
-	e->can_skip = 0;
-	if (e->early_stop) {
-		res2 = e->early_stop(in, e);
-		debug(SCANF, 4, "trying to stop on  remaining '%s', res=%d\n", in, res2);
-	} else {
-		res2 = (*in == e->end_of_expr);
-		debug(SCANF, 4, "trying to stop on char '%c', res=%d\n", e->end_of_expr, res2);
-	}
-	if (res2) {
-		if (e->match_last) { /* if we need find the last match, lie about the result */
-			e->has_stopped = 1;
-			return 1;
-		}
-		/* so lets pretend 'expr' didnt match */
-		return 0;
-	}
-	if (e->can_skip)
-		return e->can_skip;
-	return 1;
-}
-
 static int find_not_ip(const char *remain, struct expr *e)
 {
 	char buffer[64];
