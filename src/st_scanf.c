@@ -925,7 +925,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	int res, k;
 	int min_m, max_m;
 	int n_match;
-	int num_cs = 0;
+	int num_cs;
 	struct expr e;
 	int e_has_stopped = 0;
 
@@ -939,14 +939,8 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 		min_m = min_match(c);
 		max_m = max_match(c);
 	}
-	num_cs = count_cs(expr);
-	if (*n_found + num_cs > max_o) {
-		debug(SCANF, 1, "Cannot get more than %d objets, already found %d\n",
-				max_o, *n_found);
-		return -1;
-	}
-	debug(SCANF, 5, "need to find expression '%s' %c time, with %d conversion specifiers\n",
-			expr, c, num_cs);
+	debug(SCANF, 5, "need to find expression '%s' %c time\n",
+			expr, c);
 	e.match_last  = 0;
 	if (fmt[*i + 1] == '$') {
 		if (max_m < 2) {
@@ -959,9 +953,9 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 		}
 		*i += 1;
 	}
+	n_match = 0;
 	/* simple case, we match a single char {n,m} times */
 	if (expr[0] != '.' && expr[1] == '\0') {
-		n_match = 0;
 		debug(SCANF, 4, "Pattern expansion will end when in[j] != '%c'\n", *expr);
 		while (n_match < max_m) {
 			res = (*expr == in[*j]);
@@ -986,7 +980,12 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 		return 1;
 	} else if (expr[0] != '.') {
 		/* complex expression handling */
-		n_match = 0;
+		num_cs = count_cs(expr);
+		if (*n_found + num_cs > max_o) {
+			debug(SCANF, 1, "Cannot get more than %d objets, already found %d\n",
+					max_o, *n_found);
+			return -1;
+		}
 		debug(SCANF, 4, "Pattern expansion will end when in[j] != '%s'\n", expr);
 		while (n_match < max_m) {
 			res = match_expr_single(expr, in + *j, o, n_found);
