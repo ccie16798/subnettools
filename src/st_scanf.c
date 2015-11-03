@@ -753,7 +753,6 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
  */
 static int match_expr(struct expr *e, const char *in, struct sto *o, int *num_o)
 {
-	int res = 1;
 	int res2;
 
 	/* see if we can early stop */
@@ -774,10 +773,11 @@ static int match_expr(struct expr *e, const char *in, struct sto *o, int *num_o)
 		return 0;
 	}
 	if (e->can_skip) {
-		res = e->can_skip;
+		res2 = e->can_skip;
 		e->can_skip = 0;
+		return res2;
 	}
-	return res;
+	return 1;
 }
 
 static int find_not_ip(const char *remain, struct expr *e)
