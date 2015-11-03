@@ -892,7 +892,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	int num_cs;
 	struct expr e;
 	int could_stop, previous_could_stop;
-	int match_last, last_match, last_nmatch;
+	int match_last, last_match_index;
 
 	c = fmt[*i];
 	if (c == '{') {
@@ -981,12 +981,12 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	e.expr        = expr;
 	e.end_of_expr = fmt[*i + 1]; /* if necessary */
 	e.early_stop  = NULL;
-	last_match  = -1;
-	last_nmatch = -1;
 	e.can_skip    = 0;
 	e.num_o       = 0;
-	match_last  = 0;
-	could_stop    = 0;
+
+	match_last = 0;
+	last_match_index = -1;
+	could_stop = 0;
 	previous_could_stop = 0;
 	if (fmt[*i + 1] == '$') {
 		if (max_m < 2) {
@@ -1111,15 +1111,13 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 			res = 1;
 		n_match++;
 		/*
-		 * last_match is set if current loop can stop AND previous cannot
+		 * last_match_index is set if current loop can stop AND previous cannot
 		 *
 		 * scanf("abdef t e 121.1.1.1", ".*$I") should return '121.1.1.1' not '1.1.1.1'
 		 * scanf("abdef t e STRING", ".*$s")    should return 'STRING' not just 'G'
 		 */
-		if (could_stop && previous_could_stop == 0) {
-			last_match  = *j;
-			last_nmatch = n_match;
-		}
+		if (could_stop && previous_could_stop == 0)
+			last_match_index = *j;
 		previous_could_stop = could_stop;
 		*j += res;
 
@@ -1138,10 +1136,9 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 			 n_match, could_stop, e.can_skip);
 	/* in case of last match, we must update position in 'in' and n_match */
 	if (match_last) {
-		*j      = last_match;
-		n_match = last_nmatch;
-		debug(SCANF, 4, "last match asked, rewind to '%d' matches\n",  n_match);
-		if (last_nmatch == -1) {
+		*j = last_match_index;
+		debug(SCANF, 4, "last match asked, rewind to index '%d'\n",  *j);
+		if (*j == -1) {
 			debug(SCANF, 3, "last match never matched\n");
 			return -2;
 		}
