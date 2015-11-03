@@ -1134,10 +1134,6 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	n_match += min_m;
 	while (n_match < max_m) {
 		res = match_expr(&e, in + *j, o, n_found);
-		if (res < 0) {
-			debug(SCANF, 1, "Invalid format '%s'\n", expr);
-			return -1;
-		}
 		if (res == 0)
 			break;
 		n_match++;
