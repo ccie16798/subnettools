@@ -40,7 +40,7 @@ reg_test_scanf() {
 	local output_file
 	local n
 
-	n=34
+	n=36
 	$PROG scanf "1.1.1.1 zob    1.1.1.2    name 25" " *%I (%S )?.*%I *(name) %d" > res/scanf1 
 	$PROG scanf "1.1.1.1   1.1.1.2    name 25" " *%I (%S )?.*%I *(name) %d" > res/scanf2 
 	$PROG scanf "1.1.1.1  1.1.1.2 2.2.2.2 toto   r" " *%I .*%S" > res/scanf3
@@ -90,6 +90,9 @@ reg_test_scanf() {
 	$PROG scan "64.242.88.10 - - [07/Mar/2004:17:50:44 -0800] \"GET /twiki/bin/view/TWiki/SvenDowideit HTTP/1.1\" 200 3616" "%I.*\[%[^]].*\"%s %s" > res/scanf32
 	$PROG scanf "3.3.3.3   2.2.2.2 1.1.1.1" ".*$%I" > res/scanf33
 	$PROG scanf "2.2.2.2 1.1.1.1 a" "(%I )*%c" > res/scanf34
+	# min matching tests
+	$PROG scanf "123.1.1.200 1.1.1.1" ".{2,}%I" > res/scanf35
+	$PROG scanf "123.1.1.200 1.1.1.1" ".{4,}%I" > res/scanf36
 
 
 	for i in `seq 1 $n`; do
