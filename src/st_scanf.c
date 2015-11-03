@@ -951,7 +951,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	int n_match;
 	int num_cs = 0;
 	struct expr e;
-	int e_has_stopped;
+	int e_has_stopped = 0;
 
 	c = fmt[*i];
 	if (c == '{') {
@@ -972,6 +972,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	e.match_last  = 0;
 	e.can_skip   = 0;
 	e.num_o       = 0;
+	e.has_stopped = 0;
 	num_cs = count_cs(expr);
 	if (*n_found + num_cs > max_o) {
 		debug(SCANF, 1, "Cannot get more than %d objets, already found %d\n",
