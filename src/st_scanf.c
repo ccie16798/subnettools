@@ -26,13 +26,6 @@ struct expr {
 	int (*early_stop)(const char *remain, struct expr *e);
 	char end_of_expr; /* if remain[i] = end_of_expr , we can stop*/
 	char end_expr[64];
-	int match_last; /* if set, the expansion will stop the last time ->stop return positive
-			 *  value && and previous stop DIDNOT
-			 */
-	int last_match; /* the last pos in input string where the ->stop(remain, e) matched and
-			 * ->stop(remain - 1, e) DIDNOT
-			 */
-	int last_nmatch;
 	int can_skip; /* number of char we can skip in next iteration */
 	struct sto sto[10]; /* object collected by find_xxx */
 	int num_o; /* number of object collected by find_xxxx*/
@@ -899,6 +892,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	int num_cs;
 	struct expr e;
 	int could_stop, previous_could_stop;
+	int match_last, last_match, last_nmatch;
 
 	c = fmt[*i];
 	if (c == '{') {
@@ -987,11 +981,11 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	e.expr        = expr;
 	e.end_of_expr = fmt[*i + 1]; /* if necessary */
 	e.early_stop  = NULL;
-	e.last_match  = -1;
-	e.last_nmatch = -1;
+	last_match  = -1;
+	last_nmatch = -1;
 	e.can_skip    = 0;
 	e.num_o       = 0;
-	e.match_last  = 0;
+	match_last  = 0;
 	could_stop    = 0;
 	previous_could_stop = 0;
 	if (fmt[*i + 1] == '$') {
@@ -1000,7 +994,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 -                               max_m);
 			return -1;
 		}
-		e.match_last = 1;
+		match_last = 1;
 		debug(SCANF, 4, "we will stop on the last match\n");
 		*i += 1;
 	}
@@ -1106,7 +1100,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 			debug(SCANF, 4, "trying to stop on char '%c', res=%d\n", e.end_of_expr, res);
 		}
 		if (res) {
-			if (e.match_last)
+			if (match_last)
 				could_stop = 1;
 			else
 				break;
@@ -1123,8 +1117,8 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 		 * scanf("abdef t e STRING", ".*$s")    should return 'STRING' not just 'G'
 		 */
 		if (could_stop && previous_could_stop == 0) {
-			e.last_match  = *j;
-			e.last_nmatch = n_match;
+			last_match  = *j;
+			last_nmatch = n_match;
 		}
 		previous_could_stop = could_stop;
 		*j += res;
@@ -1143,11 +1137,11 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	debug(SCANF, 3, "Expr '.' matched %d times, could_stop=%d, skip=%d\n",
 			 n_match, could_stop, e.can_skip);
 	/* in case of last match, we must update position in 'in' and n_match */
-	if (e.match_last) {
-		*j      = e.last_match;
-		n_match = e.last_nmatch;
+	if (match_last) {
+		*j      = last_match;
+		n_match = last_nmatch;
 		debug(SCANF, 4, "last match asked, rewind to '%d' matches\n",  n_match);
-		if (e.last_nmatch == -1) {
+		if (last_nmatch == -1) {
 			debug(SCANF, 3, "last match never matched\n");
 			return -2;
 		}
