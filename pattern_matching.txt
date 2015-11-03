@@ -109,26 +109,23 @@ $ 	: the sequence expansion ends on the "last match" (see below)
 {,m}	: matches up to m times
 {n,}	: matches at least n times
 
-if '+' or '*' is preceded by a special '$' char, than means expansion will stop on the last time : (pos CAN stop AND previous pos CANNOT stop)
-for example :
-st_scanf("i L2     10.73.0.6/32 [115/200] via 10.73.10.106, 5d08h, Vlan860",  ".*$%s", string) will return 'Vlan860' ('Vlan860' is a STRING and ' Vlan860' is not) 
-it is important to understand AND '&& previous pos CANNOT stop' without that clause, 
-scanf("i L2     10.73.0.6/32 [115/200] via 10.73.10.106, 5d08h, Vlan860" ".*$%s") would return the last input char '0', which is a valid STRING.
 
 
 Understand '(expr)*' expansion, specifically '.*' expansion
 ===========================================================
 (in the text below i'm talking about (EXPR)* expansion, but this applies equally to any other multiplier)
 
-Wwhen does (expr)* expansion ends??  there are 2 cases to consider :
+Wwhen does (expr)* expansion ends??  there are 3 cases to consider :
 CASE 1 :  (EXPR)* expansion when expr is not '.'
+------------------------------------------------
 In that case, expansion will end when EXPR doesn't match anymore
 
 CASE 2: .* expansion
+--------------------
 This case is more complicated since .* could match every char in the INPUT string, but that interpretation
 would be uninteresting (though correct)
 
-.* expansion ends based on the REMAINING chars of FMT the string  (we call that REMAIN)
+.* expansion ends based on the REMAINING chars of FMT (we call that REMAIN)
 
 
 if REMAIN starts with a regular char :
@@ -172,6 +169,16 @@ sto_sscanf : in[2]=' ', != fmt[3]='b', exiting
 
 if you want expansion to end on 'abcd', write it like this :
 st_scanf(" a 1.1.1.1 abcd 2.2.2.2", ".*(abcd) %I") will return 1, IP will be set to 2.2.2.2
+
+
+Case 3 : last match .* expansion
+--------------------------------
+If '+' or '*' is preceded by a special '$' char, than means expansion will stop on the last occurence where :
+(pos CAN stop AND previous pos CANNOT stop)
+For example :
+st_scanf("10.73.0.6/32 [115/200] via 10.73.10.106, 5d08h, Vlan860",  ".*$%s", string) will return 'Vlan860' ('Vlan860' is a STRING and ' Vlan860' is not)
+it is important to understand AND '&& previous pos CANNOT stop' without that clause,
+scanf("i L2     10.73.0.6/32 [115/200] via 10.73.10.106, 5d08h, Vlan860" ".*$%s") would return the last input char '0', which is a valid STRING.
 
 
 Debugging your pattern
