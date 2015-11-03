@@ -118,11 +118,20 @@ scanf("i L2     10.73.0.6/32 [115/200] via 10.73.10.106, 5d08h, Vlan860" ".*$%s"
 
 Understand '(expr)*' expansion, specifically '.*' expansion
 ===========================================================
-when does (expr)* expansion ends?? that is not an easy question, and there could be more than one correct answer;  
-For example '.*' can match EVERY input string to its end but that interpretation would be uninteresting (though correct)
-(expr)* expansion ends obviously if 'expr' doesnt match input buffer of course, but even if it matches st_scanf() will stop it before :
+(in the text below i'm talking about (EXPR)* expansion, but this applies equally to any other multiplier)
 
-if next sequence is a regular char :
+Wwhen does (expr)* expansion ends??  there are 2 cases to consider :
+CASE 1 :  (EXPR)* expansion when expr is not '.'
+In that case, expansion will end when EXPR doesn't match anymore
+
+CASE 2: .* expansion
+This case is more complicated since .* could match every char in the INPUT string, but that interpretation
+would be uninteresting (though correct)
+
+.* expansion ends based on the REMAINING chars of FMT the string  (we call that REMAIN)
+
+
+if REMAIN starts with a regular char :
 ------------------------------------
 expansion will end on the first occurence of that char
 st_scanf("abcdefghijk", ".*g"); expansion ends after 'abcdefg' 
@@ -133,20 +142,22 @@ sto_sscanf : Exiting loop with expr '.' matched 3 times, found 0 objects so far
 etienne@debian:~/st$  ./subnet-tools -D scanf:3 scanf  "cdea1.1.1.1"   ".*e%I"
 sto_sscanf : Exiting loop with expr '.' matched 2 times, found 0 objects so far
 
-if next sequence is a conversion specifier :
---------------------------------------------
-"(expr)*%I"
-==> for each char, it tries to determine if "remain" is an IP; for example :
+if REMAIN is a conversion specifier :
+--------------------------------------
+let's take an exemple with FMT=".*%I"
+==> for each char, it tries to determine if "REMAIN" is an IP; for example :
 st_scanf("                   1.1.1.1", " *%I", string) will return "1.1.1.1"
-"(expr)*%s" 
+".*%s"
 ==> on first non-space char
-"(expr)*%[
+".*%[
 ==> on the first match of the char range
-"(expr)*%c"
+".*%c"
 ==> on the first non matching char (so '.*%c' is illegal) 
-"(expr)*%S"
-==> on the first string that do not represent an IP
-scanf("1.1.1.1 toto",  ".*%S", string) will set string to 'toto'; it will not set '.1.1.1', even if '.1.1.1' is not an IP; st_scanf detects that "1.1.1.1" is an IP and thus skip the whole "1.1.1.1" string in its expansion
+".*%S"
+==> on the first string that DO NOT represent an IP
+scanf("1.1.1.1 toto",  ".*%S", string) will set string to 'toto';
+it will not set '.1.1.1', even if '.1.1.1' is not an IP; st_scanf detects that "1.1.1.1" is an IP
+and thus skip the whole "1.1.1.1" string in its expansion
 
 if next sequence is an expr (EXPR)
 ----------------------------------
@@ -154,6 +165,7 @@ expansion will end if the complete EXPR matches
 
 pattern matching is done 'char by char' by default so ".*STRING" is not what you think it is :
 st_scanf(" a 1.1.1.1 abcd 2.2.2.2", ".*abcd %I") will return 0 (expansion ends on second char 'a') 
+
 etienne@debian:~/st$ ./subnet-tools -D scanf:3 scanf " a 1.1.1.1 abcd 2.2.2.2", ".*abcd %I" 
 sto_sscanf : Exiting loop with expr '.' matched 1 times, found 0 objects so far
 sto_sscanf : in[2]=' ', != fmt[3]='b', exiting
