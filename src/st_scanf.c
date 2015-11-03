@@ -34,7 +34,6 @@ struct expr {
 			 */
 	int last_nmatch;
 	int has_stopped; /* set when ->early_stop decide to stop */
-	int min_match; /* in case of multiplier like {3,6} the number of minimun required matches */
 	int can_skip; /* number of char we can skip in next iteration */
 	struct sto sto[10]; /* object collected by find_xxx */
 	int num_o; /* number of object collected by find_xxxx*/
@@ -1036,7 +1035,6 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	e.early_stop  = NULL;
 	e.last_match  = -1;
 	e.last_nmatch = -1;
-	e.min_match   = min_m;
 	e.can_skip   = 0;
 	e.num_o       = 0;
 	e.has_stopped = 0;
