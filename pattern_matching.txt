@@ -93,7 +93,7 @@ st_scanf() define the 3 following additional sequences :
 
 expr can alse the form of '(expr_1|expr_2|...|expr_n)' ; the first expr to match will stop the pattern engine
 
-expr can contains one conversion specifier with '?' like
+Expressions can also contain one or more conversion specifier with '?' like
 st_scanf("1.1.1.0 vlan55 2.2.2.2", "%I (%S )?%I", &ip, &device, &nhop)
 st_scanf("1.1.1.0 2.2.2.2",        "%I (%S )?%I", &ip, &device, &nhop)
 
