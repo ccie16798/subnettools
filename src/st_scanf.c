@@ -870,36 +870,42 @@ static int find_char_range(const char *remain, struct expr *e)
  */
 static int set_expression_canstop(const char *fmt, struct expr *e)
 {
-	int k = 0, res;
+	int k = 1, res;
 
 	e->can_skip    = 0;
 	e->num_o       = 0;
 	if (fmt[0] == '%') {
-		while (isdigit(fmt[k + 1]))
+		/* find the conversion specifier after a field length */
+		while (isdigit(fmt[k]))
 			k++;
-		switch (fmt[k + 1]) {
+		switch (fmt[k]) {
 		case '\0':
 			debug(SCANF, 1, "Invalid format string '%s', ends with %%\n",
 					fmt);
 			return -1;
 		case 'd':
 			e->can_stop = &find_int;
-			break;
+			return 1;
 		case 'u':
 			e->can_stop = &find_uint;
-			break;
+			return 1;
 		case 'x':
 			e->can_stop = &find_hex;
-			break;
+			return 1;
 		case 'l':
 		case 'h':
-			if (fmt[k + 2] == 'd')
+			if (fmt[k + 1] == 'd')
 				e->can_stop = &find_int;
-			else if (fmt[k + 2] == 'u')
+			else if (fmt[k + 1] == 'u')
 				e->can_stop = &find_uint;
-			else if (fmt[k + 2] == 'x')
+			else if (fmt[k + 1] == 'x')
 				e->can_stop = &find_hex;
-			break;
+			else {
+				debug(SCANF, 1, "Invalid Conversion Specifier '%c%c'\n",
+					fmt[k], fmt[k + 1]);
+				return -1;
+			}
+			return 1;
 		case 'I':
 			e->can_stop = &find_ip;
 			break;
@@ -922,7 +928,7 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
 			e->can_stop = &find_string;
 			break;
 		case '[':
-			res = fill_char_range(e->end_expr, fmt + k + 1,
+			res = fill_char_range(e->end_expr, fmt + k,
 					sizeof(e->end_expr));
 			if (res < 0) {
 				debug(SCANF, 1, "Invalid format '%s', unmatched '['\n",
@@ -932,8 +938,10 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
 			debug(SCANF, 4, "pattern matching will end on '%s'\n",
 					e->end_expr);
 			e->can_stop = &find_char_range;
-			break;
+			return 1;
 		default:
+			e->end_of_expr = fmt[0];
+			e->can_stop = NULL;
 			break;
 		} /* switch c */
 	} else if (fmt[0] == '(') {
@@ -955,9 +963,11 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
 	} else if (fmt[0] == '\\') {
 		e->end_of_expr = escape_char(fmt[1]);
 		e->can_stop = NULL;
-
 	} else {
-		e->end_of_expr = fmt[0]; /* if necessary */
+		/* if not a special char, we try to find the first occurence of the next char
+		 * after '.*' in FMT
+		 */
+		e->end_of_expr = fmt[0];
 		e->can_stop = NULL;
 	}
 	return 1;
