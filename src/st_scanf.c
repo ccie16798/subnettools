@@ -956,9 +956,14 @@ static int set_expression_canstop(const char *fmt, int *i, struct expr *e)
 		}
 		debug(SCANF, 4, "pattern matching will end on '%s'\n", e->end_expr);
 		e->can_stop = &find_char_range;
-	} else if (fmt[*i + 1] == '\\')
+	} else if (fmt[*i + 1] == '\\') {
 		e->end_of_expr = escape_char(fmt[*i + 2]);
+		e->can_stop = NULL;
 
+	} else {
+		e->end_of_expr = fmt[*i + 1]; /* if necessary */
+		e->can_stop = NULL;
+	}
 	return 1;
 }
 /*
@@ -1078,7 +1083,6 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 		return 1;
 	}
 	/*  '.*' handling ... BIG MESS */
-	e.end_of_expr = fmt[*i + 1]; /* if necessary */
 	e.can_stop  = NULL;
 	e.can_skip    = 0;
 	e.num_o       = 0;
@@ -1098,90 +1102,9 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 		*i += 1;
 	}
 	/* we need to find when the expr expansion will end */
-	if (fmt[*i + 1] == '%') {
-		c = conversion_specifier(fmt + *i + 2);
-
-		switch (c) {
-		case '\0':
-			debug(SCANF, 1, "Invalid format string '%s', ends with %%\n",
-					fmt);
-			return -1;
-		case 'd':
-			e.can_stop = &find_int;
-			break;
-		case 'u':
-			e.can_stop = &find_uint;
-			break;
-		case 'x':
-			e.can_stop = &find_hex;
-			break;
-		case 'l':
-		case 'h':
-			if (fmt[*i + 3] == 'd')
-				e.can_stop = &find_int;
-			else if (fmt[*i + 3] == 'u')
-				e.can_stop = &find_uint;
-			else if (fmt[*i + 3] == 'x')
-				e.can_stop = &find_hex;
-			break;
-		case 'I':
-			e.can_stop = &find_ip;
-			break;
-		case 'Q':
-			e.can_stop = &find_classfull_subnet;
-			break;
-		case 'P':
-			e.can_stop = &find_subnet;
-			break;
-		case 'S':
-			e.can_stop = &find_not_ip;
-			break;
-		case 'M':
-			e.can_stop = &find_mask;
-			break;
-		case 'W':
-			e.can_stop = &find_word;
-			break;
-		case 's':
-			e.can_stop = &find_string;
-			break;
-		case '[':
-			k = 0;
-			/* we must take field length into account */
-			while (isdigit(fmt[*i + k + 2]))
-				k++;
-			res = fill_char_range(e.end_expr, fmt + *i + k + 2,
-					sizeof(e.end_expr));
-			if (res < 0) {
-				debug(SCANF, 1, "Invalid format '%s', unmatched '['\n",
-						expr);
-				return -1;
-			}
-			debug(SCANF, 4, "pattern matching will end on '%s'\n",
-					e.end_expr);
-			e.can_stop = &find_char_range;
-			break;
-		default:
-			break;
-		} /* switch c */
-	} else if (fmt[*i + 1] == '(') {
-		res = strxcpy_until(e.end_expr, fmt + *i + 1, sizeof(e.end_expr), ')');
-		if (res < 0) {
-			debug(SCANF, 1, "Invalid format '%s', unmatched '('\n", expr);
-			return -1;
-		}
-		debug(SCANF, 4, "pattern matching will end on '%s'\n", e.end_expr);
-		e.can_stop = &find_expr;
-	} else if (fmt[*i + 1] == '[') {
-		res = fill_char_range(e.end_expr, fmt + *i + 1, sizeof(e.end_expr));
-		if (res < 0) {
-			debug(SCANF, 1, "Invalid format '%s', unmatched '['\n", expr);
-			return -1;
-		}
-		debug(SCANF, 4, "pattern matching will end on '%s'\n", e.end_expr);
-		e.can_stop = &find_char_range;
-	} else if (fmt[*i + 1] == '\\')
-		e.end_of_expr = escape_char(fmt[*i + 2]);
+	res = set_expression_canstop(fmt, i, &e);
+	if (res < 0)
+		return res;
 
 	/* skipping min_m char, useless to match */
 	*j      += min_m;
