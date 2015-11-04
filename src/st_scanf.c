@@ -893,11 +893,11 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
 			break;
 		case 'l':
 		case 'h':
-			if (fmt[2] == 'd')
+			if (fmt[k + 2] == 'd')
 				e->can_stop = &find_int;
-			else if (fmt[2] == 'u')
+			else if (fmt[k + 2] == 'u')
 				e->can_stop = &find_uint;
-			else if (fmt[2] == 'x')
+			else if (fmt[k + 2] == 'x')
 				e->can_stop = &find_hex;
 			break;
 		case 'I':
@@ -922,10 +922,6 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
 			e->can_stop = &find_string;
 			break;
 		case '[':
-			k = 0;
-			/* we must take field length into account */
-			while (isdigit(fmt[k + 1]))
-				k++;
 			res = fill_char_range(e->end_expr, fmt + k + 1,
 					sizeof(e->end_expr));
 			if (res < 0) {
