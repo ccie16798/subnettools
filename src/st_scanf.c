@@ -1086,6 +1086,8 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	/* skipping min_m char, useless to match */
 	*j      += min_m;
 	n_match += min_m;
+	if (*j > in_length)
+		return -2;
 
 	/* try to find at most max_m expr */
 	while (n_match < max_m) {
