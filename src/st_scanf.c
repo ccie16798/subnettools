@@ -862,6 +862,106 @@ static int find_char_range(const char *remain, struct expr *e)
 }
 
 /*
+ * set_expression_canstop; called when '.*' expansion is need
+ * will set e->canstop based on format string
+ * parse_multiplier updates offset into 'in', 'fmt', the number of objects found (n_found)
+ * @fmt      : the format string
+ * @i        : index in fmt
+ * @e        : a pointer to a struct e to populate
+ */
+static int set_expression_canstop(const char *fmt, int *i, struct expr *e)
+{
+	int k, res;
+	char c;
+
+	if (fmt[*i + 1] == '%') {
+		c = conversion_specifier(fmt + *i + 2);
+
+		switch (c) {
+		case '\0':
+			debug(SCANF, 1, "Invalid format string '%s', ends with %%\n",
+					fmt);
+			return -1;
+		case 'd':
+			e->can_stop = &find_int;
+			break;
+		case 'u':
+			e->can_stop = &find_uint;
+			break;
+		case 'x':
+			e->can_stop = &find_hex;
+			break;
+		case 'l':
+		case 'h':
+			if (fmt[*i + 3] == 'd')
+				e->can_stop = &find_int;
+			else if (fmt[*i + 3] == 'u')
+				e->can_stop = &find_uint;
+			else if (fmt[*i + 3] == 'x')
+				e->can_stop = &find_hex;
+			break;
+		case 'I':
+			e->can_stop = &find_ip;
+			break;
+		case 'Q':
+			e->can_stop = &find_classfull_subnet;
+			break;
+		case 'P':
+			e->can_stop = &find_subnet;
+			break;
+		case 'S':
+			e->can_stop = &find_not_ip;
+			break;
+		case 'M':
+			e->can_stop = &find_mask;
+			break;
+		case 'W':
+			e->can_stop = &find_word;
+			break;
+		case 's':
+			e->can_stop = &find_string;
+			break;
+		case '[':
+			k = 0;
+			/* we must take field length into account */
+			while (isdigit(fmt[*i + k + 2]))
+				k++;
+			res = fill_char_range(e->end_expr, fmt + *i + k + 2,
+					sizeof(e->end_expr));
+			if (res < 0) {
+				debug(SCANF, 1, "Invalid format '%s', unmatched '['\n",
+						e->end_expr);
+				return -1;
+			}
+			debug(SCANF, 4, "pattern matching will end on '%s'\n",
+					e->end_expr);
+			e->can_stop = &find_char_range;
+			break;
+		default:
+			break;
+		} /* switch c */
+	} else if (fmt[*i + 1] == '(') {
+		res = strxcpy_until(e->end_expr, fmt + *i + 1, sizeof(e->end_expr), ')');
+		if (res < 0) {
+			debug(SCANF, 1, "Invalid format '%s', unmatched '('\n", e->end_expr);
+			return -1;
+		}
+		debug(SCANF, 4, "pattern matching will end on '%s'\n", e->end_expr);
+		e->can_stop = &find_expr;
+	} else if (fmt[*i + 1] == '[') {
+		res = fill_char_range(e->end_expr, fmt + *i + 1, sizeof(e->end_expr));
+		if (res < 0) {
+			debug(SCANF, 1, "Invalid format '%s', unmatched '['\n", e->end_expr);
+			return -1;
+		}
+		debug(SCANF, 4, "pattern matching will end on '%s'\n", e->end_expr);
+		e->can_stop = &find_char_range;
+	} else if (fmt[*i + 1] == '\\')
+		e->end_of_expr = escape_char(fmt[*i + 2]);
+
+	return 1;
+}
+/*
  * parse_multiplier starts when fmt[*i] is a st_scanf multiplier char (*, +, ?, {a,b})
  * it will try to consume as many bytes as possible from 'in' and put objects
  * found in a struct sto *
