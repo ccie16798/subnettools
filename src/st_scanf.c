@@ -1318,9 +1318,8 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				}
 				i++;
 				if (is_multiple_char(fmt[i + 1])) {
-					expr[0] = '\\';
-					expr[1] = c;
-					expr[2] = '\0';
+					expr[0] = c;
+					expr[1] = '\0';
 					i++;
 					continue;
 				}
