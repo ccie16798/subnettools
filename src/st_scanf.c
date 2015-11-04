@@ -870,13 +870,14 @@ static int find_char_range(const char *remain, struct expr *e)
  */
 static int set_expression_canstop(const char *fmt, struct expr *e)
 {
-	int k, res;
-	char c;
+	int k = 0, res;
 
+	e->can_skip    = 0;
+	e->num_o       = 0;
 	if (fmt[0] == '%') {
-		c = conversion_specifier(fmt + 1);
-
-		switch (c) {
+		while (isdigit(fmt[k + 1]))
+			k++;
+		switch (fmt[k + 1]) {
 		case '\0':
 			debug(SCANF, 1, "Invalid format string '%s', ends with %%\n",
 					fmt);
@@ -1082,9 +1083,6 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 		return 1;
 	}
 	/*  '.*' handling ... BIG MESS */
-	e.can_stop  = NULL;
-	e.can_skip    = 0;
-	e.num_o       = 0;
 
 	match_last = 0;
 	last_match_index = -1;
