@@ -40,7 +40,7 @@ reg_test_scanf() {
 	local output_file
 	local n
 
-	n=36
+	n=37
 	$PROG scanf "1.1.1.1 zob    1.1.1.2    name 25" " *%I (%S )?.*%I *(name) %d" > res/scanf1 
 	$PROG scanf "1.1.1.1   1.1.1.2    name 25" " *%I (%S )?.*%I *(name) %d" > res/scanf2 
 	$PROG scanf "1.1.1.1  1.1.1.2 2.2.2.2 toto   r" " *%I .*%S" > res/scanf3
@@ -93,6 +93,8 @@ reg_test_scanf() {
 	# min matching tests
 	$PROG scanf "123.1.1.200 1.1.1.1" ".{2,}%I" > res/scanf35
 	$PROG scanf "123.1.1.200 1.1.1.1" ".{4,}%I" > res/scanf36
+	# test expansion of escaped char
+	$PROG scanf "[[[[[[[aaa" "\[{2,}%s" > res/scanf37
 
 
 	for i in `seq 1 $n`; do
