@@ -865,17 +865,16 @@ static int find_char_range(const char *remain, struct expr *e)
  * set_expression_canstop; called when '.*' expansion is need
  * will set e->canstop based on format string
  * parse_multiplier updates offset into 'in', 'fmt', the number of objects found (n_found)
- * @fmt      : the format string
- * @i        : index in fmt
+ * @fmt      : the format string (the remain after '.*')
  * @e        : a pointer to a struct e to populate
  */
-static int set_expression_canstop(const char *fmt, int *i, struct expr *e)
+static int set_expression_canstop(const char *fmt, struct expr *e)
 {
 	int k, res;
 	char c;
 
-	if (fmt[*i + 1] == '%') {
-		c = conversion_specifier(fmt + *i + 2);
+	if (fmt[0] == '%') {
+		c = conversion_specifier(fmt + 1);
 
 		switch (c) {
 		case '\0':
@@ -893,11 +892,11 @@ static int set_expression_canstop(const char *fmt, int *i, struct expr *e)
 			break;
 		case 'l':
 		case 'h':
-			if (fmt[*i + 3] == 'd')
+			if (fmt[2] == 'd')
 				e->can_stop = &find_int;
-			else if (fmt[*i + 3] == 'u')
+			else if (fmt[2] == 'u')
 				e->can_stop = &find_uint;
-			else if (fmt[*i + 3] == 'x')
+			else if (fmt[2] == 'x')
 				e->can_stop = &find_hex;
 			break;
 		case 'I':
@@ -924,9 +923,9 @@ static int set_expression_canstop(const char *fmt, int *i, struct expr *e)
 		case '[':
 			k = 0;
 			/* we must take field length into account */
-			while (isdigit(fmt[*i + k + 2]))
+			while (isdigit(fmt[k + 1]))
 				k++;
-			res = fill_char_range(e->end_expr, fmt + *i + k + 2,
+			res = fill_char_range(e->end_expr, fmt + k + 1,
 					sizeof(e->end_expr));
 			if (res < 0) {
 				debug(SCANF, 1, "Invalid format '%s', unmatched '['\n",
@@ -940,28 +939,28 @@ static int set_expression_canstop(const char *fmt, int *i, struct expr *e)
 		default:
 			break;
 		} /* switch c */
-	} else if (fmt[*i + 1] == '(') {
-		res = strxcpy_until(e->end_expr, fmt + *i + 1, sizeof(e->end_expr), ')');
+	} else if (fmt[0] == '(') {
+		res = strxcpy_until(e->end_expr, fmt, sizeof(e->end_expr), ')');
 		if (res < 0) {
 			debug(SCANF, 1, "Invalid format '%s', unmatched '('\n", e->end_expr);
 			return -1;
 		}
 		debug(SCANF, 4, "pattern matching will end on '%s'\n", e->end_expr);
 		e->can_stop = &find_expr;
-	} else if (fmt[*i + 1] == '[') {
-		res = fill_char_range(e->end_expr, fmt + *i + 1, sizeof(e->end_expr));
+	} else if (fmt[0] == '[') {
+		res = fill_char_range(e->end_expr, fmt, sizeof(e->end_expr));
 		if (res < 0) {
 			debug(SCANF, 1, "Invalid format '%s', unmatched '['\n", e->end_expr);
 			return -1;
 		}
 		debug(SCANF, 4, "pattern matching will end on '%s'\n", e->end_expr);
 		e->can_stop = &find_char_range;
-	} else if (fmt[*i + 1] == '\\') {
-		e->end_of_expr = escape_char(fmt[*i + 2]);
+	} else if (fmt[0] == '\\') {
+		e->end_of_expr = escape_char(fmt[1]);
 		e->can_stop = NULL;
 
 	} else {
-		e->end_of_expr = fmt[*i + 1]; /* if necessary */
+		e->end_of_expr = fmt[0]; /* if necessary */
 		e->can_stop = NULL;
 	}
 	return 1;
@@ -1102,7 +1101,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 		*i += 1;
 	}
 	/* we need to find when the expr expansion will end */
-	res = set_expression_canstop(fmt, i, &e);
+	res = set_expression_canstop(fmt + *i + 1, &e);
 	if (res < 0)
 		return res;
 
