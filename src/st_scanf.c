@@ -26,6 +26,7 @@ struct expr {
 	char end_of_expr; /* if remain[i] = end_of_expr , we can stop*/
 	char end_expr[64];
 	int can_skip; /* number of char we can skip in next iteration */
+	int skip_on_return; /* number of char we can skip when '.*' exp finishes' */
 	struct sto sto[10]; /* object collected by find_xxx */
 	int num_o; /* number of object collected by find_xxxx*/
 };
@@ -763,6 +764,7 @@ static int find_not_ip(const char *remain, struct expr *e)
 	if (get_subnet_or_ip(buffer, &s) > 0) {
 		/* remain[0...i] represents an IP, so dont try stop checking in that range */
 		e->can_skip = i;
+		/* we dont set skip_on_return here */
 		return 0;
 	} else
 		return 1;
@@ -782,6 +784,7 @@ static int find_subnet(const char *remain, struct expr *e)
 	buffer[i] = '\0';
 	if (get_subnet_or_ip(buffer, &e->sto[0].s_subnet) > 0) {
 		e->can_skip = i; /* useful for .$* matching */
+		e->skip_on_return = i;
 		e->num_o = 1;
 		e->sto[0].type = 'P';
 		return 1;
@@ -798,7 +801,8 @@ static int find_ip(const char *remain, struct expr *e)
 	if (i <= 1)
 		return 0;
 	if (string2addr(remain, &e->sto[0].s_addr, i) > 0) {
-		e->can_skip = i; /* useful for .$* matching */
+		e->can_skip = i;
+		e->skip_on_return = i;
 		e->num_o = 1;
 		e->sto[0].type = 'I';
 		return 1;
@@ -819,7 +823,8 @@ static int find_classfull_subnet(const char *remain, struct expr *e)
 		return 0;
 	buffer[i] = '\0';
 	if (classfull_get_subnet(buffer, &e->sto[e->num_o].s_subnet) > 0) {
-		e->can_skip = i; /* useful for .$* matching */
+		e->can_skip = i;
+		e->skip_on_return = i;
 		e->num_o = 1;
 		e->sto[0].type = 'Q';
 		return 1;
@@ -851,7 +856,6 @@ static int find_expr(const char *remain, struct expr *e)
 	res = match_expr_single(e->end_expr, remain, NULL, &i);
 	return res;
 }
-
 
 static int find_char_range(const char *remain, struct expr *e)
 {
@@ -908,25 +912,25 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
 			return 1;
 		case 'I':
 			e->can_stop = &find_ip;
-			break;
+			return 1;
 		case 'Q':
 			e->can_stop = &find_classfull_subnet;
-			break;
+			return 1;
 		case 'P':
 			e->can_stop = &find_subnet;
-			break;
+			return 1;
 		case 'S':
 			e->can_stop = &find_not_ip;
-			break;
+			return 1;
 		case 'M':
 			e->can_stop = &find_mask;
-			break;
+			return 1;
 		case 'W':
 			e->can_stop = &find_word;
-			break;
+			return 1;
 		case 's':
 			e->can_stop = &find_string;
-			break;
+			return 1;
 		case '[':
 			res = fill_char_range(e->end_expr, fmt + k,
 					sizeof(e->end_expr));
@@ -942,7 +946,7 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
 		default:
 			e->end_of_expr = fmt[0];
 			e->can_stop = NULL;
-			break;
+			return 1;
 		} /* switch c */
 	} else if (fmt[0] == '(') {
 		res = strxcpy_until(e->end_expr, fmt, sizeof(e->end_expr), ')');
@@ -972,6 +976,7 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
 	}
 	return 1;
 }
+
 /*
  * parse_multiplier starts when fmt[*i] is a st_scanf multiplier char (*, +, ?, {a,b})
  * it will try to consume as many bytes as possible from 'in' and put objects
@@ -995,7 +1000,6 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
 static int parse_multiplier(const char *in, const char *fmt, int *i, int in_length, int *j,
 		char *expr, struct sto *o, int max_o, int *n_found)
 {
-
 	char c;
 	int res, k;
 	int min_m, max_m;
@@ -1088,8 +1092,8 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 			return -2;
 		return 1;
 	}
-	/*  '.*' handling ... BIG MESS */
 
+	/*  '.*' handling ... BIG MESS */
 	match_last = 0;
 	last_match_index = -1;
 	could_stop = 0;
@@ -1097,7 +1101,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	if (fmt[*i + 1] == '$') {
 		if (max_m < 2) {
 			debug(SCANF, 1, "'$' not allowed in this context, max expansion=%d\n",
--                               max_m);
+					max_m);
 			return -1;
 		}
 		match_last = 1;
@@ -1112,6 +1116,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	/* skipping min_m char, useless to match */
 	*j      += min_m;
 	n_match += min_m;
+	/* handle case where min_m too big to match */
 	if (*j > in_length)
 		return -2;
 
@@ -1125,7 +1130,8 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 			debug(SCANF, 4, "trying to stop on remaining '%s', res=%d\n", in + *j, res);
 		} else {
 			res = (in[*j] == e.end_of_expr);
-			debug(SCANF, 4, "trying to stop on char '%c', res=%d\n", e.end_of_expr, res);
+			debug(SCANF, 4, "trying to stop on char '%c', res=%d\n",
+					e.end_of_expr, res);
 		}
 		if (res) {
 			if (match_last)
