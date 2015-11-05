@@ -1169,7 +1169,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 		}
 	}
 	debug(SCANF, 3, "Expr '.' matched %d times, could_stop=%d, skip=%d\n",
-			 n_match, could_stop, e.can_skip);
+			 n_match, could_stop, e.skip_on_return);
 	/* in case of last match, we must rewind position in 'in'*/
 	if (match_last) {
 		*j = last_match_index;
@@ -1185,8 +1185,8 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	 * ie scanf('.*%I a', '    1.1.1.1 a', must fully analyse 1.1.1.1 in '.*' expansion
 	 * 1.1.1.1 was stored by 'find_ip' so use this instead of reanalysing again
 	 */
-	if (e.can_skip) {
-		debug(SCANF, 3, "Trying to skip %d char already analysed\n", e.can_skip);
+	if (e.skip_on_return) {
+		debug(SCANF, 3, "Trying to skip %d char already analysed\n", e.skip_on_return);
 		for (k = 0; k < e.num_o; k++) {
 			debug(SCANF, 3, "Restoring analysed object '%c'\n", e.sto[k].type);
 			memcpy(&o[*n_found], &e.sto[k], sizeof(struct sto));
@@ -1195,7 +1195,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 		while (isdigit(fmt[*i])) /* remove field width */
 			*i += 1;
 		*i += 2;
-		*j += e.can_skip;
+		*j += e.skip_on_return;
 	}
 	/* multiplier went to the end of 'in', but without matching the end */
 	if (in[*j] == '\0' && fmt[*i] != '\0')
