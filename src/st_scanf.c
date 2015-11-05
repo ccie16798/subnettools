@@ -1126,15 +1126,14 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	if (e.can_stop) {
 		/* try to find at most max_m expr */
 		while (n_match < max_m) {
-			could_stop = 0;
 			/* try to stop expansion */
 			e.can_skip = 0;
 			e.skip_on_return = 0;
 			could_stop = e.can_stop(in + *j, &e);
 			debug(SCANF, 4, "trying to stop on remaining '%s', res=%d\n",
 					in + *j, could_stop);
-			if (could_stop &&  match_last == 0)
-					break;
+			if (could_stop && match_last == 0)
+				break;
 			n_match++;
 			/*
 			 * last_match_index is set if current loop can stop AND previous cannot
@@ -1161,17 +1160,12 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	} else  {
 		/* end on simple char */
 		while (n_match < max_m) {
-			could_stop = 0;
 			/* try to stop expansion */
-			res = (in[*j] == e.end_of_expr);
+			could_stop = (in[*j] == e.end_of_expr);
 			debug(SCANF, 4, "trying to stop on char '%c', res=%d\n",
 					e.end_of_expr, res);
-			if (res) {
-				if (match_last)
-					could_stop = 1;
-				else
-					break;
-			}
+			if (could_stop && match_last == 0)
+				break;
 			n_match++;
 			if (could_stop && previous_could_stop == 0)
 				last_match_index = *j;
