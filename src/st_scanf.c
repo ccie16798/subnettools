@@ -1130,14 +1130,11 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 			/* try to stop expansion */
 			e.can_skip = 0;
 			e.skip_on_return = 0;
-			res = e.can_stop(in + *j, &e);
-			debug(SCANF, 4, "trying to stop on remaining '%s', res=%d\n", in + *j, res);
-			if (res) {
-				if (match_last)
-					could_stop = 1;
-				else
+			could_stop = e.can_stop(in + *j, &e);
+			debug(SCANF, 4, "trying to stop on remaining '%s', res=%d\n",
+					in + *j, could_stop);
+			if (could_stop &&  match_last == 0)
 					break;
-			}
 			n_match++;
 			/*
 			 * last_match_index is set if current loop can stop AND previous cannot
