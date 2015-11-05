@@ -1124,54 +1124,103 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 		return -2;
 
 	/* try to find at most max_m expr */
-	while (n_match < max_m) {
-		could_stop = 0;
-		/* try to stop expansion */
-		if (e.can_stop) {
-			e.can_skip = 0;
-			e.skip_on_return = 0;
-			res = e.can_stop(in + *j, &e);
-			debug(SCANF, 4, "trying to stop on remaining '%s', res=%d\n", in + *j, res);
-		} else {
-			res = (in[*j] == e.end_of_expr);
-			debug(SCANF, 4, "trying to stop on char '%c', res=%d\n",
-					e.end_of_expr, res);
-		}
-		if (res) {
-			if (match_last)
-				could_stop = 1;
+	if (e.can_stop) {
+		while (n_match < max_m) {
+			could_stop = 0;
+			/* try to stop expansion */
+			if (e.can_stop) {
+				e.can_skip = 0;
+				e.skip_on_return = 0;
+				res = e.can_stop(in + *j, &e);
+				debug(SCANF, 4, "trying to stop on remaining '%s', res=%d\n", in + *j, res);
+			} else {
+				res = (in[*j] == e.end_of_expr);
+				debug(SCANF, 4, "trying to stop on char '%c', res=%d\n",
+						e.end_of_expr, res);
+			}
+			if (res) {
+				if (match_last)
+					could_stop = 1;
+				else
+					break;
+			}
+			if (e.can_skip)
+				res = e.can_skip;
 			else
-				break;
-		}
-		if (e.can_skip)
-			res = e.can_skip;
-		else
-			res = 1;
-		n_match++;
-		/*
-		 * last_match_index is set if current loop can stop AND previous cannot
-		 *
-		 * scanf("abdef t e 121.1.1.1", ".*$I") should return '121.1.1.1' not '1.1.1.1'
-		 * scanf("abdef t e STRING", ".*$s")    should return 'STRING' not just 'G'
-		 */
-		if (could_stop && previous_could_stop == 0)
-			last_match_index = *j;
-		previous_could_stop = could_stop;
-		*j += res;
+				res = 1;
+			n_match++;
+			/*
+			 * last_match_index is set if current loop can stop AND previous cannot
+			 *
+			 * scanf("abdef t e 121.1.1.1", ".*$I") should return '121.1.1.1' not '1.1.1.1'
+			 * scanf("abdef t e STRING", ".*$s")    should return 'STRING' not just 'G'
+			 */
+			if (could_stop && previous_could_stop == 0)
+				last_match_index = *j;
+			previous_could_stop = could_stop;
+			*j += res;
 
-		if (*j > in_length) {
-			/* can happen only if there is a BUG in can_skip usage */
-			fprintf(stderr, "BUG, input buffer override in %s line %d\n",
-					__func__, __LINE__);
-			return -5;
+			if (*j > in_length) {
+				/* can happen only if there is a BUG in can_skip usage */
+				fprintf(stderr, "BUG, input buffer override in %s line %d\n",
+						__func__, __LINE__);
+				return -5;
+			}
+			if (in[*j] == '\0') {
+				debug(SCANF, 3, "reached end of input scanning 'in'\n");
+				break;
+			}
 		}
-		if (in[*j] == '\0') {
-			debug(SCANF, 3, "reached end of input scanning 'in'\n");
-			break;
+	} else  {
+		while (n_match < max_m) {
+			could_stop = 0;
+			/* try to stop expansion */
+			if (e.can_stop) {
+				e.can_skip = 0;
+				e.skip_on_return = 0;
+				res = e.can_stop(in + *j, &e);
+				debug(SCANF, 4, "trying to stop on remaining '%s', res=%d\n", in + *j, res);
+			} else {
+				res = (in[*j] == e.end_of_expr);
+				debug(SCANF, 4, "trying to stop on char '%c', res=%d\n",
+						e.end_of_expr, res);
+			}
+			if (res) {
+				if (match_last)
+					could_stop = 1;
+				else
+					break;
+			}
+			if (e.can_skip)
+				res = e.can_skip;
+			else
+				res = 1;
+			n_match++;
+			/*
+			 * last_match_index is set if current loop can stop AND previous cannot
+			 *
+			 * scanf("abdef t e 121.1.1.1", ".*$I") should return '121.1.1.1' not '1.1.1.1'
+			 * scanf("abdef t e STRING", ".*$s")    should return 'STRING' not just 'G'
+			 */
+			if (could_stop && previous_could_stop == 0)
+				last_match_index = *j;
+			previous_could_stop = could_stop;
+			*j += res;
+
+			if (*j > in_length) {
+				/* can happen only if there is a BUG in can_skip usage */
+				fprintf(stderr, "BUG, input buffer override in %s line %d\n",
+						__func__, __LINE__);
+				return -5;
+			}
+			if (in[*j] == '\0') {
+				debug(SCANF, 3, "reached end of input scanning 'in'\n");
+				break;
+			}
 		}
 	}
 	debug(SCANF, 3, "Expr '.' matched %d times, could_stop=%d, skip=%d\n",
-			 n_match, could_stop, e.skip_on_return);
+			n_match, could_stop, e.skip_on_return);
 	/* in case of last match, we must rewind position in 'in'*/
 	if (match_last) {
 		*j = last_match_index;
@@ -1187,22 +1236,22 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	 * ie scanf('.*%I a', '    1.1.1.1 a', must fully analyse 1.1.1.1 in '.*' expansion
 	 * 1.1.1.1 was stored by 'find_ip' so use this instead of reanalysing again
 	 */
-	if (e.skip_on_return) {
-		debug(SCANF, 3, "Trying to skip %d char already analysed\n", e.skip_on_return);
-		for (k = 0; k < e.num_o; k++) {
-			debug(SCANF, 3, "Restoring analysed object '%c'\n", e.sto[k].type);
-			memcpy(&o[*n_found], &e.sto[k], sizeof(struct sto));
-			*n_found += 1;
-		}
-		while (isdigit(fmt[*i])) /* remove field width */
-			*i += 1;
-		*i += 2;
-		*j += e.skip_on_return;
-	}
-	/* multiplier went to the end of 'in', but without matching the end */
-	if (in[*j] == '\0' && fmt[*i] != '\0')
-		return -2;
-	return 1;
+				if (e.skip_on_return) {
+					debug(SCANF, 3, "Trying to skip %d char already analysed\n", e.skip_on_return);
+					for (k = 0; k < e.num_o; k++) {
+						debug(SCANF, 3, "Restoring analysed object '%c'\n", e.sto[k].type);
+						memcpy(&o[*n_found], &e.sto[k], sizeof(struct sto));
+						*n_found += 1;
+					}
+					while (isdigit(fmt[*i])) /* remove field width */
+						*i += 1;
+					*i += 2;
+					*j += e.skip_on_return;
+				}
+				/* multiplier went to the end of 'in', but without matching the end */
+				if (in[*j] == '\0' && fmt[*i] != '\0')
+					return -2;
+				return 1;
 }
 
 /*
