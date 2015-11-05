@@ -1138,10 +1138,6 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 				else
 					break;
 			}
-			if (e.can_skip)
-				res = e.can_skip;
-			else
-				res = 1;
 			n_match++;
 			/*
 			 * last_match_index is set if current loop can stop AND previous cannot
@@ -1152,7 +1148,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 			if (could_stop && previous_could_stop == 0)
 				last_match_index = *j;
 			previous_could_stop = could_stop;
-			*j += res;
+			*j += (e.can_skip ? e.can_skip : 1);
 
 			if (*j > in_length) {
 				/* can happen only if there is a BUG in can_skip usage */
