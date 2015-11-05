@@ -853,7 +853,9 @@ static int find_expr(const char *remain, struct expr *e)
 	int i = 0;
 	int res;
 
-	res = match_expr_single(e->end_expr, remain, NULL, &i);
+	res = match_expr_single(e->end_expr, remain, e->sto, &i);
+	e->num_o = i;
+/*	e->skip_on_return = res; */
 	return res;
 }
 
@@ -1158,7 +1160,7 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 		*j += res;
 
 		if (*j > in_length) {
-			/* can happen only if there is a BUG in 'match_expr' and its descendant */
+			/* can happen only if there is a BUG in can_skip usage */
 			fprintf(stderr, "BUG, input buffer override in %s line %d\n",
 					__func__, __LINE__);
 			return -5;
