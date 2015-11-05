@@ -876,8 +876,9 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
 {
 	int k = 1, res;
 
-	e->can_skip    = 0;
-	e->num_o       = 0;
+	e->num_o          = 0;
+	e->skip_on_return = 0;
+	e->can_skip       = 0;
 	if (fmt[0] == '%') {
 		/* find the conversion specifier after a field length */
 		while (isdigit(fmt[k]))
@@ -1123,9 +1124,10 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	/* try to find at most max_m expr */
 	while (n_match < max_m) {
 		could_stop = 0;
-		e.can_skip = 0;
 		/* try to stop expansion */
 		if (e.can_stop) {
+			e.can_skip = 0;
+			e.skip_on_return = 0;
 			res = e.can_stop(in + *j, &e);
 			debug(SCANF, 4, "trying to stop on remaining '%s', res=%d\n", in + *j, res);
 		} else {
