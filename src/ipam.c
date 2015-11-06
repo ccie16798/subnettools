@@ -241,6 +241,12 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 		return res;
 	}
 	res = generic_load_csv(name, &cf, &state, sf);
+	if (res < 0) {
+		free_ipam_ea(&sf->lines[0]);
+		st_free(csv_field, ea_memory);
+		free_ipam_file(sf);
+		return res;
+	}
 	/* last line was allocated by endofline_callback, but is unused, so free it */
 	free_ipam_ea(&sf->lines[sf->nr]);
 	st_free(csv_field, ea_memory);
