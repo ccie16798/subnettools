@@ -1291,7 +1291,7 @@ int main(int argc, char **argv)
 		s = getenv("HOME");
 		if (s == NULL)
 			s = ".";
-		strxcpy(conf_abs_path, s, sizeof(conf_abs_path));
+		res = strxcpy(conf_abs_path, s, sizeof(conf_abs_path));
 		strxcpy(conf_abs_path + res, "/st.conf", sizeof(conf_abs_path) - res);
 		nof.config_file = conf_abs_path;
 		res = open_config_file(nof.config_file, &nof);
