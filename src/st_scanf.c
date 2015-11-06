@@ -981,7 +981,7 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
 }
 
 /*
- * parse_multiplier_char starts when fmt[*i] is a st_scanf multiplier char (*, +, ?, {a,b})
+ * parse_multiplier_xxx starts when fmt[*i] is a st_scanf multiplier char (*, +, ?, {a,b})
  * it will try to consume as many bytes as possible from 'in' and put objects
  * found in a struct sto *
  * parse_multiplier updates offset into 'in', 'fmt', the number of objects found (n_found)
@@ -1246,20 +1246,6 @@ static int parse_multiplier_dotstar(const char *in, const char *fmt, int *i, int
 	return 1;
 }
 
-static int parse_multiplier(const char *in, const char *fmt, int *i, int in_length, int *j,
-		char *expr, struct sto *o, int max_o, int *n_found)
-{
-
-	if (expr[0] == '.' && expr[1] == '\0')
-		return parse_multiplier_dotstar(in, fmt, i, in_length, j,
-				expr, o, max_o, n_found);
-	if (expr[0] != '.' && expr[1] != '\0')
-		return parse_multiplier_expr(in, fmt, i, in_length, j,
-				expr, o, max_o, n_found);
-	return parse_multiplier_char(in, fmt, i, in_length, j,
-				expr, o, max_o, n_found);
-}
-
 /*
  * st_scanf CORE function
  * reads bytes from the buffer'in', tries to interpret/match againset regexp fmt
@@ -1349,7 +1335,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				expr[0] = c;
 				expr[1] = '\0';
 				i++;
-				res = parse_multiplier(in, fmt, &i, in_length, &j, expr,
+				res = parse_multiplier_dotstar(in, fmt, &i, in_length, &j, expr,
 						o, max_o, &n_found);
 				if (res < 0)
 					goto end_nomatch;
@@ -1371,7 +1357,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			debug(SCANF, 8, "found expr '%s'\n", expr);
 			i += res;
 			if (is_multiple_char(fmt[i])) {
-				res = parse_multiplier(in, fmt, &i, in_length, &j, expr,
+				res = parse_multiplier_expr(in, fmt, &i, in_length, &j, expr,
 						o, max_o, &n_found);
 				if (res < 0)
 					goto end_nomatch;
@@ -1418,7 +1404,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				expr[0] = c;
 				expr[1] = '\0';
 				i++;
-				res = parse_multiplier(in, fmt, &i, in_length, &j, expr,
+				res = parse_multiplier_char(in, fmt, &i, in_length, &j, expr,
 						o, max_o, &n_found);
 				if (res < 0)
 					goto end_nomatch;
