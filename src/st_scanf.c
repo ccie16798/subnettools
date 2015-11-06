@@ -1295,11 +1295,8 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 		debug(SCANF, 8, "Still to parse in FMT  : '%s'\n", fmt + i);
 		debug(SCANF, 8, "Still to parse in 'in' : '%s'\n", in + j);
 		if (is_multiple_char(c)) {
-			res = parse_multiplier(in, fmt, &i, in_length, &j, expr,
-					o, max_o, &n_found);
-			if (res < 0)
-				goto end_nomatch;
-			continue;
+			debug(SCANF, 1, "Invalid expr, 2 successives multipliers\n");
+			return -1;
 		}
 		if (c == '\0' && in[j] == '\0')
 			return n_found;
