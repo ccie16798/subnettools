@@ -599,6 +599,7 @@ int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof)
 	};
 	struct csv_file cf;
 	struct csv_state state;
+	int res;
 
 	cf.is_header = NULL;
 	init_csv_file(&cf, name, csv_field, 12, nof->delim, &st_strtok_r);
@@ -609,5 +610,8 @@ int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof)
 	if (alloc_bgp_file(sf, 16192) < 0)
 		return -2;
 	zero_bgproute(&sf->routes[0]);
-	return generic_load_csv(name, &cf, &state, sf);
+	res = generic_load_csv(name, &cf, &state, sf);
+	if (res < 0)
+		free_bgp_file(sf);
+	return res;
 }
