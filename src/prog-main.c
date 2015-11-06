@@ -1292,6 +1292,10 @@ int main(int argc, char **argv)
 		if (s == NULL)
 			s = ".";
 		res = strxcpy(conf_abs_path, s, sizeof(conf_abs_path));
+		if (res >= sizeof(conf_abs_path)) {
+			fprintf(stderr, "buffer overrun attempt, $HOME too big\n");
+			exit(2);
+		}
 		strxcpy(conf_abs_path + res, "/st.conf", sizeof(conf_abs_path) - res);
 		nof.config_file = conf_abs_path;
 		res = open_config_file(nof.config_file, &nof);
