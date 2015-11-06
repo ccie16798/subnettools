@@ -1004,13 +1004,15 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 		char *expr, struct sto *o, int max_o, int *n_found)
 {
 	char c;
-	int res, k;
+	int res;
 	int min_m, max_m;
 	int n_match = 0;
-	int num_cs;
 
 	if (expr[0] == '.' && expr[1] == '\0')
 		return parse_multiplier_dotstar(in, fmt, i, in_length, j,
+				expr, o, max_o, n_found);
+	if (expr[0] != '.' && expr[1] != '\0')
+		return parse_multiplier_expr(in, fmt, i, in_length, j,
 				expr, o, max_o, n_found);
 	c = fmt[*i];
 	if (c == '{') {
@@ -1045,56 +1047,74 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 		if (in[*j] == '\0' && fmt[*i] != '\0')
 			return -2;
 		return 1;
-	} else if (expr[0] != '.') {
-		/* complex expression handling */
-		num_cs = count_cs(expr);
-		if (*n_found + num_cs > max_o) {
-			debug(SCANF, 1, "Cannot get more than %d objets, already found %d\n",
-					max_o, *n_found);
+	}
+}
+
+int parse_multiplier_expr(const char *in, const char *fmt, int *i, int in_length, int *j,
+		char *expr, struct sto *o, int max_o, int *n_found)
+{
+	char c;
+	int res, k, num_cs;
+	int min_m, max_m;
+	int n_match = 0;
+
+	c = fmt[*i];
+	if (c == '{') {
+		res = parse_brace_multiplier(fmt + *i, &min_m, &max_m);
+		if (res < 0)
+			return -1;
+		*i += res;
+	} else {
+		min_m = min_match(c);
+		max_m = max_match(c);
+	}
+	num_cs = count_cs(expr);
+	if (*n_found + num_cs > max_o) {
+		debug(SCANF, 1, "Cannot get more than %d objets, already found %d\n",
+				max_o, *n_found);
+		return -1;
+	}
+	debug(SCANF, 4, "Pattern expansion will end when in[j] != '%s'\n", expr);
+	while (n_match < max_m) {
+		res = match_expr_single(expr, in + *j, o, n_found);
+		if (res < 0) {
+			debug(SCANF, 1, "Invalid format '%s'\n", expr);
 			return -1;
 		}
-		debug(SCANF, 4, "Pattern expansion will end when in[j] != '%s'\n", expr);
-		while (n_match < max_m) {
-			res = match_expr_single(expr, in + *j, o, n_found);
-			if (res < 0) {
-				debug(SCANF, 1, "Invalid format '%s'\n", expr);
-				return -1;
-			}
-			if (res == 0)
-				break;
-			*j += res;
-			n_match++;
-			if (in[*j] == '\0') {
-				debug(SCANF, 3, "reached end of input scanning 'in'\n");
-				break;
-			}
+		if (res == 0)
+			break;
+		*j += res;
+		n_match++;
+		if (in[*j] == '\0') {
+			debug(SCANF, 3, "reached end of input scanning 'in'\n");
+			break;
 		}
-		if (n_match < min_m) {
-			debug(SCANF, 3, "found char '%c' %d times, but required %d\n",
-					*expr, n_match, min_m);
-			return -2;
-		}
-		*i += 1;
-		if (num_cs) {
-			if (n_match) {
-				debug(SCANF, 4, "found %d CS so far\n", *n_found);
-			} else {
-				/* 0 match but we found 'num_cs' conversion specifiers
-				 * we must consume them because the caller add provisionned
-				 * space for it
-				 */
-				debug(SCANF, 4, "0 match but there was %d CS so consume them\n",
-						num_cs);
-				for (k = 0; k < num_cs; k++) {
-					o[*n_found].type = 0;
-					*n_found += 1;
-				}
-			}
-		}
-		if (in[*j] == '\0' && fmt[*i] != '\0')
-			return -2;
-		return 1;
 	}
+	if (n_match < min_m) {
+		debug(SCANF, 3, "found char '%c' %d times, but required %d\n",
+				*expr, n_match, min_m);
+		return -2;
+	}
+	*i += 1;
+	if (num_cs) {
+		if (n_match) {
+			debug(SCANF, 4, "found %d CS so far\n", *n_found);
+		} else {
+			/* 0 match but we found 'num_cs' conversion specifiers
+			 * we must consume them because the caller add provisionned
+			 * space for it
+			 */
+			debug(SCANF, 4, "0 match but there was %d CS so consume them\n",
+					num_cs);
+			for (k = 0; k < num_cs; k++) {
+				o[*n_found].type = 0;
+				*n_found += 1;
+			}
+		}
+	}
+	if (in[*j] == '\0' && fmt[*i] != '\0')
+		return -2;
+	return 1;
 }
 
 int parse_multiplier_dotstar(const char *in, const char *fmt, int *i, int in_length, int *j,
