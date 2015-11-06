@@ -981,7 +981,7 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
 }
 
 /*
- * parse_multiplier starts when fmt[*i] is a st_scanf multiplier char (*, +, ?, {a,b})
+ * parse_multiplier_char starts when fmt[*i] is a st_scanf multiplier char (*, +, ?, {a,b})
  * it will try to consume as many bytes as possible from 'in' and put objects
  * found in a struct sto *
  * parse_multiplier updates offset into 'in', 'fmt', the number of objects found (n_found)
@@ -1000,7 +1000,7 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
  *   -1  : format error
  *   -2  : no match
  */
-static int parse_multiplier(const char *in, const char *fmt, int *i, int in_length, int *j,
+int parse_multiplier_char(const char *in, const char *fmt, int *i, int in_length, int *j,
 		char *expr, struct sto *o, int max_o, int *n_found)
 {
 	char c;
@@ -1008,12 +1008,6 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	int min_m, max_m;
 	int n_match = 0;
 
-	if (expr[0] == '.' && expr[1] == '\0')
-		return parse_multiplier_dotstar(in, fmt, i, in_length, j,
-				expr, o, max_o, n_found);
-	if (expr[0] != '.' && expr[1] != '\0')
-		return parse_multiplier_expr(in, fmt, i, in_length, j,
-				expr, o, max_o, n_found);
 	c = fmt[*i];
 	if (c == '{') {
 		res = parse_brace_multiplier(fmt + *i, &min_m, &max_m);
@@ -1026,28 +1020,26 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	}
 	debug(SCANF, 5, "need to find expression '%s' {%d,%d} times\n", expr, min_m, max_m);
 	/* simple case, we match a single char {n,m} times */
-	if (expr[0] != '.' && expr[1] == '\0') {
-		debug(SCANF, 4, "Pattern expansion will end when in[j] != '%c'\n", *expr);
-		while (n_match < max_m) {
-			if (*expr != in[*j])
-				break;
-			*j += 1;
-			n_match++;
-			if (in[*j] == '\0') {
-				debug(SCANF, 3, "reached end of input scanning 'in'\n");
-				break;
-			}
+	debug(SCANF, 4, "Pattern expansion will end when in[j] != '%c'\n", *expr);
+	while (n_match < max_m) {
+		if (*expr != in[*j])
+			break;
+		*j += 1;
+		n_match++;
+		if (in[*j] == '\0') {
+			debug(SCANF, 3, "reached end of input scanning 'in'\n");
+			break;
 		}
-		if (n_match < min_m) {
-			debug(SCANF, 3, "found char '%c' %d times, but required %d\n",
-					*expr, n_match, min_m);
-			return -2;
-		}
-		*i += 1;
-		if (in[*j] == '\0' && fmt[*i] != '\0')
-			return -2;
-		return 1;
 	}
+	if (n_match < min_m) {
+		debug(SCANF, 3, "found char '%c' %d times, but required %d\n",
+				*expr, n_match, min_m);
+		return -2;
+	}
+	*i += 1;
+	if (in[*j] == '\0' && fmt[*i] != '\0')
+		return -2;
+	return 1;
 }
 
 int parse_multiplier_expr(const char *in, const char *fmt, int *i, int in_length, int *j,
@@ -1252,6 +1244,20 @@ int parse_multiplier_dotstar(const char *in, const char *fmt, int *i, int in_len
 	if (in[*j] == '\0' && fmt[*i] != '\0')
 		return -2;
 	return 1;
+}
+
+static int parse_multiplier(const char *in, const char *fmt, int *i, int in_length, int *j,
+		char *expr, struct sto *o, int max_o, int *n_found)
+{
+
+	if (expr[0] == '.' && expr[1] == '\0')
+		return parse_multiplier_dotstar(in, fmt, i, in_length, j,
+				expr, o, max_o, n_found);
+	if (expr[0] != '.' && expr[1] != '\0')
+		return parse_multiplier_expr(in, fmt, i, in_length, j,
+				expr, o, max_o, n_found);
+	return parse_multiplier_char(in, fmt, i, in_length, j,
+				expr, o, max_o, n_found);
 }
 
 /*
