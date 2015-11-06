@@ -1008,10 +1008,10 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 	int min_m, max_m;
 	int n_match = 0;
 	int num_cs;
-	struct expr e;
-	int could_stop, previous_could_stop;
-	int match_last, last_match_index;
 
+	if (expr[0] == '.' && expr[1] == '\0')
+		return parse_multiplier_dotstar(in, fmt, i, in_length, j,
+				expr, o, max_o, n_found);
 	c = fmt[*i];
 	if (c == '{') {
 		res = parse_brace_multiplier(fmt + *i, &min_m, &max_m);
@@ -1095,9 +1095,31 @@ static int parse_multiplier(const char *in, const char *fmt, int *i, int in_leng
 			return -2;
 		return 1;
 	}
+}
 
+int parse_multiplier_dotstar(const char *in, const char *fmt, int *i, int in_length, int *j,
+		char *expr, struct sto *o, int max_o, int *n_found)
+{
+	int match_last, could_stop, previous_could_stop;
+	int last_match_index, n_match;
+	int min_m, max_m, k, res;
+	char c;
+	struct expr e;
+
+	c = fmt[*i];
+	if (c == '{') {
+		res = parse_brace_multiplier(fmt + *i, &min_m, &max_m);
+		if (res < 0)
+			return -1;
+		*i += res;
+	} else {
+		min_m = min_match(c);
+		max_m = max_match(c);
+	}
+	debug(SCANF, 5, "need to find expression '.' {%d,%d} times\n", min_m, max_m);
 	/*  '.*' handling ... BIG MESS */
 	match_last = 0;
+	n_match    = 0;
 	last_match_index = -1;
 	could_stop = 0;
 	previous_could_stop = 0;
