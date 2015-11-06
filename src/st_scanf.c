@@ -1000,7 +1000,7 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
  *   -1  : format error
  *   -2  : no match
  */
-int parse_multiplier_char(const char *in, const char *fmt, int *i, int in_length, int *j,
+static int parse_multiplier_char(const char *in, const char *fmt, int *i, int in_length, int *j,
 		char *expr, struct sto *o, int max_o, int *n_found)
 {
 	char c;
@@ -1042,7 +1042,7 @@ int parse_multiplier_char(const char *in, const char *fmt, int *i, int in_length
 	return 1;
 }
 
-int parse_multiplier_expr(const char *in, const char *fmt, int *i, int in_length, int *j,
+static int parse_multiplier_expr(const char *in, const char *fmt, int *i, int in_length, int *j,
 		char *expr, struct sto *o, int max_o, int *n_found)
 {
 	char c;
@@ -1109,7 +1109,7 @@ int parse_multiplier_expr(const char *in, const char *fmt, int *i, int in_length
 	return 1;
 }
 
-int parse_multiplier_dotstar(const char *in, const char *fmt, int *i, int in_length, int *j,
+static int parse_multiplier_dotstar(const char *in, const char *fmt, int *i, int in_length, int *j,
 		char *expr, struct sto *o, int max_o, int *n_found)
 {
 	int match_last, could_stop, previous_could_stop;
