@@ -1352,6 +1352,10 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				expr[0] = c;
 				expr[1] = '\0';
 				i++;
+				res = parse_multiplier(in, fmt, &i, in_length, &j, expr,
+						o, max_o, &n_found);
+				if (res < 0)
+					goto end_nomatch;
 				continue;
 			}
 			debug(SCANF, 8, "fmt[%d]='.', match any char\n", i);
@@ -1369,9 +1373,13 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			}
 			debug(SCANF, 8, "found expr '%s'\n", expr);
 			i += res;
-			if (is_multiple_char(fmt[i]))
+			if (is_multiple_char(fmt[i])) {
+				res = parse_multiplier(in, fmt, &i, in_length, &j, expr,
+						o, max_o, &n_found);
+				if (res < 0)
+					goto end_nomatch;
 				continue;
-
+			}
 			num_cs = count_cs(expr);
 			if (n_found + num_cs >= max_o) {
 				debug(SCANF, 1, "Max objets %d, already found %d\n",
@@ -1384,7 +1392,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				return n_found;
 			}
 			if (res == 0) {
-				debug(SCANF, 2, "Expr'%s' didnt match 'in' at offset %d\n",
+				debug(SCANF, 2, "Expr '%s' didnt match 'in' at offset %d\n",
 						expr, j);
 				goto end_nomatch;
 			}
@@ -1408,17 +1416,15 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 					goto end_nomatch;
 				}
 				i++;
-				if (is_multiple_char(fmt[i + 1])) {
-					expr[0] = c;
-					expr[1] = '\0';
-					i++;
-					continue;
-				}
 			}
 			if (is_multiple_char(fmt[i + 1]))  {
 				expr[0] = c;
 				expr[1] = '\0';
 				i++;
+				res = parse_multiplier(in, fmt, &i, in_length, &j, expr,
+						o, max_o, &n_found);
+				if (res < 0)
+					goto end_nomatch;
 				continue;
 			}
 			if (in[j] != fmt[i]) {
