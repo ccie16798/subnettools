@@ -46,6 +46,17 @@
 			fprintf(stderr, __FMT); \
 	} while (0)
 
+#ifdef DEBUG_PARSE_IPV4
+#define debug_parseipv4(__DEBUG_LEVEL, __FMT...) \
+	do { \
+		if (debugs_level[__D_PARSEIP] >= __DEBUG_LEVEL || \
+				debugs_level[__D_ALL] >= __DEBUG_LEVEL) \
+			fprintf(stderr, __FMT); \
+	} while (0)
+#else
+#define debug_parseipv4(__DEBUG_LEVEL, __FMT...)
+#endif
+
 struct debug {
 	const char *name;
 	unsigned num;
