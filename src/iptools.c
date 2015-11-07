@@ -505,7 +505,7 @@ static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 	}
 	s_max = s + len;
 	while (1) {
-		if (*s == '\0' || s == s_max) {
+		if (s == s_max) {
 			if (current_block > 255) {
 				debug_parseipv4(3, "Invalid IP '%s', %d too big\n",
 						p, current_block);
@@ -540,6 +540,14 @@ static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 			s++;
 			continue;
 		} else {
+			if (*s == '\0') {
+				if (current_block > 255) {
+					debug_parseipv4(3, "Invalid IP '%s', %d too big\n",
+							p, current_block);
+					return BAD_IP;
+				}
+				break;
+			}
 			debug_parseipv4(3, "Invalid IP '%s',  contains '%c'\n", p, *s);
 			return BAD_IP;
 		}
