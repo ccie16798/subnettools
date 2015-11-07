@@ -433,7 +433,7 @@ int string2mask(const char *s, size_t len)
 				debug(PARSEIP, 3, "Invalid DDN mask '%s', consecutive '.'\n", s);
 				return BAD_MASK;
 			}
-			if (s[i + 1] == '\0' || i + 1 == len ) {
+			if (s[i + 1] == '\0' || i + 1 == len) {
 				debug(PARSEIP, 3, "Invalid DDN mask '%s', ends with '.'\n", s);
 				return BAD_MASK;
 			}
