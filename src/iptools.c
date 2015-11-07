@@ -737,22 +737,31 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 int string2addr(const char *s, struct ip_addr *addr, size_t len)
 {
 	int i;
+	const char *p = s;
 
-	for (i = 0; i < 5; i++) {
-		if (s[i] == '.')
-			return string2addrv4(s, addr, len);
-		else if (s[i] == ':')
-			return string2addrv6(s, addr, len);
-		else if (isdigit(s[i]))
-			continue;
-		else if (s[i] == '\0')
-			break;
-		else if ((s[i] >= 'a' && s[i] <= 'f') || (s[i] >= 'A' && s[i] <= 'F'))
-			return string2addrv6(s, addr, len);
-		else
-			break;
-	}
-	debug_parseipv4(3, "Invalid IPv4 or IPv6 : '%s'\n", s);
+	/* check first char */
+	if (*p == '.')
+		return BAD_IP;
+	if (*p == ':')
+		return string2addrv6(s, addr, len);
+	if (!isxdigit(*p))
+		return BAD_IP;
+	p++;
+#define TEST_IPVER_BLOCK \
+	if (!isdigit(*p)) { \
+		if (*p == '.') \
+			return string2addrv4(s, addr, len); \
+		if (*p == ':') \
+			return string2addrv6(s, addr, len); \
+		if ((*p >= 'a' && *p <= 'f') || (*p >= 'A' || *p <= 'F')) \
+			return string2addrv6(s, addr, len); \
+		return BAD_IP; \
+	} \
+	p++;
+	TEST_IPVER_BLOCK
+	TEST_IPVER_BLOCK
+	TEST_IPVER_BLOCK
+	TEST_IPVER_BLOCK
 	return BAD_IP;
 }
 
