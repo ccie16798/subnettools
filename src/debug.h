@@ -32,8 +32,7 @@
 
 #define debug(__EVENT, __DEBUG_LEVEL, __FMT...) \
 	do { \
-		int ___x = (__D_##__EVENT); \
-		if (debugs_level[___x] >= __DEBUG_LEVEL || \
+		if (debugs_level[__D_##__EVENT] >= __DEBUG_LEVEL || \
 				debugs_level[__D_ALL] >= __DEBUG_LEVEL) { \
 			fprintf(stderr, "%s : ", __func__); \
 			fprintf(stderr, __FMT); \
@@ -42,8 +41,7 @@
 
 #define debug_memory(__DEBUG_LEVEL, __FMT...) \
 	do { \
-		int ___x = __D_MEMORY; \
-		if (debugs_level[___x] >= __DEBUG_LEVEL || \
+		if (debugs_level[__D_MEMORY] >= __DEBUG_LEVEL || \
 				debugs_level[__D_ALL] >= __DEBUG_LEVEL) \
 			fprintf(stderr, __FMT); \
 	} while (0)
