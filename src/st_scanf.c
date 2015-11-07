@@ -1007,28 +1007,25 @@ static int parse_multiplier_char(const char **in, const char **fmt, int *i, int 
 	int res;
 	int min_m, max_m;
 	int n_match = 0;
-	const char *f, *p;
 
-	f = *fmt;
-	p = *in;
-	if (*f == '{') {
-		res = parse_brace_multiplier(f, &min_m, &max_m);
+	if (**fmt == '{') {
+		res = parse_brace_multiplier(*fmt, &min_m, &max_m);
 		if (res < 0)
 			return -1;
-		f += res;
+		*fmt += res;
 	} else {
-		min_m = min_match(*f);
-		max_m = max_match(*f);
+		min_m = min_match(**fmt);
+		max_m = max_match(**fmt);
 	}
 	debug(SCANF, 5, "need to find expression '%s' {%d,%d} times\n", expr, min_m, max_m);
 	/* simple case, we match a single char {n,m} times */
 	debug(SCANF, 4, "Pattern expansion will end when in[j] != '%c'\n", *expr);
 	while (n_match < max_m) {
-		if (*expr != *p)
+		if (*expr != **in)
 			break;
-		p++;
+		*in += 1;
 		n_match++;
-		if (*p == '\0') {
+		if (**in == '\0') {
 			debug(SCANF, 3, "reached end of input scanning 'in'\n");
 			break;
 		}
@@ -1038,11 +1035,9 @@ static int parse_multiplier_char(const char **in, const char **fmt, int *i, int 
 				*expr, n_match, min_m);
 		return -2;
 	}
-	f += 1;
-	if (*p == '\0' && *f != '\0')
+	*fmt += 1;
+	if (**in == '\0' && **fmt != '\0')
 		return -2;
-	*fmt = f;
-	*in = p;
 	return 1;
 }
 
