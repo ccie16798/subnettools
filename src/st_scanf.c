@@ -1389,18 +1389,17 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			p += j;
 			/* any char */
 		} else if (*f == '.') {
-			if (is_multiple_char(f[1])) {
+			f++;
+			if (is_multiple_char(*f)) {
 				expr[0] = '.';
 				expr[1] = '\0';
-				f++;
 				res = parse_multiplier_dotstar(&p, &f, in_max, expr,
 						o, max_o, &n_found);
 				if (res < 0)
 					goto end_nomatch;
 				continue;
 			}
-			debug(SCANF, 8, "fmt[%d]='.', match any char\n", i);
-			f++;
+			debug(SCANF, 8, "fmt='.', match any char\n");
 			p++;
 			/* expression or char range */
 		} else if (*f == '(' || *f == '[') {
