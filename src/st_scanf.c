@@ -242,14 +242,13 @@ static int fill_char_range(char *expr, const char *fmt, int n)
 /*
  * match character c against STRING 'expr' like [acde-g]
  * @c    : the char to match
- * @expr : the expr to test c against
- * @i    : an index inside 'expr', will be updated
+ * @expr : a pointer to the expr to test c against, pointer will be updated
  * returns :
  *    1 if a match is found
  *    0 if no match
  *    -1 if range is invalid
  */
-static int match_char_against_range(char c, const char **expr, int *i)
+static int match_char_against_range(char c, const char **expr)
 {
 	int res = 0;
 	char low, high;
@@ -746,11 +745,9 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 			in++;
 			continue;
 		case '[': /* try to handle char range like [a-Zbce-f] */
-			i = 0;
-			res = match_char_against_range(*in, &expr, &i);
+			res = match_char_against_range(*in, &expr);
 			if (res <= 0)
 				break;
-			/* expr += i; */
 			in++;
 			continue;
 		case '%':
@@ -1391,8 +1388,6 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 		} else if (*f == '.') {
 			f++;
 			if (is_multiple_char(*f)) {
-				expr[0] = '.';
-				expr[1] = '\0';
 				res = parse_multiplier_dotstar(&p, &f, in_max, expr,
 						o, max_o, &n_found);
 				if (res < 0)
@@ -1461,7 +1456,6 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			if (is_multiple_char(f[1]))  {
 				f++;
 				expr[0] = c;
-				expr[1] = '\0';
 				res = parse_multiplier_char(&p, &f,in_max, expr,
 						o, max_o, &n_found);
 				if (res < 0)
