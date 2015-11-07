@@ -593,7 +593,7 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 	}
 	/**  couting ':' (7max),  '::' (1max), and '.' (0 or 3) */
 	for (i = 1;  i < len; i++) {
-		if (count_dot && count_dot != 3 && s[i] == ':') {
+		if (count_dot && s[i] == ':') {
 			debug(PARSEIPV6, 3,
 					"Invalid IPv6 address '%s', ':' after %d '.'\n",
 					s, count_dot);
@@ -729,7 +729,7 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 			}
 		}
 
-	} /* for i < 72 */
+	}
 	addr->ip_ver = IPV6_A;
 	return IPV6_A;
 }
