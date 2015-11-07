@@ -341,20 +341,17 @@ static int match_char_against_range_clean(char c, const char *expr)
 /* parse STRING 'in' at index *j according to fmt at index *i
  * fmt[*i] == '%' when the function starts
  * store output in o if not NULL, else put it to thrash
- * @in  : input buffer
- * @fmt : FORMAT buffer
- * @i   : index in fmt
- * @j   : index in in
+ * @in  : pointer to remaining input buffer
+ * @fmt : pointer to remaining FORMAT buffer
  * @o   : a struct to store a found objet; if NULL, discard found data
  * returns:
  *	the number of conversion specifiers found (0 or 1)
- *	*i and *j are updated if a CS is found
 */
 static int parse_conversion_specifier(const char **in, const char **fmt,
-		int *i, int *j, struct sto *o)
+		struct sto *o)
 {
 	int n_found = 0; /* number of CS found */
-	int i2, j2, res;
+	int i2, res;
 	int max_field_length;
 	char buffer[128];
 	char poubelle[256];
@@ -719,16 +716,13 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
  */
 static int match_expr_single(const char *expr, const char *in, struct sto *o, int *num_o)
 {
-	int i, j, res;
+	int res;
 	char c;
 	char *p;
 	const char *saved_in;
 	int saved_num_o = *num_o;
 
-	i = 0; /* index in expr */
-	j = 0; /* index in input buffer */
 	saved_in = in;
-
 	while (1) {
 		c = *expr;
 		if (c == '\0' || c == '|')
@@ -755,11 +749,7 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 		case '%':
 			debug(SCANF, 3, "conversion specifier to handle %lu\n",
 					(unsigned long)(o + *num_o));
-			i = 0;
-			j = 0;
-			res = parse_conversion_specifier(&in, &expr, &i, &j, &o[*num_o]);
-			/*in   += j;
-			expr += i; */
+			res = parse_conversion_specifier(&in, &expr, &o[*num_o]);
 			if (res == 0)
 				break;
 			if (o) {
@@ -792,8 +782,7 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 		in = saved_in;
 		expr = p + 1;
 		*num_o = saved_num_o;
-		debug(SCANF, 4, "Logical OR found, trying again on expr '%s'\n",
-				expr + i);
+		debug(SCANF, 4, "Logical OR found, trying again on expr '%s'\n", p);
 		continue;
 	}
 }
@@ -1312,7 +1301,6 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
  */
 int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 {
-	int i, j;
 	int res;
 	int n_found;
 	char c;
@@ -1322,10 +1310,8 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 	const char *p, *f;
 	const char *in_max; /* bound cheking of input pointer */
 
-	p = in;
-	f = fmt;
-	i = 0; /* index in fmt */
-	j = 0; /* index in in */
+	p = in;  /* remaing in put buffer */
+	f = fmt; /* remaing format buffer */
 	n_found = 0; /* number of arguments/objects found */
 	in_max = in + strlen(in);
 
@@ -1352,7 +1338,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 							fmt, c);
 					goto end_nomatch;
 				}
-				i += res;
+				f += res;
 			} else {
 				if (c == '\\')
 					f++;
@@ -1378,14 +1364,10 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 						max_o, n_found);
 				return n_found;
 			}
-			i = 0;
-			j = 0;
-			res = parse_conversion_specifier(&p, &f, &i, &j, o + n_found);
+			res = parse_conversion_specifier(&p, &f, o + n_found);
 			if (res == 0)
 				return n_found;
 			n_found += res;
-			/*f += i;
-			p += j; */
 			/* any char */
 		} else if (*f == '.') {
 			f++;
@@ -1430,11 +1412,11 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			}
 			if (res == 0) {
 				debug(SCANF, 2, "Expr '%s' didnt match 'in' at offset %d\n",
-						expr, j);
+						expr, (int)(p - in));
 				goto end_nomatch;
 			}
 			debug(SCANF, 4, "Expr '%s' matched 'in' res=%d at offset %d\n",
-					expr, res, j);
+					expr, res, (int)(p - in));
 			debug(SCANF, 4, "Found %d objects so far\n", n_found);
 			p += res;
 			if (p  > in_max) {
@@ -1466,7 +1448,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			}
 			if (*p != *f) {
 				debug(SCANF, 2, "in[%d]='%c', != fmt[%d]='%c', exiting\n",
-						j, in[j], i, fmt[i]);
+						 (int)(p -in), *p, (int)(fmt - f), *f);
 				goto end_nomatch;
 			}
 			p++;
