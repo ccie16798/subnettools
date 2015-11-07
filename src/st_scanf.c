@@ -1216,8 +1216,8 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
 			/*
 			 * last_match_index is set if current loop can stop AND previous cannot
 			 *
-			 * scanf("abdef t e 121.1.1.1", ".*$I") should return '121.1.1.1' not '1.1.1.1'
-			 * scanf("abdef t e STRING", ".*$s")    should return 'STRING' not just 'G'
+			 * scanf("ab 121.1.1.1", ".*$I") should return '121.1.1.1' not '1.1.1.1'
+			 * scanf("ab STRING", ".*$s")    should return 'STRING' not just 'G'
 			 */
 			if (could_stop && previous_could_stop == 0)
 				last_match_index = *in;
@@ -1435,8 +1435,8 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 		} else {
 			c = *f;
 			if (*f == '\\') {
-				c = escape_char(f[1]);
 				f++;
+				c = escape_char(*f);
 				if (c == '\0') {
 					debug(SCANF, 1, "Invalid format string '%s'\n", fmt);
 					goto end_nomatch;
@@ -1445,7 +1445,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			if (is_multiple_char(f[1]))  {
 				f++;
 				expr[0] = c;
-				res = parse_multiplier_char(&p, &f,in_max, expr,
+				res = parse_multiplier_char(&p, &f, in_max, expr,
 						o, max_o, &n_found);
 				if (res < 0)
 					goto end_nomatch;
@@ -1453,7 +1453,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			}
 			if (*p != *f) {
 				debug(SCANF, 2, "in[%d]='%c', != fmt[%d]='%c', exiting\n",
-						 (int)(p -in), *p, (int)(fmt - f), *f);
+						 (int)(p - in), *p, (int)(fmt - f), *f);
 				goto end_nomatch;
 			}
 			p++;
