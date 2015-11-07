@@ -485,6 +485,7 @@ int string2mask(const char *s, size_t len)
 	return ddn_mask;
 }
 
+/* can only be called from string2addr, which make some preliminary tests */
 static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 {
 	int count_dot = 0;
@@ -495,14 +496,7 @@ static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 	const char *p = s;
 #endif
 
-	if (*s == '\0') {
-		debug_parseipv4(3, "Invalid IP '%s', null\n");
-		return BAD_IP;
-	}
-	if (*s == '.') {
-		debug_parseipv4(3, "Invalid IP '%s', starts with '.'\n", s);
-		return BAD_IP;
-	}
+	/* string2addr has made sure s[0] is not NUL or '.' */
 	s_max = s + len;
 	while (1) {
 		if (s == s_max) {
