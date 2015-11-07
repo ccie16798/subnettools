@@ -366,7 +366,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 	short *v_short;
 	unsigned int *v_uint;
 	int sign;
-	const char *p;
+	const char *p, *p_max;
 
 #define ARG_SET(__NAME, __TYPE) \
 	do { \
@@ -395,7 +395,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		debug(SCANF, 9, "Found max field length %d\n", max_field_length);
 	} else
 		max_field_length = sizeof(buffer) - 2;
-
+	p_max = *in + max_field_length - 1;
 	c = (*fmt)[1];
 	switch (c) {
 	case '\0':
@@ -630,7 +630,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			return n_found;
 		}
 		ptr_buff = v_s;
-		while (!isspace(*p) && p - *in < max_field_length - 1) {
+		while (!isspace(*p) && p < p_max) {
 			if (*p == '\0')
 				break;
 			*ptr_buff = *p;
@@ -655,7 +655,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 	case 'W':
 		ARG_SET(v_s, char *);
 		ptr_buff = v_s;
-		while (isalpha(*p) && p - *in < max_field_length - 1) {
+		while (isalpha(*p) && p < p_max) {
 			*ptr_buff = *p;
 			p++;
 			ptr_buff++;
@@ -678,8 +678,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		*fmt += (i2 - 1);
 		i2 = 0;
 		ptr_buff = v_s;
-		while (match_char_against_range_clean(*p, expr) &&
-				p - *in < max_field_length - 1) {
+		while (match_char_against_range_clean(*p, expr) && p < p_max) {
 			if (*p == '\0')
 				break;
 			*ptr_buff = *p;
