@@ -726,7 +726,6 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 
 int string2addr(const char *s, struct ip_addr *addr, size_t len)
 {
-	int i;
 	const char *p = s;
 
 	/* check first char */
@@ -768,7 +767,6 @@ int get_subnet_or_ip(const char *s, struct subnet *subnet)
 {
 	int a;
 	u32 mask;
-	int count_slash = 0;
 	char *p;
 
 	if (*s == '\0' || *s == '/') {
