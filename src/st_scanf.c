@@ -53,26 +53,6 @@ static inline int is_multiple_char(char c)
 	return (c == '*' || c == '+' || c == '?' || c == '{');
 }
 
-/*
- * find the conversion specifier char after a '%'
- * (since it can the followed by a max_field_length)
- */
-static inline char conversion_specifier(const char *fmt)
-{
-	int i = 0;
-
-	while (1) {
-		if (fmt[i] == '\0') {
-			debug(SCANF, 1, "Invalid FMT, no conversion specifier found after '%%'\n");
-			return '\0';
-		}
-		if (!isdigit(fmt[i]))
-			return fmt[i];
-		i++;
-	}
-	return '\0';
-}
-
 static inline int max_match(char c)
 {
 	if (c == '*')
