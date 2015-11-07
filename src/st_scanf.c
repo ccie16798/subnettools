@@ -1046,7 +1046,7 @@ static int parse_multiplier_char(const char **in, const char **fmt, int *i, int 
 	return 1;
 }
 
-static int parse_multiplier_expr(const char *in, const char *fmt, int *i, int in_length, int *j,
+static int parse_multiplier_expr(const char **in, const char **fmt, int *i, int in_length, int *j,
 		char *expr, struct sto *o, int max_o, int *n_found)
 {
 	char c;
@@ -1054,15 +1054,14 @@ static int parse_multiplier_expr(const char *in, const char *fmt, int *i, int in
 	int min_m, max_m;
 	int n_match = 0;
 
-	c = fmt[*i];
-	if (c == '{') {
-		res = parse_brace_multiplier(fmt + *i, &min_m, &max_m);
+	if (**fmt == '{') {
+		res = parse_brace_multiplier(*fmt, &min_m, &max_m);
 		if (res < 0)
 			return -1;
-		*i += res;
+		*fmt += res;
 	} else {
-		min_m = min_match(c);
-		max_m = max_match(c);
+		min_m = min_match(**fmt);
+		max_m = max_match(**fmt);
 	}
 	num_cs = count_cs(expr);
 	if (*n_found + num_cs > max_o) {
@@ -1072,16 +1071,16 @@ static int parse_multiplier_expr(const char *in, const char *fmt, int *i, int in
 	}
 	debug(SCANF, 4, "Pattern expansion will end when in[j] != '%s'\n", expr);
 	while (n_match < max_m) {
-		res = match_expr_single(expr, in + *j, o, n_found);
+		res = match_expr_single(expr, *in, o, n_found);
 		if (res < 0) {
 			debug(SCANF, 1, "Invalid format '%s'\n", expr);
 			return -1;
 		}
 		if (res == 0)
 			break;
-		*j += res;
+		*in += res;
 		n_match++;
-		if (in[*j] == '\0') {
+		if (**in == '\0') {
 			debug(SCANF, 3, "reached end of input scanning 'in'\n");
 			break;
 		}
@@ -1091,7 +1090,7 @@ static int parse_multiplier_expr(const char *in, const char *fmt, int *i, int in
 				*expr, n_match, min_m);
 		return -2;
 	}
-	*i += 1;
+	*fmt += 1;
 	if (num_cs) {
 		if (n_match) {
 			debug(SCANF, 4, "found %d CS so far\n", *n_found);
@@ -1108,7 +1107,7 @@ static int parse_multiplier_expr(const char *in, const char *fmt, int *i, int in
 			}
 		}
 	}
-	if (in[*j] == '\0' && fmt[*i] != '\0')
+	if (**in == '\0' && **fmt != '\0')
 		return -2;
 	return 1;
 }
@@ -1373,12 +1372,14 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			if (is_multiple_char(*f)) {
 				i = 0;
 				j = 0;
-				res = parse_multiplier_expr(p, f, &i, in_length, &j, expr,
+				res = parse_multiplier_expr(&p, &f, &i, in_length, &j, expr,
 						o, max_o, &n_found);
 				if (res < 0)
 					goto end_nomatch;
+				/*
 				f += i;
 				p += j;
+				*/
 				continue;
 			}
 			num_cs = count_cs(expr);
