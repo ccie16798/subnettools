@@ -79,12 +79,12 @@ int string2int(const char *s, int *res)
 
 inline int char2int(char c)
 {
-	if (c >= 'A' && c <= 'F')
-		return (10 + c - 'A');
-	if (c >= 'a' && c <= 'f')
-		return (10 + c - 'a');
 	if (c >= '0' && c <= '9')
 		return (c - '0');
+	if (c >= 'a' && c <= 'f')
+		return (10 + c - 'a');
+	if (c >= 'A' && c <= 'F')
+		return (10 + c - 'A');
 	return 0;
 }
 
