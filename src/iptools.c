@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include "st_options.h"
 #include "debug.h"
 #include "iptools.h"
 #include "utils.h"
@@ -491,7 +492,7 @@ static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 	int current_block = 0;
 	const char *s_max;
 #ifdef DEBUG_PARSE_IPV4
-	const char *p;
+	const char *p = s;
 #endif
 
 	if (*s == '\0') {
@@ -505,7 +506,6 @@ static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 	s_max = s + len;
 	while (1) {
 		if (*s == '\0' || s == s_max) {
-			truc[count_dot] = current_block;
 			if (current_block > 255) {
 				debug_parseipv4(3, "Invalid IP '%s', %d too big\n",
 						p, current_block);
@@ -548,7 +548,7 @@ static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 		debug_parseipv4(3, "Invalid IP '%s', not enough '.'\n", p);
 		return BAD_IP;
 	}
-	addr->ip = (truc[0] << 24) + (truc[1] << 16) + (truc[2] << 8) + truc[3];
+	addr->ip = (truc[0] << 24) + (truc[1] << 16) + (truc[2] << 8) + current_block;
 	addr->ip_ver = IPV4_A;
 	return IPV4_A;
 }
