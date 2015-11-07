@@ -677,21 +677,20 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		}
 		*fmt += (i2 - 1);
 		i2 = 0;
-		/* match_char_against_range cant return -1 here,
-		 * fill_char_range above would have caught a bad expr
-		 */
+		ptr_buff = v_s;
 		while (match_char_against_range_clean(*p, expr) &&
 				p - *in < max_field_length - 1) {
 			if (*p == '\0')
 				break;
-			v_s[p - *in] = *p;
+			*ptr_buff = *p;
 			p++;
+			ptr_buff++;
 		}
 		if (p == *in) {
 			debug(SCANF, 3, "no CHAR RANGE found at %s\n", *in);
 			return 0;
 		}
-		v_s[p - *in] = '\0';
+		*ptr_buff = '\0';
 		debug(SCANF, 5, "CHAR RANGE '%s' found at %s\n", v_s,  *in);
 		n_found++;
 		break;
