@@ -406,9 +406,13 @@ int string2mask(const char *s, size_t len)
 
 	while (1) {
 		if (*s == '\0' || s == s_max) {
-			if (count_dot == 0) /* prefix-notation mask */
-				break;
-			else if (count_dot != 3) {
+			if (count_dot == 0) {/* prefix-notation mask */
+				if (a > 128) {
+					debug_parseipv4(3, "Invalid mask '%s', too long\n", p);
+					return BAD_MASK;
+				}
+				return a;
+			} else if (count_dot != 3) {
 				debug_parseipv4(3, "Invalid DDN mask '%s', not enough '.'\n", p);
 				return BAD_MASK;
 			}
@@ -481,13 +485,6 @@ int string2mask(const char *s, size_t len)
 			debug_parseipv4(3, "Invalid mask '%s', contains '%c'\n", p, *s);
 			return BAD_MASK;
 		}
-	}
-	if (count_dot == 0) { /* prefix length*/
-		if (a > 128) {
-			debug_parseipv4(3, "Invalid mask '%s', too long\n", p);
-			return BAD_MASK;
-		}
-		return a;
 	}
 	return ddn_mask;
 }
