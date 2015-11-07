@@ -1107,33 +1107,32 @@ static int parse_multiplier_expr(const char **in, const char **fmt, int *i, int 
 	return 1;
 }
 
-static int parse_multiplier_dotstar(const char *in, const char *fmt, int *i, int in_length, int *j,
+static int parse_multiplier_dotstar(const char **in, const char **fmt, int *i, int in_length, int *j,
 		char *expr, struct sto *o, int max_o, int *n_found)
 {
 	int match_last, could_stop, previous_could_stop;
-	int last_match_index, n_match;
+	int n_match;
 	int min_m, max_m, k, res;
 	char c;
 	struct expr e;
+	const char *last_match_index = NULL;
 
-	c = fmt[*i];
-	if (c == '{') {
-		res = parse_brace_multiplier(fmt + *i, &min_m, &max_m);
+	if (**fmt == '{') {
+		res = parse_brace_multiplier(*fmt, &min_m, &max_m);
 		if (res < 0)
 			return -1;
-		*i += res;
+		*fmt += res;
 	} else {
-		min_m = min_match(c);
-		max_m = max_match(c);
+		min_m = min_match(**fmt);
+		max_m = max_match(**fmt);
 	}
 	debug(SCANF, 5, "need to find expression '.' {%d,%d} times\n", min_m, max_m);
 	/*  '.*' handling ... BIG MESS */
 	match_last = 0;
 	n_match    = 0;
-	last_match_index = -1;
 	could_stop = 0;
 	previous_could_stop = 0;
-	if (fmt[*i + 1] == '$') {
+	if (fmt[0][1] == '$') {
 		if (max_m < 2) {
 			debug(SCANF, 1, "'$' not allowed in this context, max expansion=%d\n",
 					max_m);
@@ -1141,15 +1140,15 @@ static int parse_multiplier_dotstar(const char *in, const char *fmt, int *i, int
 		}
 		match_last = 1;
 		debug(SCANF, 4, "we will stop on the last match\n");
-		*i += 1;
+		*fmt += 1;
 	}
 	/* we need to find when the expr expansion will end */
-	res = set_expression_canstop(fmt + *i + 1, &e);
+	res = set_expression_canstop(*fmt + 1, &e);
 	if (res < 0)
 		return res;
 
 	/* skipping min_m char, useless to match */
-	*j      += min_m;
+	*in     += min_m;
 	n_match += min_m;
 	/* handle case where min_m too big to match */
 	if (*j > in_length)
@@ -1161,9 +1160,9 @@ static int parse_multiplier_dotstar(const char *in, const char *fmt, int *i, int
 			/* try to stop expansion */
 			e.can_skip = 0;
 			e.skip_on_return = 0;
-			could_stop = e.can_stop(in + *j, &e);
+			could_stop = e.can_stop(*in, &e);
 			debug(SCANF, 4, "trying to stop on remaining '%s', res=%d\n",
-					in + *j, could_stop);
+					*in, could_stop);
 			if (could_stop && match_last == 0)
 				break;
 			n_match++;
@@ -1174,9 +1173,9 @@ static int parse_multiplier_dotstar(const char *in, const char *fmt, int *i, int
 			 * scanf("abdef t e STRING", ".*$s")    should return 'STRING' not just 'G'
 			 */
 			if (could_stop && previous_could_stop == 0)
-				last_match_index = *j;
+				last_match_index = *in;
 			previous_could_stop = could_stop;
-			*j += (e.can_skip ? e.can_skip : 1);
+			*in += (e.can_skip ? e.can_skip : 1);
 
 			if (*j > in_length) {
 				/* can happen only if there is a BUG in can_skip usage */
@@ -1184,7 +1183,7 @@ static int parse_multiplier_dotstar(const char *in, const char *fmt, int *i, int
 						__func__, __LINE__);
 				return -5;
 			}
-			if (in[*j] == '\0') {
+			if (**in == '\0') {
 				debug(SCANF, 3, "reached end of input scanning 'in'\n");
 				break;
 			}
@@ -1193,17 +1192,17 @@ static int parse_multiplier_dotstar(const char *in, const char *fmt, int *i, int
 		/* end on simple char */
 		while (n_match < max_m) {
 			/* try to stop expansion */
-			could_stop = (in[*j] == e.end_of_expr);
+			could_stop = (**in == e.end_of_expr);
 			debug(SCANF, 4, "trying to stop on char '%c', res=%d\n",
 					e.end_of_expr, res);
 			if (could_stop && match_last == 0)
 				break;
 			n_match++;
 			if (could_stop && previous_could_stop == 0)
-				last_match_index = *j;
+				last_match_index = *in;
 			previous_could_stop = could_stop;
-			*j += 1;
-			if (in[*j] == '\0') {
+			*in += 1;
+			if (**in == '\0') {
 				debug(SCANF, 3, "reached end of input scanning 'in'\n");
 				break;
 			}
@@ -1213,14 +1212,14 @@ static int parse_multiplier_dotstar(const char *in, const char *fmt, int *i, int
 			n_match, could_stop, e.skip_on_return);
 	/* in case of last match, we must rewind position in 'in'*/
 	if (match_last) {
-		*j = last_match_index;
+		*in = last_match_index;
 		debug(SCANF, 4, "last match asked, rewind to index '%d'\n",  *j);
-		if (*j == -1) {
+		if (*in == NULL) {
 			debug(SCANF, 3, "last match never matched\n");
 			return -2;
 		}
 	}
-	*i += 1;
+	*fmt += 1;
 	/* if we stop a multiplier expansion on a complex conversion specifier, we may
 	 * have recorded it in e->sto, to avoid anaylising it again
 	 * ie scanf('.*%I a', '    1.1.1.1 a', must fully analyse 1.1.1.1 in '.*' expansion
@@ -1233,13 +1232,13 @@ static int parse_multiplier_dotstar(const char *in, const char *fmt, int *i, int
 			memcpy(&o[*n_found], &e.sto[k], sizeof(struct sto));
 			*n_found += 1;
 		}
-		while (isdigit(fmt[*i])) /* remove field width */
-			*i += 1;
-		*i += 2;
-		*j += e.skip_on_return;
+		while (isdigit(**fmt)) /* remove field width */
+			*fmt += 1;
+		*fmt += 2;
+		*in += e.skip_on_return;
 	}
 	/* multiplier went to the end of 'in', but without matching the end */
-	if (in[*j] == '\0' && fmt[*i] != '\0')
+	if (**in == '\0' && **fmt != '\0')
 		return -2;
 	return 1;
 }
@@ -1341,12 +1340,12 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				f++;
 				i = 0;
 				j = 0;
-				res = parse_multiplier_dotstar(p, f, &i, in_length, &j, expr,
+				res = parse_multiplier_dotstar(&p, &f, &i, in_length, &j, expr,
 						o, max_o, &n_found);
 				if (res < 0)
 					goto end_nomatch;
-				f += i;
-				p += j;
+				/*f += i;
+				p += j; */
 				continue;
 			}
 			debug(SCANF, 8, "fmt[%d]='.', match any char\n", i);
