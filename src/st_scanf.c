@@ -238,6 +238,7 @@ static int fill_char_range(char *expr, const char *fmt, int n)
 	expr[i + 1] = '\0';
 	return i + 1;
 }
+
 /*
  * match character c against STRING 'expr' like [acde-g]
  * @c    : the char to match
@@ -248,25 +249,79 @@ static int fill_char_range(char *expr, const char *fmt, int n)
  *    0 if no match
  *    -1 if range is invalid
  */
-static int match_char_against_range(char c, const char *expr, int *i)
+static int match_char_against_range(char c, const char **expr, int *i)
 {
 	int res = 0;
 	char low, high;
 	int invert = 0;
 
-	*i += 1;
-	if (expr[*i] == '^') {
+	*expr += 1;
+	if (**expr == '^') {
 		invert = 1;
-		*i += 1;
+		*expr += 1;
 	}
 	/* to include a ']' in a range, must be right after '[' of '[^' */
-	if (expr[*i] == ']') {
+	if (**expr == ']') {
 		res = (c == ']');
-		*i += 1;
+		*expr += 1;
 	}
 
-	while (expr[*i] != ']') {
-		low = expr[*i];
+	while (**expr != ']') {
+		low = **expr;
+		if (low == '\0') {
+			debug(SCANF, 1, "Invalid expr '%s', no closing ']' found\n", *expr);
+			return -1;
+		}
+		/* expr[*i + 2] != ']' means we can match a '-' only if it is right
+		 * before the ending ']'
+		 */
+		if ((*expr)[1] == '-' && (*expr)[2] != ']') {
+			high = (*expr)[2];
+			if (high == '\0') {
+				debug(SCANF, 1, "Invalid expr '%s', incomplete range\n", *expr);
+				return -1;
+			}
+			if (c >= low && c <= high)
+				res = 1;
+			*expr += 1;
+		} else {
+			if (low == c)
+				res = 1;
+		}
+		*expr += 1;
+	}
+	*expr += 1;
+	return invert ? !res : res;
+}
+
+
+/* match character c against STRING 'expr' like [acde-g]
+ * We KNOW expr is a valid char range, no bound checking needed
+ * @c    : the char to match
+ * @expr : the expr to test c against
+ * returns :
+ *    1 if a match is found
+ *    0 if no match
+ */
+static int match_char_against_range_clean(char c, const char *expr)
+{
+	int res = 0;
+	char low, high;
+	int invert = 0;
+
+	expr += 1;
+	if (*expr == '^') {
+		invert = 1;
+		expr += 1;
+	}
+	/* to include a ']' in a range, must be right after '[' of '[^' */
+	if (*expr == ']') {
+		res = (c == ']');
+		expr += 1;
+	}
+
+	while (*expr != ']') {
+		low = *expr;
 		if (low == '\0') {
 			debug(SCANF, 1, "Invalid expr '%s', no closing ']' found\n", expr);
 			return -1;
@@ -274,22 +329,21 @@ static int match_char_against_range(char c, const char *expr, int *i)
 		/* expr[*i + 2] != ']' means we can match a '-' only if it is right
 		 * before the ending ']'
 		 */
-		if (expr[*i + 1] == '-' && expr[*i + 2] != ']') {
-			high = expr[*i + 2];
+		if (expr[1] == '-' && expr[2] != ']') {
+			high = expr[2];
 			if (high == '\0') {
 				debug(SCANF, 1, "Invalid expr '%s', incomplete range\n", expr);
 				return -1;
 			}
 			if (c >= low && c <= high)
 				res = 1;
-			*i += 1;
+			expr += 1;
 		} else {
 			if (low == c)
 				res = 1;
 		}
-		*i += 1;
+		expr += 1;
 	}
-	*i += 1;
 	return invert ? !res : res;
 }
 /* parse STRING 'in' at index *j according to fmt at index *i
@@ -628,12 +682,11 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 		/* match_char_against_range cant return -1 here,
 		 * fill_char_range above would have caught a bad expr
 		 */
-		while (match_char_against_range(in[j2], expr, &i2) &&
+		while (match_char_against_range_clean(in[j2], expr) &&
 				j2 - *j < max_field_length - 1) {
 			if (in[j2] == '\0')
 				break;
 			v_s[j2 - *j] = in[j2];
-			i2 = 0;
 			j2++;
 		}
 		if (j2 == *j) {
@@ -701,10 +754,10 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 			continue;
 		case '[': /* try to handle char range like [a-Zbce-f] */
 			i = 0;
-			res = match_char_against_range(*in, expr, &i);
+			res = match_char_against_range(*in, &expr, &i);
 			if (res <= 0)
 				break;
-			expr += i;
+			/* expr += i; */
 			in++;
 			continue;
 		case '%':
@@ -869,9 +922,9 @@ static int find_expr(const char *remain, struct expr *e)
 
 static int find_char_range(const char *remain, struct expr *e)
 {
-	int res, i = 0;
+	int res;
 
-	res = match_char_against_range(*remain, e->end_expr, &i);
+	res = match_char_against_range_clean(*remain, e->end_expr);
 	return res;
 }
 
