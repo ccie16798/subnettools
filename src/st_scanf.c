@@ -675,38 +675,46 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 	int i, j, res;
 	char c;
 	char *p;
+	const char *saved_in;
 	int saved_num_o = *num_o;
 
 	i = 0; /* index in expr */
 	j = 0; /* index in input buffer */
+	saved_in = in;
 
 	while (1) {
-		c = expr[i];
+		c = *expr;
 		if (c == '\0' || c == '|')
-			return j;
-		debug(SCANF, 8, "remaining in  ='%s'\n", in + j);
-		debug(SCANF, 8, "remaining expr='%s'\n", expr + i);
+			return in - saved_in;
+		debug(SCANF, 8, "remaining in  ='%s'\n", in);
+		debug(SCANF, 8, "remaining expr='%s'\n", expr);
 		switch (c) {
 		case '(':
-			i++;
+			expr++;
 			continue;
 		case ')':
-			i++;
+			expr++;
 			continue;
 		case '.':
-			i++;
-			j++;
+			expr++;
+			in++;
 			continue;
 		case '[': /* try to handle char range like [a-Zbce-f] */
-			res = match_char_against_range(in[j], expr, &i);
+			i = 0;
+			res = match_char_against_range(*in, expr, &i);
 			if (res <= 0)
 				break;
-			j++;
+			expr += i;
+			in++;
 			continue;
 		case '%':
 			debug(SCANF, 3, "conversion specifier to handle %lu\n",
 					(unsigned long)(o + *num_o));
+			i = 0;
+			j = 0;
 			res = parse_conversion_specifier(in, expr, &i, &j, &o[*num_o]);
+			in   += j;
+			expr += i;
 			if (res == 0)
 				break;
 			if (o) {
@@ -718,26 +726,26 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 			*num_o += 1;
 			continue;
 		case '\\':
-			i++;
-			c = escape_char(expr[i]);
+			expr++;
+			c = escape_char(*expr);
 			if (c == '\0') {
 				debug(SCANF, 1, "Invalid expr '%s', '\\' at end of string\n",
 						expr);
 				return 0;
 			}
 		default:
-			if (in[j] != c)
+			if (*in != c)
 				break;
-			i++;
-			j++;
+			expr++;
+			in++;
 			continue;
 		}
 		/* we didnt match, but give a chance to try again if an 'OR' is found */
-		p = strchr(expr + i, '|');
+		p = strchr(expr, '|');
 		if (p == NULL)
 			return 0;
-		j = 0;
-		i = (p - expr) + 1;
+		in = saved_in;
+		expr = p + 1;
 		*num_o = saved_num_o;
 		debug(SCANF, 4, "Logical OR found, trying again on expr '%s'\n",
 				expr + i);
