@@ -295,6 +295,11 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 	}
 	/* we allocated one more route */
 	free_route(&sf->routes[sf->nr]);
+	if (sf->nr == 0) {
+		debug(LOAD_CSV, 3, "Not a single valid line in %s", name);
+		free_subnet_file(sf);
+		return -2;
+	}
 	return res;
 }
 
@@ -613,5 +618,10 @@ int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof)
 	res = generic_load_csv(name, &cf, &state, sf);
 	if (res < 0)
 		free_bgp_file(sf);
+	if (sf->nr == 0) {
+		debug(LOAD_CSV, 3, "Not a single valid line in %s", name);
+		free_bgp_file(sf);
+		return -2;
+	}
 	return res;
 }
