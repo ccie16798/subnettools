@@ -350,7 +350,7 @@ static int match_char_against_range_clean(char c, const char *expr)
  *	the number of conversion specifiers found (0 or 1)
  *	*i and *j are updated if a CS is found
 */
-static int parse_conversion_specifier(const char *in, const char *fmt,
+static int parse_conversion_specifier(const char **in, const char **fmt,
 		int *i, int *j, struct sto *o)
 {
 	int n_found = 0; /* number of CS found */
@@ -368,6 +368,7 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 	short *v_short;
 	unsigned int *v_uint;
 	int sign;
+	const char *p;
 
 #define ARG_SET(__NAME, __TYPE) \
 	do { \
@@ -375,45 +376,46 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 			__NAME = (__TYPE)&poubelle; \
 		else { \
 			__NAME = (__TYPE)&o->s_char; \
-			o->type = fmt[*i + 1]; \
+			o->type = (*fmt)[1]; \
 			o->conversion = 0; \
 		} \
 	} while (0)
 
-	j2 = *j;
+	p = *in;
 	/* computing field length */
-	if (isdigit(fmt[*i + 1])) {
-		max_field_length = fmt[*i + 1] - '0';
-		*i += 2;
-		while (isdigit(fmt[*i])) {
+	if (isdigit((*fmt)[1])) {
+		max_field_length = (*fmt)[1] - '0';
+		*fmt += 2;
+		while (isdigit(**fmt)) {
 			max_field_length *= 10;
-			max_field_length += fmt[*i] - '0';
-			*i += 1;
+			max_field_length += **fmt - '0';
+			*fmt += 1;
 		}
-		*i -= 1;
+		*fmt -= 1;
 		if (max_field_length > sizeof(buffer) - 2)
 			max_field_length = sizeof(buffer) - 2;
 		debug(SCANF, 9, "Found max field length %d\n", max_field_length);
 	} else
 		max_field_length = sizeof(buffer) - 2;
 
-	switch (fmt[*i + 1]) {
+	c = (*fmt)[1];
+	switch (c) {
 	case '\0':
-		debug(SCANF, 1, "Invalid format '%s', ends with %%\n", fmt);
+		debug(SCANF, 1, "Invalid format '%s', ends with %%\n", *fmt);
 		return n_found;
 	case 'Q': /* classfull subnet */
 	case 'P':
 		ARG_SET(v_sub, struct subnet *);
-		while ((is_ip_char(in[j2]) || in[j2] == '/')) {
-			buffer[j2 - *j] = in[j2];
-			j2++;
+		while ((is_ip_char(*p) || *p == '/')) {
+			buffer[p - *in] = *p;
+			p++;
 		}
-		buffer[j2 - *j] = '\0';
-		if (j2 - *j <= 2) {
+		buffer[p - *in] = '\0';
+		if (p - *in <= 2) {
 			debug(SCANF, 3, "no IP found at offset %d\n", *j);
 			return n_found;
 		}
-		if (fmt[*i + 1] == 'P')
+		if ((*fmt)[1] == 'P')
 			res = get_subnet_or_ip(buffer, v_sub);
 		else
 			res = classfull_get_subnet(buffer, v_sub);
@@ -427,13 +429,13 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 		break;
 	case 'I':
 		ARG_SET(v_addr, struct ip_addr *);
-		while (is_ip_char(in[j2]))
-			j2++;
-		if (j2 - *j <= 1) {
+		while (is_ip_char(*p))
+			p++;
+		if (p - *in <= 1) {
 			debug(SCANF, 3, "no IP found at offset %d\n", *j);
 			return n_found;
 		}
-		res = string2addr(in + *j, v_addr, j2 - *j);
+		res = string2addr(*in, v_addr, p - *in);
 		if (res > 0) {
 			debug(SCANF, 5, "valid IP at offset:%d\n", *j);
 			n_found++;
@@ -444,13 +446,13 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 		break;
 	case 'M':
 		ARG_SET(v_int, int *);
-		while (isdigit(in[j2]) || in[j2] == '.')
-			j2++;
-		if (j2 - *j == 0) {
+		while (isdigit(*p) || *p == '.')
+			p++;
+		if (p - *in == 0) {
 			debug(SCANF, 3, "no MASK found at offset %d\n", *j);
 			return n_found;
 		}
-		res = string2mask(in + *j, j2 - *j);
+		res = string2mask(*in, p - *in);
 		if (res != BAD_MASK) {
 			debug(SCANF, 5, "Valid MASK found at offset:%d\n", *j);
 			n_found++;
@@ -461,47 +463,48 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 		*v_int = res;
 		break;
 	case 'h':
-		*i += 1;
-		if (fmt[*i + 1] != 'd' && fmt[*i + 1] != 'u' && fmt[*i + 1] != 'x') {
+		*fmt += 1;
+		c = (*fmt)[1];
+		if (c != 'd' && c != 'u' && c != 'x') {
 			debug(SCANF, 1, "Invalid format '%s', wrong char '%c' after 'h'\n",
-					fmt, fmt[*i + 1]);
+					*fmt, c);
 			return n_found;
 		}
 		ARG_SET(v_short, short *);
 		if (o)
 			o->conversion = 'h';
 		*v_short = 0;
-		if (fmt[*i + 1] == 'x') {
-			if (in[j2] == '0' && in[j2 + 1] == 'x')
-				j2 += 2;
-			if (!isxdigit(in[j2])) {
+		if (c == 'x') {
+			if (*p == '0' && p[1] == 'x')
+				p += 2;
+			if (!isxdigit(*p)) {
 				debug(SCANF, 3, "no HEX found at offset %d\n", *j);
 				return n_found;
 			}
-			while (isxdigit(in[j2])) {
+			while (isxdigit(*p)) {
 				*v_short <<= 4;
-				*v_short += char2int(in[j2]);
-				j2++;
+				*v_short += char2int(*p);
+				p++;
 			}
 			debug(SCANF, 5, "found short HEX '%x' at offset %d\n",
 					*v_short, *j);
 		} else {
-			if (in[*j] == '-' && fmt[*i + 1] == 'd') {
+			if (*p == '-' && c == 'd') {
 				sign = -1;
-				j2++;
+				p++;
 			} else
 				sign = 1;
-			if (!isdigit(in[j2])) {
+			if (!isdigit(*p)) {
 				debug(SCANF, 3, "no SHORT found at offset %d\n", *j);
 				return n_found;
 			}
-			while (isdigit(in[j2])) {
+			while (isdigit(*p)) {
 				*v_short *= 10;
-				*v_short += (in[j2] - '0');
-				j2++;
+				*v_short += (*p - '0');
+				p++;
 			}
 			*v_short *= sign;
-			if (fmt[*i + 1] == 'u') {
+			if (c == 'u') {
 				debug(SCANF, 5, "found USHORT '%hu' at offset %d\n",
 						(unsigned short)*v_short, *j);
 			} else {
@@ -512,47 +515,48 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 		n_found++;
 		break;
 	case 'l':
-		*i += 1;
-		if (fmt[*i + 1] != 'd' && fmt[*i + 1] != 'u' && fmt[*i + 1] != 'x') {
+		*fmt += 1;
+		c = (*fmt)[1];
+		if (c != 'd' && c != 'u' && c != 'x') {
 			debug(SCANF, 1, "Invalid format '%s', wrong char '%c' after 'l'\n",
-					fmt, fmt[*i + 1]);
+					*fmt, c);
 			return n_found;
 		}
 		ARG_SET(v_long, long *);
 		if (o)
 			o->conversion = 'l';
 		*v_long = 0;
-		if (fmt[*i + 1] == 'x') {
-			if (in[j2] == '0' && in[j2 + 1] == 'x')
-				j2 += 2;
-			if (!isxdigit(in[j2])) {
+		if (c == 'x') {
+			if (*p == '0' && p[1] == 'x')
+				p += 2;
+			if (!isxdigit(*p)) {
 				debug(SCANF, 3, "no HEX found at offset %d\n", *j);
 				return n_found;
 			}
-			while (isxdigit(in[j2])) {
+			while (isxdigit(*p)) {
 				*v_long <<= 4;
-				*v_long += char2int(in[j2]);
-				j2++;
+				*v_long += char2int(*p);
+				p++;
 			}
 			debug(SCANF, 5, "found long HEX '%lx' at offset %d\n",
 					(unsigned long)*v_long, *j);
 		} else {
-			if (in[*j] == '-' && fmt[*i + 1] == 'd') {
+			if (*p == '-' && c == 'd') {
 				sign = -1;
-				j2++;
+				p++;
 			} else
 				sign = 1;
-			if (!isdigit(in[j2])) {
+			if (!isdigit(*p)) {
 				debug(SCANF, 3, "no LONG found at offset %d\n", *j);
 				return n_found;
 			}
-			while (isdigit(in[j2])) {
+			while (isdigit(*p)) {
 				*v_long *= 10UL;
-				*v_long += (in[j2] - '0');
-				j2++;
+				*v_long += (*p - '0');
+				p++;
 			}
 			*v_long *= sign;
-			if (fmt[*i + 1] == 'u') {
+			if (c == 'u') {
 				debug(SCANF, 5, "found ULONG '%lu' at offset %d\n",
 						(unsigned long)*v_long, *j);
 			} else {
@@ -565,19 +569,19 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 	case 'd':
 		ARG_SET(v_int, int *);
 		*v_int = 0;
-		if (in[*j] == '-') {
+		if (*p == '-') {
 			sign = -1;
-			j2++;
+			p++;
 		} else
 			sign = 1;
-		if (!isdigit(in[j2])) {
+		if (!isdigit(*p)) {
 			debug(SCANF, 3, "no INT found at offset %d\n", *j);
 			return n_found;
 		}
-		while (isdigit(in[j2])) {
+		while (isdigit(*p)) {
 			*v_int *= 10;
-			*v_int += (in[j2] - '0');
-			j2++;
+			*v_int += (*p - '0');
+			p++;
 		}
 		*v_int *= sign;
 		debug(SCANF, 5, "found INT '%d' at offset %d\n", *v_int, *j);
@@ -586,14 +590,14 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 	case 'u':
 		ARG_SET(v_uint, unsigned int *);
 		*v_uint = 0;
-		if (!isdigit(in[j2])) {
+		if (!isdigit(*p)) {
 			debug(SCANF, 3, "no UINT found at offset %d\n", *j);
 			return n_found;
 		}
-		while (isdigit(in[j2])) {
+		while (isdigit(*p)) {
 			*v_uint *= 10;
-			*v_uint += (in[j2] - '0');
-			j2++;
+			*v_uint += (*p - '0');
+			p++;
 		}
 		debug(SCANF, 5, "found UINT '%u' at offset %d\n", *v_uint, *j);
 		n_found++;
@@ -601,16 +605,16 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 	case 'x':
 		ARG_SET(v_uint, unsigned int *);
 		*v_uint = 0;
-		if (in[j2] == '0' && in[j2 + 1] == 'x')
-			j2 += 2;
-		if (!isxdigit(in[j2])) {
+		if (*p == '0' && p[1] == 'x')
+			p += 2;
+		if (!isxdigit(*p)) {
 			debug(SCANF, 3, "no HEX found at offset %d\n", *j);
 			return n_found;
 		}
-		while (isxdigit(in[j2])) {
+		while (isxdigit(*p)) {
 			*v_uint <<= 4;
-			*v_uint += char2int(in[j2]);
-			j2++;
+			*v_uint += char2int(*p);
+			p++;
 		}
 		debug(SCANF, 5, "found HEX '%x' at offset %d\n", *v_uint, *j);
 		n_found++;
@@ -618,26 +622,26 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 	case 'S': /* a special STRING that doesnt represent an IP */
 	case 's':
 		ARG_SET(v_s, char *);
-		c = fmt[*i + 2];
+		c = (*fmt)[2];
 		if (c == '.') {
-			debug(SCANF, 1, "Invalid format '%s', found '.' after %%s\n", fmt);
+			debug(SCANF, 1, "Invalid format '%s', found '.' after %%s\n", *fmt);
 			return n_found;
 		} else if (c == '%') {
-			debug(SCANF, 1, "Invalid format '%s', found '%%' after %%s\n", fmt);
+			debug(SCANF, 1, "Invalid format '%s', found '%%' after %%s\n", *fmt);
 			return n_found;
 		}
-		while (!isspace(in[j2]) && j2 - *j < max_field_length - 1) {
-			if (in[j2] == '\0')
+		while (!isspace(*p) && p - *in < max_field_length - 1) {
+			if (*p == '\0')
 				break;
-			v_s[j2 - *j] = in[j2];
-			j2++;
+			v_s[p - *in] = *p;
+			p++;
 		}
-		if (j2 == *j) {
+		if (p == *in) {
 			debug(SCANF, 3, "no STRING found at offset %d\n", *j);
 			return n_found;
 		}
-		v_s[j2 - *j] = '\0';
-		if (fmt[*i + 1] == 'S') {
+		v_s[p - *in] = '\0';
+		if ((*fmt)[1] == 'S') {
 			res = get_subnet_or_ip(v_s, (struct subnet *)&poubelle);
 			if (res > 0) {
 				debug(SCANF, 3, "STRING '%s' at offset %d is an IP\n",
@@ -650,58 +654,58 @@ static int parse_conversion_specifier(const char *in, const char *fmt,
 		break;
 	case 'W':
 		ARG_SET(v_s, char *);
-		while (isalpha(in[j2]) && j2 - *j < max_field_length - 1) {
-			v_s[j2 - *j] = in[j2];
-			j2++;
+		while (isalpha(*p) && p - *in < max_field_length - 1) {
+			v_s[p - *in] = *p;
+			p++;
 		}
-		if (j2 == *j) {
+		if (p == *in) {
 			debug(SCANF, 3, "no WORD found at offset %d\n", *j);
 			return 0;
 		}
-		v_s[j2 - *j] = '\0';
+		v_s[p - *in] = '\0';
 		debug(SCANF, 5, "WORD '%s' found at offset %d\n", v_s,  *j);
 		n_found++;
 		break;
 	case '[':
 		ARG_SET(v_s, char *);
-		i2 = fill_char_range(expr, fmt + *i + 1, sizeof(expr));
+		i2 = fill_char_range(expr, (*fmt) + 1, sizeof(expr));
 		if (i2 == -1) {
-			debug(SCANF, 1, "Invalid format '%s', no closing ']'\n", fmt);
+			debug(SCANF, 1, "Invalid format '%s', no closing ']'\n", *fmt);
 			return n_found;
 		}
-		*i += (i2 - 1);
+		*fmt += (i2 - 1);
 		i2 = 0;
 		/* match_char_against_range cant return -1 here,
 		 * fill_char_range above would have caught a bad expr
 		 */
-		while (match_char_against_range_clean(in[j2], expr) &&
-				j2 - *j < max_field_length - 1) {
-			if (in[j2] == '\0')
+		while (match_char_against_range_clean(*p, expr) &&
+				p - *in < max_field_length - 1) {
+			if (*p == '\0')
 				break;
-			v_s[j2 - *j] = in[j2];
-			j2++;
+			v_s[p - *in] = *p;
+			p++;
 		}
-		if (j2 == *j) {
+		if (p == *in) {
 			debug(SCANF, 3, "no CHAR RANGE found at offset %d\n", *j);
 			return 0;
 		}
-		v_s[j2 - *j] = '\0';
+		v_s[p - *in] = '\0';
 		debug(SCANF, 5, "CHAR RANGE '%s' found at offset %d\n", v_s,  *j);
 		n_found++;
 		break;
 	case 'c':
 		ARG_SET(v_s, char *);
-		v_s[0] = in[*j];
+		v_s[0] = *p;
 		debug(SCANF, 5, "CHAR '%c' found at offset %d\n", *v_s,  *j);
-		j2 = *j + 1;
+		p++;
 		n_found++;
 		break;
 	default:
-		debug(SCANF, 1, "Unknown conversion specifier '%c'\n", fmt[*i + 1]);
+		debug(SCANF, 1, "Unknown conversion specifier '%c'\n", c);
 		break;
 	} /* switch */
-	*j = j2;
-	*i += 2;
+	*in = p;
+	*fmt += 2;
 	return n_found;
 }
 
@@ -755,9 +759,9 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 					(unsigned long)(o + *num_o));
 			i = 0;
 			j = 0;
-			res = parse_conversion_specifier(in, expr, &i, &j, &o[*num_o]);
-			in   += j;
-			expr += i;
+			res = parse_conversion_specifier(&in, &expr, &i, &j, &o[*num_o]);
+			/*in   += j;
+			expr += i; */
 			if (res == 0)
 				break;
 			if (o) {
@@ -1378,12 +1382,12 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			}
 			i = 0;
 			j = 0;
-			res = parse_conversion_specifier(p, f, &i, &j, o + n_found);
+			res = parse_conversion_specifier(&p, &f, &i, &j, o + n_found);
 			if (res == 0)
 				return n_found;
 			n_found += res;
-			f += i;
-			p += j;
+			/*f += i;
+			p += j; */
 			/* any char */
 		} else if (*f == '.') {
 			f++;
