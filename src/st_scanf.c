@@ -322,19 +322,11 @@ static int match_char_against_range_clean(char c, const char *expr)
 
 	while (*expr != ']') {
 		low = *expr;
-		if (low == '\0') {
-			debug(SCANF, 1, "Invalid expr '%s', no closing ']' found\n", expr);
-			return -1;
-		}
 		/* expr[*i + 2] != ']' means we can match a '-' only if it is right
 		 * before the ending ']'
 		 */
 		if (expr[1] == '-' && expr[2] != ']') {
 			high = expr[2];
-			if (high == '\0') {
-				debug(SCANF, 1, "Invalid expr '%s', incomplete range\n", expr);
-				return -1;
-			}
 			if (c >= low && c <= high)
 				res = 1;
 			expr += 1;
@@ -346,6 +338,7 @@ static int match_char_against_range_clean(char c, const char *expr)
 	}
 	return invert ? !res : res;
 }
+
 /* parse STRING 'in' at index *j according to fmt at index *i
  * fmt[*i] == '%' when the function starts
  * store output in o if not NULL, else put it to thrash
