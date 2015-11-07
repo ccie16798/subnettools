@@ -338,8 +338,8 @@ static int match_char_against_range_clean(char c, const char *expr)
 	return invert ? !res : res;
 }
 
-/* parse STRING 'in' at index *j according to fmt at index *i
- * fmt[*i] == '%' when the function starts
+/* parse input STRING 'in' according to format 'fmt'
+ * **fmt == '%' when the function starts (conversion specifier)
  * store output in o if not NULL, else put it to thrash
  * @in  : pointer to remaining input buffer
  * @fmt : pointer to remaining FORMAT buffer
@@ -354,6 +354,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 	int i2, res;
 	int max_field_length;
 	char buffer[128];
+	char *ptr_buff;
 	char poubelle[256];
 	char c;
 	struct subnet *v_sub;
@@ -403,11 +404,13 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 	case 'Q': /* classfull subnet */
 	case 'P':
 		ARG_SET(v_sub, struct subnet *);
+		ptr_buff = buffer;
 		while ((is_ip_char(*p) || *p == '/')) {
-			buffer[p - *in] = *p;
+			*ptr_buff = *p;
 			p++;
+			ptr_buff++;
 		}
-		buffer[p - *in] = '\0';
+		*ptr_buff = '\0';
 		if (p - *in <= 2) {
 			debug(SCANF, 3, "no IP found at %s\n", *in);
 			return n_found;
@@ -626,17 +629,19 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			debug(SCANF, 1, "Invalid format, found '%%' after %%s\n");
 			return n_found;
 		}
+		ptr_buff = v_s;
 		while (!isspace(*p) && p - *in < max_field_length - 1) {
 			if (*p == '\0')
 				break;
-			v_s[p - *in] = *p;
+			*ptr_buff = *p;
 			p++;
+			ptr_buff++;
 		}
 		if (p == *in) {
 			debug(SCANF, 3, "no STRING found at %s\n", *in);
 			return n_found;
 		}
-		v_s[p - *in] = '\0';
+		*ptr_buff = '\0';
 		if ((*fmt)[1] == 'S') {
 			res = get_subnet_or_ip(v_s, (struct subnet *)&poubelle);
 			if (res > 0) {
@@ -649,15 +654,17 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		break;
 	case 'W':
 		ARG_SET(v_s, char *);
+		ptr_buff = v_s;
 		while (isalpha(*p) && p - *in < max_field_length - 1) {
-			v_s[p - *in] = *p;
+			*ptr_buff = *p;
 			p++;
+			ptr_buff++;
 		}
 		if (p == *in) {
 			debug(SCANF, 3, "no WORD found at %s\n", *in);
 			return 0;
 		}
-		v_s[p - *in] = '\0';
+		*ptr_buff = '\0';
 		debug(SCANF, 5, "WORD '%s' found\n", v_s);
 		n_found++;
 		break;
