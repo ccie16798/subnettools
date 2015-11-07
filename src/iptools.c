@@ -387,78 +387,84 @@ int mask2ddn(u32 mask, char *out, size_t len)
 
 int string2mask(const char *s, size_t len)
 {
-	int i = 0, ddn_mask = 0;
-	u32 a = 0, prev_a = 0;
+	int ddn_mask = 0;
+	int a, prev_a = 0;
 	int count_dot = 0;
+	const char *s_max = s + len;
+#ifdef DEBUG_PARSE_IPV4
+	const char *p = s;
+#endif
 
-	if (s[i] == '\0') {
-		debug(PARSEIP, 3, "Invalid mask '%s', no digits found\n", s);
+	/* masks must begin with a digit */
+	if (!isdigit(*s)) {
+		debug_parseipv4(3, "Invalid mask '%s', starts with '.'\n", p);
 		return BAD_MASK;
 	}
-	if (s[i] == '.') {
-		debug(PARSEIP, 3, "Invalid mask '%s', starts with '.'\n", s);
-		return BAD_MASK;
-	}
+	/* since we are sure it is a digit, avoid a loop iteration */
+	a = *s - '0';
+	s++;
 
-	for ( ; ; i++) {
-		if (s[i] == '\0' || i == len) {
+	while (1) {
+		if (*s == '\0' || s == s_max) {
 			if (count_dot == 0) /* prefix-notation mask */
 				break;
 			else if (count_dot != 3) {
-				debug(PARSEIP, 3, "Invalid DDN mask '%s', not enough '.'\n", s);
+				debug_parseipv4(3, "Invalid DDN mask '%s', not enough '.'\n", p);
 				return BAD_MASK;
 			}
 			if (a > 255) {
-				debug(PARSEIP, 3, "Invalid DDN mask, contains '%d' > 255\n", a);
+				debug_parseipv4(3,
+						"Invalid DDN mask, contains '%d' > 255\n", a);
 				return BAD_MASK;
 			}
 			if (!isPower2(256 - a)) {
-				debug(PARSEIP, 3,
+				debug_parseipv4(3,
 						"Invalid DDN mask, 256 - '%d' is not power of 2\n",
 						a);
 				return BAD_MASK;
 			}
 			if (a > prev_a) {
-				debug(PARSEIP, 3, "Invalid DDN mask, '%d' > %d\n", a, prev_a);
+				debug_parseipv4(3, "Invalid DDN mask, '%d' > %d\n", a, prev_a);
 				return BAD_MASK;
 			}
 			if (a && (a < 255) && (prev_a != 255)) { /* 255.240.224.0 */
-				debug(PARSEIP, 3, "Invalid DDN mask, wrong\n");
+				debug_parseipv4(3, "Invalid DDN mask, wrong\n");
 				return BAD_MASK;
 			}
 			ddn_mask += 8 - mylog2(256 - a);
 			break;
-		} else if (s[i] == '.') {
-			if (s[i + 1] == '.') {
-				debug(PARSEIP, 3, "Invalid DDN mask '%s', consecutive '.'\n", s);
+		} else if (*s == '.') {
+			s++;
+			if (*s == '.') {
+				debug_parseipv4(3, "Invalid DDN mask '%s', consecutive '.'\n", p);
 				return BAD_MASK;
 			}
-			if (s[i + 1] == '\0' || i + 1 == len) {
-				debug(PARSEIP, 3, "Invalid DDN mask '%s', ends with '.'\n", s);
+			if (*s == '\0' || s == s_max) {
+				debug_parseipv4(3, "Invalid DDN mask '%s', ends with '.'\n", p);
 				return BAD_MASK;
 			}
 			if (count_dot == 3) {
-				debug(PARSEIP, 3, "Invalid DDN mask '%s', too many '.'\n", s);
+				debug_parseipv4(3, "Invalid DDN mask '%s', too many '.'\n", p);
 				return BAD_MASK;
 			}
 			if (a > 255) {
-				debug(PARSEIP, 3, "Invalid DDN mask, contains '%d' > 255\n", a);
+				debug_parseipv4(3, "Invalid DDN mask, contains '%d' > 255\n", a);
 				return BAD_MASK;
 			}
 			if (!isPower2(256 - a)) {
-				debug(PARSEIP, 3,
+				debug_parseipv4(3,
 						"Invalid DDN mask, 256 - '%d' is not power of 2\n",
 						a);
 				return BAD_MASK;
 			}
 			if (count_dot) {
 				if (a > prev_a) {
-					debug(PARSEIP, 3, "Invalid DDN mask, '%d' > %d\n",
+					debug_parseipv4(3, "Invalid DDN mask, '%d' > %d\n",
 							a, prev_a);
 					return BAD_MASK;
 				}
 				if (a && (a < 255) && (prev_a != 255)) { /* 255.240.224.0 */
-					debug(PARSEIP, 3, "Invalid DDN mask, wrong\n");
+					debug_parseipv4(3, "Invalid DDN mask, wrong\n");
 					return BAD_MASK;
 				}
 			}
@@ -466,18 +472,19 @@ int string2mask(const char *s, size_t len)
 			ddn_mask += 8 - mylog2(256 - a);
 			count_dot++;
 			a = 0;
-		} else if (isdigit(s[i])) {
+		} else if (isdigit(*s)) {
 			a *= 10;
-			a += s[i] - '0';
+			a += *s - '0';
+			s++;
 			continue;
 		} else {
-			debug(PARSEIP, 3, "Invalid mask '%s', contains '%c'\n", s, s[i]);
+			debug_parseipv4(3, "Invalid mask '%s', contains '%c'\n", p, *s);
 			return BAD_MASK;
 		}
 	}
 	if (count_dot == 0) { /* prefix length*/
 		if (a > 128) {
-			debug(PARSEIP, 3, "Invalid mask '%s', too long\n", s);
+			debug_parseipv4(3, "Invalid mask '%s', too long\n", p);
 			return BAD_MASK;
 		}
 		return a;
