@@ -1000,10 +1000,9 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
  *   -1  : format error
  *   -2  : no match
  */
-static int parse_multiplier_char(const char **in, const char **fmt, int *i, char *in_max, int *j,
+static int parse_multiplier_char(const char **in, const char **fmt, const char *in_max,
 		char *expr, struct sto *o, int max_o, int *n_found)
 {
-	char c;
 	int res;
 	int min_m, max_m;
 	int n_match = 0;
@@ -1041,10 +1040,9 @@ static int parse_multiplier_char(const char **in, const char **fmt, int *i, char
 	return 1;
 }
 
-static int parse_multiplier_expr(const char **in, const char **fmt, int *i, char *in_max, int *j,
+static int parse_multiplier_expr(const char **in, const char **fmt, const char *in_max,
 		char *expr, struct sto *o, int max_o, int *n_found)
 {
-	char c;
 	int res, k, num_cs;
 	int min_m, max_m;
 	int n_match = 0;
@@ -1112,13 +1110,12 @@ static int parse_multiplier_expr(const char **in, const char **fmt, int *i, char
 	return 1;
 }
 
-static int parse_multiplier_dotstar(const char **in, const char **fmt, int *i, char *in_max, int *j,
+static int parse_multiplier_dotstar(const char **in, const char **fmt, const char *in_max,
 		char *expr, struct sto *o, int max_o, int *n_found)
 {
 	int match_last, could_stop, previous_could_stop;
 	int n_match;
 	int min_m, max_m, k, res;
-	char c;
 	struct expr e;
 	const char *last_match_index = NULL;
 
@@ -1218,7 +1215,7 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, int *i, c
 	/* in case of last match, we must rewind position in 'in'*/
 	if (match_last) {
 		*in = last_match_index;
-		debug(SCANF, 4, "last match asked, rewind to index '%d'\n",  *j);
+		debug(SCANF, 4, "last match asked, rewind to previois pointer\n");
 		if (*in == NULL) {
 			debug(SCANF, 3, "last match never matched\n");
 			return -2;
@@ -1269,19 +1266,17 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 	int n_found;
 	char c;
 	char expr[128];
-	int in_length;
 	int num_cs; /* number of conversion specifier found in an expression */
 	int min_m = -1, max_m;
 	const char *p, *f;
-	char *in_max; /* bound of in */
+	const char *in_max; /* bound cheking of input pointer */
 
 	p = in;
 	f = fmt;
 	i = 0; /* index in fmt */
 	j = 0; /* index in in */
 	n_found = 0; /* number of arguments/objects found */
-	in_length = (int)strlen(in);
-	in_max = in + in_length;
+	in_max = in + strlen(in);
 
 	expr[0] = '\0';
 	while (1) {
@@ -1346,7 +1341,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				expr[0] = '.';
 				expr[1] = '\0';
 				f++;
-				res = parse_multiplier_dotstar(&p, &f, &i, in_max, &j, expr,
+				res = parse_multiplier_dotstar(&p, &f, in_max, expr,
 						o, max_o, &n_found);
 				if (res < 0)
 					goto end_nomatch;
@@ -1368,7 +1363,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			debug(SCANF, 8, "found expr '%s'\n", expr);
 			f += res;
 			if (is_multiple_char(*f)) {
-				res = parse_multiplier_expr(&p, &f, &i, in_max, &j, expr,
+				res = parse_multiplier_expr(&p, &f, in_max, expr,
 						o, max_o, &n_found);
 				if (res < 0)
 					goto end_nomatch;
@@ -1416,7 +1411,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				f++;
 				expr[0] = c;
 				expr[1] = '\0';
-				res = parse_multiplier_char(&p, &f, &i, in_max, &j, expr,
+				res = parse_multiplier_char(&p, &f,in_max, expr,
 						o, max_o, &n_found);
 				if (res < 0)
 					goto end_nomatch;
