@@ -1270,30 +1270,32 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 	int in_length;
 	int num_cs; /* number of conversion specifier found in an expression */
 	int min_m = -1, max_m;
+	const char *p, *f;
 
+	p = in;
+	f = fmt;
 	i = 0; /* index in fmt */
 	j = 0; /* index in in */
 	n_found = 0; /* number of arguments/objects found */
 	in_length = (int)strlen(in);
 	expr[0] = '\0';
 	while (1) {
-		c = fmt[i];
-		debug(SCANF, 8, "Still to parse in FMT  : '%s'\n", fmt + i);
-		debug(SCANF, 8, "Still to parse in 'in' : '%s'\n", in + j);
-		if (is_multiple_char(c)) {
+		debug(SCANF, 8, "Still to parse in FMT  : '%s'\n", f);
+		debug(SCANF, 8, "Still to parse in 'in' : '%s'\n", p);
+		if (is_multiple_char(*f)) {
 			debug(SCANF, 1, "Invalid expr, 2 successives multipliers\n");
 			return -1;
 		}
-		if (c == '\0' && in[j] == '\0')
+		if (*f == '\0' && *p == '\0')
 			return n_found;
-		else if (c == '\0')
+		else if (*f == '\0')
 			goto end_nomatch;
-		else if (in[j] == '\0') { /* expr[i .... ] can match void, like '.*' */
-			if (c == '(' || c == '[') {
-				if (c == '(')
-					res = strxcpy_until(expr, fmt + i, sizeof(expr), ')');
+		else if (*p == '\0') { /* expr[i .... ] can match void, like '.*' */
+			if (*f == '(' || *f == '[') {
+				if (*f == '(')
+					res = strxcpy_until(expr, f, sizeof(expr), ')');
 				else
-					res = fill_char_range(expr, fmt + i, sizeof(expr));
+					res = fill_char_range(expr, f, sizeof(expr));
 				if (res == -1) {
 					debug(SCANF, 1, "Invalid format '%s', unmatched '%c'\n",
 							fmt, c);
@@ -1302,65 +1304,77 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				i += res;
 			} else {
 				if (c == '\\')
-					i++;
-				i++;
+					f++;
+				f++;
 			}
-			if (is_multiple_char(fmt[i])) {
-				if (fmt[i] == '{') {
-					res = parse_brace_multiplier(fmt + i, &min_m, &max_m);
+			if (is_multiple_char(*f)) {
+				if (*f == '{') {
+					res = parse_brace_multiplier(f, &min_m, &max_m);
 					if (res < 0)
 						goto end_nomatch;
-					i += res;
+					f += res;
 				} else
-					min_m = min_match(fmt[i]);
+					min_m = min_match(*f);
 			}
-			if (fmt[i + 1] != '\0') /* the multiplier wasnt the last char */
+			if (f[1] != '\0') /* the multiplier wasnt the last char */
 				goto end_nomatch;
 			if (min_m == 0) /* if the expr can match zero time, the match was perfect */
 				return n_found;
 			goto end_nomatch;
-		} else if (c == '%') {
+		} else if (*f == '%') {
 			if (n_found > max_o - 1) {
 				debug(SCANF, 1, "Max objets %d, already found %d\n",
 						max_o, n_found);
 				return n_found;
 			}
-			res = parse_conversion_specifier(in, fmt, &i, &j, o + n_found);
+			i = 0;
+			j = 0;
+			res = parse_conversion_specifier(p, f, &i, &j, o + n_found);
 			if (res == 0)
 				return n_found;
 			n_found += res;
+			f += i;
+			p += j;
 			/* any char */
-		} else if (c == '.') {
-			if (is_multiple_char(fmt[i + 1])) {
-				expr[0] = c;
+		} else if (*f == '.') {
+			if (is_multiple_char(f[1])) {
+				expr[0] = '.';
 				expr[1] = '\0';
-				i++;
-				res = parse_multiplier_dotstar(in, fmt, &i, in_length, &j, expr,
+				f++;
+				i = 0;
+				j = 0;
+				res = parse_multiplier_dotstar(p, f, &i, in_length, &j, expr,
 						o, max_o, &n_found);
 				if (res < 0)
 					goto end_nomatch;
+				f += i;
+				p += j;
 				continue;
 			}
 			debug(SCANF, 8, "fmt[%d]='.', match any char\n", i);
-			i++;
-			j++;
+			f++;
+			p++;
 			/* expression or char range */
-		} else if (c == '(' || c == '[') {
-			if (c == '(')
-				res = strxcpy_until(expr, fmt + i, sizeof(expr), ')');
+		} else if (*f == '(' || *f == '[') {
+			if (*f == '(')
+				res = strxcpy_until(expr, f, sizeof(expr), ')');
 			else
-				res = fill_char_range(expr, fmt + i, sizeof(expr));
+				res = fill_char_range(expr, f, sizeof(expr));
 			if (res == -1) {
 				debug(SCANF, 1, "Invalid format '%s', unmatched '%c'\n", fmt, c);
 				return n_found;
 			}
 			debug(SCANF, 8, "found expr '%s'\n", expr);
-			i += res;
-			if (is_multiple_char(fmt[i])) {
-				res = parse_multiplier_expr(in, fmt, &i, in_length, &j, expr,
+			f += res;
+			if (is_multiple_char(*f)) {
+				i = 0;
+				j = 0;
+				res = parse_multiplier_expr(p, f, &i, in_length, &j, expr,
 						o, max_o, &n_found);
 				if (res < 0)
 					goto end_nomatch;
+				f += i;
+				p += j;
 				continue;
 			}
 			num_cs = count_cs(expr);
@@ -1369,7 +1383,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 						max_o, n_found);
 				return n_found;
 			}
-			res = match_expr_single(expr, in + j, o, &n_found);
+			res = match_expr_single(expr, p, o, &n_found);
 			if (res < 0) {
 				debug(SCANF, 1, "Invalid format '%s'\n", fmt);
 				return n_found;
@@ -1382,8 +1396,8 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			debug(SCANF, 4, "Expr '%s' matched 'in' res=%d at offset %d\n",
 					expr, res, j);
 			debug(SCANF, 4, "Found %d objects so far\n", n_found);
-			j += res;
-			if (j > in_length) {
+			p += res;
+			if (p - in > in_length) {
 				/* can happen only if there is a BUG in 'match_expr_single'
 				 * and its descendant
 				 */
@@ -1392,31 +1406,36 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				return n_found;
 			}
 		} else {
-			if (fmt[i] == '\\') {
-				c = escape_char(fmt[i + 1]);
+			c = *f;
+			if (*f == '\\') {
+				c = escape_char(f[1]);
 				if (c == '\0') {
 					debug(SCANF, 1, "Invalid format string '%s'\n", fmt);
 					goto end_nomatch;
 				}
-				i++;
+				f++;
 			}
-			if (is_multiple_char(fmt[i + 1]))  {
+			if (is_multiple_char(f[1]))  {
 				expr[0] = c;
 				expr[1] = '\0';
-				i++;
-				res = parse_multiplier_char(in, fmt, &i, in_length, &j, expr,
+				f++;
+				i = 0;
+				j = 0;
+				res = parse_multiplier_char(p, f, &i, in_length, &j, expr,
 						o, max_o, &n_found);
 				if (res < 0)
 					goto end_nomatch;
+				f += i;
+				p += j;
 				continue;
 			}
-			if (in[j] != fmt[i]) {
+			if (*p != *f) {
 				debug(SCANF, 2, "in[%d]='%c', != fmt[%d]='%c', exiting\n",
 						j, in[j], i, fmt[i]);
 				goto end_nomatch;
 			}
-			i++;
-			j++;
+			p++;
+			f++;
 		}
 	} /* while 1 */
 end_nomatch:
