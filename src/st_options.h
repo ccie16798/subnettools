@@ -1,6 +1,9 @@
 #ifndef ST_OPTIONS_H
 #define ST_OPTIONS_H
 
+/* debug or not parse ipv4 low-level func */
+#define DEBUG_PARSE_IPV4
+
 /* use Subnet tool memory tracking for memory leak prevention
  * comment this for performance, but it shouldn't make a lot of difference
  */
