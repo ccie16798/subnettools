@@ -1000,33 +1000,35 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
  *   -1  : format error
  *   -2  : no match
  */
-static int parse_multiplier_char(const char *in, const char *fmt, int *i, int in_length, int *j,
+static int parse_multiplier_char(const char **in, const char **fmt, int *i, int in_length, int *j,
 		char *expr, struct sto *o, int max_o, int *n_found)
 {
 	char c;
 	int res;
 	int min_m, max_m;
 	int n_match = 0;
+	const char *f, *p;
 
-	c = fmt[*i];
-	if (c == '{') {
-		res = parse_brace_multiplier(fmt + *i, &min_m, &max_m);
+	f = *fmt;
+	p = *in;
+	if (*f == '{') {
+		res = parse_brace_multiplier(f, &min_m, &max_m);
 		if (res < 0)
 			return -1;
-		*i += res;
+		f += res;
 	} else {
-		min_m = min_match(c);
-		max_m = max_match(c);
+		min_m = min_match(*f);
+		max_m = max_match(*f);
 	}
 	debug(SCANF, 5, "need to find expression '%s' {%d,%d} times\n", expr, min_m, max_m);
 	/* simple case, we match a single char {n,m} times */
 	debug(SCANF, 4, "Pattern expansion will end when in[j] != '%c'\n", *expr);
 	while (n_match < max_m) {
-		if (*expr != in[*j])
+		if (*expr != *p)
 			break;
-		*j += 1;
+		p++;
 		n_match++;
-		if (in[*j] == '\0') {
+		if (*p == '\0') {
 			debug(SCANF, 3, "reached end of input scanning 'in'\n");
 			break;
 		}
@@ -1036,9 +1038,11 @@ static int parse_multiplier_char(const char *in, const char *fmt, int *i, int in
 				*expr, n_match, min_m);
 		return -2;
 	}
-	*i += 1;
-	if (in[*j] == '\0' && fmt[*i] != '\0')
+	f += 1;
+	if (*p == '\0' && *f != '\0')
 		return -2;
+	*fmt = f;
+	*in = p;
 	return 1;
 }
 
@@ -1421,12 +1425,13 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				f++;
 				i = 0;
 				j = 0;
-				res = parse_multiplier_char(p, f, &i, in_length, &j, expr,
+				res = parse_multiplier_char(&p, &f, &i, in_length, &j, expr,
 						o, max_o, &n_found);
 				if (res < 0)
 					goto end_nomatch;
+				/*
 				f += i;
-				p += j;
+				p += j; */
 				continue;
 			}
 			if (*p != *f) {
