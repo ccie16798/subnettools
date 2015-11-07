@@ -741,12 +741,10 @@ int string2addr(const char *s, struct ip_addr *addr, size_t len)
 			break;
 		else if ((s[i] >= 'a' && s[i] <= 'f') || (s[i] >= 'A' && s[i] <= 'F'))
 			return string2addrv6(s, addr, len);
-		else {
-			debug(PARSEIP, 3, "Invalid IP %s,  contains '%c'\n", s, s[i]);
-			return BAD_IP;
-		}
+		else
+			break;
 	}
-	debug(PARSEIP, 3, "Invalid IPv4 or IPv6 : %s\n", s);
+	debug_parseipv4(3, "Invalid IPv4 or IPv6 : '%s'\n", s);
 	return BAD_IP;
 }
 
@@ -760,36 +758,29 @@ int string2addr(const char *s, struct ip_addr *addr, size_t len)
  */
 int get_subnet_or_ip(const char *s, struct subnet *subnet)
 {
-	int i, a;
+	int a;
 	u32 mask;
 	int count_slash = 0;
+	char *p;
 
 	if (*s == '\0' || *s == '/') {
 		debug(PARSEIP, 3, "Invalid prefix %s, null IP\n", s);
 		return BAD_IP;
 	}
-	debug(PARSEIP, 9, "prefix %s length %d\n", s, (int)strlen(s));
-	for (i = 0; ; i++) {
-		if (s[i] == '\0')
-			break;
-		if (s[i] == '/') {
-			count_slash++;
-			break;
-		}
-	}
+	p = strchr(s, '/');
 
-	if (count_slash == 0) {
+	if (p == NULL) {
 		a =  string2addr(s, &subnet->ip_addr, 41);
 		if (a == BAD_IP)
 			return a;
 		subnet->mask = (a == IPV6_A ? 128 : 32);
 		return a;
 	}
-	debug(PARSEIP, 5, "trying to parse ip/mask %s\n", s);
-	a = string2addr(s, &subnet->ip_addr, i);
+	debug(PARSEIP, 8, "trying to parse ip/mask %s\n", s);
+	a = string2addr(s, &subnet->ip_addr, p - s);
 	if (a == BAD_IP)
 		return a;
-	mask = string2mask(s + i + 1, 41);
+	mask = string2mask(p + 1, 41);
 	if (mask == BAD_MASK)
 		return BAD_MASK;
 	subnet->mask = mask;
