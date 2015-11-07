@@ -768,7 +768,6 @@ int get_subnet_or_ip(const char *s, struct subnet *subnet)
 		return BAD_IP;
 	}
 	p = strchr(s, '/');
-
 	if (p == NULL) {
 		a =  string2addr(s, &subnet->ip_addr, 41);
 		if (a == BAD_IP)
@@ -776,7 +775,7 @@ int get_subnet_or_ip(const char *s, struct subnet *subnet)
 		subnet->mask = (a == IPV6_A ? 128 : 32);
 		return a;
 	}
-	debug(PARSEIP, 8, "trying to parse ip/mask %s\n", s);
+	debug_parseipv4(8, "trying to parse ip/mask %s\n", s);
 	a = string2addr(s, &subnet->ip_addr, p - s);
 	if (a == BAD_IP)
 		return a;
