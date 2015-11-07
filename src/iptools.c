@@ -580,10 +580,6 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 			return IPV6_A;
 		}
 		count2++;
-	} else if (s[0] == '.') {
-		/* we should not get here since addr2str calls addrv42str if it counts '.' */
-		debug(PARSEIPV6, 3, "Invalid IPv6 address '%s', starts with '.'\n", s);
-		return BAD_IP;
 	}
 	/**  couting ':' (7max),  '::' (1max), and '.' (0 or 3) */
 	for (i = 1;  i < len; i++) {
@@ -738,6 +734,7 @@ int string2addr(const char *s, struct ip_addr *addr, size_t len)
 		return BAD_IP;
 	if (*p == ':')
 		return string2addrv6(s, addr, len);
+
 	if (!isxdigit(*p))
 		return BAD_IP;
 	p++;
