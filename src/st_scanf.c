@@ -1338,14 +1338,10 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				expr[0] = '.';
 				expr[1] = '\0';
 				f++;
-				i = 0;
-				j = 0;
 				res = parse_multiplier_dotstar(&p, &f, &i, in_length, &j, expr,
 						o, max_o, &n_found);
 				if (res < 0)
 					goto end_nomatch;
-				/*f += i;
-				p += j; */
 				continue;
 			}
 			debug(SCANF, 8, "fmt[%d]='.', match any char\n", i);
@@ -1364,16 +1360,10 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			debug(SCANF, 8, "found expr '%s'\n", expr);
 			f += res;
 			if (is_multiple_char(*f)) {
-				i = 0;
-				j = 0;
 				res = parse_multiplier_expr(&p, &f, &i, in_length, &j, expr,
 						o, max_o, &n_found);
 				if (res < 0)
 					goto end_nomatch;
-				/*
-				f += i;
-				p += j;
-				*/
 				continue;
 			}
 			num_cs = count_cs(expr);
@@ -1408,25 +1398,20 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			c = *f;
 			if (*f == '\\') {
 				c = escape_char(f[1]);
+				f++;
 				if (c == '\0') {
 					debug(SCANF, 1, "Invalid format string '%s'\n", fmt);
 					goto end_nomatch;
 				}
-				f++;
 			}
 			if (is_multiple_char(f[1]))  {
+				f++;
 				expr[0] = c;
 				expr[1] = '\0';
-				f++;
-				i = 0;
-				j = 0;
 				res = parse_multiplier_char(&p, &f, &i, in_length, &j, expr,
 						o, max_o, &n_found);
 				if (res < 0)
 					goto end_nomatch;
-				/*
-				f += i;
-				p += j; */
 				continue;
 			}
 			if (*p != *f) {
