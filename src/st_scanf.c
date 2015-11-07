@@ -981,16 +981,14 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
 }
 
 /*
- * parse_multiplier_xxx starts when fmt[*i] is a st_scanf multiplier char (*, +, ?, {a,b})
+ * parse_multiplier_xxx starts when fmt is a st_scanf multiplier char (*, +, ?, {a,b})
  * it will try to consume as many bytes as possible from 'in' and put objects
  * found in a struct sto *
  * parse_multiplier updates offset into 'in', 'fmt', the number of objects found (n_found)
  *
- * @in       : input buffer
- * @j        : offset in input buffer
- * @fmt      : fmt buffer
- * @i        : offset in fmt buffer
- * @in_length: length of input buffer
+ * @in       : points to remaining input buffer
+ * @fmt      : points to remaining fmt buffer
+ * @in_max   : input buffer MUST be < in_max
  * @expr     : the string/expression  concerned by the multiplier
  * @o        : objects will be stored in o (max_o)
  * @n_found  : num conversion specifier found so far
