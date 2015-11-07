@@ -1000,7 +1000,7 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
  *   -1  : format error
  *   -2  : no match
  */
-static int parse_multiplier_char(const char **in, const char **fmt, int *i, int in_length, int *j,
+static int parse_multiplier_char(const char **in, const char **fmt, int *i, char *in_max, int *j,
 		char *expr, struct sto *o, int max_o, int *n_found)
 {
 	char c;
@@ -1041,7 +1041,7 @@ static int parse_multiplier_char(const char **in, const char **fmt, int *i, int 
 	return 1;
 }
 
-static int parse_multiplier_expr(const char **in, const char **fmt, int *i, int in_length, int *j,
+static int parse_multiplier_expr(const char **in, const char **fmt, int *i, char *in_max, int *j,
 		char *expr, struct sto *o, int max_o, int *n_found)
 {
 	char c;
@@ -1075,6 +1075,11 @@ static int parse_multiplier_expr(const char **in, const char **fmt, int *i, int 
 			break;
 		*in += res;
 		n_match++;
+		if (*in > in_max) {
+			/* can happen only if there is a BUG in max_expr_single */
+			fprintf(stderr, "BUG, input buffer override in %s line %d\n",
+					__func__, __LINE__);
+		}
 		if (**in == '\0') {
 			debug(SCANF, 3, "reached end of input scanning 'in'\n");
 			break;
@@ -1107,7 +1112,7 @@ static int parse_multiplier_expr(const char **in, const char **fmt, int *i, int 
 	return 1;
 }
 
-static int parse_multiplier_dotstar(const char **in, const char **fmt, int *i, int in_length, int *j,
+static int parse_multiplier_dotstar(const char **in, const char **fmt, int *i, char *in_max, int *j,
 		char *expr, struct sto *o, int max_o, int *n_found)
 {
 	int match_last, could_stop, previous_could_stop;
@@ -1151,7 +1156,7 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, int *i, i
 	*in     += min_m;
 	n_match += min_m;
 	/* handle case where min_m too big to match */
-	if (*j > in_length)
+	if (*in > in_max)
 		return -2;
 
 	if (e.can_stop) {
@@ -1177,7 +1182,7 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, int *i, i
 			previous_could_stop = could_stop;
 			*in += (e.can_skip ? e.can_skip : 1);
 
-			if (*j > in_length) {
+			if (*in > in_max) {
 				/* can happen only if there is a BUG in can_skip usage */
 				fprintf(stderr, "BUG, input buffer override in %s line %d\n",
 						__func__, __LINE__);
@@ -1268,6 +1273,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 	int num_cs; /* number of conversion specifier found in an expression */
 	int min_m = -1, max_m;
 	const char *p, *f;
+	char *in_max; /* bound of in */
 
 	p = in;
 	f = fmt;
@@ -1275,6 +1281,8 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 	j = 0; /* index in in */
 	n_found = 0; /* number of arguments/objects found */
 	in_length = (int)strlen(in);
+	in_max = in + in_length;
+
 	expr[0] = '\0';
 	while (1) {
 		debug(SCANF, 8, "Still to parse in FMT  : '%s'\n", f);
@@ -1338,7 +1346,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				expr[0] = '.';
 				expr[1] = '\0';
 				f++;
-				res = parse_multiplier_dotstar(&p, &f, &i, in_length, &j, expr,
+				res = parse_multiplier_dotstar(&p, &f, &i, in_max, &j, expr,
 						o, max_o, &n_found);
 				if (res < 0)
 					goto end_nomatch;
@@ -1360,7 +1368,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			debug(SCANF, 8, "found expr '%s'\n", expr);
 			f += res;
 			if (is_multiple_char(*f)) {
-				res = parse_multiplier_expr(&p, &f, &i, in_length, &j, expr,
+				res = parse_multiplier_expr(&p, &f, &i, in_max, &j, expr,
 						o, max_o, &n_found);
 				if (res < 0)
 					goto end_nomatch;
@@ -1386,7 +1394,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 					expr, res, j);
 			debug(SCANF, 4, "Found %d objects so far\n", n_found);
 			p += res;
-			if (p - in > in_length) {
+			if (p  > in_max) {
 				/* can happen only if there is a BUG in 'match_expr_single'
 				 * and its descendant
 				 */
@@ -1408,7 +1416,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				f++;
 				expr[0] = c;
 				expr[1] = '\0';
-				res = parse_multiplier_char(&p, &f, &i, in_length, &j, expr,
+				res = parse_multiplier_char(&p, &f, &i, in_max, &j, expr,
 						o, max_o, &n_found);
 				if (res < 0)
 					goto end_nomatch;
