@@ -490,13 +490,16 @@ static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 	int truc[4];
 	int current_block = 0;
 	const char *s_max;
+#ifdef DEBUG_PARSE_IPV4
+	const char *p;
+#endif
 
 	if (*s == '\0') {
-		debug(PARSEIP, 3, "Invalid IP '%s', null\n", s);
+		debug_parseipv4(3, "Invalid IP '%s', null\n");
 		return BAD_IP;
 	}
 	if (*s == '.') {
-		debug(PARSEIP, 3, "Invalid IP '%s', starts with '.'\n", s);
+		debug_parseipv4(3, "Invalid IP '%s', starts with '.'\n", s);
 		return BAD_IP;
 	}
 	s_max = s + len;
@@ -504,31 +507,28 @@ static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 		if (*s == '\0' || s == s_max) {
 			truc[count_dot] = current_block;
 			if (current_block > 255) {
-				debug(PARSEIP, 3, "Invalid IP '%s', %d too big\n",
-						s, current_block);
+				debug_parseipv4(3, "Invalid IP '%s', %d too big\n",
+						p, current_block);
 				return BAD_IP;
 			}
 			break;
 		} else if (*s == '.') {
 			s++;
 			if  (*s == '.') {
-				debug(PARSEIP, 3, "Invalid IP '%s', 2 consecutives '.'\n",
-						s_max - len);
+				debug_parseipv4(3, "Invalid IP '%s', 2 consecutives '.'\n", p);
 				return BAD_IP;
 			}
 			if  (*s == '\0' || s == s_max) {
-				debug(PARSEIP, 3, "Invalid IP '%s', ends with '.'\n",
-						s_max - len);
+				debug_parseipv4(3, "Invalid IP '%s', ends with '.'\n", p);
 				return BAD_IP;
 			}
 			if (current_block > 255) {
-				debug(PARSEIP, 3, "Invalid IP '%s', %d too big\n",
-						s_max - len, current_block);
+				debug_parseipv4(3, "Invalid IP '%s', %d too big\n",
+						p, current_block);
 				return BAD_IP;
 			}
 			if (count_dot == 3) {
-				debug(PARSEIP, 3, "Invalid IP '%s', too many '.'\n",
-						s_max - len);
+				debug_parseipv4(3, "Invalid IP '%s', too many '.'\n", p);
 				return BAD_IP;
 			}
 			truc[count_dot] = current_block;
@@ -540,12 +540,12 @@ static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 			s++;
 			continue;
 		} else {
-			debug(PARSEIP, 3, "Invalid IP '%s',  contains '%c'\n", s_max - len, *s);
+			debug_parseipv4(3, "Invalid IP '%s',  contains '%c'\n", p, *s);
 			return BAD_IP;
 		}
 	}
 	if (count_dot != 3) {
-		debug(PARSEIP, 3, "Invalid IP '%s', not enough '.'\n", s_max - len);
+		debug_parseipv4(3, "Invalid IP '%s', not enough '.'\n", p);
 		return BAD_IP;
 	}
 	addr->ip = (truc[0] << 24) + (truc[1] << 16) + (truc[2] << 8) + truc[3];
