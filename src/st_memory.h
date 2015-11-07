@@ -4,7 +4,7 @@
 extern unsigned long total_memory;
 #include "st_options.h"
 
-/* this option is set in st_options.h" */
+/* this option is set in st_options.h */
 #ifdef DEBUG_ST_MEMORY
 
 /* st_malloc, st_realloc will print debug MSG if debug memory level > 3
