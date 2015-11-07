@@ -742,20 +742,22 @@ int string2addr(const char *s, struct ip_addr *addr, size_t len)
 		return BAD_IP;
 	p++;
 #define TEST_IPVER_BLOCK \
-	if (!isdigit(*p)) { \
-		if (*p == '.') \
+	do { \
+		if (!isdigit(*p)) { \
+			if (*p == '.') \
 			return string2addrv4(s, addr, len); \
-		if (*p == ':') \
+			if (*p == ':') \
 			return string2addrv6(s, addr, len); \
-		if ((*p >= 'a' && *p <= 'f') || (*p >= 'A' || *p <= 'F')) \
+			if ((*p >= 'a' && *p <= 'f') || (*p >= 'A' || *p <= 'F')) \
 			return string2addrv6(s, addr, len); \
-		return BAD_IP; \
-	} \
-	p++;
-	TEST_IPVER_BLOCK
-	TEST_IPVER_BLOCK
-	TEST_IPVER_BLOCK
-	TEST_IPVER_BLOCK
+			return BAD_IP; \
+		} \
+		p++; \
+	} while (0)
+	TEST_IPVER_BLOCK;
+	TEST_IPVER_BLOCK;
+	TEST_IPVER_BLOCK;
+	TEST_IPVER_BLOCK;
 	return BAD_IP;
 }
 
