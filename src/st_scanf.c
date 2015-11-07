@@ -412,7 +412,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		}
 		buffer[p - *in] = '\0';
 		if (p - *in <= 2) {
-			debug(SCANF, 3, "no IP found at offset %d\n", *j);
+			debug(SCANF, 3, "no IP found at %s\n", *in);
 			return n_found;
 		}
 		if ((*fmt)[1] == 'P')
@@ -432,15 +432,15 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		while (is_ip_char(*p))
 			p++;
 		if (p - *in <= 1) {
-			debug(SCANF, 3, "no IP found at offset %d\n", *j);
+			debug(SCANF, 3, "no IP found\n");
 			return n_found;
 		}
 		res = string2addr(*in, v_addr, p - *in);
 		if (res > 0) {
-			debug(SCANF, 5, "valid IP at offset:%d\n", *j);
+			debug(SCANF, 5, "valid IP found at %s\n", *in);
 			n_found++;
 		} else {
-			debug(SCANF, 3, "invalid IP at offset:%d\n", *j);
+			debug(SCANF, 3, "invalid IP at %s\n", *in);
 			return n_found;
 		}
 		break;
@@ -449,15 +449,15 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		while (isdigit(*p) || *p == '.')
 			p++;
 		if (p - *in == 0) {
-			debug(SCANF, 3, "no MASK found at offset %d\n", *j);
+			debug(SCANF, 3, "no MASK found at %s\n", *in);
 			return n_found;
 		}
 		res = string2mask(*in, p - *in);
 		if (res != BAD_MASK) {
-			debug(SCANF, 5, "Valid MASK found at offset:%d\n", *j);
+			debug(SCANF, 5, "Valid MASK found at %s\n", *in);
 			n_found++;
 		} else {
-			debug(SCANF, 3, "Invalid MASK at offset:%d\n", *j);
+			debug(SCANF, 3, "Invalid MASK at %s\n", *in);
 			return n_found;
 		}
 		*v_int = res;
@@ -478,7 +478,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			if (*p == '0' && p[1] == 'x')
 				p += 2;
 			if (!isxdigit(*p)) {
-				debug(SCANF, 3, "no HEX found at offset %d\n", *j);
+				debug(SCANF, 3, "no HEX found at %s\n", *in);
 				return n_found;
 			}
 			while (isxdigit(*p)) {
@@ -486,8 +486,8 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 				*v_short += char2int(*p);
 				p++;
 			}
-			debug(SCANF, 5, "found short HEX '%x' at offset %d\n",
-					*v_short, *j);
+			debug(SCANF, 5, "found short HEX '%x' at %s\n",
+					*v_short, *in);
 		} else {
 			if (*p == '-' && c == 'd') {
 				sign = -1;
@@ -495,7 +495,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			} else
 				sign = 1;
 			if (!isdigit(*p)) {
-				debug(SCANF, 3, "no SHORT found at offset %d\n", *j);
+				debug(SCANF, 3, "no SHORT found at %s\n", *in);
 				return n_found;
 			}
 			while (isdigit(*p)) {
@@ -505,11 +505,11 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			}
 			*v_short *= sign;
 			if (c == 'u') {
-				debug(SCANF, 5, "found USHORT '%hu' at offset %d\n",
-						(unsigned short)*v_short, *j);
+				debug(SCANF, 5, "found USHORT '%hu' at %s\n",
+						(unsigned short)*v_short, *in);
 			} else {
-				debug(SCANF, 5, "found SHORT '%hd' at offset %d\n",
-						*v_short, *j);
+				debug(SCANF, 5, "found SHORT '%hd' at %s\n",
+						*v_short, *in);
 			}
 		}
 		n_found++;
@@ -518,8 +518,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		*fmt += 1;
 		c = (*fmt)[1];
 		if (c != 'd' && c != 'u' && c != 'x') {
-			debug(SCANF, 1, "Invalid format '%s', wrong char '%c' after 'l'\n",
-					*fmt, c);
+			debug(SCANF, 1, "Invalid format, wrong char '%c' after 'l'\n", c);
 			return n_found;
 		}
 		ARG_SET(v_long, long *);
@@ -530,7 +529,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			if (*p == '0' && p[1] == 'x')
 				p += 2;
 			if (!isxdigit(*p)) {
-				debug(SCANF, 3, "no HEX found at offset %d\n", *j);
+				debug(SCANF, 3, "no HEX found at %s\n", *in);
 				return n_found;
 			}
 			while (isxdigit(*p)) {
@@ -538,8 +537,8 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 				*v_long += char2int(*p);
 				p++;
 			}
-			debug(SCANF, 5, "found long HEX '%lx' at offset %d\n",
-					(unsigned long)*v_long, *j);
+			debug(SCANF, 5, "found long HEX '%lx' at %s\n",
+					(unsigned long)*v_long, *in);
 		} else {
 			if (*p == '-' && c == 'd') {
 				sign = -1;
@@ -547,7 +546,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			} else
 				sign = 1;
 			if (!isdigit(*p)) {
-				debug(SCANF, 3, "no LONG found at offset %d\n", *j);
+				debug(SCANF, 3, "no LONG found at %s\n", *in);
 				return n_found;
 			}
 			while (isdigit(*p)) {
@@ -557,11 +556,11 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			}
 			*v_long *= sign;
 			if (c == 'u') {
-				debug(SCANF, 5, "found ULONG '%lu' at offset %d\n",
-						(unsigned long)*v_long, *j);
+				debug(SCANF, 5, "found ULONG '%lu' at %s\n",
+						(unsigned long)*v_long, *in);
 			} else {
-				debug(SCANF, 5, "found LONG '%ld' at offset %d\n",
-						*v_long, *j);
+				debug(SCANF, 5, "found LONG '%ld' at %s\n",
+						*v_long, *in);
 			}
 		}
 		n_found++;
@@ -575,7 +574,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		} else
 			sign = 1;
 		if (!isdigit(*p)) {
-			debug(SCANF, 3, "no INT found at offset %d\n", *j);
+			debug(SCANF, 3, "no INT found at %s\n", *in);
 			return n_found;
 		}
 		while (isdigit(*p)) {
@@ -584,14 +583,14 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			p++;
 		}
 		*v_int *= sign;
-		debug(SCANF, 5, "found INT '%d' at offset %d\n", *v_int, *j);
+		debug(SCANF, 5, "found INT '%d' at %s\n", *v_int, *in);
 		n_found++;
 		break;
 	case 'u':
 		ARG_SET(v_uint, unsigned int *);
 		*v_uint = 0;
 		if (!isdigit(*p)) {
-			debug(SCANF, 3, "no UINT found at offset %d\n", *j);
+			debug(SCANF, 3, "no UINT found at %s\n", *in);
 			return n_found;
 		}
 		while (isdigit(*p)) {
@@ -599,7 +598,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			*v_uint += (*p - '0');
 			p++;
 		}
-		debug(SCANF, 5, "found UINT '%u' at offset %d\n", *v_uint, *j);
+		debug(SCANF, 5, "found UINT '%u' at %s\n", *v_uint, *in);
 		n_found++;
 		break;
 	case 'x':
@@ -608,7 +607,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		if (*p == '0' && p[1] == 'x')
 			p += 2;
 		if (!isxdigit(*p)) {
-			debug(SCANF, 3, "no HEX found at offset %d\n", *j);
+			debug(SCANF, 3, "no HEX found at %s\n", *in);
 			return n_found;
 		}
 		while (isxdigit(*p)) {
@@ -616,7 +615,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			*v_uint += char2int(*p);
 			p++;
 		}
-		debug(SCANF, 5, "found HEX '%x' at offset %d\n", *v_uint, *j);
+		debug(SCANF, 5, "found HEX '%x' at %s\n", *v_uint, *in);
 		n_found++;
 		break;
 	case 'S': /* a special STRING that doesnt represent an IP */
@@ -624,10 +623,10 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		ARG_SET(v_s, char *);
 		c = (*fmt)[2];
 		if (c == '.') {
-			debug(SCANF, 1, "Invalid format '%s', found '.' after %%s\n", *fmt);
+			debug(SCANF, 1, "Invalid format, found '.' after %%s\n");
 			return n_found;
 		} else if (c == '%') {
-			debug(SCANF, 1, "Invalid format '%s', found '%%' after %%s\n", *fmt);
+			debug(SCANF, 1, "Invalid format, found '%%' after %%s\n");
 			return n_found;
 		}
 		while (!isspace(*p) && p - *in < max_field_length - 1) {
@@ -637,19 +636,18 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			p++;
 		}
 		if (p == *in) {
-			debug(SCANF, 3, "no STRING found at offset %d\n", *j);
+			debug(SCANF, 3, "no STRING found at %s\n", *in);
 			return n_found;
 		}
 		v_s[p - *in] = '\0';
 		if ((*fmt)[1] == 'S') {
 			res = get_subnet_or_ip(v_s, (struct subnet *)&poubelle);
 			if (res > 0) {
-				debug(SCANF, 3, "STRING '%s' at offset %d is an IP\n",
-						v_s, *j);
+				debug(SCANF, 3, "STRING '%s' is an IP\n", v_s);
 				return n_found;
 			}
 		}
-		debug(SCANF, 5, "found STRING '%s' starting at offset %d\n", v_s, *j);
+		debug(SCANF, 5, "found STRING '%s'\n", v_s);
 		n_found++;
 		break;
 	case 'W':
@@ -659,11 +657,11 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			p++;
 		}
 		if (p == *in) {
-			debug(SCANF, 3, "no WORD found at offset %d\n", *j);
+			debug(SCANF, 3, "no WORD found at %s\n", *in);
 			return 0;
 		}
 		v_s[p - *in] = '\0';
-		debug(SCANF, 5, "WORD '%s' found at offset %d\n", v_s,  *j);
+		debug(SCANF, 5, "WORD '%s' found\n", v_s);
 		n_found++;
 		break;
 	case '[':
@@ -686,17 +684,17 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			p++;
 		}
 		if (p == *in) {
-			debug(SCANF, 3, "no CHAR RANGE found at offset %d\n", *j);
+			debug(SCANF, 3, "no CHAR RANGE found at %s\n", *in);
 			return 0;
 		}
 		v_s[p - *in] = '\0';
-		debug(SCANF, 5, "CHAR RANGE '%s' found at offset %d\n", v_s,  *j);
+		debug(SCANF, 5, "CHAR RANGE '%s' found at %s\n", v_s,  *in);
 		n_found++;
 		break;
 	case 'c':
 		ARG_SET(v_s, char *);
 		v_s[0] = *p;
-		debug(SCANF, 5, "CHAR '%c' found at offset %d\n", *v_s,  *j);
+		debug(SCANF, 5, "CHAR '%c'\n", *v_s);
 		p++;
 		n_found++;
 		break;
