@@ -63,6 +63,48 @@ inline void list_del(st_list *list)
 	list->next->prev = list->prev;
 }
 
+/* list elements are added between head and head->next */
+static inline void __list_join(st_list *list, st_list *head)
+{
+	st_list *first = list->next;
+	st_list *last  = list->prev;
+
+	last->next = head->next;
+	head->next->prev = last;
+
+	first->prev = head;
+	head->next  = first;
+}
+
+inline void list_join(st_list *list, st_list *head)
+{
+	if (list_empty(list))
+		return;
+	__list_join(list, head);
+}
+
+
+/* list elements are added to head */
+static inline void __list_join_tail(st_list *list, st_list *head)
+{
+	st_list *first = list->next;
+	st_list *last  = list->prev;
+
+	first->prev = head->prev;
+	head->prev->next = first;
+
+	last->next = head;
+	head->prev = last;
+}
+
+inline void list_join_tail(st_list *list, st_list *head)
+{
+	if (list_empty(list))
+		return;
+	__list_join_tail(list, head);
+}
+
+
 /*
  * merges two already sorted lists
  */
@@ -225,15 +267,19 @@ int main(int argc, char **argv)
 {
 	struct ab a, b, c, d;
 	st_list list;
+	st_list list2;
 
 	init_list(&list);
+	init_list(&list2);
 	a.a = 10111;
 	b.a = 1664;
 	c.a = 3;
+	d.a = 4;
 	list_add_tail(&a.list, &list);
 	list_add(&b.list, &list);
-	list_add(&c.list, &list);
-	list_add(&d.list, &list);
+	list_add(&c.list, &list2);
+	list_add(&d.list, &list2);
+	list_join_tail(&list2, &list);
 	print_list(&list);
 	test_sort(1000);
 }

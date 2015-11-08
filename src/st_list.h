@@ -35,10 +35,41 @@ typedef struct st_list st_list;
 void init_list(st_list *list);
 int list_empty(st_list *list);
 int list_length(st_list *list);
+
+/* list_add: add an element to a list
+ * @new  : the element to add
+ * @head : the existing list head
+ */
 void list_add(st_list *new, st_list *head);
+
+/* list_add_tail: add an element to the end of a list
+ * @new  : the element to add
+ * @head : the existing list head
+ */
 void list_add_tail(st_list *new, st_list *head);
 void list_del(st_list *element);
-void list_sort(st_list *head, int (*cmp)(st_list *, st_list *));
+
+/* list_join: add list 'list' to the beginning of list 'head'
+ * @list : the list to be added
+ * @head : the list
+ */
+void list_join(st_list *list, st_list *head);
+
+/* list_join_tail: add list 'list' to the end of list 'head'
+ * @list : the list to be added
+ * @head : the list
+ */
+void list_join_tail(st_list *list, st_list *head);
+
+
+/* list_sort: sort a list according to a cmp func
+ * @head : the list head
+ * @cmd  : a compare func that returns:
+ *  > 0 if list1 is better than l2
+ *  < 0 if list1 is worse  than l2
+ *  0   if list1 is equal to l2
+ */
+void list_sort(st_list *head, int (*cmp)(st_list *l1, st_list *l2));
 
 #define list_first_entry(__list_head, type, member) \
 	container_of((__list_head)->next, type, member)
