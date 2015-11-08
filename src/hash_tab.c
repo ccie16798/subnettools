@@ -41,7 +41,7 @@ unsigned djb_hash_original(void *key, int len)
 
 /* http://tools.ietf.org/html/draft-eastlake-fnv-03 */
 #define FNV_Prime  16777619U
-#define FNV_Offset  2166136261U
+#define FNV_Offset 2166136261U
 
 unsigned fnv_hash(void *key, int len)
 {
@@ -200,7 +200,6 @@ struct stat_bucket *get_key_stat(struct hash_table *ht, char *key, int key_len)
 	}
 	return NULL;
 }
-
 
 int stat_bucket_cmp(st_list *l1, st_list *l2)
 {
