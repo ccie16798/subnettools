@@ -725,17 +725,11 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 			in++;
 			continue;
 		case '%':
-			debug(SCANF, 3, "conversion specifier to handle %lu\n",
-					(unsigned long)(o + *num_o));
 			res = parse_conversion_specifier(&in, &expr, o + *num_o);
 			if (res == 0)
 				break;
-			if (o) {
-				debug(SCANF, 4, "conv specifier successfull '%c' for %d\n",
+			debug(SCANF, 4, "conv specifier successfull '%c' for %d\n",
 						o[*num_o].type, *num_o);
-			} else {
-				debug(SCANF, 4, "conv specifier successfull\n");
-			}
 			*num_o += 1;
 			continue;
 		case '\\':
