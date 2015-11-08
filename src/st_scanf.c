@@ -1174,9 +1174,8 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
 	/*  '.*' handling ... BIG MESS */
 	match_last = 0;
 	n_match    = 0;
-	could_stop = 0;
 	previous_could_stop = 0;
-	if (fmt[0][1] == '$') {
+	if ((*fmt)[1] == '$') {
 		if (max_m < 2) {
 			debug(SCANF, 1, "'$' not allowed in this context, max expansion=%d\n",
 					max_m);
