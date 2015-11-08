@@ -285,18 +285,18 @@ static int match_char_against_range(char c, const char **expr)
  */
 static int match_char_against_range_clean(char c, const char *expr)
 {
-	int res = 0;
 	char low, high;
-	int invert = 0;
+	int direct = 1;
 
 	expr += 1;
 	if (*expr == '^') {
-		invert = 1;
+		direct = 0;
 		expr += 1;
 	}
 	/* to include a ']' in a range, must be right after '[' of '[^' */
 	if (*expr == ']') {
-		res = (c == ']');
+		if (c == ']')
+			return direct;
 		expr += 1;
 	}
 
@@ -308,15 +308,15 @@ static int match_char_against_range_clean(char c, const char *expr)
 		if (expr[1] == '-' && expr[2] != ']') {
 			high = expr[2];
 			if (c >= low && c <= high)
-				res = 1;
+				return direct;
 			expr += 1;
 		} else {
 			if (low == c)
-				res = 1;
+				return direct;
 		}
 		expr += 1;
 	}
-	return invert ? !res : res;
+	return !direct;
 }
 
 /* parse input STRING 'in' according to format 'fmt'
