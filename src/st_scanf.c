@@ -1257,15 +1257,14 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
 	 * 1.1.1.1 was stored by 'find_ip' so use this instead of reanalysing again
 	 */
 	if (e.skip_on_return) {
-		debug(SCANF, 3, "Trying to skip %d char already analysed\n", e.skip_on_return);
+		debug(SCANF, 3, "Trying to skip %d input chars, %d fmt chars\n",
+				 e.skip_on_return, e.end_expr_len);
 		for (k = 0; k < e.num_o; k++) {
 			debug(SCANF, 3, "Restoring analysed object '%c'\n", e.sto[k].type);
 			memcpy(&o[*n_found], &e.sto[k], sizeof(struct sto));
 			*n_found += 1;
 		}
-		while (isdigit(**fmt)) /* remove field width */
-			*fmt += 1;
-		*fmt += 2;
+		*fmt += e.end_expr_len;
 		*in += e.skip_on_return;
 	}
 	/* multiplier went to the end of 'in', but without matching the end */
