@@ -396,7 +396,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			debug(SCANF, 3, "no IP found at %s\n", *in);
 			return n_found;
 		}
-		if ((*fmt)[1] == 'P')
+		if (c == 'P')
 			res = get_subnet_or_ip(buffer, v_sub);
 		else
 			res = classfull_get_subnet(buffer, v_sub);
@@ -602,11 +602,10 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 	case 'S': /* a special STRING that doesnt represent an IP */
 	case 's':
 		ARG_SET(v_s, char *);
-		c = (*fmt)[2];
-		if (c == '.') {
+		if ((*fmt)[2] == '.') {
 			debug(SCANF, 1, "Invalid format, found '.' after %%s\n");
 			return n_found;
-		} else if (c == '%') {
+		} else if ((*fmt)[2] == '%') {
 			debug(SCANF, 1, "Invalid format, found '%%' after %%s\n");
 			return n_found;
 		}
@@ -623,7 +622,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			return n_found;
 		}
 		*ptr_buff = '\0';
-		if ((*fmt)[1] == 'S') {
+		if (c == 'S') {
 			res = get_subnet_or_ip(v_s, (struct subnet *)&poubelle);
 			if (res > 0) {
 				debug(SCANF, 3, "STRING '%s' is an IP\n", v_s);
