@@ -1042,6 +1042,7 @@ static int parse_multiplier_char(const char **in, const char **fmt, const char *
 	int res;
 	int min_m, max_m;
 	int n_match = 0;
+	const char *p = *in;
 
 	if (**fmt == '{') {
 		res = parse_brace_multiplier(*fmt, &min_m, &max_m);
@@ -1056,11 +1057,11 @@ static int parse_multiplier_char(const char **in, const char **fmt, const char *
 	/* simple case, we match a single char {n,m} times */
 	debug(SCANF, 4, "Pattern expansion will end when in[j] != '%c'\n", *expr);
 	while (n_match < max_m) {
-		if (*expr != **in)
+		if (*expr != *p)
 			break;
-		*in += 1;
+		p += 1;
 		n_match++;
-		if (**in == '\0') {
+		if (*p == '\0') {
 			debug(SCANF, 3, "reached end of input scanning 'in'\n");
 			break;
 		}
@@ -1071,8 +1072,9 @@ static int parse_multiplier_char(const char **in, const char **fmt, const char *
 		return -2;
 	}
 	*fmt += 1;
-	if (**in == '\0' && **fmt != '\0')
+	if (*p == '\0' && **fmt != '\0')
 		return -2;
+	*in = p;
 	return 1;
 }
 
@@ -1082,6 +1084,7 @@ static int parse_multiplier_expr(const char **in, const char **fmt, const char *
 	int res, k, num_cs;
 	int min_m, max_m;
 	int n_match = 0;
+	const char *p = *in;
 
 	if (**fmt == '{') {
 		res = parse_brace_multiplier(*fmt, &min_m, &max_m);
@@ -1100,21 +1103,21 @@ static int parse_multiplier_expr(const char **in, const char **fmt, const char *
 	}
 	debug(SCANF, 4, "Pattern expansion will end when in[j] != '%s'\n", expr);
 	while (n_match < max_m) {
-		res = match_expr_single(expr, *in, o, n_found);
+		res = match_expr_single(expr, p, o, n_found);
 		if (res < 0) {
 			debug(SCANF, 1, "Invalid format '%s'\n", expr);
 			return -1;
 		}
 		if (res == 0)
 			break;
-		*in += res;
+		p += res;
 		n_match++;
-		if (*in > in_max) {
+		if (p > in_max) {
 			/* can happen only if there is a BUG in max_expr_single */
 			fprintf(stderr, "BUG, input buffer override in %s line %d\n",
 					__func__, __LINE__);
 		}
-		if (**in == '\0') {
+		if (*p == '\0') {
 			debug(SCANF, 3, "reached end of input scanning 'in'\n");
 			break;
 		}
@@ -1141,8 +1144,9 @@ static int parse_multiplier_expr(const char **in, const char **fmt, const char *
 			}
 		}
 	}
-	if (**in == '\0' && **fmt != '\0')
+	if (*p == '\0' && **fmt != '\0')
 		return -2;
+	*in = p;
 	return 1;
 }
 
