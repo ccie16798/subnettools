@@ -890,6 +890,7 @@ static int find_expr(const char *remain, struct expr *e)
 	e->num_o = i;
 	/* we will not analyse the expression again on return */
 	e->skip_on_return = res;
+	e->can_skip = res;
 	return res;
 }
 
@@ -1149,7 +1150,7 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
 		char *expr, struct sto *o, int max_o, int *n_found)
 {
 	int match_last, could_stop, previous_could_stop;
-	int last_skip_on_return, last_end_expr_len;
+	int last_skip_on_return, last_end_expr_len, last_num_o;
 	int n_match;
 	int min_m, max_m, k, res;
 	struct expr e;
@@ -1210,8 +1211,12 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
 			 * scanf("ab 121.1.1.1", ".*$I") should return '121.1.1.1' not '1.1.1.1'
 			 * scanf("ab STRING", ".*$s")    should return 'STRING' not just 'G'
 			 */
-			if (could_stop && previous_could_stop == 0)
-				last_match_index = *in;
+			if (could_stop && previous_could_stop == 0) {
+				last_match_index    = *in;
+				last_skip_on_return = e.skip_on_return;
+				last_end_expr_len   = e.end_expr_len;
+				last_num_o          = e.num_o;
+			}
 			previous_could_stop = could_stop;
 			*in += (e.can_skip ? e.can_skip : 1);
 
@@ -1240,6 +1245,7 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
 				last_match_index    = *in;
 				last_skip_on_return = e.skip_on_return;
 				last_end_expr_len   = e.end_expr_len;
+				last_num_o          = e.num_o;
 			}
 			previous_could_stop = could_stop;
 			*in += 1;
@@ -1253,7 +1259,11 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
 			n_match, could_stop, e.skip_on_return);
 	/* in case of last match, we must rewind position in 'in'*/
 	if (match_last) {
-		*in = last_match_index;
+		*in              = last_match_index;
+		e.skip_on_return = last_skip_on_return;
+		e.end_expr_len   = last_end_expr_len;
+		e.num_o          = last_num_o;
+		/* we dont need to restore e.sto, because expr hasnt matched any more */
 		debug(SCANF, 4, "last match asked, rewind to previous pointer\n");
 		if (*in == NULL) {
 			debug(SCANF, 3, "last match never matched\n");
