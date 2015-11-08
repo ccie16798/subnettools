@@ -201,25 +201,50 @@ struct stat_bucket *get_key_stat(struct hash_table *ht, char *key, int key_len)
 	return NULL;
 }
 
+
+int stat_bucket_cmp(st_list *l1, st_list *l2)
+{
+	struct stat_bucket *b1, *b2;
+
+	b1 = container_of(l1, struct stat_bucket, list);
+	b2 = container_of(l2, struct stat_bucket, list);
+	return b1->count - b2->count;
+}
+
+void sort_stat_table(struct hash_table *ht, st_list *head)
+{
+	unsigned i;
+	struct stat_bucket *sb;
+
+	for (i = 0; i < ht->max_nr; i++)
+		list_join(&ht->tab[i], head);
+	list_sort(head, &stat_bucket_cmp);
+}
+
 int main(int argc, char **argv)
 {
 	struct hash_table ht;
 	struct st_bucket *b;
 	struct stat_bucket *sb;
 	char buffer[64];
+	st_list head;
 	int i;
 
+	init_list(&head);
 	srand(time(NULL));
 	alloc_hash_tab(&ht, 1000, &fnv_hash);
 	for (i = 0; i < 5000; i++) {
-		sprintf(buffer, "KEY#%d", rand()%100);
+		sprintf(buffer, "KEY#%d", rand()%20);
 		increase_key_stat(&ht, buffer, strlen(buffer));
 	}
 	printf("%d elements inserted, %d collisions\n", ht.nr, ht.collisions);
 	b = find_key(&ht, "KEY 4", 5);
-
+	/*
 	hlist_for_each_entry(sb, &ht, i) {
 		printf("KEY: %s count:%lu\n", (char *)sb->key, sb->count);
 		free_stat_bucket(sb);
-	}
+	} */
+	sort_stat_table(&ht, &head);
+	list_for_each_entry(sb, &head, list)
+		printf("KEY: %s count:%lu\n", (char *)sb->key, sb->count);
 }
