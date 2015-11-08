@@ -37,9 +37,6 @@ struct expr {
 static inline char escape_char(char c)
 {
 	switch (c) {
-	case '\0':
-		debug(SCANF, 2, "Nul char after Escape Char '\\'\n");
-		return '\0';
 	case 't':
 		return '\t';
 	case 'n':
@@ -992,12 +989,13 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
 		debug(SCANF, 4, "pattern matching will end on '%s'\n", e->end_expr);
 		e->can_stop = &find_char_range;
 	} else if (fmt[0] == '\\') {
+		/* if not a special char, we try to find the first occurence of the next char
+		 * after '.*' in FMT;
+		 * Note that NUL char is a perfectly valid char in this case
+		 */
 		e->end_of_expr = escape_char(fmt[1]);
 		e->can_stop = NULL;
 	} else {
-		/* if not a special char, we try to find the first occurence of the next char
-		 * after '.*' in FMT
-		 */
 		e->end_of_expr = fmt[0];
 		e->can_stop = NULL;
 	}
@@ -1326,9 +1324,9 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 		}
 		if (*f == '\0' && *p == '\0')
 			return n_found;
-		else if (*f == '\0')
+		if (*f == '\0')
 			goto end_nomatch;
-		else if (*p == '\0') { /* expr[i .... ] can match void, like '.*' */
+		if (*p == '\0') { /* remaining format string may match, like '.*' */
 			if (*f == '(' || *f == '[') {
 				if (*f == '(')
 					res = strxcpy_until(expr, f, sizeof(expr), ')');
