@@ -324,7 +324,7 @@ static int match_char_against_range_clean(char c, const char *expr)
  * store output in o if not NULL, else put it to thrash
  * @in  : pointer to remaining input buffer
  * @fmt : pointer to remaining FORMAT buffer
- * @o   : a struct to store a found objet; if NULL, discard found data
+ * @o   : a struct to store a found objet
  * returns:
  *	the number of conversion specifiers found (0 or 1)
 */
@@ -447,9 +447,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			return n_found;
 		}
 		ARG_SET(v_short, short *);
-		if (o)
-			o->conversion = 'h';
-		*v_short = 0;
+		o->conversion = 'h';
 		if (c == 'x') {
 			if (*p == '0' && p[1] == 'x')
 				p += 2;
@@ -457,6 +455,8 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 				debug(SCANF, 3, "no HEX found at %s\n", *in);
 				return n_found;
 			}
+			*v_short = char2int(*p);
+			p++;
 			while (isxdigit(*p)) {
 				*v_short <<= 4;
 				*v_short += char2int(*p);
@@ -474,6 +474,8 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 				debug(SCANF, 3, "no SHORT found at %s\n", *in);
 				return n_found;
 			}
+			*v_short = (*p - '0');
+			p++;
 			while (isdigit(*p)) {
 				*v_short *= 10;
 				*v_short += (*p - '0');
@@ -498,9 +500,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			return n_found;
 		}
 		ARG_SET(v_long, long *);
-		if (o)
-			o->conversion = 'l';
-		*v_long = 0;
+		o->conversion = 'l';
 		if (c == 'x') {
 			if (*p == '0' && p[1] == 'x')
 				p += 2;
@@ -508,6 +508,8 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 				debug(SCANF, 3, "no HEX found at %s\n", *in);
 				return n_found;
 			}
+			*v_long = char2int(*p);
+			p++;
 			while (isxdigit(*p)) {
 				*v_long <<= 4;
 				*v_long += char2int(*p);
@@ -525,6 +527,8 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 				debug(SCANF, 3, "no LONG found at %s\n", *in);
 				return n_found;
 			}
+			*v_long = char2int(*p);
+			p++;
 			while (isdigit(*p)) {
 				*v_long *= 10UL;
 				*v_long += (*p - '0');
@@ -543,7 +547,6 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		break;
 	case 'd':
 		ARG_SET(v_int, int *);
-		*v_int = 0;
 		if (*p == '-') {
 			sign = -1;
 			p++;
@@ -553,6 +556,8 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			debug(SCANF, 3, "no INT found at %s\n", *in);
 			return n_found;
 		}
+		*v_int = (*p - '0');
+		p++;
 		while (isdigit(*p)) {
 			*v_int *= 10;
 			*v_int += (*p - '0');
@@ -564,11 +569,12 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		break;
 	case 'u':
 		ARG_SET(v_uint, unsigned int *);
-		*v_uint = 0;
 		if (!isdigit(*p)) {
 			debug(SCANF, 3, "no UINT found at %s\n", *in);
 			return n_found;
 		}
+		*v_uint = (*p - '0');
+		p++;
 		while (isdigit(*p)) {
 			*v_uint *= 10;
 			*v_uint += (*p - '0');
@@ -579,13 +585,14 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		break;
 	case 'x':
 		ARG_SET(v_uint, unsigned int *);
-		*v_uint = 0;
 		if (*p == '0' && p[1] == 'x')
 			p += 2;
 		if (!isxdigit(*p)) {
 			debug(SCANF, 3, "no HEX found at %s\n", *in);
 			return n_found;
 		}
+		*v_uint = char2int(*p);
+		p++;
 		while (isxdigit(*p)) {
 			*v_uint <<= 4;
 			*v_uint += char2int(*p);
