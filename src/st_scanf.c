@@ -1384,12 +1384,33 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			p++;
 			continue;
 			/* expression or char range */
-		case '(':
 		case '[':
-			if (*f == '(')
-				res = strxcpy_until(expr, f, sizeof(expr), ')');
-			else
-				res = fill_char_range(expr, f, sizeof(expr));
+			res = fill_char_range(expr, f, sizeof(expr));
+			if (res == -1) {
+				debug(SCANF, 1, "Invalid format '%s', unmatched '%c'\n", fmt, *f);
+				return n_found;
+			}
+			debug(SCANF, 8, "found char range '%s'\n", expr);
+			f += res;
+			if (is_multiple_char(*f)) {
+				res = parse_multiplier_expr(&p, &f, in_max, expr,
+						o, max_o, &n_found);
+				if (res < 0)
+					goto end_nomatch;
+				continue;
+			}
+			res = match_char_against_range_clean(*p, expr);
+			if (res == 0) {
+				debug(SCANF, 2, "Range '%s' didnt match 'in' at offset %d\n",
+						expr, (int)(p - in));
+				goto end_nomatch;
+			}
+			debug(SCANF, 4, "Range '%s' matched 'in' offset %d\n",
+					expr, (int)(p - in));
+			p += 1;
+			continue;
+		case '(':
+			res = strxcpy_until(expr, f, sizeof(expr), ')');
 			if (res == -1) {
 				debug(SCANF, 1, "Invalid format '%s', unmatched '%c'\n", fmt, *f);
 				return n_found;
