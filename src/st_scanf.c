@@ -1357,7 +1357,10 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			if (min_m == 0) /* if the expr can match zero time, the match was perfect */
 				return n_found;
 			goto end_nomatch;
-		} else if (*f == '%') {
+		}
+
+		switch (*f) {
+		case '%': /* conversion specifier */
 			if (n_found > max_o - 1) {
 				debug(SCANF, 1, "Max objets %d, already found %d\n",
 						max_o, n_found);
@@ -1367,8 +1370,8 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			if (res == 0)
 				return n_found;
 			n_found += res;
-			/* any char */
-		} else if (*f == '.') {
+			continue;
+		case '.': /* any char */
 			f++;
 			if (is_multiple_char(*f)) {
 				res = parse_multiplier_dotstar(&p, &f, in_max, expr,
@@ -1379,14 +1382,16 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			}
 			debug(SCANF, 8, "fmt='.', match any char\n");
 			p++;
+			continue;
 			/* expression or char range */
-		} else if (*f == '(' || *f == '[') {
+		case '(':
+		case '[':
 			if (*f == '(')
 				res = strxcpy_until(expr, f, sizeof(expr), ')');
 			else
 				res = fill_char_range(expr, f, sizeof(expr));
 			if (res == -1) {
-				debug(SCANF, 1, "Invalid format '%s', unmatched '%c'\n", fmt, c);
+				debug(SCANF, 1, "Invalid format '%s', unmatched '%c'\n", fmt, *f);
 				return n_found;
 			}
 			debug(SCANF, 8, "found expr '%s'\n", expr);
@@ -1426,7 +1431,8 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 						__func__, __LINE__);
 				return n_found;
 			}
-		} else {
+			continue;
+		default:
 			c = *f;
 			if (*f == '\\') {
 				f++;
@@ -1452,7 +1458,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			}
 			p++;
 			f++;
-		}
+		} /* switch */
 	} /* while 1 */
 end_nomatch:
 	if (n_found == 0)
