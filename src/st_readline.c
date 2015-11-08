@@ -133,15 +133,23 @@ char *st_getline_truncate(struct st_file *f, size_t size, int *read, int *discar
 		discard_bytes(f);
 		f->need_discard = 0;
 	}
+	/** need to refill buffer or not **/
+	if (f->bytes <= size) {
+		i = refill(f, "tst");
+		if (i < 0)
+			return NULL;
+		if (i == 0)
+			size = f->bytes;
+	}
 	p = f->bp;
 	t = memchr(p, '\n', f->bytes);
 	/* if we found a newline within 'size' char lets return */
 	if (t != NULL) {
-		debug_read(8, "GOOD1: len = %d bytes=%d\n", t - f->bp, f->bytes);
+		debug_read(8, "GOOD: len = %d bytes=%d\n", t - f->bp, f->bytes);
 		len = t - p;
 		if (len <= size) {
 			*t  = '\0';
-			len++;
+			len++; /* room for the NUL char */
 			f->bytes  -= len;
 			f->bp     += len;
 			*discarded = 0;
@@ -150,7 +158,7 @@ char *st_getline_truncate(struct st_file *f, size_t size, int *read, int *discar
 		}
 		/* line too long, discarding bytes */
 		p[size]    = '\0';
-		len++;
+		len++; /* room for the NUL char */
 		f->bytes  -= len;
 		f->bp     += len;
 		*discarded = len - size;
@@ -158,64 +166,24 @@ char *st_getline_truncate(struct st_file *f, size_t size, int *read, int *discar
 		debug_read(8, "Trunc1 discarding %d chars\n", *discarded);
 		return p;
 	}
-	/* we are sure there is no newline for up to f->bytes */
-	if (f->bytes <= size) { /** need to refill **/
-		i = refill(f, "tst");
-		if (i < 0)
+	/* no newline found */
+	p[size] = '\0';
+	size++;
+	f->bp    += size;
+	f->bytes -= size;
+	if (f->endoffile) {
+		*discarded = 0;
+		if  (size == 1) {
+			*read = 0;
 			return NULL;
-		if (i == 0)
-			size = f->bytes;
-	} else {
-		/* no newline found for a FBB (fucking Big Buffer), suspicious */
-		p[size]    = '\0';
-		debug_read(3, "Need discard#1 : bytes=%d, size=%d\n", f->bytes, size);
-		size++;
-		f->bp     += size;
-		f->bytes  -= size;
-		*discarded = f->bytes + 1; /* at least */
-		f->need_discard++;
+		}
 		*read = size;
 		return p;
 	}
-	/* f->bytes >= size here */
-	p = f->bp;
-	t = memchr(p, '\n', f->bytes);
-	if (t != NULL) {
-		len = t - p;
-		if (len <= size) {
-			*t  = '\0';
-			len++;
-			f->bytes  -= len;
-			f->bp     += len;
-			*discarded = 0;
-			*read = len;
-			return p;
-		}
-		/* line too long, discarding bytes */
-		p[size]    = '\0';
-		len++;
-		f->bytes  -= len;
-		f->bp     += len;
-		*discarded = len - size;
-		*read = size + 1;
-		debug_read(5, "Trunc2 discarding %d chars\n", *discarded);
-		return p;
-	}
-	p[size]    = '\0';
-	f->bp     += size;
-	f->bytes  -= size;
-	*read = size + 1;
-	*discarded = 0;
-	if (f->endoffile && size == 0) {
-		*read = 0;
-		return NULL;
-	}
-	if (f->endoffile)
-		return p;
+	*read = size;
 	debug_read(3, "Need discard#2 : %d\n", f->bytes);
+	*discarded = f->bytes + 1; /* at least */
 	f->need_discard++;
-	*read = size + 1;
-	*discarded = f->bytes; /*at least */
 	return p;
 }
 
@@ -235,7 +203,7 @@ int main(int argc, char **argv)
 		printf("%s\n", s);
 		if (strlen(s) != i - 1)
 			fprintf(stderr, "BUG, st_get_line for %s return value=%d, len=%d\n",
-				s, i, (int)strlen(s));
+					s, i, (int)strlen(s));
 	}
 	st_close(sf);
 }
