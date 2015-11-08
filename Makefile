@@ -15,5 +15,8 @@ test-read: src/st_readline.c src/st_readline.h
 	cd src; make test-read
 	mv src/test-read .
 
-regtest: src/*.c src/*.h
+regtest:
 	cd regtest; sh ./regtest.sh
+
+scantest:
+	cd regtest; sh ./scanf_test.sh
