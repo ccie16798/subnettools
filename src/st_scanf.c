@@ -1193,6 +1193,7 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
 	if (*in > in_max)
 		return -2;
 
+	/* handle end on complex expression (Conversion specifier, expression ...) **/
 	if (e.can_stop) {
 		/* try to find at most max_m expr */
 		while (n_match < max_m) {
@@ -1212,6 +1213,7 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
 			 * scanf("ab STRING", ".*$s")    should return 'STRING' not just 'G'
 			 */
 			if (could_stop && previous_could_stop == 0) {
+				/* we must save information to restore on last_match */
 				last_match_index    = *in;
 				last_skip_on_return = e.skip_on_return;
 				last_end_expr_len   = e.end_expr_len;
@@ -1232,7 +1234,7 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
 			}
 		}
 	} else  {
-		/* end on simple char */
+		/* handle end on simple char */
 		while (n_match < max_m) {
 			/* try to stop expansion */
 			could_stop = (**in == e.end_of_expr);
@@ -1274,7 +1276,7 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
 	/* if we stop a multiplier expansion on a complex conversion specifier, we may
 	 * have recorded it in e->sto, to avoid anaylising it again
 	 * ie scanf('.*%I a', '    1.1.1.1 a', must fully analyse 1.1.1.1 in '.*' expansion
-	 * 1.1.1.1 was stored by 'find_ip' so use this instead of reanalysing again
+	 * 1.1.1.1 was stored by 'find_ip' so use this instead of re-analysing again
 	 */
 	if (e.skip_on_return) {
 		debug(SCANF, 3, "Trying to skip %d input chars, %d fmt chars\n",
@@ -1285,7 +1287,7 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
 			*n_found += 1;
 		}
 		*fmt += e.end_expr_len;
-		*in += e.skip_on_return;
+		*in  += e.skip_on_return;
 	}
 	/* multiplier went to the end of 'in', but without matching the end */
 	if (**in == '\0' && **fmt != '\0')
