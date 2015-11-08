@@ -334,7 +334,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 	int n_found = 0; /* number of CS found */
 	int i2, res;
 	int max_field_length;
-	char buffer[128];
+	char buffer[ST_OBJECT_MAX_STRING_LEN];
 	char *ptr_buff;
 	char poubelle[256];
 	char c;
@@ -625,7 +625,8 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 				return n_found;
 			}
 		}
-		debug(SCANF, 5, "found STRING '%s'\n", v_s);
+		debug(SCANF, 5, "found STRING len='%d' value '%s'\n",
+				(int)(ptr_buff - v_s), v_s);
 		n_found++;
 		break;
 	case 'W':

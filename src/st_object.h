@@ -2,6 +2,7 @@
 #define ST_OBJECT
 #include "iptools.h"
 
+#define ST_OBJECT_MAX_STRING_LEN (128 - 2)
 /* subnet tools object */
 struct sto {
 	char type;
@@ -15,7 +16,7 @@ struct sto {
 		unsigned int	s_uint;
 		long		s_long;
 		unsigned long	s_ulong;
-		char		s_char[30];
+		char		s_char[ST_OBJECT_MAX_STRING_LEN];
 	};
 };
 
