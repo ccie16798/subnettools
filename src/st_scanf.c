@@ -1149,6 +1149,7 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
 		char *expr, struct sto *o, int max_o, int *n_found)
 {
 	int match_last, could_stop, previous_could_stop;
+	int last_skip_on_return, last_end_expr_len;
 	int n_match;
 	int min_m, max_m, k, res;
 	struct expr e;
@@ -1235,8 +1236,11 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
 			if (could_stop && match_last == 0)
 				break;
 			n_match++;
-			if (could_stop && previous_could_stop == 0)
-				last_match_index = *in;
+			if (could_stop && previous_could_stop == 0) {
+				last_match_index    = *in;
+				last_skip_on_return = e.skip_on_return;
+				last_end_expr_len   = e.end_expr_len;
+			}
 			previous_could_stop = could_stop;
 			*in += 1;
 			if (**in == '\0') {
@@ -1250,7 +1254,7 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
 	/* in case of last match, we must rewind position in 'in'*/
 	if (match_last) {
 		*in = last_match_index;
-		debug(SCANF, 4, "last match asked, rewind to previois pointer\n");
+		debug(SCANF, 4, "last match asked, rewind to previous pointer\n");
 		if (*in == NULL) {
 			debug(SCANF, 3, "last match never matched\n");
 			return -2;
