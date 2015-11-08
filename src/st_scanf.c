@@ -336,7 +336,6 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 	int max_field_length;
 	char buffer[ST_OBJECT_MAX_STRING_LEN];
 	char *ptr_buff;
-	char poubelle[256];
 	char c;
 	struct subnet *v_sub;
 	char expr[128];
@@ -353,13 +352,9 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 /* ARG_SET will set the storage for conversion specifier */
 #define ARG_SET(__NAME, __TYPE) \
 	do { \
-		if (o == NULL) \
-			__NAME = (__TYPE)&poubelle; \
-		else { \
-			__NAME = (__TYPE)&o->s_char; \
-			o->type = c; \
-			o->conversion = 0; \
-		} \
+		__NAME = (__TYPE)&o->s_char; \
+		o->type = c; \
+		o->conversion = 0; \
 	} while (0)
 
 	/* p is a pointer to 'in', f a pointer to 'fmt' */
@@ -619,7 +614,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		}
 		*ptr_buff = '\0';
 		if (c == 'S') {
-			res = get_subnet_or_ip(v_s, (struct subnet *)&poubelle);
+			res = get_subnet_or_ip(v_s, (struct subnet *)&buffer);
 			if (res > 0) {
 				debug(SCANF, 3, "STRING '%s' is an IP\n", v_s);
 				return n_found;
