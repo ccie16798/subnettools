@@ -356,7 +356,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			__NAME = (__TYPE)&poubelle; \
 		else { \
 			__NAME = (__TYPE)&o->s_char; \
-			o->type = *f; \
+			o->type = c; \
 			o->conversion = 0; \
 		} \
 	} while (0)
