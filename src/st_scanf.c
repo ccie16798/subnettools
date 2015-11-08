@@ -25,6 +25,7 @@ struct expr {
 	int (*can_stop)(const char *remain, struct expr *e);
 	char end_of_expr; /* if remain[i] = end_of_expr , we can stop*/
 	char end_expr[64];
+	int end_expr_len; /* length of 'fmt' we want to sopt on */
 	int can_skip; /* number of char we can skip in next iteration */
 	int skip_on_return; /* number of char we can skip when '.*' exp finishes' */
 	struct sto sto[10]; /* object collected by find_xxx */
@@ -912,6 +913,7 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
 		/* find the conversion specifier after a field length */
 		while (isdigit(fmt[k]))
 			k++;
+		e->end_expr_len = k + 1;
 		switch (fmt[k]) {
 		case '\0':
 			debug(SCANF, 1, "Invalid format string '%s', ends with %%\n",
@@ -939,6 +941,7 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
 					fmt[k], fmt[k + 1]);
 				return -1;
 			}
+			e->end_expr_len++;
 			return 1;
 		case 'I':
 			e->can_stop = &find_ip;
@@ -984,6 +987,7 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
 			debug(SCANF, 1, "Invalid format '%s', unmatched '('\n", e->end_expr);
 			return -1;
 		}
+		e->end_expr_len = res;
 		debug(SCANF, 4, "pattern matching will end on '%s'\n", e->end_expr);
 		e->can_stop = &find_expr;
 	} else if (fmt[0] == '[') {
