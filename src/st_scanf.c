@@ -725,7 +725,7 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 		case '%':
 			debug(SCANF, 3, "conversion specifier to handle %lu\n",
 					(unsigned long)(o + *num_o));
-			res = parse_conversion_specifier(&in, &expr, &o[*num_o]);
+			res = parse_conversion_specifier(&in, &expr, o + *num_o);
 			if (res == 0)
 				break;
 			if (o) {
