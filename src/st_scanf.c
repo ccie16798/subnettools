@@ -1032,10 +1032,11 @@ static int parse_multiplier_char(const char **in, const char **fmt, const char *
 		res = parse_brace_multiplier(*fmt, &min_m, &max_m);
 		if (res < 0)
 			return -1;
-		*fmt += res;
+		*fmt += res + 1;
 	} else {
 		min_m = min_match(**fmt);
 		max_m = max_match(**fmt);
+		*fmt += 1;
 	}
 	debug(SCANF, 5, "need to find expression '%s' {%d,%d} times\n", expr, min_m, max_m);
 	/* simple case, we match a single char {n,m} times */
@@ -1055,7 +1056,6 @@ static int parse_multiplier_char(const char **in, const char **fmt, const char *
 				*expr, n_match, min_m);
 		return -2;
 	}
-	*fmt += 1;
 	if (*p == '\0' && **fmt != '\0')
 		return -2;
 	*in = p;
@@ -1074,10 +1074,11 @@ static int parse_multiplier_expr(const char **in, const char **fmt, const char *
 		res = parse_brace_multiplier(*fmt, &min_m, &max_m);
 		if (res < 0)
 			return -1;
-		*fmt += res;
+		*fmt += res +1;
 	} else {
 		min_m = min_match(**fmt);
 		max_m = max_match(**fmt);
+		*fmt += 1;
 	}
 	num_cs = count_cs(expr);
 	if (*n_found + num_cs > max_o) {
@@ -1128,7 +1129,6 @@ static int parse_multiplier_expr(const char **in, const char **fmt, const char *
 			}
 		}
 	}
-	*fmt += 1;
 	if (*p == '\0' && **fmt != '\0')
 		return -2;
 	*in = p;
@@ -1150,17 +1150,18 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
 		res = parse_brace_multiplier(*fmt, &min_m, &max_m);
 		if (res < 0)
 			return -1;
-		*fmt += res;
+		*fmt += res + 1;
 	} else {
 		min_m = min_match(**fmt);
 		max_m = max_match(**fmt);
+		*fmt += 1;
 	}
 	debug(SCANF, 5, "need to find expression '.' {%d,%d} times\n", min_m, max_m);
 	/*  '.*' handling ... BIG MESS */
 	match_last = 0;
 	n_match    = 0;
 	previous_could_stop = 0;
-	if ((*fmt)[1] == '$') {
+	if (**fmt == '$') {
 		if (max_m < 2) {
 			debug(SCANF, 1, "'$' not allowed in this context, max expansion=%d\n",
 					max_m);
@@ -1171,7 +1172,7 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
 		*fmt += 1;
 	}
 	/* we need to find when the expr expansion will end */
-	res = set_expression_canstop(*fmt + 1, &e);
+	res = set_expression_canstop(*fmt, &e);
 	if (res < 0)
 		return res;
 
@@ -1277,7 +1278,6 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
 		*fmt += e.end_expr_len;
 		p    += e.skip_on_return;
 	}
-	*fmt += 1;
 	/* multiplier went to the end of 'in', but without matching the end */
 	if (*p == '\0' && **fmt != '\0')
 		return -2;
