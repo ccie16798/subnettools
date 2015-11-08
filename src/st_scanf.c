@@ -892,11 +892,11 @@ static int find_char_range(const char *remain, struct expr *e)
 }
 
 /*
- * set_expression_canstop; called when '.*' expansion is need
- * will set e->canstop based on format string
+ * set_expression_canstop; called when '.*' expansion is needed
+ * will set e->can_stop handler based on format string
  * parse_multiplier updates offset into 'in', 'fmt', the number of objects found (n_found)
  * @fmt      : the format string (the remain after '.*')
- * @e        : a pointer to a struct e to populate
+ * @e        : a pointer to a struct expr to populate
  */
 static int set_expression_canstop(const char *fmt, struct expr *e)
 {
@@ -1008,7 +1008,7 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
 }
 
 /*
- * parse_multiplier_xxx starts when fmt is a st_scanf multiplier char (*, +, ?, {a,b})
+ * parse_multiplier_xxx starts when **fmt is a st_scanf multiplier char (*, +, ?, {a,b})
  * it will try to consume as many bytes as possible from 'in' and put objects
  * found in a struct sto *
  * parse_multiplier updates offset into 'in', 'fmt', the number of objects found (n_found)
@@ -1031,7 +1031,7 @@ static int parse_multiplier_char(const char **in, const char **fmt, const char *
 	int res;
 	int min_m, max_m;
 	int n_match = 0;
-	const char *p = *in;
+	const char *p = *in; /* p caches '*in' to avoid dereferences and speed up */
 
 	if (**fmt == '{') {
 		res = parse_brace_multiplier(*fmt, &min_m, &max_m);
@@ -1073,7 +1073,7 @@ static int parse_multiplier_expr(const char **in, const char **fmt, const char *
 	int res, k, num_cs;
 	int min_m, max_m;
 	int n_match = 0;
-	const char *p = *in;
+	const char *p = *in; /* p caches '*in' to avoid dereferences and speed up */
 
 	if (**fmt == '{') {
 		res = parse_brace_multiplier(*fmt, &min_m, &max_m);
@@ -1105,6 +1105,7 @@ static int parse_multiplier_expr(const char **in, const char **fmt, const char *
 			/* can happen only if there is a BUG in max_expr_single */
 			fprintf(stderr, "BUG, input buffer override in %s line %d\n",
 					__func__, __LINE__);
+			return -5;
 		}
 		if (*p == '\0') {
 			debug(SCANF, 3, "reached end of input scanning 'in'\n");
@@ -1116,7 +1117,6 @@ static int parse_multiplier_expr(const char **in, const char **fmt, const char *
 				*expr, n_match, min_m);
 		return -2;
 	}
-	*fmt += 1;
 	if (num_cs) {
 		if (n_match) {
 			debug(SCANF, 4, "found %d CS so far\n", *n_found);
@@ -1133,6 +1133,7 @@ static int parse_multiplier_expr(const char **in, const char **fmt, const char *
 			}
 		}
 	}
+	*fmt += 1;
 	if (*p == '\0' && **fmt != '\0')
 		return -2;
 	*in = p;
@@ -1265,7 +1266,6 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
 			return -2;
 		}
 	}
-	*fmt += 1;
 	/* if we stop a multiplier expansion on a complex conversion specifier, we may
 	 * have recorded it in e->sto, to avoid anaylising it again
 	 * ie scanf('.*%I a', '    1.1.1.1 a', must fully analyse 1.1.1.1 in '.*' expansion
@@ -1282,6 +1282,7 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
 		*fmt += e.end_expr_len;
 		p    += e.skip_on_return;
 	}
+	*fmt += 1;
 	/* multiplier went to the end of 'in', but without matching the end */
 	if (*p == '\0' && **fmt != '\0')
 		return -2;
