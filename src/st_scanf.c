@@ -1401,7 +1401,10 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 		case '+': /* we have two consecutive multiplier chars or */
 		case '?': /* fmt starts with a multiplier */
 		case '{':
-			debug(SCANF, 1, "Invalid expr, 2 successives multipliers\n");
+			if (f == fmt)
+				debug(SCANF, 1, "Invalid expr, starts with a multiplier\n");
+			else
+				debug(SCANF, 1, "Invalid expr, 2 successives multipliers\n");
 			goto end_nomatch;
 		case '%': /* conversion specifier */
 			if (n_found > max_o - 1) {
