@@ -1363,12 +1363,9 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			debug(SCANF, 1, "Invalid expr, 2 successives multipliers\n");
 			return -1;
 		}
-		if (*f == '\0') {
-			if (*p == '\0')
-				return n_found;
-			goto end_nomatch;
-		}
 		if (*p == '\0') { /* remaining format string may match, like '.*' */
+			if (*f == '\0')
+				return n_found;
 			if (*f == '(' || *f == '[') {
 				if (*f == '(')
 					res = strxcpy_until(expr, f, sizeof(expr), ')');
@@ -1402,6 +1399,8 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 		}
 
 		switch (*f) {
+		case '\0':
+			goto end_nomatch;
 		case '%': /* conversion specifier */
 			if (n_found > max_o - 1) {
 				debug(SCANF, 1, "Max objets %d, already found %d\n",
