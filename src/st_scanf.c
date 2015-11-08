@@ -379,7 +379,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		debug(SCANF, 9, "Found max field length %d\n", max_field_length);
 	} else
 		max_field_length = sizeof(buffer) - 2;
-	p_max = *in + max_field_length - 1;
+	p_max = *in + max_field_length - 1; /* we reserve on char for NUL ending char */
 	c = *f; /* c now points to the conversion specifier */
 	switch (c) {
 	case '\0':
@@ -389,11 +389,8 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 	case 'P':
 		ARG_SET(v_sub, struct subnet *);
 		ptr_buff = buffer;
-		while ((is_ip_char(*p) || *p == '/')) {
-			*ptr_buff = *p;
-			p++;
-			ptr_buff++;
-		}
+		while ((is_ip_char(*p) || *p == '/'))
+			*ptr_buff++ = *p++; /* fast copy */
 		*ptr_buff = '\0';
 		if (p - *in <= 2) {
 			debug(SCANF, 3, "no IP found at %s\n", *in);
@@ -613,13 +610,9 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			return n_found;
 		}
 		ptr_buff = v_s;
-		while (!isspace(*p) && p < p_max) {
-			if (*p == '\0')
-				break;
-			*ptr_buff = *p;
-			p++;
-			ptr_buff++;
-		}
+		while (!isspace(*p) && *p != '\0' && p < p_max)
+			*ptr_buff++ = *p++; /* fast copy */
+
 		if (p == *in) {
 			debug(SCANF, 3, "no STRING found at %s\n", *in);
 			return n_found;
@@ -638,11 +631,9 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 	case 'W':
 		ARG_SET(v_s, char *);
 		ptr_buff = v_s;
-		while (isalpha(*p) && p < p_max) {
-			*ptr_buff = *p;
-			p++;
-			ptr_buff++;
-		}
+		while (isalpha(*p) && p < p_max)
+			*ptr_buff++ = *p++;
+
 		if (p == *in) {
 			debug(SCANF, 3, "no WORD found at %s\n", *in);
 			return 0;
@@ -661,13 +652,9 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		f += (i2 - 1);
 		i2 = 0;
 		ptr_buff = v_s;
-		while (match_char_against_range_clean(*p, expr) && p < p_max) {
-			if (*p == '\0')
-				break;
-			*ptr_buff = *p;
-			p++;
-			ptr_buff++;
-		}
+		while (match_char_against_range_clean(*p, expr) && *p != '\0' && p < p_max)
+			*ptr_buff++ = *p++;
+
 		if (p == *in) {
 			debug(SCANF, 3, "no CHAR RANGE found at %s\n", *in);
 			return 0;
