@@ -129,7 +129,7 @@ struct st_bucket *find_key(struct hash_table *ht, char *key, int key_len)
 	if (list_empty(&ht->tab[h]))
 		return NULL;
 	list_for_each_entry(b, &ht->tab[h], list) {
-		if (!strncmp(key, b->key, key_len))
+		if (!memcmp(key, b->key, key_len))
 			return b;
 	}
 	return NULL;
@@ -144,7 +144,7 @@ struct st_bucket *remove_key(struct hash_table *ht, char *key, int key_len)
 	if (list_empty(&ht->tab[h]))
 		return NULL;
 	list_for_each_entry(b, &ht->tab[h], list) {
-		if (!strncmp(key, b->key, key_len)) {
+		if (!memcmp(key, b->key, key_len)) {
 			list_del(&b->list);
 			if (list_empty(&ht->tab[h]))
 				ht->collisions--;
@@ -170,7 +170,7 @@ struct stat_bucket *increase_key_stat(struct hash_table *ht, char *key, int key_
 		return sb;
 	}
 	list_for_each_entry(sb, &ht->tab[h], list) {
-		if (!strncmp(key, sb->key, key_len)) {
+		if (!memcmp(key, sb->key, key_len)) {
 			sb->count++;
 			debug(HASHT, 5, "Key %s already there, increase count to %lu\n",
 					key, sb->count);
@@ -195,7 +195,7 @@ struct stat_bucket *get_key_stat(struct hash_table *ht, char *key, int key_len)
 	if (list_empty(&ht->tab[h]))
 		return NULL;
 	list_for_each_entry(sb, &ht->tab[h], list) {
-		if (!strncmp(key, sb->key, key_len))
+		if (!memcmp(key, sb->key, key_len))
 			return sb;
 	}
 	return NULL;
