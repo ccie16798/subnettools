@@ -4,6 +4,9 @@ v1.5 (unreleased)
 - Internal changes
 -- optimized read_csv when delims is only ONE (common case)
 -- simplified some iptools func for speed
+-- rewrite major parts of st_scanf pattern matching engine
+-- scanf mutliplier handling (+, *, ?) was trying to be generic, dividing it into 3 separates cases helps
+readability a lot, speeds up and simplify code
 
 v1.4
 ====
