@@ -1317,7 +1317,6 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 	n_found = 0; /* number of arguments/objects found */
 	in_max = in + strlen(in);
 
-	expr[0] = '\0';
 	while (1) {
 		debug(SCANF, 8, "Still to parse in FMT  : '%s'\n", f);
 		debug(SCANF, 8, "Still to parse in 'in' : '%s'\n", p);
