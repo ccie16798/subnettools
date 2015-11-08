@@ -356,29 +356,29 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			__NAME = (__TYPE)&poubelle; \
 		else { \
 			__NAME = (__TYPE)&o->s_char; \
-			o->type = f[1]; \
+			o->type = *f; \
 			o->conversion = 0; \
 		} \
 	} while (0)
 
 	p = *in;
+	f++;
 	/* computing field length */
-	if (isdigit(f[1])) {
-		max_field_length = f[1] - '0';
-		f += 2;
+	if (isdigit(*f)) {
+		max_field_length = *f - '0';
+		f++;
 		while (isdigit(*f)) {
 			max_field_length *= 10;
 			max_field_length += *f - '0';
-			f += 1;
+			f++;
 		}
-		f -= 1;
 		if (max_field_length > sizeof(buffer) - 2)
 			max_field_length = sizeof(buffer) - 2;
 		debug(SCANF, 9, "Found max field length %d\n", max_field_length);
 	} else
 		max_field_length = sizeof(buffer) - 2;
 	p_max = *in + max_field_length - 1;
-	c = f[1];
+	c = *f; /* c now points to the conversion specifier */
 	switch (c) {
 	case '\0':
 		debug(SCANF, 1, "Invalid format '%s', ends with %%\n", *fmt);
@@ -446,7 +446,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		break;
 	case 'h':
 		f += 1;
-		c = f[1];
+		c = *f;
 		if (c != 'd' && c != 'u' && c != 'x') {
 			debug(SCANF, 1, "Invalid format '%s', wrong char '%c' after 'h'\n",
 					*fmt, c);
@@ -498,7 +498,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		break;
 	case 'l':
 		f += 1;
-		c = f[1];
+		c = *f;
 		if (c != 'd' && c != 'u' && c != 'x') {
 			debug(SCANF, 1, "Invalid format, wrong char '%c' after 'l'\n", c);
 			return n_found;
@@ -603,10 +603,10 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 	case 'S': /* a special STRING that doesnt represent an IP */
 	case 's':
 		ARG_SET(v_s, char *);
-		if (f[2] == '.') {
+		if (f[1] == '.') {
 			debug(SCANF, 1, "Invalid format, found '.' after %%s\n");
 			return n_found;
-		} else if (f[2] == '%') {
+		} else if (f[1] == '%') {
 			debug(SCANF, 1, "Invalid format, found '%%' after %%s\n");
 			return n_found;
 		}
@@ -651,7 +651,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		break;
 	case '[':
 		ARG_SET(v_s, char *);
-		i2 = fill_char_range(expr, f + 1, sizeof(expr));
+		i2 = fill_char_range(expr, f, sizeof(expr));
 		if (i2 == -1) {
 			debug(SCANF, 1, "Invalid format '%s', no closing ']'\n", *fmt);
 			return n_found;
@@ -686,7 +686,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		break;
 	} /* switch */
 	*in = p;
-	*fmt = f + 2;
+	*fmt = f + 1;
 	return n_found;
 }
 
