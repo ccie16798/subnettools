@@ -1359,10 +1359,6 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 	while (1) {
 		debug(SCANF, 8, "Still to parse in FMT  : '%s'\n", f);
 		debug(SCANF, 8, "Still to parse in 'in' : '%s'\n", p);
-		if (is_multiple_char(*f)) {
-			debug(SCANF, 1, "Invalid expr, 2 successives multipliers\n");
-			return -1;
-		}
 		if (*p == '\0') { /* remaining format string may match, like '.*' */
 			if (*f == '\0')
 				return n_found;
@@ -1399,7 +1395,13 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 		}
 
 		switch (*f) {
-		case '\0':
+		case '\0': /* if we are here 'in' wasnt fully consumed, so fail */
+			goto end_nomatch;
+		case '*': /* if we found a multiplier char here that means */
+		case '+': /* we have two consecutive multiplier chars or */
+		case '?': /* fmt starts with a multiplier */
+		case '{':
+			debug(SCANF, 1, "Invalid expr, 2 successives multipliers\n");
 			goto end_nomatch;
 		case '%': /* conversion specifier */
 			if (n_found > max_o - 1) {
