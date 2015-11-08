@@ -348,8 +348,9 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 	unsigned int *v_uint;
 	int sign;
 	const char *p, *p_max;
-	const char *f = *fmt;
+	const char *f;
 
+/* ARG_SET will set the storage for conversion specifier */
 #define ARG_SET(__NAME, __TYPE) \
 	do { \
 		if (o == NULL) \
@@ -361,8 +362,9 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		} \
 	} while (0)
 
+	/* p is a pointer to 'in', f a pointer to 'fmt' */
 	p = *in;
-	f++;
+	f = (*fmt) + 1;
 	/* computing field length */
 	if (isdigit(*f)) {
 		max_field_length = *f - '0';
