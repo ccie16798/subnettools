@@ -1155,6 +1155,7 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
 	int min_m, max_m, k, res;
 	struct expr e;
 	const char *last_match_index = NULL;
+	const char *p = *in;
 
 	if (**fmt == '{') {
 		res = parse_brace_multiplier(*fmt, &min_m, &max_m);
@@ -1187,10 +1188,10 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
 		return res;
 
 	/* skipping min_m char, useless to match */
-	*in     += min_m;
+	p       += min_m;
 	n_match += min_m;
 	/* handle case where min_m too big to match */
-	if (*in > in_max)
+	if (p > in_max)
 		return -2;
 
 	/* handle end on complex expression (Conversion specifier, expression ...) **/
@@ -1200,9 +1201,9 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
 			/* try to stop expansion */
 			e.can_skip = 0;
 			e.skip_on_return = 0;
-			could_stop = e.can_stop(*in, &e);
+			could_stop = e.can_stop(p, &e);
 			debug(SCANF, 4, "trying to stop on remaining '%s', res=%d\n",
-					*in, could_stop);
+					p, could_stop);
 			if (could_stop && match_last == 0)
 				break;
 			n_match++;
@@ -1214,21 +1215,21 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
 			 */
 			if (could_stop && previous_could_stop == 0) {
 				/* we must save information to restore on last_match */
-				last_match_index    = *in;
+				last_match_index    = p;
 				last_skip_on_return = e.skip_on_return;
 				last_end_expr_len   = e.end_expr_len;
 				last_num_o          = e.num_o;
 			}
 			previous_could_stop = could_stop;
-			*in += (e.can_skip ? e.can_skip : 1);
+			p += (e.can_skip ? e.can_skip : 1);
 
-			if (*in > in_max) {
+			if (p > in_max) {
 				/* can happen only if there is a BUG in can_skip usage */
 				fprintf(stderr, "BUG, input buffer override in %s line %d\n",
 						__func__, __LINE__);
 				return -5;
 			}
-			if (**in == '\0') {
+			if (*p == '\0') {
 				debug(SCANF, 3, "reached end of input scanning 'in'\n");
 				break;
 			}
@@ -1237,21 +1238,21 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
 		/* handle end on simple char */
 		while (n_match < max_m) {
 			/* try to stop expansion */
-			could_stop = (**in == e.end_of_expr);
+			could_stop = (*p == e.end_of_expr);
 			debug(SCANF, 4, "trying to stop on char '%c', res=%d\n",
 					e.end_of_expr, res);
 			if (could_stop && match_last == 0)
 				break;
 			n_match++;
 			if (could_stop && previous_could_stop == 0) {
-				last_match_index    = *in;
+				last_match_index    = p;
 				last_skip_on_return = e.skip_on_return;
 				last_end_expr_len   = e.end_expr_len;
 				last_num_o          = e.num_o;
 			}
 			previous_could_stop = could_stop;
-			*in += 1;
-			if (**in == '\0') {
+			p += 1;
+			if (*p == '\0') {
 				debug(SCANF, 3, "reached end of input scanning 'in'\n");
 				break;
 			}
@@ -1261,13 +1262,13 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
 			n_match, could_stop, e.skip_on_return);
 	/* in case of last match, we must rewind position in 'in'*/
 	if (match_last) {
-		*in              = last_match_index;
+		p                = last_match_index;
 		e.skip_on_return = last_skip_on_return;
 		e.end_expr_len   = last_end_expr_len;
 		e.num_o          = last_num_o;
 		/* we dont need to restore e.sto, because expr hasnt matched any more */
 		debug(SCANF, 4, "last match asked, rewind to previous pointer\n");
-		if (*in == NULL) {
+		if (p == NULL) {
 			debug(SCANF, 3, "last match never matched\n");
 			return -2;
 		}
@@ -1287,11 +1288,12 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
 			*n_found += 1;
 		}
 		*fmt += e.end_expr_len;
-		*in  += e.skip_on_return;
+		p    += e.skip_on_return;
 	}
 	/* multiplier went to the end of 'in', but without matching the end */
-	if (**in == '\0' && **fmt != '\0')
+	if (*p == '\0' && **fmt != '\0')
 		return -2;
+	*in = p;
 	return 1;
 }
 
