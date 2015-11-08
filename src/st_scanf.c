@@ -882,8 +882,14 @@ static int find_expr(const char *remain, struct expr *e)
 	int res;
 
 	res = match_expr_single(e->end_expr, remain, e->sto, &i);
+	if (i > 9) {
+		debug(SCANF, 1, "Cannot have more than %d specifiers in an expression\n",
+			10);
+		i = 9;
+	}
 	e->num_o = i;
-/*	e->skip_on_return = res; */
+	/* we will not analyse the expression again on return */
+	e->skip_on_return = res;
 	return res;
 }
 
