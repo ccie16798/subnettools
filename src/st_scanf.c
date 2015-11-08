@@ -1065,7 +1065,7 @@ static int parse_multiplier_char(const char **in, const char **fmt, const char *
 static int parse_multiplier_char_range(const char **in, const char **fmt, const char *in_max,
 		char *expr, struct sto *o, int max_o, int *n_found)
 {
-	int res, k, num_cs;
+	int res;
 	int min_m, max_m;
 	int n_match = 0;
 	const char *p = *in; /* p caches '*in' to avoid dereferences and speed up */
@@ -1080,29 +1080,13 @@ static int parse_multiplier_char_range(const char **in, const char **fmt, const 
 		max_m = max_match(**fmt);
 		*fmt += 1;
 	}
-	num_cs = count_cs(expr);
-	if (*n_found + num_cs > max_o) {
-		debug(SCANF, 1, "Cannot get more than %d objets, already found %d\n",
-				max_o, *n_found);
-		return -1;
-	}
 	debug(SCANF, 4, "Pattern expansion will end when in[j] != '%s'\n", expr);
 	while (n_match < max_m) {
-		res = match_expr_single(expr, p, o, n_found);
-		if (res < 0) {
-			debug(SCANF, 1, "Invalid format '%s'\n", expr);
-			return -1;
-		}
+		res = match_char_against_range_clean(*p, expr);
 		if (res == 0)
 			break;
-		p += res;
+		p += 1;
 		n_match++;
-		if (p > in_max) {
-			/* can happen only if there is a BUG in max_expr_single */
-			fprintf(stderr, "BUG, input buffer override in %s line %d\n",
-					__func__, __LINE__);
-			return -5;
-		}
 		if (*p == '\0') {
 			debug(SCANF, 3, "reached end of input scanning 'in'\n");
 			break;
@@ -1112,22 +1096,6 @@ static int parse_multiplier_char_range(const char **in, const char **fmt, const 
 		debug(SCANF, 3, "found char '%c' %d times, but required %d\n",
 				*expr, n_match, min_m);
 		return -2;
-	}
-	if (num_cs) {
-		if (n_match) {
-			debug(SCANF, 4, "found %d CS so far\n", *n_found);
-		} else {
-			/* 0 match but we found 'num_cs' conversion specifiers
-			 * we must consume them because the caller add provisionned
-			 * space for it
-			 */
-			debug(SCANF, 4, "0 match but there was %d CS so consume them\n",
-					num_cs);
-			for (k = 0; k < num_cs; k++) {
-				o[*n_found].type = 0;
-				*n_found += 1;
-			}
-		}
 	}
 	if (*p == '\0' && **fmt != '\0')
 		return -2;
