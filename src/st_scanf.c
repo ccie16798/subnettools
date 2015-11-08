@@ -302,7 +302,7 @@ static int match_char_against_range_clean(char c, const char *expr)
 
 	while (*expr != ']') {
 		low = *expr;
-		/* expr[*i + 2] != ']' means we can match a '-' only if it is right
+		/* expr[2] != ']' means we can match a '-' only if it is right
 		 * before the ending ']'
 		 */
 		if (expr[1] == '-' && expr[2] != ']') {
