@@ -230,6 +230,8 @@ static int fill_expr(char *expr, const char *fmt, int n)
 	int i = 0, parenthese = 0;
 
 	fmt++;
+	if (*fmt == '|') /*and expression cannot start with an OR */
+		return -1;
 	while (1) {
 		if (fmt[i] == '\\') { /* handle escape char */
 			expr[i] = fmt[i];
