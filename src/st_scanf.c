@@ -990,7 +990,7 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
 			return 1;
 		} /* switch c */
 	} else if (fmt[0] == '(') {
-		res = strxcpy_until(e->end_expr, fmt, sizeof(e->end_expr), ')');
+		res = fill_expr(e->end_expr, fmt, sizeof(e->end_expr));
 		if (res < 0) {
 			debug(SCANF, 1, "Invalid format '%s', unmatched '('\n", e->end_expr);
 			return -1;
@@ -1382,7 +1382,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				return n_found;
 			if (*f == '(' || *f == '[') {
 				if (*f == '(')
-					res = strxcpy_until(expr, f, sizeof(expr), ')');
+					res = fill_expr(expr, f, sizeof(expr));
 				else
 					res = fill_char_range(expr, f, sizeof(expr));
 				if (res == -1) {
@@ -1474,7 +1474,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			p += 1;
 			continue;
 		case '(':
-			res = strxcpy_until(expr, f, sizeof(expr), ')');
+			res = fill_expr(expr, f, sizeof(expr));
 			if (res == -1) {
 				debug(SCANF, 1, "Invalid format '%s', unmatched '%c'\n", fmt, *f);
 				return n_found;
