@@ -191,12 +191,12 @@ static int find_hex(const char *remain, struct expr *e)
  */
 static int fill_char_range(char *expr, const char *fmt, int n)
 {
-	int i = 1;
+	int i = 0;
 
 	/* to include a ']' in a range, it must be right after the opening ']' or after '^'
 	 * we need to copy it before we enter the generic loop
 	 */
-	expr[0] = '[';
+	fmt++;
 	if (fmt[i] == '^') {
 		expr[i] = '^';
 		i++;
@@ -212,9 +212,8 @@ static int fill_char_range(char *expr, const char *fmt, int n)
 		expr[i] = fmt[i];
 		i++;
 	}
-	expr[i] = ']';
-	expr[i + 1] = '\0';
-	return i + 1;
+	expr[i] = '\0';
+	return i + 2;
 }
 
 /*
@@ -285,7 +284,6 @@ static int match_char_against_range_clean(char c, const char *expr)
 	char low, high;
 	int direct = 1;
 
-	expr += 1;
 	if (*expr == '^') {
 		direct = 0;
 		expr += 1;
@@ -297,7 +295,7 @@ static int match_char_against_range_clean(char c, const char *expr)
 		expr += 1;
 	}
 
-	while (*expr != ']') {
+	while (*expr != '\0') {
 		low = *expr;
 		/* expr[2] != ']' means we can match a '-' only if it is right
 		 * before the ending ']'
@@ -656,7 +654,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			*ptr_buff++ = *p++;
 
 		if (p == *in) {
-			debug(SCANF, 3, "no CHAR RANGE found at %s\n", *in);
+			debug(SCANF, 3, "no CHAR RANGE '%s' found at %s\n", expr, *in);
 			return 0;
 		}
 		*ptr_buff = '\0';
