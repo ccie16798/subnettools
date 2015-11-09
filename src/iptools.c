@@ -571,7 +571,7 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 
 	/* first loop, before '::' */
 	while (1) {
-		if (i == len - 1 || s[i] == '\0') {
+		if (i == len || s[i] == '\0') {
 			debug_parseipv6(8, "copying '%x' to block#%d\n", current_block, out_i);
 			set_block(addr->ip6, out_i, current_block);
 			break;
@@ -616,6 +616,10 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 		i++;
 	}
 	if (do_skip == 0) {
+		if (out_i != 7) {
+			debug(PARSEIPV6, 3, "Invalid IPv6 '%s', only %d blocks\n", s, out_i);
+			return BAD_IP;
+		}
 		addr->ip_ver = IPV6_A;
 		return IPV6_A;
 	}
@@ -623,7 +627,7 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 	out_i2 = 0;
 	/* second loop, trying to get the right part after '::' */
 	while (1) {
-		if (i == len - 1 || s[i] == '\0') {
+		if (i == len || s[i] == '\0') {
 			debug_parseipv6(8, "copying '%x' to block_right#%d\n",
 					current_block, out_i2);
 			block_right[out_i2] = current_block;
@@ -654,7 +658,6 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 						"Invalid IPv6 '%s', block#%d has too many chars\n",
 						s, out_i2);
 				return BAD_IP;
-
 			}
 			current_block <<= 4;
 			current_block += char2int(s[i]);
