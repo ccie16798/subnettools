@@ -182,7 +182,7 @@ static int find_hex(const char *remain, struct expr *e)
  * from fmt string starting with '[', fill expr with the range
  * opening '[' and closing ']' are removed
  * @expr  : the buffer to fill
- * @fmt   : the format string (fmt[0] ) '[' in this function)
+ * @fmt   : the format string (fmt[0]='[' in this function)
  * @n     : max number of char to store in expr (including NUL)
  * returns:
  *     strlen(fmt) on SUCCESS
@@ -216,6 +216,35 @@ static int fill_char_range(char *expr, const char *fmt, int n)
 }
 
 /*
+ * from fmt string starting with '(', fill an expression
+ * opening '(' and closing ')' are removed
+ * @expr  : the buffer to fill
+ * @fmt   : the format string (fmt[0]=='(' in this function)
+ * @n     : max number of char to store in expr (including NUL)
+ * returns:
+ *     strlen(fmt) on SUCCESS
+ *     -1 if fmt is badly formatted (no closing ']')
+ */
+static int fill_expr(char *expr, const char *fmt, int n)
+{
+	int i = 0, parenthese = 0;
+
+	fmt++;
+	while (1) {
+		if (fmt[i] == '\0' || i == n - 2)
+			return -1;
+		if (fmt[i] == ')' && parenthese == 0)
+			break;
+		if (fmt[i] == '(')
+			parenthese++;
+		expr[i] = fmt[i];
+		i++;
+	}
+	expr[i] = '\0';
+	return i + 2; /* +2 since we remove opening [ and closing ] */
+}
+
+/*
  * match character c against STRING 'expr' like [acde-g]
  * @c    : the char to match
  * @expr : a pointer to the expr to test c against, pointer will be updated
@@ -229,44 +258,43 @@ static int match_char_against_range(char c, const char **expr)
 	int res = 0;
 	char low, high;
 	int invert = 0;
+	const char *p = *expr; /* cache expr to avoid dereferences */
 
-	*expr += 1;
-	if (**expr == '^') {
+	p++;
+	if (*p == '^') {
 		invert = 1;
-		*expr += 1;
+		p++;
 	}
 	/* to include a ']' in a range, must be right after '[' of '[^' */
-	if (**expr == ']') {
+	if (*p == ']') {
 		res = (c == ']');
-		*expr += 1;
+		p++;
 	}
 
-	while (**expr != ']') {
-		low = **expr;
+	while (*p != ']') {
+		low = *p;
 		if (low == '\0') {
 			debug(SCANF, 1, "Invalid expr '%s', no closing ']' found\n", *expr);
 			return -1;
 		}
-		/* expr[*i + 2] != ']' means we can match a '-' only if it is right
-		 * before the ending ']'
-		 */
-		*expr += 1;
-		if (**expr == '-' && (*expr)[1] != ']') {
-			*expr += 1;
-			high = **expr;
+		p++;
+		if (*p == '-' && p[1] != ']') {
+			p++;
+			high = *p;
 			if (high == '\0') {
 				debug(SCANF, 1, "Invalid expr '%s', incomplete range\n", *expr);
 				return -1;
 			}
 			if (c >= low && c <= high)
 				res = 1;
-			*expr += 1;
+			p++;
 		} else {
 			if (low == c)
 				res = 1;
 		}
 	}
-	*expr += 1;
+	p++;
+	*expr = p;
 	return invert ? !res : res;
 }
 
