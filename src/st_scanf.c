@@ -288,29 +288,19 @@ static int match_char_against_range_clean(char c, const char *expr)
 		direct = 0;
 		expr += 1;
 	}
-	/* to include a ']' in a range, must be right after '[' of '[^' */
-	if (*expr == ']') {
-		if (c == ']')
-			return direct;
-		expr += 1;
-	}
-
+	 /* expr is garanteed to be 1 byte long or 2 bytes long if start with ^ */
 	while (*expr != '\0') {
 		low = *expr;
-		/* expr[2] != ']' means we can match a '-' only if it is right
-		 * before the ending ']'
-		 */
-		if (expr[1] == '-' && expr[2] != '\0') {
-			high = expr[2];
-			if (c >= low && c <= high)
+		expr++;
+		if (*expr == '-' && expr[1] != '\0') {
+			expr++;
+			if (c >= low && c <= *expr)
 				return direct;
-			expr += 2;
+			expr++;
 			continue;
-		} else {
-			if (low == c)
-				return direct;
 		}
-		expr += 1;
+		if (low == c)
+			return direct;
 	}
 	return !direct;
 }
