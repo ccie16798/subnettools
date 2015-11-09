@@ -718,17 +718,13 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 	saved_in = in;
 	while (1) {
 		c = *expr;
-		if (c == '\0' || c == '|')
-			return in - saved_in;
 		debug(SCANF, 8, "remaining in  ='%s'\n", in);
 		debug(SCANF, 8, "remaining expr='%s'\n", expr);
 		switch (c) {
-		case '(':
-			expr++;
-			continue;
-		case ')':
-			expr++;
-			continue;
+		case '\0':
+			return in - saved_in;
+		case '|':
+			return in - saved_in;
 		case '.':
 			expr++;
 			in++;
