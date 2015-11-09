@@ -281,7 +281,7 @@ static int match_char_against_range(char c, const char **expr)
  */
 static int match_char_against_range_clean(char c, const char *expr)
 {
-	char low, high;
+	char low;
 	int direct = 1;
 
 	if (*expr == '^') {
@@ -289,7 +289,7 @@ static int match_char_against_range_clean(char c, const char *expr)
 		expr += 1;
 	}
 	 /* expr is garanteed to be 1 byte long or 2 bytes long if start with ^ */
-	while (*expr != '\0') {
+	do {
 		low = *expr;
 		expr++;
 		if (*expr == '-' && expr[1] != '\0') {
@@ -301,7 +301,7 @@ static int match_char_against_range_clean(char c, const char *expr)
 		}
 		if (low == c)
 			return direct;
-	}
+	} while (*expr != '\0');
 	return !direct;
 }
 
