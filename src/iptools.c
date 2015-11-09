@@ -559,11 +559,11 @@ static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 	return IPV4_A;
 }
 
-static int string2addrv6_2(const char *s, struct ip_addr *addr, size_t len)
+static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 {
 	int i, j, k;
 	int do_skip = 0;
-	int out_i, out_i2 = 0, num_digit = 0;
+	int out_i = 0, out_i2 = 0, num_digit = 0;
 	unsigned short current_block = 0;
 	unsigned short block_right[8];
 
@@ -666,16 +666,20 @@ static int string2addrv6_2(const char *s, struct ip_addr *addr, size_t len)
 		i++;
 	}
 	debug_parseipv6(8, "out_i=%d out_i2=%d\n", out_i, out_i2);
-	for (j = out_i; j < 8 - out_i2; j++)
+	for (j = out_i; j < 8 - out_i2; j++) {
 		set_block(addr->ip6, j, 0);
-	for (k = 0 ; k < out_i2; k++, j++)
+		debug_parseipv6(8, "copying '%x' to block#%d\n", 0, j);
+	}
+	for (k = 0 ; k < out_i2; k++, j++) {
+		debug_parseipv6(8, "copying '%x' to block#%d\n", block_right[k], j);
 		set_block(addr->ip6, j, block_right[k]);
+	}
 	addr->ip_ver = IPV6_A;
 	return IPV6_A;
 }
 
 
-static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
+static int string2addrv6_2(const char *s, struct ip_addr *addr, size_t len)
 {
 	int i, j, k;
 	int do_skip = 0;
