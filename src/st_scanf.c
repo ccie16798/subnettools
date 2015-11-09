@@ -180,13 +180,12 @@ static int find_hex(const char *remain, struct expr *e)
 
 /*
  * from fmt string starting with '[', fill expr with the range
- * a bit like strxpy_until, but not quite since a ']' is allowed right
- * after the opening '[' or a '^' if present
+ * opening '[' and closing ']' are removed
  * @expr  : the buffer to fill
  * @fmt   : the format string (fmt[0] ) '[' in this function)
  * @n     : max number of char to store in expr (including NUL)
  * returns:
- *     strlen(expr) on SUCCESS
+ *     strlen(fmt) on SUCCESS
  *     -1 if fmt is badly formatted (no closing ']')
  */
 static int fill_char_range(char *expr, const char *fmt, int n)
@@ -213,7 +212,7 @@ static int fill_char_range(char *expr, const char *fmt, int n)
 		i++;
 	}
 	expr[i] = '\0';
-	return i + 2;
+	return i + 2; /* +2 since we remove opening [ and closing ] */
 }
 
 /*
@@ -272,10 +271,11 @@ static int match_char_against_range(char c, const char **expr)
 
 
 /* match character c against STRING 'expr' like [acde-g]
- * We KNOW expr is a valid char range, no bound checking needed
+ * We KNOW expr is a valid char range, no bound checking needed, opening [ and closing ]
+ * have already been removed
  * @c    : the char to match
  * @expr : the expr to test c against
- * returns :
+ * returns:
  *    1 if a match is found
  *    0 if no match
  */
@@ -300,11 +300,12 @@ static int match_char_against_range_clean(char c, const char *expr)
 		/* expr[2] != ']' means we can match a '-' only if it is right
 		 * before the ending ']'
 		 */
-		if (expr[1] == '-' && expr[2] != ']') {
+		if (expr[1] == '-' && expr[2] != '\0') {
 			high = expr[2];
 			if (c >= low && c <= high)
 				return direct;
-			expr += 1;
+			expr += 2;
+			continue;
 		} else {
 			if (low == c)
 				return direct;
