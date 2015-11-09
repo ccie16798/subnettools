@@ -217,9 +217,6 @@ result() {
 
 #test for IPv4/IPv6 handling
 reg_test print invalid_ips_masks.txt
-#basic print to test fmt
-reg_test -c st-fmt.conf print route_aggipv6-2
-reg_test -c st-fmt.conf print route_aggipv4
 # a CSV with strange fields names :)
 reg_test -c st-bizarr.conf sort bizar.csv
 # a CSV with strange fields names, output more strange
@@ -227,8 +224,6 @@ reg_test -c st-bizarr2.conf sort bizar2.csv
 #a CSV with Extended Attributes
 reg_test sort sort_long_EA
 reg_test print sort_long_EA
-#test for IPv4/IPv6 handling
-reg_test print invalid_ips_masks.txt
 #basic print to test fmt
 reg_test -c st-fmt.conf print route_aggipv6-2
 reg_test -c st-fmt.conf print route_aggipv4
