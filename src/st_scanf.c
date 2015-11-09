@@ -231,9 +231,18 @@ static int fill_expr(char *expr, const char *fmt, int n)
 
 	fmt++;
 	while (1) {
+		if (fmt[i] == '\\') { /* handle escape char */
+			expr[i] = fmt[i];
+			i++;
+			if (fmt[i] == '\0' || i == n - 2)
+				return -1;
+			expr[i] = fmt[i];
+			i++;
+			continue;
+		}
 		if (fmt[i] == '\0' || i == n - 2)
 			return -1;
-		if (fmt[i] == ')' && parenthese == 0)
+		if (fmt[i] == ')' && parenthese-- == 0)
 			break;
 		if (fmt[i] == '(')
 			parenthese++;
