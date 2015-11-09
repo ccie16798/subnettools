@@ -250,8 +250,10 @@ static int match_char_against_range(char c, const char **expr)
 		/* expr[*i + 2] != ']' means we can match a '-' only if it is right
 		 * before the ending ']'
 		 */
-		if ((*expr)[1] == '-' && (*expr)[2] != ']') {
-			high = (*expr)[2];
+		*expr += 1;
+		if (**expr == '-' && (*expr)[1] != ']') {
+			*expr += 1;
+			high = **expr;
 			if (high == '\0') {
 				debug(SCANF, 1, "Invalid expr '%s', incomplete range\n", *expr);
 				return -1;
@@ -263,7 +265,6 @@ static int match_char_against_range(char c, const char **expr)
 			if (low == c)
 				res = 1;
 		}
-		*expr += 1;
 	}
 	*expr += 1;
 	return invert ? !res : res;
@@ -286,9 +287,9 @@ static int match_char_against_range_clean(char c, const char *expr)
 
 	if (*expr == '^') {
 		direct = 0;
-		expr += 1;
+		expr++;
 	}
-	 /* expr is garanteed to be 1 byte long or 2 bytes long if start with ^ */
+	/* expr is garanteed to be 1 byte long or 2 bytes long if start with ^ */
 	do {
 		low = *expr;
 		expr++;
