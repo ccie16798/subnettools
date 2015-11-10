@@ -608,29 +608,29 @@ out_ipv4:
 
 static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 {
-	int i, j, k;
+	int j, k;
 	int out_i = 0, out_i2, num_digit = 0;
 	unsigned short current_block = 0;
 	unsigned short block_right[8];
 	struct ip_addr embedded;
-
-	i = 0;
+	const char *s_max = s + len;
+	const char *p = s;
 
 	/* first loop, before '::' if any */
 	while (1) {
-		if (i == len || s[i] == '\0') {
+		if (s == s_max || *s == '\0') {
 			debug_parseipv6(8, "copying '%x' to block#%d\n", current_block, out_i);
 			set_block(addr->ip6, out_i, current_block);
 			if (out_i != 7) {
-				debug(PARSEIPV6, 3, "Invalid IPv6 '%s', only %d blocks\n", s, out_i);
+				debug(PARSEIPV6, 3, "Invalid IPv6 '%s', only %d blocks\n", p, out_i);
 				return BAD_IP;
 			}
 			addr->ip_ver = IPV6_A;
 			return IPV6_A;
 		}
-		if (s[i] == ':') {
+		if (*s == ':') {
 			if (out_i >= 7) {
-				debug(PARSEIPV6, 3, "Invalid IPv6 '%s',too many blocks\n", s);
+				debug(PARSEIPV6, 3, "Invalid IPv6 '%s',too many blocks\n", p);
 				return BAD_IP;
 			}
 			debug_parseipv6(8, "copying '%x' to block#%d\n", current_block, out_i);
@@ -639,17 +639,17 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 			current_block = 0;
 			num_digit = 0;
 			/* compressed */
-			if (s[i + 1] == ':') {
-				if (s[i + 2] == ':') {
+			if (s[1] == ':') {
+				s += 2;
+				if (*s == ':') {
 					debug(PARSEIPV6, 1, "Invalid IPv6 '%s' ::: \n", s);
 					return BAD_IP;
 				}
-				i += 2;
 				break;
 			}
 			debug_parseipv6(9, "still to parse '%s', %d blocks already parsed\n",
-					s + i + 1, out_i);
-		} else if (isxdigit(s[i])) {
+					s + 1, out_i);
+		} else if (isxdigit(*s)) {
 			if (num_digit == 4) {
 				debug(PARSEIPV6, 3,
 						"Invalid IPv6 '%s', block#%d has too many chars\n",
@@ -657,19 +657,19 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 				return BAD_IP;
 			}
 			current_block <<= 4;
-			current_block += char2int(s[i]);
+			current_block += char2int(*s);
 			num_digit++;
-		} else if (s[i] == '.') {
+		} else if (*s == '.') {
 			/** embedded IPv4 address, MAYBE? */
-			i -= num_digit;
-			debug_parseipv6(8, "String '%s' MAYBE embedded IPv4\n", s + i);
+			s -= num_digit;
+			debug_parseipv6(8, "String '%s' MAYBE embedded IPv4\n", s);
 			if (out_i != 6) {
 				debug(PARSEIPV6, 3,
 						"Invalid IPv6 '%s', need 6 blocks before IPv4\n",
-						s);
+						p);
 				return BAD_IP;
 			}
-			j= string2addrv4(s + i, &embedded, len - i);
+			j= string2addrv4(s, &embedded, s_max - s);
 			if (j < 0)
 				return j;
 			set_block(addr->ip6, 6,  embedded.ip >> 16);
@@ -677,25 +677,25 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 			addr->ip_ver = IPV6_A;
 			return IPV6_A;
 		} else {
-			debug(PARSEIPV6, 3, "Invalid char '%c' found in block#%d\n", s[i], out_i);
+			debug(PARSEIPV6, 3, "Invalid char '%c' found in block#%d\n", *p, out_i);
 			return BAD_IP;
 		}
-		i++;
+		s++;
 	}
 
 	out_i2 = 0;
 	/* second loop, trying to get the right part after '::' */
 	while (1) {
-		if (i == len || s[i] == '\0') {
+		if (s == s_max || *s == '\0') {
 			debug_parseipv6(8, "copying '%x' to block_right#%d\n",
 					current_block, out_i2);
 			block_right[out_i2] = current_block;
 			out_i2++;
 			break;
 		}
-		if (s[i] == ':') {
+		if (*s == ':') {
 			if (out_i + out_i2 >= 6) {
-				debug(PARSEIPV6, 3, "Invalid IPv6 '%s',too many blocks\n", s);
+				debug(PARSEIPV6, 3, "Invalid IPv6 '%s',too many blocks\n", p);
 				return BAD_IP;
 			}
 			debug_parseipv6(8, "copying '%x' to block_right#%d\n",
@@ -705,32 +705,32 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 			current_block = 0;
 			num_digit = 0;
 			/* compressed */
-			if (s[i + 1] == ':') {
-				debug(PARSEIPV6, 3, "Invalid IPv6 '%s', two '::'\n", s);
+			if (s[1] == ':') {
+				debug(PARSEIPV6, 3, "Invalid IPv6 '%s', two '::'\n", p);
 				return BAD_IP;
 			}
 			debug_parseipv6(9, "still to parse '%s', %d blocks already parsed\n",
-					s + i + 1, out_i + out_i2);
-		} else if (isxdigit(s[i])) {
+					p + 1, out_i + out_i2);
+		} else if (isxdigit(*s)) {
 			if (num_digit == 4) {
 				debug(PARSEIPV6, 3,
 						"Invalid IPv6 '%s', block#%d has too many chars\n",
-						s, out_i2);
+						p, out_i2);
 				return BAD_IP;
 			}
 			current_block <<= 4;
-			current_block += char2int(s[i]);
+			current_block += char2int(*s);
 			num_digit++;
-		} else if (s[i] == '.') {
-			i -= num_digit;
-			debug_parseipv6(8, "String '%s' MAYBE embedded IPv4\n", s + i);
+		} else if (*s == '.') {
+			s -= num_digit;
+			debug_parseipv6(8, "String '%s' MAYBE embedded IPv4\n", s);
 			if (out_i + out_i2 > 5) {
 				debug(PARSEIPV6, 3,
 						"Invalid IPv6 '%s', need 6 blocks before IPv4\n",
 						s);
 				return IPV4_A;
 			}
-			j= string2addrv4(s + i, &embedded, len - i);
+			j= string2addrv4(s, &embedded, s_max - s);
 			if (j < 0)
 				return j;
 			set_block(addr->ip6, 6,  embedded.ip >> 16);
@@ -746,10 +746,10 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 			}
 			return IPV6_A;
 		} else {
-			debug(PARSEIPV6, 3, "Invalid char '%c' found in block#%d\n", s[i], out_i);
+			debug(PARSEIPV6, 3, "Invalid char '%c' found in block#%d\n", *s, out_i);
 			return BAD_IP;
 		}
-		i++;
+		s++;
 	}
 	debug_parseipv6(8, "out_i=%d out_i2=%d\n", out_i, out_i2);
 	for (j = out_i; j < 8 - out_i2; j++) {
