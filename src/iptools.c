@@ -640,7 +640,7 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 
 	/* first loop, before '::' if any */
 	while (1) {
-		if (s == s_max ) {
+		if (s == s_max) {
 			debug_parseipv6(8, "copying '%x' to block#%d\n", current_block, out_i);
 			set_block(addr->ip6, out_i, current_block);
 			if (out_i != 7) {
@@ -676,35 +676,135 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 			s++;
 			continue;
 		case '0':
+			if (num_digit == 4)
+				return BAD_IP;
+			current_block <<= 4;
+			num_digit++;
+			s++;
+			continue;
 		case '1':
+			if (num_digit == 4)
+				return BAD_IP;
+			current_block <<= 4;
+			current_block += 1;
+			num_digit++;
+			s++;
+			continue;
 		case '2':
+			if (num_digit == 4)
+				return BAD_IP;
+			current_block <<= 4;
+			current_block += 2;
+			num_digit++;
+			s++;
+			continue;
 		case '3':
+			if (num_digit == 4)
+				return BAD_IP;
+			current_block <<= 4;
+			current_block += 3;
+			num_digit++;
+			s++;
+			continue;
 		case '4':
+			if (num_digit == 4)
+				return BAD_IP;
+			current_block <<= 4;
+			current_block += 4;
+			num_digit++;
+			s++;
+			continue;
 		case '5':
+			if (num_digit == 4)
+				return BAD_IP;
+			current_block <<= 4;
+			current_block += 5;
+			num_digit++;
+			s++;
+			continue;
 		case '6':
+			if (num_digit == 4)
+				return BAD_IP;
+			current_block <<= 4;
+			current_block += 6;
+			num_digit++;
+			s++;
+			continue;
 		case '7':
+			if (num_digit == 4)
+				return BAD_IP;
+			current_block <<= 4;
+			current_block += 7;
+			num_digit++;
+			s++;
+			continue;
 		case '8':
+			if (num_digit == 4)
+				return BAD_IP;
+			current_block <<= 4;
+			current_block += 8;
+			num_digit++;
+			s++;
+			continue;
 		case '9':
+			if (num_digit == 4)
+				return BAD_IP;
+			current_block <<= 4;
+			current_block += 9;
+			num_digit++;
+			s++;
+			continue;
 		case 'a':
 		case 'A':
+			if (num_digit == 4)
+				return BAD_IP;
+			current_block <<= 4;
+			current_block += 10;
+			num_digit++;
+			s++;
+			continue;
 		case 'b':
 		case 'B':
+			if (num_digit == 4)
+				return BAD_IP;
+			current_block <<= 4;
+			current_block += 11;
+			num_digit++;
+			s++;
+			continue;
 		case 'c':
 		case 'C':
+			if (num_digit == 4)
+				return BAD_IP;
+			current_block <<= 4;
+			current_block += 12;
+			num_digit++;
+			s++;
+			continue;
 		case 'd':
 		case 'D':
+			if (num_digit == 4)
+				return BAD_IP;
+			current_block <<= 4;
+			current_block += 13;
+			num_digit++;
+			s++;
+			continue;
 		case 'e':
 		case 'E':
+			if (num_digit == 4)
+				return BAD_IP;
+			current_block <<= 4;
+			current_block += 14;
+			num_digit++;
+			s++;
+			continue;
 		case 'f':
 		case 'F':
-			if (num_digit == 4) {
-				debug(PARSEIPV6, 3,
-						"Invalid IPv6 '%s', block#%d has too many chars\n",
-						s, out_i);
+			if (num_digit == 4)
 				return BAD_IP;
-			}
 			current_block <<= 4;
-			current_block += char2int(*s);
+			current_block += 15;
 			num_digit++;
 			s++;
 			continue;
@@ -773,35 +873,135 @@ loop2:
 					p + 1, out_i + out_i2);
 			continue;
 		case '0':
+			if (num_digit == 4)
+				return BAD_IP;
+			current_block <<= 4;
+			num_digit++;
+			s++;
+			continue;
 		case '1':
+			if (num_digit == 4)
+				return BAD_IP;
+			current_block <<= 4;
+			current_block++;
+			num_digit++;
+			s++;
+			continue;
 		case '2':
+			if (num_digit == 4)
+				return BAD_IP;
+			current_block <<= 4;
+			current_block += 2;
+			num_digit++;
+			s++;
+			continue;
 		case '3':
+			if (num_digit == 4)
+				return BAD_IP;
+			current_block <<= 4;
+			current_block += 3;
+			num_digit++;
+			s++;
+			continue;
 		case '4':
+			if (num_digit == 4)
+				return BAD_IP;
+			current_block <<= 4;
+			current_block += 4;
+			num_digit++;
+			s++;
+			continue;
 		case '5':
+			if (num_digit == 4)
+				return BAD_IP;
+			current_block <<= 4;
+			current_block += 5;
+			num_digit++;
+			s++;
+			continue;
 		case '6':
+			if (num_digit == 4)
+				return BAD_IP;
+			current_block <<= 4;
+			current_block += 6;
+			num_digit++;
+			s++;
+			continue;
 		case '7':
+			if (num_digit == 4)
+				return BAD_IP;
+			current_block <<= 4;
+			current_block += 7;
+			num_digit++;
+			s++;
+			continue;
 		case '8':
+			if (num_digit == 4)
+				return BAD_IP;
+			current_block <<= 4;
+			current_block += 8;
+			num_digit++;
+			s++;
+			continue;
 		case '9':
+			if (num_digit == 4)
+				return BAD_IP;
+			current_block <<= 4;
+			current_block += 9;
+			num_digit++;
+			s++;
+			continue;
 		case 'a':
 		case 'A':
+			if (num_digit == 4)
+				return BAD_IP;
+			current_block <<= 4;
+			current_block += 10;
+			num_digit++;
+			s++;
+			continue;
 		case 'b':
 		case 'B':
+			if (num_digit == 4)
+				return BAD_IP;
+			current_block <<= 4;
+			current_block += 11;
+			num_digit++;
+			s++;
+			continue;
 		case 'c':
 		case 'C':
+			if (num_digit == 4)
+				return BAD_IP;
+			current_block <<= 4;
+			current_block += 12;
+			num_digit++;
+			s++;
+			continue;
 		case 'd':
 		case 'D':
+			if (num_digit == 4)
+				return BAD_IP;
+			current_block <<= 4;
+			current_block += 13;
+			num_digit++;
+			s++;
+			continue;
 		case 'e':
 		case 'E':
+			if (num_digit == 4)
+				return BAD_IP;
+			current_block <<= 4;
+			current_block += 14;
+			num_digit++;
+			s++;
+			continue;
 		case 'f':
 		case 'F':
-			if (num_digit == 4) {
-				debug(PARSEIPV6, 3,
-						"Invalid IPv6 '%s', block#%d has too many chars\n",
-						p, out_i2);
+			if (num_digit == 4)
 				return BAD_IP;
-			}
 			current_block <<= 4;
-			current_block += char2int(*s);
+			current_block += 15;
 			num_digit++;
 			s++;
 			continue;
