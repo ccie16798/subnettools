@@ -15,6 +15,7 @@
 #define IPV4_N    14 /*  IPV4_N must be IPV4_A + 10 */
 #define IPV6_N    16 /*  IPV6_N must be IPV4_6 + 10 */
 
+#include <ctype.h>
 
 typedef unsigned int u32;
 typedef unsigned int ipv4;
@@ -83,9 +84,20 @@ struct subnet {
 	u32 mask;
 };
 
-int is_ip_char(char c);
-void copy_ipaddr(struct ip_addr *a, const struct ip_addr *b);
-void copy_subnet(struct subnet *a, const struct subnet *b);
+static inline int is_ip_char(char c)
+{
+	return isxdigit(c) || c == ':' || c == '.';
+}
+
+static inline void copy_ipaddr(struct ip_addr *a, const struct ip_addr *b)
+{
+	memcpy(a, b, sizeof(*b));
+}
+
+static inline void copy_subnet(struct subnet *a, const struct subnet *b)
+{
+	memcpy(a, b, sizeof(*b));
+}
 
 void zero_ipaddr(struct ip_addr *a);
 int is_equal_ipv6(ipv6 ip1, ipv6 ip2);

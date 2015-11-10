@@ -23,20 +23,6 @@
 sprint_hex(short)
 sprint_unsigned(int)
 
-inline int is_ip_char(char c)
-{
-	return isxdigit(c) || c == ':' || c == '.';
-}
-
-inline void copy_ipaddr(struct ip_addr *a, const struct ip_addr *b)
-{
-	memcpy(a, b, sizeof(struct ip_addr));
-}
-
-inline void copy_subnet(struct subnet *a, const struct subnet *b)
-{
-	memcpy(a, b, sizeof(struct subnet));
-}
 
 inline void zero_ipaddr(struct ip_addr *a)
 {
