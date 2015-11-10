@@ -562,7 +562,6 @@ static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 {
 	int i, j, k;
-	int do_skip = 0;
 	int out_i = 0, out_i2 = 0, num_digit = 0;
 	unsigned short current_block = 0;
 	unsigned short block_right[8];
@@ -570,12 +569,17 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 
 	i = 0;
 
-	/* first loop, before '::' */
+	/* first loop, before '::' if any */
 	while (1) {
 		if (i == len || s[i] == '\0') {
 			debug_parseipv6(8, "copying '%x' to block#%d\n", current_block, out_i);
 			set_block(addr->ip6, out_i, current_block);
-			break;
+			if (out_i != 7) {
+				debug(PARSEIPV6, 3, "Invalid IPv6 '%s', only %d blocks\n", s, out_i);
+				return BAD_IP;
+			}
+			addr->ip_ver = IPV6_A;
+			return IPV6_A;
 		}
 		if (s[i] == ':') {
 			if (out_i >= 7) {
@@ -589,7 +593,6 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 			num_digit = 0;
 			/* compressed */
 			if (s[i + 1] == ':') {
-				do_skip = 1;
 				if (s[i + 2] == ':') {
 					debug(PARSEIPV6, 1, "Invalid IPv6 '%s' ::: \n", s);
 					return BAD_IP;
@@ -605,12 +608,12 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 						"Invalid IPv6 '%s', block#%d has too many chars\n",
 						s, out_i);
 				return BAD_IP;
-
 			}
 			current_block <<= 4;
 			current_block += char2int(s[i]);
 			num_digit++;
 		} else if (s[i] == '.') {
+			/** embedded IPv4 address, MAYBE? */
 			i -= num_digit;
 			debug_parseipv6(8, "String '%s' MAYBE embedded IPv4\n", s + i);
 			if (out_i != 6) {
@@ -631,14 +634,6 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 			return BAD_IP;
 		}
 		i++;
-	}
-	if (do_skip == 0) {
-		if (out_i != 7) {
-			debug(PARSEIPV6, 3, "Invalid IPv6 '%s', only %d blocks\n", s, out_i);
-			return BAD_IP;
-		}
-		addr->ip_ver = IPV6_A;
-		return IPV6_A;
 	}
 
 	out_i2 = 0;
@@ -898,9 +893,11 @@ int string2addr(const char *s, struct ip_addr *addr, size_t len)
 	/* check first char */
 	if (*p == '.')
 		return BAD_IP;
-	if (*p == ':')
-		return string2addrv6(s, addr, len);
-
+	if (*p == ':') {
+		if (p[1] == ':')
+			return string2addrv6(s, addr, len);
+		return BAD_IP;
+	}
 	if (!isxdigit(*p))
 		return BAD_IP;
 	p++;
