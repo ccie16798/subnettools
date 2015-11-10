@@ -496,6 +496,7 @@ static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 	int truc[4];
 	int current_block = 0;
 	const char *s_max;
+	int num_digit = 0;
 #ifdef DEBUG_PARSE_IPV4
 	const char *p = s;
 #endif
@@ -534,52 +535,73 @@ static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 			truc[count_dot] = current_block;
 			count_dot++;
 			current_block = 0;
+			num_digit = 0;
 			continue;
 		case '0':
+			if (num_digit++ == 3)
+				return BAD_IP;
 			current_block *= 10;
 			s++;
 			continue;
 		case '1':
+			if (num_digit++ == 3)
+				return BAD_IP;
 			current_block *= 10;
 			current_block += 1;
 			s++;
 			continue;
 		case '2':
+			if (num_digit++ == 3)
+				return BAD_IP;
 			current_block *= 10;
 			current_block += 2;
 			s++;
 			continue;
 		case '3':
+			if (num_digit++ == 3)
+				return BAD_IP;
 			current_block *= 10;
 			current_block += 3;
 			s++;
 			continue;
 		case '4':
+			if (num_digit++ == 3)
+				return BAD_IP;
 			current_block *= 10;
 			current_block += 4;
 			s++;
 			continue;
 		case '5':
+			if (num_digit++ == 3)
+				return BAD_IP;
 			current_block *= 10;
 			current_block += 5;
 			s++;
 			continue;
 		case '6':
+			if (num_digit++ == 3)
+				return BAD_IP;
 			current_block *= 10;
 			current_block += 6;
 			s++;
 			continue;
 		case '7':
+			if (num_digit++ == 3)
+				return BAD_IP;
 			current_block *= 10;
 			current_block += 7;
 			s++;
 			continue;
 		case '8':
+			if (num_digit++ == 3)
+				return BAD_IP;
 			current_block *= 10;
 			current_block += 8;
 			s++;
 			continue;
 		case '9':
+			if (num_digit++ == 3)
+				return BAD_IP;
 			current_block *= 10;
 			current_block += 9;
 			s++;
@@ -622,7 +644,8 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 			debug_parseipv6(8, "copying '%x' to block#%d\n", current_block, out_i);
 			set_block(addr->ip6, out_i, current_block);
 			if (out_i != 7) {
-				debug(PARSEIPV6, 3, "Invalid IPv6 '%s', only %d blocks\n", p, out_i);
+				debug(PARSEIPV6, 3, "Invalid IPv6 '%s', only %d blocks\n",
+						p, out_i);
 				return BAD_IP;
 			}
 			addr->ip_ver = IPV6_A;
@@ -642,7 +665,7 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 			if (s[1] == ':') {
 				s += 2;
 				if (*s == ':') {
-					debug(PARSEIPV6, 1, "Invalid IPv6 '%s' ::: \n", s);
+					debug(PARSEIPV6, 1, "Invalid IPv6 '%s' :::\n", s);
 					return BAD_IP;
 				}
 				break;
@@ -669,7 +692,7 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 						p);
 				return BAD_IP;
 			}
-			j= string2addrv4(s, &embedded, s_max - s);
+			j = string2addrv4(s, &embedded, s_max - s);
 			if (j < 0)
 				return j;
 			set_block(addr->ip6, 6,  embedded.ip >> 16);
@@ -705,12 +728,14 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 			current_block = 0;
 			num_digit = 0;
 			/* compressed */
-			if (s[1] == ':') {
+			s++;
+			if (*s == ':') {
 				debug(PARSEIPV6, 3, "Invalid IPv6 '%s', two '::'\n", p);
 				return BAD_IP;
 			}
 			debug_parseipv6(9, "still to parse '%s', %d blocks already parsed\n",
 					p + 1, out_i + out_i2);
+			continue;
 		} else if (isxdigit(*s)) {
 			if (num_digit == 4) {
 				debug(PARSEIPV6, 3,
@@ -730,7 +755,7 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 						s);
 				return IPV4_A;
 			}
-			j= string2addrv4(s, &embedded, s_max - s);
+			j = string2addrv4(s, &embedded, s_max - s);
 			if (j < 0)
 				return j;
 			set_block(addr->ip6, 6,  embedded.ip >> 16);
