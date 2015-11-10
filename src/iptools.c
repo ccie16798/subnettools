@@ -509,7 +509,7 @@ static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 						p, current_block);
 				return BAD_IP;
 			}
-			break;
+			goto out_ipv4;
 		}
 		switch (*s) {
 		case '.':
@@ -534,12 +534,6 @@ static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 			truc[count_dot] = current_block;
 			count_dot++;
 			current_block = 0;
-			continue;
-#define IPV4_BLOCK(__boz) \
-		case '__boz': \
-			current_block *= 10; \
-			current_block + = __boz; \
-			s++; \
 			continue;
 		case '0':
 			current_block *= 10;
@@ -596,13 +590,13 @@ static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 						p, current_block);
 				return BAD_IP;
 			}
-			goto out;
+			goto out_ipv4;
 		default:
 			debug_parseipv4(3, "Invalid IP '%s',  contains '%c'\n", p, *s);
 			return BAD_IP;
 		}
 	}
-out:
+out_ipv4:
 	if (count_dot != 3) {
 		debug_parseipv4(3, "Invalid IP '%s', not enough '.'\n", p);
 		return BAD_IP;
