@@ -613,8 +613,12 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 		} else if (s[i] == '.') {
 			i -= num_digit;
 			debug_parseipv6(8, "String '%s' MAYBE embedded IPv4\n", s + i);
-			if (out_i != 6)
+			if (out_i != 6) {
+				debug(PARSEIPV6, 3,
+						"Invalid IPv6 '%s', need 6 blocks before IPv4\n",
+						s);
 				return BAD_IP;
+			}
 			j= string2addrv4(s + i, &embedded, len - i);
 			if (j < 0)
 				return j;
@@ -678,6 +682,12 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 		} else if (s[i] == '.') {
 			i -= num_digit;
 			debug_parseipv6(8, "String '%s' MAYBE embedded IPv4\n", s + i);
+			if (out_i + out_i2 > 5) {
+				debug(PARSEIPV6, 3,
+						"Invalid IPv6 '%s', need 6 blocks before IPv4\n",
+						s);
+				return IPV4_A;
+			}
 			j= string2addrv4(s + i, &embedded, len - i);
 			if (j < 0)
 				return j;
