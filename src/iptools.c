@@ -751,7 +751,8 @@ loop2:
 			out_i2++;
 			break;
 		}
-		if (*s == ':') {
+		switch (*s) {
+		case ':':
 			if (out_i + out_i2 >= 6) {
 				debug(PARSEIPV6, 3, "Invalid IPv6 '%s',too many blocks\n", p);
 				return BAD_IP;
@@ -771,7 +772,28 @@ loop2:
 			debug_parseipv6(9, "still to parse '%s', %d blocks already parsed\n",
 					p + 1, out_i + out_i2);
 			continue;
-		} else if (isxdigit(*s)) {
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+		case 'a':
+		case 'A':
+		case 'b':
+		case 'B':
+		case 'c':
+		case 'C':
+		case 'd':
+		case 'D':
+		case 'e':
+		case 'E':
+		case 'f':
+		case 'F':
 			if (num_digit == 4) {
 				debug(PARSEIPV6, 3,
 						"Invalid IPv6 '%s', block#%d has too many chars\n",
@@ -781,7 +803,9 @@ loop2:
 			current_block <<= 4;
 			current_block += char2int(*s);
 			num_digit++;
-		} else if (*s == '.') {
+			s++;
+			continue;
+		case '.':
 			s -= num_digit;
 			debug_parseipv6(8, "String '%s' MAYBE embedded IPv4\n", s);
 			if (out_i + out_i2 > 5) {
@@ -805,11 +829,16 @@ loop2:
 				set_block(addr->ip6, j, block_right[k]);
 			}
 			return IPV6_A;
-		} else {
+		case '\0':
+			debug_parseipv6(8, "copying '%x' to block_right#%d\n",
+					current_block, out_i2);
+			block_right[out_i2] = current_block;
+			out_i2++;
+			break;
+		default:
 			debug(PARSEIPV6, 3, "Invalid char '%c' found in block#%d\n", *s, out_i);
 			return BAD_IP;
 		}
-		s++;
 	}
 	debug_parseipv6(8, "out_i=%d out_i2=%d\n", out_i, out_i2);
 	for (j = out_i; j < 8 - out_i2; j++) {
