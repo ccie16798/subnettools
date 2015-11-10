@@ -609,7 +609,7 @@ out_ipv4:
 static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 {
 	int i, j, k;
-	int out_i = 0, out_i2 = 0, num_digit = 0;
+	int out_i = 0, out_i2, num_digit = 0;
 	unsigned short current_block = 0;
 	unsigned short block_right[8];
 	struct ip_addr embedded;
