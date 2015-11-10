@@ -566,6 +566,7 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 	int out_i = 0, out_i2 = 0, num_digit = 0;
 	unsigned short current_block = 0;
 	unsigned short block_right[8];
+	struct ip_addr embedded;
 
 	i = 0;
 
@@ -609,6 +610,18 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 			current_block <<= 4;
 			current_block += char2int(s[i]);
 			num_digit++;
+		} else if (s[i] == '.') {
+			i -= num_digit;
+			debug_parseipv6(8, "String '%s' MAYBE embedded IPv4\n", s + i);
+			if (out_i != 6)
+				return BAD_IP;
+			j= string2addrv4(s + i, &embedded, len - i);
+			if (j < 0)
+				return j;
+			set_block(addr->ip6, 6,  embedded.ip >> 16);
+			set_block(addr->ip6, 7, (unsigned short)(embedded.ip & 0xFFFF));
+			addr->ip_ver = IPV6_A;
+			return IPV6_A;
 		} else {
 			debug(PARSEIPV6, 3, "Invalid char '%c' found in block#%d\n", s[i], out_i);
 			return BAD_IP;
@@ -662,6 +675,24 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 			current_block <<= 4;
 			current_block += char2int(s[i]);
 			num_digit++;
+		} else if (s[i] == '.') {
+			i -= num_digit;
+			debug_parseipv6(8, "String '%s' MAYBE embedded IPv4\n", s + i);
+			j= string2addrv4(s + i, &embedded, len - i);
+			if (j < 0)
+				return j;
+			set_block(addr->ip6, 6,  embedded.ip >> 16);
+			set_block(addr->ip6, 7, (unsigned short)(embedded.ip & 0xFFFF));
+			addr->ip_ver = IPV6_A;
+			for (j = out_i; j < 6 - out_i2; j++) {
+				set_block(addr->ip6, j, 0);
+				debug_parseipv6(8, "copying '%x' to block#%d\n", 0, j);
+			}
+			for (k = 0 ; k < out_i2; k++, j++) {
+				debug_parseipv6(8, "copying '%x' to block#%d\n", block_right[k], j);
+				set_block(addr->ip6, j, block_right[k]);
+			}
+			return IPV6_A;
 		} else {
 			debug(PARSEIPV6, 3, "Invalid char '%c' found in block#%d\n", s[i], out_i);
 			return BAD_IP;
@@ -845,7 +876,6 @@ static int string2addrv6_2(const char *s, struct ip_addr *addr, size_t len)
 				break;
 			}
 		}
-
 	}
 	addr->ip_ver = IPV6_A;
 	return IPV6_A;
