@@ -510,7 +510,9 @@ static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 				return BAD_IP;
 			}
 			break;
-		} else if (*s == '.') {
+		}
+		switch (*s) {
+		case '.':
 			s++;
 			if  (*s == '.') {
 				debug_parseipv4(3, "Invalid IP '%s', 2 consecutives '.'\n", p);
@@ -532,24 +534,75 @@ static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 			truc[count_dot] = current_block;
 			count_dot++;
 			current_block = 0;
-		} else if (isdigit(*s)) {
+			continue;
+#define IPV4_BLOCK(__boz) \
+		case '__boz': \
+			current_block *= 10; \
+			current_block + = __boz; \
+			s++; \
+			continue;
+		case '0':
 			current_block *= 10;
-			current_block += *s - '0';
 			s++;
 			continue;
-		} else {
-			if (*s == '\0') {
-				if (current_block > 255) {
-					debug_parseipv4(3, "Invalid IP '%s', %d too big\n",
-							p, current_block);
-					return BAD_IP;
-				}
-				break;
+		case '1':
+			current_block *= 10;
+			current_block += 1;
+			s++;
+			continue;
+		case '2':
+			current_block *= 10;
+			current_block += 2;
+			s++;
+			continue;
+		case '3':
+			current_block *= 10;
+			current_block += 3;
+			s++;
+			continue;
+		case '4':
+			current_block *= 10;
+			current_block += 4;
+			s++;
+			continue;
+		case '5':
+			current_block *= 10;
+			current_block += 5;
+			s++;
+			continue;
+		case '6':
+			current_block *= 10;
+			current_block += 6;
+			s++;
+			continue;
+		case '7':
+			current_block *= 10;
+			current_block += 7;
+			s++;
+			continue;
+		case '8':
+			current_block *= 10;
+			current_block += 8;
+			s++;
+			continue;
+		case '9':
+			current_block *= 10;
+			current_block += 9;
+			s++;
+			continue;
+		case '\0':
+			if (current_block > 255) {
+				debug_parseipv4(3, "Invalid IP '%s', %d too big\n",
+						p, current_block);
+				return BAD_IP;
 			}
+			goto out;
+		default:
 			debug_parseipv4(3, "Invalid IP '%s',  contains '%c'\n", p, *s);
 			return BAD_IP;
 		}
 	}
+out:
 	if (count_dot != 3) {
 		debug_parseipv4(3, "Invalid IP '%s', not enough '.'\n", p);
 		return BAD_IP;
