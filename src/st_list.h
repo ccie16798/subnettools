@@ -32,35 +32,96 @@ struct st_list {
 
 typedef struct st_list st_list;
 
-void init_list(st_list *list);
-int list_empty(st_list *list);
+static inline void init_list(st_list *list)
+{
+	list->next = list;
+	list->prev = list;
+}
+
+static inline int list_empty(st_list *list)
+{
+	return list == list->next;
+}
+
 int list_length(st_list *list);
 
 /* list_add: add an element to a list
  * @new  : the element to add
  * @head : the existing list head
  */
-void list_add(st_list *new, st_list *head);
+static inline void list_add(st_list *new, st_list *head)
+{
+	new->next  = head->next;
+	new->prev  = head;
+	head->next->prev = new;
+	head->next = new;
+}
 
 /* list_add_tail: add an element to the end of a list
  * @new  : the element to add
  * @head : the existing list head
  */
-void list_add_tail(st_list *new, st_list *head);
-void list_del(st_list *element);
+static inline void list_add_tail(st_list *new, st_list *head)
+{
+	new->next = head;
+	new->prev = head->prev;
+	head->prev->next = new;
+	head->prev = new;
+}
+
+static inline void list_del(st_list *list)
+{
+	list->prev->next = list->next;
+	list->next->prev = list->prev;
+}
+
+/* list elements are added between head and head->next */
+static inline void __list_join(st_list *list, st_list *head)
+{
+	st_list *first = list->next;
+	st_list *last  = list->prev;
+
+	last->next = head->next;
+	head->next->prev = last;
+
+	first->prev = head;
+	head->next  = first;
+}
 
 /* list_join: add list 'list' to the beginning of list 'head'
  * @list : the list to be added
  * @head : the list
  */
-void list_join(st_list *list, st_list *head);
+static inline void list_join(st_list *list, st_list *head)
+{
+	if (list_empty(list))
+		return;
+	__list_join(list, head);
+}
+
+/* list elements are added to head */
+static inline void __list_join_tail(st_list *list, st_list *head)
+{
+	st_list *first = list->next;
+	st_list *last  = list->prev;
+
+	first->prev = head->prev;
+	head->prev->next = first;
+
+	last->next = head;
+	head->prev = last;
+}
 
 /* list_join_tail: add list 'list' to the end of list 'head'
  * @list : the list to be added
  * @head : the list
  */
-void list_join_tail(st_list *list, st_list *head);
-
+static inline void list_join_tail(st_list *list, st_list *head)
+{
+	if (list_empty(list))
+		return;
+	__list_join_tail(list, head);
+}
 
 /* list_sort: sort a list according to a cmp func
  * @head : the list head

@@ -15,17 +15,6 @@
 #include "debug.h"
 
 
-inline void init_list(st_list *list)
-{
-	list->next = list;
-	list->prev = list;
-}
-
-inline int list_empty(st_list *list)
-{
-	return list == list->next;
-}
-
 int list_length(st_list *list)
 {
 	st_list *l;
@@ -35,75 +24,6 @@ int list_length(st_list *list)
 		i++;
 	return i;
 }
-/*
- * insert a nex entry after head
- */
-inline void list_add(st_list *new, st_list *head)
-{
-	head->next->prev = new;
-	new->next  = head->next;
-	new->prev  = head;
-	head->next = new;
-}
-
-/*
- * insert a nex entry at the end
- */
-inline void list_add_tail(st_list *new, st_list *head)
-{
-	new->next = head;
-	new->prev = head->prev;
-	head->prev->next = new;
-	head->prev = new;
-}
-
-inline void list_del(st_list *list)
-{
-	list->prev->next = list->next;
-	list->next->prev = list->prev;
-}
-
-/* list elements are added between head and head->next */
-static inline void __list_join(st_list *list, st_list *head)
-{
-	st_list *first = list->next;
-	st_list *last  = list->prev;
-
-	last->next = head->next;
-	head->next->prev = last;
-
-	first->prev = head;
-	head->next  = first;
-}
-
-inline void list_join(st_list *list, st_list *head)
-{
-	if (list_empty(list))
-		return;
-	__list_join(list, head);
-}
-
-
-/* list elements are added to head */
-static inline void __list_join_tail(st_list *list, st_list *head)
-{
-	st_list *first = list->next;
-	st_list *last  = list->prev;
-
-	first->prev = head->prev;
-	head->prev->next = first;
-
-	last->next = head;
-	head->prev = last;
-}
-
-inline void list_join_tail(st_list *list, st_list *head)
-{
-	if (list_empty(list))
-		return;
-	__list_join_tail(list, head);
-}
-
 
 /*
  * merges two already sorted lists
