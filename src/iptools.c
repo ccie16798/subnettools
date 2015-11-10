@@ -640,7 +640,7 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 
 	/* first loop, before '::' if any */
 	while (1) {
-		if (s == s_max || *s == '\0') {
+		if (s == s_max ) {
 			debug_parseipv6(8, "copying '%x' to block#%d\n", current_block, out_i);
 			set_block(addr->ip6, out_i, current_block);
 			if (out_i != 7) {
@@ -651,7 +651,8 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 			addr->ip_ver = IPV6_A;
 			return IPV6_A;
 		}
-		if (*s == ':') {
+		switch (*s) {
+		case ':':
 			if (out_i >= 7) {
 				debug(PARSEIPV6, 3, "Invalid IPv6 '%s',too many blocks\n", p);
 				return BAD_IP;
@@ -668,11 +669,34 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 					debug(PARSEIPV6, 1, "Invalid IPv6 '%s' :::\n", s);
 					return BAD_IP;
 				}
-				break;
+				goto loop2;
 			}
 			debug_parseipv6(9, "still to parse '%s', %d blocks already parsed\n",
 					s + 1, out_i);
-		} else if (isxdigit(*s)) {
+			s++;
+			continue;
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+		case 'a':
+		case 'A':
+		case 'b':
+		case 'B':
+		case 'c':
+		case 'C':
+		case 'd':
+		case 'D':
+		case 'e':
+		case 'E':
+		case 'f':
+		case 'F':
 			if (num_digit == 4) {
 				debug(PARSEIPV6, 3,
 						"Invalid IPv6 '%s', block#%d has too many chars\n",
@@ -682,7 +706,9 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 			current_block <<= 4;
 			current_block += char2int(*s);
 			num_digit++;
-		} else if (*s == '.') {
+			s++;
+			continue;
+		case '.':
 			/** embedded IPv4 address, MAYBE? */
 			s -= num_digit;
 			debug_parseipv6(8, "String '%s' MAYBE embedded IPv4\n", s);
@@ -699,13 +725,22 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 			set_block(addr->ip6, 7, (unsigned short)(embedded.ip & 0xFFFF));
 			addr->ip_ver = IPV6_A;
 			return IPV6_A;
-		} else {
+		case '\0':
+			debug_parseipv6(8, "copying '%x' to block#%d\n", current_block, out_i);
+			set_block(addr->ip6, out_i, current_block);
+			if (out_i != 7) {
+				debug(PARSEIPV6, 3, "Invalid IPv6 '%s', only %d blocks\n",
+						p, out_i);
+				return BAD_IP;
+			}
+			addr->ip_ver = IPV6_A;
+			return IPV6_A;
+		default:
 			debug(PARSEIPV6, 3, "Invalid char '%c' found in block#%d\n", *p, out_i);
 			return BAD_IP;
 		}
-		s++;
 	}
-
+loop2:
 	out_i2 = 0;
 	/* second loop, trying to get the right part after '::' */
 	while (1) {
