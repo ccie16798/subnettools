@@ -10,6 +10,7 @@
 #include "debug.h"
 #include "st_memory.h"
 #include "iptools.h"
+#include "string2ip.h"
 #include "utils.h"
 #include "generic_csv.h"
 #include "heap.h"

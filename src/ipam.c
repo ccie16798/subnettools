@@ -19,6 +19,7 @@
 #include "generic_expr.h"
 #include "st_routes.h"
 #include "ipam.h"
+#include "string2ip.h"
 
 int alloc_ipam_file(struct ipam_file *sf, unsigned long n, int ea_nr)
 {

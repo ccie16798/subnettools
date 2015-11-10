@@ -13,7 +13,7 @@
 #include <stdarg.h>
 #include <ctype.h>
 #include "utils.h"
-#include "iptools.h"
+#include "string2ip.h"
 #include "debug.h"
 #include "st_scanf.h"
 #include "st_object.h"

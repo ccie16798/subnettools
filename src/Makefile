@@ -4,7 +4,7 @@ CFLAGS2= -O3
 EXEC=subnet-tools
 
 
-OBJS =  subnet_tool.o debug.o iptools.o bitmap.o routetocsv.o utils.o heap.o generic_csv.o \
+OBJS =  subnet_tool.o debug.o iptools.o string2ip.o bitmap.o routetocsv.o utils.o heap.o generic_csv.o \
 		prog-main.o generic_command.o config_file.o st_printf.o ipinfo.o st_scanf.o st_object.o \
 		bgp_tool.o generic_expr.o st_routes_csv.o ipam.o st_memory.o st_routes.o st_ea.o \
 		st_help.o st_readline.o

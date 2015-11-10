@@ -14,7 +14,7 @@
 #include <ctype.h>
 #include "debug.h"
 #include "st_memory.h"
-#include "iptools.h"
+#include "string2ip.h"
 #include "st_routes.h"
 #include "utils.h"
 #include "generic_csv.h"
