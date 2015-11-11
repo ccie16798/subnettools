@@ -18,7 +18,7 @@ st_scanf_ci.o: st_scanf.c st_scanf.h st_options.h
 	$(CC) -c st_scanf.c -o st_scanf_ci.o $(CFLAGS) -D CASE_INSENSITIVE
 
 subnet-tools: $(OBJS) st_scanf_ci.o
-	$(CC) -o $@ $(OBJS) $(CFLAGS)
+	$(CC) -o $@ $(OBJS) st_scanf_ci.o $(CFLAGS)
 
 test-printf: test-printf.o debug.o utils.o st_printf.o iptools.o bitmap.o st_object.o st_memory.o
 	$(CC) -o $@ $^ $(CFLAGS)
