@@ -9,11 +9,16 @@ OBJS =  subnet_tool.o debug.o iptools.o string2ip.o bitmap.o routetocsv.o utils.
 		bgp_tool.o generic_expr.o st_routes_csv.o ipam.o st_memory.o st_routes.o st_ea.o \
 		st_help.o st_readline.o
 
-%.o: %.c %.h st_options.h
-	$(CC) -c -o $@ $< $(CFLAGS)
+
 all: $(EXEC)
 
-subnet-tools: $(OBJS)
+%.o: %.c %.h st_options.h
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+st_scanf_ci.o: st_scanf.c st_scanf.h st_options.h
+	$(CC) -c -o st_scanf_ci.o st_scanf.c $(CFLAGS) -DCASE_INSENSITIVE
+
+subnet-tools: $(OBJS) st_scanf_ci.o
 	$(CC) -o $@ $^ $(CFLAGS)
 
 test-printf: test-printf.o debug.o utils.o st_printf.o iptools.o bitmap.o st_object.o st_memory.o
