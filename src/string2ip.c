@@ -127,11 +127,9 @@ int string2mask(const char *s, size_t len)
 /* can only be called from string2addr, which make some preliminary tests */
 static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 {
-	int count_dot;
 	unsigned int truc[4];
 	int current_block;
 	const char *s_max;
-	int num_digit;
 
 	s_max = s + len;
 	/* string2addr has made sure that there are only digits up to the first '.'
@@ -160,6 +158,7 @@ end_block1:
 	if (!isdigit(*s))
 		return BAD_IP;
 	truc[0] = current_block;
+	/* on the next block we must make sure we have only digits */
 	current_block = *s - '0';
 	s++;
 	if (*s == '.')
@@ -211,7 +210,7 @@ end_block2:
 end_block3:
 	/* here *s == '.' */
 	s++;
-	if (!isdigit(*s) || s > s_max)
+	if (!isdigit(*s) || s >= s_max)
 		return BAD_IP;
 	truc[2] = current_block;
 	current_block = *s - '0';
@@ -235,106 +234,7 @@ end_block3:
 	if (s == s_max || *s == '\0')
 		goto out_ipv4;
 	return BAD_IP;
-
-	while (1) {
-		if (s >= s_max)
-			goto out_ipv4;
-		switch (*s) {
-		case '.':
-			s++;
-			if (current_block > 255)
-				return BAD_IP;
-			if (count_dot == 3)
-				return BAD_IP;
-			if  (s == s_max)
-				return BAD_IP;
-			if (!isdigit(*s))
-				return BAD_IP;
-			truc[count_dot] = current_block;
-			count_dot++;
-			current_block = *s - '0';
-			num_digit = 1;
-			s++;
-			continue;
-		/* crazy isdigit(*s) */
-		case '0':
-			if (num_digit++ == 3)
-				return BAD_IP;
-			current_block *= 10;
-			s++;
-			continue;
-		case '1':
-			if (num_digit++ == 3)
-				return BAD_IP;
-			current_block *= 10;
-			current_block += 1;
-			s++;
-			continue;
-		case '2':
-			if (num_digit++ == 3)
-				return BAD_IP;
-			current_block *= 10;
-			current_block += 2;
-			s++;
-			continue;
-		case '3':
-			if (num_digit++ == 3)
-				return BAD_IP;
-			current_block *= 10;
-			current_block += 3;
-			s++;
-			continue;
-		case '4':
-			if (num_digit++ == 3)
-				return BAD_IP;
-			current_block *= 10;
-			current_block += 4;
-			s++;
-			continue;
-		case '5':
-			if (num_digit++ == 3)
-				return BAD_IP;
-			current_block *= 10;
-			current_block += 5;
-			s++;
-			continue;
-		case '6':
-			if (num_digit++ == 3)
-				return BAD_IP;
-			current_block *= 10;
-			current_block += 6;
-			s++;
-			continue;
-		case '7':
-			if (num_digit++ == 3)
-				return BAD_IP;
-			current_block *= 10;
-			current_block += 7;
-			s++;
-			continue;
-		case '8':
-			if (num_digit++ == 3)
-				return BAD_IP;
-			current_block *= 10;
-			current_block += 8;
-			s++;
-			continue;
-		case '9':
-			if (num_digit++ == 3)
-				return BAD_IP;
-			current_block *= 10;
-			current_block += 9;
-			s++;
-			continue;
-		case '\0':
-			goto out_ipv4;
-		default:
-			return BAD_IP;
-		}
-	}
 out_ipv4:
-/*	if (count_dot != 3 || current_block > 255)
-		return BAD_IP; */
 	addr->ip = (truc[0] << 24) + (truc[1] << 16) + (truc[2] << 8) + current_block;
 	addr->ip_ver = IPV4_A;
 	return IPV4_A;
