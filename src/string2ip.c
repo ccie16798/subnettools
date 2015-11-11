@@ -252,7 +252,6 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 	/* first loop, before '::' if any */
 	while (1) {
 		if (s == s_max) {
-			debug_parseipv6(8, "copying '%x' to block#%d\n", current_block, out_i);
 			set_block(addr->ip6, out_i, current_block);
 			if (out_i != 7) {
 				debug(PARSEIPV6, 3, "Invalid IPv6 '%s', only %d blocks\n",
@@ -268,7 +267,6 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 				debug(PARSEIPV6, 3, "Invalid IPv6 '%s',too many blocks\n", p);
 				return BAD_IP;
 			}
-			debug_parseipv6(8, "copying '%x' to block#%d\n", current_block, out_i);
 			set_block(addr->ip6, out_i, current_block);
 			out_i++;
 			current_block = 0;
@@ -282,8 +280,6 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 				}
 				goto loop2;
 			}
-			debug_parseipv6(9, "still to parse '%s', %d blocks already parsed\n",
-					s + 1, out_i);
 			s++;
 			continue;
 		case '0':
@@ -437,7 +433,6 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 			addr->ip_ver = IPV6_A;
 			return IPV6_A;
 		case '\0':
-			debug_parseipv6(8, "copying '%x' to block#%d\n", current_block, out_i);
 			set_block(addr->ip6, out_i, current_block);
 			if (out_i != 7) {
 				debug(PARSEIPV6, 3, "Invalid IPv6 '%s', only %d blocks\n",
@@ -456,8 +451,6 @@ loop2:
 	/* second loop, trying to get the right part after '::' */
 	while (1) {
 		if (s == s_max || *s == '\0') {
-			debug_parseipv6(8, "copying '%x' to block_right#%d\n",
-					current_block, out_i2);
 			block_right[out_i2] = current_block;
 			out_i2++;
 			break;
@@ -480,8 +473,6 @@ loop2:
 				debug(PARSEIPV6, 3, "Invalid IPv6 '%s', two '::'\n", p);
 				return BAD_IP;
 			}
-			debug_parseipv6(9, "still to parse '%s', %d blocks already parsed\n",
-					p + 1, out_i + out_i2);
 			continue;
 		case '0':
 			if (num_digit == 4)
@@ -641,8 +632,6 @@ loop2:
 			}
 			return IPV6_A;
 		case '\0':
-			debug_parseipv6(8, "copying '%x' to block_right#%d\n",
-					current_block, out_i2);
 			block_right[out_i2] = current_block;
 			out_i2++;
 			break;
