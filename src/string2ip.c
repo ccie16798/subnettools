@@ -272,15 +272,15 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 			current_block = 0;
 			num_digit = 0;
 			/* compressed */
-			if (s[1] == ':') {
-				s += 2;
+			s++;
+			if (*s == ':') {
+				s++;
 				if (*s == ':') {
 					debug(PARSEIPV6, 1, "Invalid IPv6 '%s' :::\n", s);
 					return BAD_IP;
 				}
 				goto loop2;
 			}
-			s++;
 			continue;
 		case '0':
 			if (num_digit == 4)
