@@ -450,10 +450,10 @@ loop2:
 	out_i2 = 0;
 	/* second loop, trying to get the right part after '::' */
 	while (1) {
-		if (s == s_max || *s == '\0') {
+		if (s == s_max) {
 			block_right[out_i2] = current_block;
 			out_i2++;
-			break;
+			goto end_ipv6;
 		}
 		switch (*s) {
 		case ':':
@@ -634,21 +634,17 @@ loop2:
 		case '\0':
 			block_right[out_i2] = current_block;
 			out_i2++;
-			break;
+			goto end_ipv6;
 		default:
 			debug(PARSEIPV6, 3, "Invalid char '%c' found in block#%d\n", *s, out_i);
 			return BAD_IP;
 		}
 	}
-	debug_parseipv6(8, "out_i=%d out_i2=%d\n", out_i, out_i2);
-	for (j = out_i; j < 8 - out_i2; j++) {
+end_ipv6:
+	for (j = out_i; j < 8 - out_i2; j++)
 		set_block(addr->ip6, j, 0);
-		debug_parseipv6(8, "copying '%x' to block#%d\n", 0, j);
-	}
-	for (k = 0 ; k < out_i2; k++, j++) {
-		debug_parseipv6(8, "copying '%x' to block#%d\n", block_right[k], j);
+	for (k = 0 ; k < out_i2; k++, j++)
 		set_block(addr->ip6, j, block_right[k]);
-	}
 	addr->ip_ver = IPV6_A;
 	return IPV6_A;
 }
