@@ -256,7 +256,7 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 
 int fprint_ipamfilter_help(FILE *out)
 {
-	return fprintf(out, "IPAM lines can be filtered on :\n"
+	return fprintf(out, "IPAM lines can be filtered on:\n"
 			" -prefix\n"
 			" -mask\n"
 			" -Extended Attributes\n"
@@ -267,8 +267,8 @@ int fprint_ipamfilter_help(FILE *out)
 			"- '>' (numerically superior, if EA is of type INT)\n"
 			"- '{' (is included (for prefixes))\n"
 			"- '}' (includes (for prefixes))\n"
-			"- '~' (st_scanf regular expression)\n";
-			"- '%' (st_scanf case insensitive regular expression)\n");
+			"- '~' (st_scanf regular expression)\n"
+			"- '%%' (st_scanf case insensitive regular expression)\n");
 }
 
 static int ipam_filter(const char *s, const char *value, char op, void *object)

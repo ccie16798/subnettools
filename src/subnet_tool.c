@@ -1201,7 +1201,7 @@ int subnet_sort_by(struct subnet_file *sf, char *name)
 int fprint_routefilter_help(FILE *out)
 {
 
-	return fprintf(out, "Routes can be filtered on :\n"
+	return fprintf(out, "Routes can be filtered on:\n"
 			" -prefix\n"
 			" -mask\n"
 			" -gw\n"
@@ -1216,8 +1216,8 @@ int fprint_routefilter_help(FILE *out)
 			"- '>' (numerically superior)\n"
 			"- '{' (is included (for prefixes))\n"
 			"- '}' (includes (for prefixes))\n"
-			"- '~' (st_scanf regular expression)\n";
-			"- '%' (st_scanf case insensitive regular expression)\n");
+			"- '~' (st_scanf regular expression)\n"
+			"- '%%' (st_scanf case insensitive regular expression)\n");
 }
 
 /* filter a route 'object' against 'value' with operator 'op'
