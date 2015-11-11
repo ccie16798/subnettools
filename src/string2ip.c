@@ -265,16 +265,8 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 
 	/* first loop, before '::' if any */
 	while (1) {
-		if (s == s_max) {
-			if (out_i != 7) {
-				debug(PARSEIPV6, 3, "Invalid IPv6 '%s', only %d blocks\n",
-						p, out_i);
-				return BAD_IP;
-			}
-			set_block(addr->ip6, out_i, current_block);
-			addr->ip_ver = IPV6_A;
-			return IPV6_A;
-		}
+		if (s == s_max)
+			goto  out_loop1;
 		switch (*s) {
 		case ':':
 			if (out_i >= 7) {
@@ -447,22 +439,24 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 			addr->ip_ver = IPV6_A;
 			return IPV6_A;
 		case '\0':
-			if (out_i != 7) {
-				debug(PARSEIPV6, 3, "Invalid IPv6 '%s', only %d blocks\n",
-						p, out_i);
-				return BAD_IP;
-			}
-			set_block(addr->ip6, out_i, current_block);
-			addr->ip_ver = IPV6_A;
-			return IPV6_A;
+			goto out_loop1;
 		default:
 			debug(PARSEIPV6, 3, "Invalid char '%c' found in block#%d\n", *p, out_i);
 			return BAD_IP;
 		}
 	}
+out_loop1:
+	if (out_i != 7) {
+		debug(PARSEIPV6, 3, "Invalid IPv6 '%s', only %d blocks\n",
+				p, out_i);
+		return BAD_IP;
+	}
+	set_block(addr->ip6, out_i, current_block);
+	addr->ip_ver = IPV6_A;
+	return IPV6_A;
 loop2:
 	out_i2 = 0;
-	if (out_i == 7) /* found 7 block, we wont compress */
+	if (out_i == 7) /* found 7 block, we wont compress, even 1:2:3:4:5:6:7:: */
 		return BAD_IP;
 	/* second loop, trying to get the right part after '::' */
 	while (1) {
