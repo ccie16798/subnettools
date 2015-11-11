@@ -1216,7 +1216,8 @@ int fprint_routefilter_help(FILE *out)
 			"- '>' (numerically superior)\n"
 			"- '{' (is included (for prefixes))\n"
 			"- '}' (includes (for prefixes))\n"
-			"- '~' (st_scanf regular expression)\n");
+			"- '~' (st_scanf regular expression)\n";
+			"- '%' (st_scanf case insensitive regular expression)\n");
 }
 
 /* filter a route 'object' against 'value' with operator 'op'
@@ -1279,6 +1280,11 @@ static int route_filter(const char *s, const char *value, char op, void *object)
 			return !!strcmp(route->device, value);
 		case '~':
 			res = st_sscanf(route->device, value);
+			if (res == -1)
+				return 0;
+			return 1;
+		case '%':
+			res = st_sscanf_ci(route->device, value);
 			if (res == -1)
 				return 0;
 			return 1;
