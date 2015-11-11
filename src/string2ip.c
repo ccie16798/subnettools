@@ -720,8 +720,7 @@ int string2addr(const char *s, struct ip_addr *addr, size_t len)
  */
 int get_subnet_or_ip(const char *s, struct subnet *subnet)
 {
-	int a;
-	u32 mask;
+	int a, mask;
 	char *p;
 
 	if (*s == '\0' || *s == '/') {
@@ -736,7 +735,6 @@ int get_subnet_or_ip(const char *s, struct subnet *subnet)
 		subnet->mask = (a == IPV6_A ? 128 : 32);
 		return a;
 	}
-	debug_parseipv4(8, "trying to parse ip/mask %s\n", s);
 	a = string2addr(s, &subnet->ip_addr, p - s);
 	if (a == BAD_IP)
 		return a;
