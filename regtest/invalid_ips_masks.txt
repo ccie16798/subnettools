@@ -24,4 +24,6 @@
 ::ffff:1.1.2.2.2;64;TOO MANY DOTS
 0:0:0:0:0:0:192.168.0:1.1;96;MIXED BLARF
 ::ffff:1:2;96;OK
-ff::1:2:3:4:5:192.168.100.101;125;WRONG '::'
+ff::1:2:3:4:5:192.168.100.101;125;WRONG '::', too much blocks
+1:2:3:4:5:6:7::8;64;WRONG '::' after 7 block
+1:2:3:4:5:6:7::;64;WRONG '::' after 7 blocks
