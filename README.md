@@ -256,6 +256,7 @@ operator are :
 - '{' (is included (for prefixes))
 - '}' (includes (for prefixes))
 - '~' (st_scanf regular expression)
+- '§' (st_scanf case insensitive regular expression)
 
 the format ot the filter is :
 - (A|B) : A or  B
