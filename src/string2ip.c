@@ -461,16 +461,15 @@ loop2:
 				debug(PARSEIPV6, 3, "Invalid IPv6 '%s',too many blocks\n", p);
 				return BAD_IP;
 			}
-			block_right[out_i2] = current_block;
-			out_i2++;
-			current_block = 0;
-			num_digit = 0;
-			/* compressed */
 			s++;
 			if (*s == ':') {
 				debug(PARSEIPV6, 3, "Invalid IPv6 '%s', two '::'\n", p);
 				return BAD_IP;
 			}
+			block_right[out_i2] = current_block;
+			out_i2++;
+			current_block = 0;
+			num_digit = 0;
 			continue;
 		case '0':
 			if (num_digit == 4)
