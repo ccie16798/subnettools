@@ -647,44 +647,51 @@ end_ipv6:
 int string2addr(const char *s, struct ip_addr *addr, size_t len)
 {
 	const char *p = s;
+	char c1, c2, c3, c4;
 
 	/* check first char */
-	if (*p == ':') {
+	c1 = *p;
+	if (c1 == ':') {
 		if (p[1] == ':')
 			return string2addrv6(s, addr, len);
 		return BAD_IP;
 	}
-	if ((*p >= 'a' && *p <= 'f') || (*p >= 'A' && *p <= 'F'))
+	if ((c1 >= 'a' && c1 <= 'f') || (c1 >= 'A' && c1 <= 'F'))
 		return string2addrv6(s, addr, len);
-	if (!isdigit(*p))
+	if (!isdigit(c1))
+		return BAD_IP;
+	if (len < 4)
 		return BAD_IP;
 	p++;
+	c2 = *p;
 	/* second octet */
-	if (*p == '.')
+	if (c2 == '.')
 		return string2addrv4(s, addr, len);
-	if (*p == ':')
+	if (c2 == ':')
 		return string2addrv6(s, addr, len);
-	if ((*p >= 'a' && *p <= 'f') || (*p >= 'A' && *p <= 'F'))
+	if ((c2 >= 'a' && c2 <= 'f') || (c2 >= 'A' && c2 <= 'F'))
 		return string2addrv6(s, addr, len);
-	if (!isdigit(*p))
+	if (!isdigit(c2))
 		return BAD_IP;
 	p++;
+	c3 = *p;
 	/* third octet */
-	if (*p == '.')
+	if (c3 == '.')
 		return string2addrv4(s, addr, len);
-	if (*p == ':')
+	if (c3 == ':')
 		return string2addrv6(s, addr, len);
-	if ((*p >= 'a' && *p <= 'f') || (*p >= 'A' && *p <= 'F'))
+	if ((c3 >= 'a' && c3 <= 'f') || (c3 >= 'A' && c3 <= 'F'))
 		return string2addrv6(s, addr, len);
-	if (!isdigit(*p))
+	if (!isdigit(c3))
 		return BAD_IP;
 	p++;
+	c4 = *p;
 	/* fourth octet, must be '.' for IPv4  */
-	if (*p == '.')
+	if (c4 == '.')
 		return string2addrv4(s, addr, len);
-	if (*p == ':')
+	if (c4 == ':')
 		return string2addrv6(s, addr, len);
-	if (!isxdigit(*p))
+	if (!isxdigit(c4))
 		return BAD_IP;
 	p++;
 	/* fifth octet, must be ':' for IPv6, else it is fucked */
