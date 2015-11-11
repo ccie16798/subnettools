@@ -191,8 +191,9 @@ reg_test_ipamfilter() {
 	#case insensitive tests
 	$PROG -c st.conf -ea EA-Site ipamfilter ipam-test "EA-Site%.*defense.*" > res/ipamfilter13
 	$PROG -c st.conf -ea EA-Site ipamfilter ipam-test "EA-Site%[Saint denis]*" > res/ipamfilter14
+	$PROG -c st.conf -ea EA-Site ipamfilter ipam-test 'EA-Site%.*(sain).*' > res/ipamfilter15
 
-	n=14
+	n=15
 	for i in `seq 1 $n`; do
 		output_file=ipamfilter$i
 		if [ ! -f ref/$output_file ]; then
