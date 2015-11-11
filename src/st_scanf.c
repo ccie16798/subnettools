@@ -19,6 +19,11 @@
 #include "st_object.h"
 
 #define ST_STRING_INFINITY 1000000000  /* Subnet tool definition of infinity */
+#ifdef CASE_INSENSITIVE
+#define EVAL_CHAR(__c) tolower(__c)
+#else
+#define EVAL_CHAR(__c) (__c)
+#endif
 
 struct expr {
 	 /* used to break '.*' expansion */
