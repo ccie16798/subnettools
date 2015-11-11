@@ -3,11 +3,11 @@
  *  these are VERY fast so code is ... fun
  *
  * string2addr beats inet_pton (my computer, compiled with -O3, loading a BIG csv)
- * 	on 12,000,000 IPv4 address file inet_pton   takes 2,650 sec to read CSV
- * 	on 12,000,000 IPv4 address file string2addr takes 2,480 sec to read CSV
+ *	on 12,000,000 IPv4 address file inet_pton   takes 2,650 sec to read CSV
+ *	on 12,000,000 IPv4 address file string2addr takes 2,480 sec to read CSV
  *
- * 	on 12,000,000 IPv6 address file inet_pton   takes 3,330 sec to read CSV
- * 	on 12,000,000 IPv6 address file string2addr takes 3,050 sec to read CSV
+ *	on 12,000,000 IPv6 address file inet_pton   takes 3,330 sec to read CSV
+ *	on 12,000,000 IPv6 address file string2addr takes 3,050 sec to read CSV
  * (and of course, you must specify AF_FAMILY to inet_pton, while string2addr
  * guesses the IP version number, so a generic func on top of inet_pton would have
  * some more overhead)
@@ -145,7 +145,8 @@ static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 		return BAD_IP;
 	s_max = s + len;
 	/* string2addr has made sure that there are only digits up to the first '.'
-	 * so optimisize the calculation of the first loop, without too much checks */
+	 * so optimisize the calculation of the first block, without too much checks
+	 */
 	current_block = *s - '0';
 	s++;
 	if (*s == '.')
@@ -160,7 +161,7 @@ static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 	if (current_block > 255)
 		return BAD_IP;
 	s++;
-	if (*s != '.')
+	if (*s != '.') /* shouldn't be needed */
 		return BAD_IP;
 end_block1:
 	/* here *s == '.' */
@@ -461,6 +462,8 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 	}
 loop2:
 	out_i2 = 0;
+	if (out_i == 7) /* found 7 block, we wont compress */
+		return BAD_IP;
 	/* second loop, trying to get the right part after '::' */
 	while (1) {
 		if (s == s_max)
