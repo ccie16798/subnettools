@@ -254,17 +254,37 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 {
 	int j, k;
 	int out_i = 0, out_i2, num_digit = 0;
-	unsigned short current_block = 0;
+	unsigned short current_block;
 	unsigned short block_right[8];
 	struct ip_addr embedded;
 	const char *s_max = s + len;
 	const char *p = s;
 
-	/* first loop, before '::' if any */
 	if (*s == ':') {
 		s += 2;
 		goto loop2;
 	}
+	current_block = char2int(*s);
+	s++;
+	if (*s == ':')
+		goto first_loop;
+	current_block <<= 4;
+	current_block += char2int(*s);
+	s++;
+	if (*s == ':')
+		goto first_loop;
+	current_block <<= 4;
+	current_block += char2int(*s);
+	s++;
+	if (*s == ':')
+		goto first_loop;
+	current_block <<= 4;
+	current_block += char2int(*s);
+	s++;
+	if (*s != ':')
+		return BAD_IP;
+first_loop:
+	/* first loop, before '::' if any */
 	while (1) {
 		if (s == s_max) {
 			if (out_i != 7) {
@@ -671,11 +691,11 @@ int string2addr(const char *s, struct ip_addr *addr, size_t len)
 			return string2addrv6(s, addr, len);
 		return BAD_IP;
 	}
+	if (len < 3)
+		return BAD_IP;
 	if ((c1 >= 'a' && c1 <= 'f') || (c1 >= 'A' && c1 <= 'F'))
 		return string2addrv6(s, addr, len);
 	if (!isdigit(c1))
-		return BAD_IP;
-	if (len < 4)
 		return BAD_IP;
 	p++;
 	c2 = *p;
