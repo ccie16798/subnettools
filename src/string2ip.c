@@ -127,7 +127,7 @@ int string2mask(const char *s, size_t len)
 /* can only be called from string2addr, which make some preliminary tests */
 static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 {
-	unsigned int truc[4];
+	unsigned int block0, block1, block2;
 	int current_block;
 	const char *s_max;
 
@@ -157,7 +157,7 @@ end_block1:
 	s++;
 	if (!isdigit(*s))
 		return BAD_IP;
-	truc[0] = current_block;
+	block0 = current_block;
 	/* on the next block we must make sure we have only digits */
 	current_block = *s - '0';
 	s++;
@@ -186,7 +186,7 @@ end_block2:
 	s++;
 	if (!isdigit(*s))
 		return BAD_IP;
-	truc[1] = current_block;
+	block1 = current_block;
 	current_block = *s - '0';
 	s++;
 	if (*s == '.')
@@ -212,7 +212,7 @@ end_block3:
 	s++;
 	if (!isdigit(*s) || s >= s_max)
 		return BAD_IP;
-	truc[2] = current_block;
+	block2 = current_block;
 	current_block = *s - '0';
 	s++;
 	if (s == s_max || *s == '\0')
@@ -235,7 +235,7 @@ end_block3:
 		goto out_ipv4;
 	return BAD_IP;
 out_ipv4:
-	addr->ip = (truc[0] << 24) + (truc[1] << 16) + (truc[2] << 8) + current_block;
+	addr->ip = (block0 << 24) + (block1 << 16) + (block2 << 8) + current_block;
 	addr->ip_ver = IPV4_A;
 	return IPV4_A;
 }
