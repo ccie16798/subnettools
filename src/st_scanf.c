@@ -47,7 +47,7 @@ static inline char escape_char(char c)
 	case 'n':
 		return '\n';
 	default:
-		return c;
+		return EVAL_CHAR(c);
 	}
 }
 
@@ -213,7 +213,7 @@ static int fill_char_range(char *expr, const char *fmt, int n)
 	while (fmt[i] != ']') {
 		if (fmt[i] == '\0' || i == n - 2)
 			return -1;
-		expr[i] = fmt[i];
+		expr[i] = EVAL_CHAR(fmt[i]);
 		i++;
 	}
 	expr[i] = '\0';
@@ -243,7 +243,7 @@ static int fill_expr(char *expr, const char *fmt, int n)
 			i++;
 			if (fmt[i] == '\0' || i == n - 2)
 				return -1;
-			expr[i] = fmt[i];
+			expr[i] = EVAL_CHAR(fmt[i]);
 			i++;
 			continue;
 		}
@@ -253,7 +253,7 @@ static int fill_expr(char *expr, const char *fmt, int n)
 			break;
 		if (fmt[i] == '(')
 			parenthese++;
-		expr[i] = fmt[i];
+		expr[i] = EVAL_CHAR(fmt[i]);
 		i++;
 	}
 	expr[i] = '\0';
@@ -277,6 +277,9 @@ static int match_char_against_range(char c, const char **expr)
 	const char *p = *expr; /* cache expr to avoid dereferences */
 
 	p++;
+#ifdef CASE_INSENSITIVE
+	c = EVAL_CHAR(c);
+#endif
 	if (*p == '^') {
 		invert = 1;
 		p++;
@@ -288,7 +291,7 @@ static int match_char_against_range(char c, const char **expr)
 	}
 
 	while (*p != ']') {
-		low = *p;
+		low = EVAL_CHAR(*p);
 		if (low == '\0') {
 			debug(SCANF, 1, "Invalid expr '%s', no closing ']' found\n", *expr);
 			return -1;
@@ -296,7 +299,7 @@ static int match_char_against_range(char c, const char **expr)
 		p++;
 		if (*p == '-' && p[1] != ']') {
 			p++;
-			high = *p;
+			high = EVAL_CHAR(*p);
 			if (high == '\0') {
 				debug(SCANF, 1, "Invalid expr '%s', incomplete range\n", *expr);
 				return -1;
@@ -333,6 +336,9 @@ static int match_char_against_range_clean(char c, const char *expr)
 		direct = 0;
 		expr++;
 	}
+#ifdef CASE_INSENSITIVE
+	c = EVAL_CHAR(c);
+#endif
 	/* expr is garanteed to be 1 byte long or 2 bytes long if start with ^ */
 	do {
 		low = *expr;
@@ -733,7 +739,7 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 
 	saved_in = in;
 	while (1) {
-		c = *expr;
+		c = EVAL_CHAR(*expr);
 		debug(SCANF, 8, "remaining in  ='%s'\n", in);
 		debug(SCANF, 8, "remaining expr='%s'\n", expr);
 		switch (c) {
@@ -768,7 +774,7 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 				return 0;
 			}
 		default:
-			if (*in != c)
+			if (EVAL_CHAR(*in) != c)
 				break;
 			expr++;
 			in++;
@@ -997,7 +1003,7 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
 			e->can_stop = &find_char_range;
 			return 1;
 		default:
-			e->end_of_expr = fmt[0];
+			e->end_of_expr = EVAL_CHAR(fmt[0]);
 			e->can_stop = NULL;
 			return 1;
 		} /* switch c */
@@ -1026,7 +1032,7 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
 		e->end_of_expr = escape_char(fmt[1]);
 		e->can_stop = NULL;
 	} else {
-		e->end_of_expr = fmt[0];
+		e->end_of_expr = EVAL_CHAR(fmt[0]);
 		e->can_stop = NULL;
 	}
 	return 1;
@@ -1072,7 +1078,7 @@ static int parse_multiplier_char(const char **in, const char **fmt, const char *
 	/* simple case, we match a single char {n,m} times */
 	debug(SCANF, 4, "Pattern expansion will end when in[j] != '%c'\n", *expr);
 	while (n_match < max_m) {
-		if (*expr != *p)
+		if (*expr != EVAL_CHAR(*p))
 			break;
 		p += 1;
 		n_match++;
@@ -1298,7 +1304,7 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
 		/* handle end on simple char */
 		while (n_match < max_m) {
 			/* try to stop expansion */
-			could_stop = (*p == e.end_of_expr);
+			could_stop = (EVAL_CHAR(*p) == e.end_of_expr);
 			debug(SCANF, 4, "trying to stop on char '%c', res=%d\n",
 					e.end_of_expr, res);
 			if (could_stop && match_last == 0)
@@ -1541,14 +1547,14 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			}
 			if (is_multiple_char(f[1]))  {
 				f++;
-				expr[0] = c;
+				expr[0] = EVAL_CHAR(c);
 				res = parse_multiplier_char(&p, &f, in_max, expr,
 						o, max_o, &n_found);
 				if (res < 0)
 					goto end_nomatch;
 				continue;
 			}
-			if (*p != *f) {
+			if (EVAL_CHAR(*p) != EVAL_CHAR(*f)) {
 				debug(SCANF, 2, "in[%d]='%c', != fmt[%d]='%c', exiting\n",
 						 (int)(p - in), *p, (int)(fmt - f), *f);
 				goto end_nomatch;
