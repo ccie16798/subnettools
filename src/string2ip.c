@@ -252,12 +252,12 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 	/* first loop, before '::' if any */
 	while (1) {
 		if (s == s_max) {
-			set_block(addr->ip6, out_i, current_block);
 			if (out_i != 7) {
 				debug(PARSEIPV6, 3, "Invalid IPv6 '%s', only %d blocks\n",
 						p, out_i);
 				return BAD_IP;
 			}
+			set_block(addr->ip6, out_i, current_block);
 			addr->ip_ver = IPV6_A;
 			return IPV6_A;
 		}
@@ -433,12 +433,12 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 			addr->ip_ver = IPV6_A;
 			return IPV6_A;
 		case '\0':
-			set_block(addr->ip6, out_i, current_block);
 			if (out_i != 7) {
 				debug(PARSEIPV6, 3, "Invalid IPv6 '%s', only %d blocks\n",
 						p, out_i);
 				return BAD_IP;
 			}
+			set_block(addr->ip6, out_i, current_block);
 			addr->ip_ver = IPV6_A;
 			return IPV6_A;
 		default:
@@ -461,8 +461,6 @@ loop2:
 				debug(PARSEIPV6, 3, "Invalid IPv6 '%s',too many blocks\n", p);
 				return BAD_IP;
 			}
-			debug_parseipv6(8, "copying '%x' to block_right#%d\n",
-					current_block, out_i2);
 			block_right[out_i2] = current_block;
 			out_i2++;
 			current_block = 0;
