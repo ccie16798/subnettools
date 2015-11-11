@@ -654,7 +654,9 @@ int string2addr(const char *s, struct ip_addr *addr, size_t len)
 			return string2addrv6(s, addr, len);
 		return BAD_IP;
 	}
-	if (!isxdigit(*p))
+	if ((*p >= 'a' && *p <= 'f') || (*p >= 'A' && *p <= 'F'))
+		return string2addrv6(s, addr, len);
+	if (!isdigit(*p))
 		return BAD_IP;
 	p++;
 	/* second octet */
@@ -677,14 +679,12 @@ int string2addr(const char *s, struct ip_addr *addr, size_t len)
 	if (!isdigit(*p))
 		return BAD_IP;
 	p++;
-	/* fourth octet */
+	/* fourth octet, must be '.' for IPv4  */
 	if (*p == '.')
 		return string2addrv4(s, addr, len);
 	if (*p == ':')
 		return string2addrv6(s, addr, len);
-	if ((*p >= 'a' && *p <= 'f') || (*p >= 'A' && *p <= 'F'))
-		return string2addrv6(s, addr, len);
-	if (!isdigit(*p))
+	if (!isxdigit(*p))
 		return BAD_IP;
 	p++;
 	/* fifth octet, must be ':' for IPv6, else it is fucked */
