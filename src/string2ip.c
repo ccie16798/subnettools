@@ -1,6 +1,6 @@
 /*
- *  IPv4, IPv6 read function from string
- *  these a meant to be crazy fast
+ *  string to IPv4, IPv6 functions
+ *  these a meant to be crazy fast so code is ... fun
  *
  * Copyright (C) 2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
@@ -132,46 +132,29 @@ static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 	int current_block = 0;
 	const char *s_max;
 	int num_digit = 0;
-#ifdef DEBUG_PARSE_IPV4
-	const char *p = s;
-#endif
 
 	/* string2addr has made sure s[0] is not NUL or '.' */
 	s_max = s + len;
 	while (1) {
-		if (s == s_max) {
-			if (current_block > 255) {
-				debug_parseipv4(3, "Invalid IP '%s', %d too big\n",
-						p, current_block);
-				return BAD_IP;
-			}
+		if (s == s_max)
 			goto out_ipv4;
-		}
 		switch (*s) {
 		case '.':
 			s++;
-			if  (*s == '.') {
-				debug_parseipv4(3, "Invalid IP '%s', 2 consecutives '.'\n", p);
+			if (current_block > 255)
 				return BAD_IP;
-			}
-			if  (*s == '\0' || s == s_max) {
-				debug_parseipv4(3, "Invalid IP '%s', ends with '.'\n", p);
+			if (count_dot == 3)
 				return BAD_IP;
-			}
-			if (current_block > 255) {
-				debug_parseipv4(3, "Invalid IP '%s', %d too big\n",
-						p, current_block);
+			if  (s == s_max)
 				return BAD_IP;
-			}
-			if (count_dot == 3) {
-				debug_parseipv4(3, "Invalid IP '%s', too many '.'\n", p);
+			if (!isdigit(*s))
 				return BAD_IP;
-			}
 			truc[count_dot] = current_block;
 			count_dot++;
 			current_block = 0;
 			num_digit = 0;
 			continue;
+		/* crazy isdigit(*s) */
 		case '0':
 			if (num_digit++ == 3)
 				return BAD_IP;
@@ -242,22 +225,14 @@ static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 			s++;
 			continue;
 		case '\0':
-			if (current_block > 255) {
-				debug_parseipv4(3, "Invalid IP '%s', %d too big\n",
-						p, current_block);
-				return BAD_IP;
-			}
 			goto out_ipv4;
 		default:
-			debug_parseipv4(3, "Invalid IP '%s',  contains '%c'\n", p, *s);
 			return BAD_IP;
 		}
 	}
 out_ipv4:
-	if (count_dot != 3) {
-		debug_parseipv4(3, "Invalid IP '%s', not enough '.'\n", p);
+	if (count_dot != 3 || current_block > 255)
 		return BAD_IP;
-	}
 	addr->ip = (truc[0] << 24) + (truc[1] << 16) + (truc[2] << 8) + current_block;
 	addr->ip_ver = IPV4_A;
 	return IPV4_A;
