@@ -162,9 +162,32 @@ end_block1:
 	current_block = *s - '0';
 	num_digit = 1;
 	s++;
-
-
+	if (*s == '.')
+		goto end_block2;
+	if (!isdigit(*s))
+		return BAD_IP;
+	current_block *= 10;
+	current_block += *s - '0';
+	s++;
+	if (*s == '.')
+		goto end_block2;
+	if (!isdigit(*s))
+		return BAD_IP;
+	current_block *= 10;
+	current_block += *s - '0';
+	if (current_block > 255)
+		return BAD_IP;
+	s++;
 end_block2:
+	/* here *s == '.' */
+	s++;
+	if (!isdigit(*s))
+		return BAD_IP;
+	truc[1] = current_block;
+	count_dot = 2;
+	current_block = *s - '0';
+	num_digit = 1;
+	s++;
 
 	while (1) {
 		if (s >= s_max)
