@@ -151,8 +151,9 @@ static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 				return BAD_IP;
 			truc[count_dot] = current_block;
 			count_dot++;
-			current_block = 0;
-			num_digit = 0;
+			current_block = *s - '0';
+			num_digit = 1;
+			s++;
 			continue;
 		/* crazy isdigit(*s) */
 		case '0':
