@@ -128,7 +128,7 @@ int string2mask(const char *s, size_t len)
 static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 {
 	int count_dot = 0;
-	int truc[4];
+	unsigned int truc[4];
 	int current_block = 0;
 	const char *s_max;
 	int num_digit = 0;
@@ -649,8 +649,6 @@ int string2addr(const char *s, struct ip_addr *addr, size_t len)
 	const char *p = s;
 
 	/* check first char */
-	if (*p == '.')
-		return BAD_IP;
 	if (*p == ':') {
 		if (p[1] == ':')
 			return string2addrv6(s, addr, len);
