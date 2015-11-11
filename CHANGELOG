@@ -1,11 +1,17 @@
 v1.5 (unreleased)
 =================
 
+-New features
+-- Case insensitive pattern matching, use '%' special char for filter :
+[etienne@ARODEF subnet_tools]$ ./subnet-tools -ea EA-Site ipamfilter regtest/ipam-test 'EA-Site%.*sain.*'
+prefix;EA-Site;
+10.128.0.0/16;Saint Denis;
+10.128.1.0/24;Saint Denis;
+
 - Internal changes
 -- optimized read_csv when delims is only ONE (common case)
--- simplified some iptools func for speed
+-- rewrite of string2addr family functions, major speedups
 -- rewrite major parts of st_scanf pattern matching engine
--- rewrite of string2addr functions, major speedups
 -- scanf mutliplier handling (+, *, ?) was trying to be generic, dividing it into 3 separates cases helps
 readability a lot, speeds up and simplify code
 
