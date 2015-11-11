@@ -136,6 +136,9 @@ int filter_ea(const struct ipam_ea *ea, int ea_nr, const char *ea_name,
 	case '~':
 		res = st_sscanf(s, value);
 		return (res < 0 ? 0 : 1);
+	case '%':
+		res = st_sscanf_ci(s, value);
+		return (res < 0 ? 0 : 1);
 	case '<':
 	case '>':
 		b = string2int(value, &err);
