@@ -1,6 +1,16 @@
 /*
  *  string to IPv4, IPv6 functions
- *  these a meant to be crazy fast so code is ... fun
+ *  these are VERY fast so code is ... fun
+ *
+ * string2addr beats inet_pton (my computer, compiled with -O3, loading a BIG csv)
+ * 	on 12,000,000 IPv4 address file inet_pton   takes 2,650 sec to read CSV
+ * 	on 12,000,000 IPv4 address file string2addr takes 2,480 sec to read CSV
+ *
+ * 	on 12,000,000 IPv6 address file inet_pton   takes 3,330 sec to read CSV
+ * 	on 12,000,000 IPv6 address file string2addr takes 3,050 sec to read CSV
+ * (and of course, you must specify AF_FAMILY to inet_pton, while string2addr
+ * guesses the IP version number, so a generic func on top of inet_pton would have
+ * some more overhead)
  *
  * Copyright (C) 2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
@@ -32,7 +42,7 @@ int string2mask(const char *s, size_t len)
 
 	/* masks must begin with a digit */
 	if (!isdigit(*s)) {
-		debug_parseipv4(3, "Invalid mask '%s', starts with '.'\n", p);
+		debug_parseipv4(3, "Invalid mask '%s', starts with '%c'\n", p, *s);
 		return BAD_MASK;
 	}
 	/* since we are sure it is a digit, avoid a loop iteration */
@@ -251,6 +261,10 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 	const char *p = s;
 
 	/* first loop, before '::' if any */
+	if (*s == ':') {
+		s += 2;
+		goto loop2;
+	}
 	while (1) {
 		if (s == s_max) {
 			if (out_i != 7) {
