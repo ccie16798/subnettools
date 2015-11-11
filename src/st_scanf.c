@@ -19,6 +19,8 @@
 #include "st_object.h"
 
 #define ST_STRING_INFINITY 1000000000  /* Subnet tool definition of infinity */
+
+/* st_scanf.c can be compiled for case insensitive pattern matching */
 #ifdef CASE_INSENSITIVE
 #define EVAL_CHAR(__c) tolower(__c)
 #else
