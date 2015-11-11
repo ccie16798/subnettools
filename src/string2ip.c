@@ -141,6 +141,8 @@ static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 	int current_block;
 	const char *s_max;
 
+	if (len < 7)
+		return BAD_IP;
 	s_max = s + len;
 	/* string2addr has made sure that there are only digits up to the first '.'
 	 * so optimisize the calculation of the first loop, without too much checks */
