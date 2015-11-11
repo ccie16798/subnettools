@@ -253,7 +253,7 @@ out_ipv4:
 static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 {
 	int j, k;
-	int out_i = 0, out_i2, num_digit = 0;
+	int out_i = 0, out_i2, num_digit;
 	unsigned short current_block;
 	unsigned short block_right[8];
 	struct ip_addr embedded;
@@ -693,9 +693,7 @@ int string2addr(const char *s, struct ip_addr *addr, size_t len)
 	}
 	if (len < 3)
 		return BAD_IP;
-	if ((c1 >= 'a' && c1 <= 'f') || (c1 >= 'A' && c1 <= 'F'))
-		return string2addrv6(s, addr, len);
-	if (!isdigit(c1))
+	if (!isxdigit(c1))
 		return BAD_IP;
 	p++;
 	c2 = *p;
@@ -704,9 +702,7 @@ int string2addr(const char *s, struct ip_addr *addr, size_t len)
 		return string2addrv4(s, addr, len);
 	if (c2 == ':')
 		return string2addrv6(s, addr, len);
-	if ((c2 >= 'a' && c2 <= 'f') || (c2 >= 'A' && c2 <= 'F'))
-		return string2addrv6(s, addr, len);
-	if (!isdigit(c2))
+	if (!isxdigit(c2))
 		return BAD_IP;
 	p++;
 	c3 = *p;
@@ -715,9 +711,7 @@ int string2addr(const char *s, struct ip_addr *addr, size_t len)
 		return string2addrv4(s, addr, len);
 	if (c3 == ':')
 		return string2addrv6(s, addr, len);
-	if ((c3 >= 'a' && c3 <= 'f') || (c3 >= 'A' && c3 <= 'F'))
-		return string2addrv6(s, addr, len);
-	if (!isdigit(c3))
+	if (!isxdigit(c3))
 		return BAD_IP;
 	p++;
 	c4 = *p;
