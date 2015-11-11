@@ -27,9 +27,6 @@
 #include "utils.h"
 #include "string2ip.h"
 
-sprint_hex(short)
-sprint_unsigned(int)
-
 int string2mask(const char *s, size_t len)
 {
 	int ddn_mask = 0;
