@@ -150,17 +150,17 @@ static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 	if (current_block > 255)
 		return BAD_IP;
 	s++;
+	if (*s != '.')
+		return BAD_IP;
 end_block1:
 	/* here *s == '.' */
-	if (s_max - s < 5) /* s cannot hold for .1.1.1 */
+	if (s_max - s < 6) /* s cannot hold for .1.1.1 */
 		return BAD_IP;
 	s++;
 	if (!isdigit(*s))
 		return BAD_IP;
 	truc[0] = current_block;
-	count_dot = 1;
 	current_block = *s - '0';
-	num_digit = 1;
 	s++;
 	if (*s == '.')
 		goto end_block2;
@@ -178,6 +178,8 @@ end_block1:
 	if (current_block > 255)
 		return BAD_IP;
 	s++;
+	if (*s != '.')
+		return BAD_IP;
 end_block2:
 	/* here *s == '.' */
 	s++;
