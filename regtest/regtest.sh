@@ -188,7 +188,11 @@ reg_test_ipamfilter() {
 	$PROG -c st.conf -fmt "%P;%O1" -ea EA-Site,EA-Vlan getea ipam-test toto  > res/ipamfilter10
 	$PROG -c st.conf -fmt "%P;%O0" -ea EA-Site,EA-Vlan getea ipam-test toto  > res/ipamfilter11
 	$PROG -c st.conf -fmt "%P;%O10" -ea EA-Site,EA-Vlan getea ipam-test toto  > res/ipamfilter12
-	n=12
+	#case insensitive tests
+	$PROG -c st.conf -ea EA-Site ipamfilter ipam-test "EA-Site%.*defense.*" > res/ipamfilter13
+	$PROG -c st.conf -ea EA-Site ipamfilter ipam-test "EA-Site%[Saint denis]*" > res/ipamfilter14
+
+	n=14
 	for i in `seq 1 $n`; do
 		output_file=ipamfilter$i
 		if [ ! -f ref/$output_file ]; then
