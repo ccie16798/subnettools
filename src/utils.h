@@ -20,7 +20,17 @@ unsigned long long nextPow2_64(unsigned long long x);
 /* take a isxdigit char as argument;
  *  returns is decimal conversion
  */
-int char2int(char c);
+static inline int char2int(char c)
+{
+	if (c >= '0' && c <= '9')
+		return (c - '0');
+	if (c >= 'a' && c <= 'f')
+		return (10 + c - 'a');
+	if (c >= 'A' && c <= 'F')
+		return (10 + c - 'A');
+	return 0;
+}
+
 
 /* remove all spaces from char */
 char *remove_space(char *s);
