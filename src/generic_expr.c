@@ -61,7 +61,7 @@ static int simple_expr(char *pattern, int len, struct generic_expr *e)
 	while (1) {
 		if (pattern[i] == '\0' || i == len)
 			break;
-		if (is_comp(pattern[i]) && pattern[i] != '\\') {
+		if (is_comp(pattern[i]) && pattern[i - 1] != '\\') {
 			debug(GEXPR, 1, "Invalid expr '%s', 2 x comparators\n", pattern);
 			e->recursion_level--;
 			pattern[j - 1] = operator;
