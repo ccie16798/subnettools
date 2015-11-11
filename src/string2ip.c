@@ -450,11 +450,8 @@ loop2:
 	out_i2 = 0;
 	/* second loop, trying to get the right part after '::' */
 	while (1) {
-		if (s == s_max) {
-			block_right[out_i2] = current_block;
-			out_i2++;
+		if (s == s_max)
 			goto end_ipv6;
-		}
 		switch (*s) {
 		case ':':
 			if (out_i + out_i2 >= 6) {
@@ -629,8 +626,6 @@ loop2:
 			}
 			return IPV6_A;
 		case '\0':
-			block_right[out_i2] = current_block;
-			out_i2++;
 			goto end_ipv6;
 		default:
 			debug(PARSEIPV6, 3, "Invalid char '%c' found in block#%d\n", *s, out_i);
@@ -638,10 +633,13 @@ loop2:
 		}
 	}
 end_ipv6:
-	for (j = out_i; j < 8 - out_i2; j++)
+	/* setting '0' on all skipped blocks */
+	for (j = out_i; j < 7 - out_i2; j++)
 		set_block(addr->ip6, j, 0);
 	for (k = 0 ; k < out_i2; k++, j++)
 		set_block(addr->ip6, j, block_right[k]);
+	/* last block MUST point to block 7, an error would have been caught above otherwise */
+	set_block(addr->ip6, 7, current_block);
 	addr->ip_ver = IPV6_A;
 	return IPV6_A;
 }
