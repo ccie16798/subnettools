@@ -182,14 +182,59 @@ end_block1:
 		return BAD_IP;
 end_block2:
 	/* here *s == '.' */
+	if (s_max - s < 4) /* s cannot hold for .1.1 */
+		return BAD_IP;
 	s++;
 	if (!isdigit(*s))
 		return BAD_IP;
 	truc[1] = current_block;
-	count_dot = 2;
 	current_block = *s - '0';
-	num_digit = 1;
 	s++;
+	if (*s == '.')
+		goto end_block3;
+	if (!isdigit(*s))
+		return BAD_IP;
+	current_block *= 10;
+	current_block += *s - '0';
+	s++;
+	if (*s == '.')
+		goto end_block3;
+	if (!isdigit(*s))
+		return BAD_IP;
+	current_block *= 10;
+	current_block += *s - '0';
+	if (current_block > 255)
+		return BAD_IP;
+	s++;
+	if (*s != '.')
+		return BAD_IP;
+end_block3:
+	/* here *s == '.' */
+	s++;
+	if (!isdigit(*s) || s > s_max)
+		return BAD_IP;
+	truc[2] = current_block;
+	current_block = *s - '0';
+	s++;
+	if (s == s_max || *s == '\0')
+		goto out_ipv4;
+	if (!isdigit(*s))
+		return BAD_IP;
+	current_block *= 10;
+	current_block += *s - '0';
+	s++;
+	if (s == s_max || *s == '\0')
+		goto out_ipv4;
+	if (!isdigit(*s))
+		return BAD_IP;
+	current_block *= 10;
+	current_block += *s - '0';
+	if (current_block > 255)
+		return BAD_IP;
+	s++;
+	if (s == s_max || *s == '\0')
+		goto out_ipv4;
+	return BAD_IP;
 
 	while (1) {
 		if (s >= s_max)
@@ -288,8 +333,8 @@ end_block2:
 		}
 	}
 out_ipv4:
-	if (count_dot != 3 || current_block > 255)
-		return BAD_IP;
+/*	if (count_dot != 3 || current_block > 255)
+		return BAD_IP; */
 	addr->ip = (truc[0] << 24) + (truc[1] << 16) + (truc[2] << 8) + current_block;
 	addr->ip_ver = IPV4_A;
 	return IPV4_A;
