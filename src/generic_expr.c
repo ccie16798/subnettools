@@ -19,7 +19,7 @@
 static inline int is_comp(char c)
 {
 	return ((c == '=') | (c == '<') | (c == '>') | (c == '~') |
-			(c == '{') | (c == '}') | (c == '#'));
+			(c == '{') | (c == '}') | (c == '#') | c == '§');
 }
 
 void init_generic_expr(struct generic_expr *e, const char *s,
