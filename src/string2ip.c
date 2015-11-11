@@ -262,11 +262,6 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 	const char *s_max = s + len;
 	const char *p = s;
 
-	if (*s == ':') {
-		s += 2;
-		goto loop2;
-	}
-
 	/* first loop, before '::' if any */
 	while (1) {
 		if (s == s_max) {
@@ -674,8 +669,6 @@ int string2addr(const char *s, struct ip_addr *addr, size_t len)
 			return string2addrv6(s, addr, len);
 		return BAD_IP;
 	}
-	if (len < 3)
-		return BAD_IP;
 	if (!isxdigit(c1))
 		return BAD_IP;
 	p++;
