@@ -9,5 +9,9 @@ int st_fscanf(FILE *f, const char *fmt, ...);
 int st_sscanf(const char *in, const char *fmt, ...);
 int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o);
 
+/* case insensitive variants */
+int st_fscanf_ci(FILE *f, const char *fmt, ...);
+int st_sscanf_ci(const char *in, const char *fmt, ...);
+int sto_sscanf_ci(const char *in, const char *fmt, struct sto *o, int max_o);
 #else
 #endif

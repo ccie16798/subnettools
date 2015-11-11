@@ -1376,7 +1376,11 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
  *	number of objects found
  *	-1 if no match and no conversion specifier found
  */
+#ifdef CASE_INSENSITIVE
+int sto_sscanf_ci(const char *in, const char *fmt, struct sto *o, int max_o)
+#else
 int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
+#endif
 {
 	int res;
 	int n_found;
@@ -1569,7 +1573,28 @@ end_nomatch:
 	else
 		return n_found;
 }
+#ifdef CASE_INSENSITIVE
+int st_vscanf_ci(const char *in, const char *fmt, va_list ap)
+{
+	int res;
+	struct sto o[ST_VSCANF_MAX_OBJECTS];
 
+	res = sto_sscanf_ci(in, fmt, o, ST_VSCANF_MAX_OBJECTS);
+	consume_valist_from_object(o, res, ap);
+	return res;
+}
+
+int st_sscanf_ci(const char *in, const char *fmt, ...)
+{
+	va_list ap;
+	int ret;
+
+	va_start(ap, fmt);
+	ret = st_vscanf_ci(in, fmt, ap);
+	va_end(ap);
+	return ret;
+}
+#else
 int st_vscanf(const char *in, const char *fmt, va_list ap)
 {
 	int res;
@@ -1590,3 +1615,4 @@ int st_sscanf(const char *in, const char *fmt, ...)
 	va_end(ap);
 	return ret;
 }
+#endif
