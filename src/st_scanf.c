@@ -64,7 +64,7 @@ static inline int max_match(char c)
 		return ST_STRING_INFINITY;
 	if (c == '?')
 		return 1;
-	debug(SCANF, 1, "BUG, Invalid multiplier char '%c'\n", c);
+	debug(SCANF, 1, "BUG, Invalid quantifier char '%c'\n", c);
 	return 0;
 }
 
@@ -76,25 +76,25 @@ static inline int min_match(char c)
 		return 1;
 	if (c == '?')
 		return 0;
-	debug(SCANF, 1, "BUG, Invalid multiplier char '%c'\n", c);
+	debug(SCANF, 1, "BUG, Invalid quantifier char '%c'\n", c);
 	return 0;
 }
 
 /*
- * parse a brace multiplier like {,1} or {2} or {3,4} {4,}
+ * parse a brace quantifier like {,1} or {2} or {3,4} {4,}
  * min & max are set by this helper
  * returns :
  *	-1 if string is invalid
  *	number of matched chars
  */
-static int parse_brace_multiplier(const char *s, int *min, int *max)
+static int parse_brace_quantifier(const char *s, int *min, int *max)
 {
 	int i = 1;
 
 	*min = 0;
 	*max = ST_STRING_INFINITY;
 	if (s[i] == '}') {
-		debug(SCANF, 1, "Invalid empty multiplier '%s'\n", s);
+		debug(SCANF, 1, "Invalid empty quantifier '%s'\n", s);
 		return -1;
 	}
 	while (isdigit(s[i])) {
@@ -924,7 +924,6 @@ static int find_char_range(const char *remain, struct expr *e)
 /*
  * set_expression_canstop; called when '.*' expansion is needed
  * will set e->can_stop handler based on format string
- * parse_multiplier updates offset into 'in', 'fmt', the number of objects found (n_found)
  * @fmt      : the format string (the remain after '.*')
  * @e        : a pointer to a struct expr to populate
  */
@@ -1039,15 +1038,15 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
 }
 
 /*
- * parse_multiplier_xxx starts when **fmt is a st_scanf multiplier char (*, +, ?, {a,b})
+ * parse_quantifier_xxx starts when **fmt is a st_scanf quantifier char (*, +, ?, {a,b})
  * it will try to consume as many bytes as possible from 'in' and put objects
  * found in a struct sto *
- * parse_multiplier updates offset into 'in', 'fmt', the number of objects found (n_found)
+ * parse_quantifier_xxx updates offset into 'in', 'fmt', the number of objects found (n_found)
  *
  * @in       : points to remaining input buffer
  * @fmt      : points to remaining fmt buffer
  * @in_max   : input buffer MUST be < in_max
- * @expr     : the string/expression  concerned by the multiplier
+ * @expr     : the string/expression  concerned by the quantifier
  * @o        : objects will be stored in o (max_o)
  * @n_found  : num conversion specifier found so far
  *
@@ -1056,7 +1055,7 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
  *   -1  : format error
  *   -2  : no match
  */
-static int parse_multiplier_char(const char **in, const char **fmt, const char *in_max,
+static int parse_quantifier_char(const char **in, const char **fmt, const char *in_max,
 		char *expr, struct sto *o, int max_o, int *n_found)
 {
 	int res;
@@ -1065,7 +1064,7 @@ static int parse_multiplier_char(const char **in, const char **fmt, const char *
 	const char *p = *in; /* p caches '*in' to avoid dereferences and speed up */
 
 	if (**fmt == '{') {
-		res = parse_brace_multiplier(*fmt, &min_m, &max_m);
+		res = parse_brace_quantifier(*fmt, &min_m, &max_m);
 		if (res < 0)
 			return -1;
 		*fmt += res + 1;
@@ -1098,7 +1097,7 @@ static int parse_multiplier_char(const char **in, const char **fmt, const char *
 	return 1;
 }
 
-static int parse_multiplier_char_range(const char **in, const char **fmt, const char *in_max,
+static int parse_quantifier_char_range(const char **in, const char **fmt, const char *in_max,
 		char *expr, struct sto *o, int max_o, int *n_found)
 {
 	int res;
@@ -1107,7 +1106,7 @@ static int parse_multiplier_char_range(const char **in, const char **fmt, const 
 	const char *p = *in; /* p caches '*in' to avoid dereferences and speed up */
 
 	if (**fmt == '{') {
-		res = parse_brace_multiplier(*fmt, &min_m, &max_m);
+		res = parse_brace_quantifier(*fmt, &min_m, &max_m);
 		if (res < 0)
 			return -1;
 		*fmt += res +1;
@@ -1139,7 +1138,7 @@ static int parse_multiplier_char_range(const char **in, const char **fmt, const 
 	return 1;
 }
 
-static int parse_multiplier_expr(const char **in, const char **fmt, const char *in_max,
+static int parse_quantifier_expr(const char **in, const char **fmt, const char *in_max,
 		char *expr, struct sto *o, int max_o, int *n_found)
 {
 	int res, k, num_cs;
@@ -1148,7 +1147,7 @@ static int parse_multiplier_expr(const char **in, const char **fmt, const char *
 	const char *p = *in; /* p caches '*in' to avoid dereferences and speed up */
 
 	if (**fmt == '{') {
-		res = parse_brace_multiplier(*fmt, &min_m, &max_m);
+		res = parse_brace_quantifier(*fmt, &min_m, &max_m);
 		if (res < 0)
 			return -1;
 		*fmt += res +1;
@@ -1212,7 +1211,7 @@ static int parse_multiplier_expr(const char **in, const char **fmt, const char *
 	return 1;
 }
 
-static int parse_multiplier_dotstar(const char **in, const char **fmt, const char *in_max,
+static int parse_quantifier_dotstar(const char **in, const char **fmt, const char *in_max,
 		char *expr, struct sto *o, int max_o, int *n_found)
 {
 	int match_last, could_stop, previous_could_stop;
@@ -1224,7 +1223,7 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
 	const char *p = *in;
 
 	if (**fmt == '{') {
-		res = parse_brace_multiplier(*fmt, &min_m, &max_m);
+		res = parse_brace_quantifier(*fmt, &min_m, &max_m);
 		if (res < 0)
 			return -1;
 		*fmt += res + 1;
@@ -1339,7 +1338,7 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
 			return -2;
 		}
 	}
-	/* if we stop a multiplier expansion on a complex conversion specifier, we may
+	/* if we stop a quantifier expansion on a complex conversion specifier, we may
 	 * have recorded it in e->sto, to avoid anaylising it again
 	 * ie scanf('.*%I a', '    1.1.1.1 a', must fully analyse 1.1.1.1 in '.*' expansion
 	 * 1.1.1.1 was stored by 'find_ip' so use this instead of re-analysing again
@@ -1355,7 +1354,7 @@ static int parse_multiplier_dotstar(const char **in, const char **fmt, const cha
 		*fmt += e.end_expr_len;
 		p    += e.skip_on_return;
 	}
-	/* multiplier went to the end of 'in', but without matching the end */
+	/* quantifier went to the end of 'in', but without matching the end */
 	if (*p == '\0' && **fmt != '\0')
 		return -2;
 	*in = p;
@@ -1420,14 +1419,14 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			}
 			if (is_multiple_char(*f)) {
 				if (*f == '{') {
-					res = parse_brace_multiplier(f, &min_m, &max_m);
+					res = parse_brace_quantifier(f, &min_m, &max_m);
 					if (res < 0)
 						goto end_nomatch;
 					f += res;
 				} else
 					min_m = min_match(*f);
 			}
-			if (f[1] != '\0') /* the multiplier wasnt the last char */
+			if (f[1] != '\0') /* the quantifier wasnt the last char */
 				goto end_nomatch;
 			if (min_m == 0) /* if the expr can match zero time, the match was perfect */
 				return n_found;
@@ -1437,14 +1436,14 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 		switch (*f) {
 		case '\0': /* if we are here 'in' wasnt fully consumed, so fail */
 			goto end_nomatch;
-		case '*': /* if we found a multiplier char here that means */
-		case '+': /* we have two consecutive multiplier chars or */
-		case '?': /* fmt starts with a multiplier */
+		case '*': /* if we found a quantifier char here that means */
+		case '+': /* we have two consecutive quantifier chars or */
+		case '?': /* fmt starts with a quantifier */
 		case '{':
 			if (f == fmt)
-				debug(SCANF, 1, "Invalid expr, starts with a multiplier\n");
+				debug(SCANF, 1, "Invalid expr, starts with a quantifier\n");
 			else
-				debug(SCANF, 1, "Invalid expr, 2 successives multipliers\n");
+				debug(SCANF, 1, "Invalid expr, 2 successives quantifiers\n");
 			goto end_nomatch;
 		case '%': /* conversion specifier */
 			if (n_found > max_o - 1) {
@@ -1460,7 +1459,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 		case '.': /* any char */
 			f++;
 			if (is_multiple_char(*f)) {
-				res = parse_multiplier_dotstar(&p, &f, in_max, expr,
+				res = parse_quantifier_dotstar(&p, &f, in_max, expr,
 						o, max_o, &n_found);
 				if (res < 0)
 					goto end_nomatch;
@@ -1479,7 +1478,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			debug(SCANF, 8, "found char range '%s'\n", expr);
 			f += res;
 			if (is_multiple_char(*f)) {
-				res = parse_multiplier_char_range(&p, &f, in_max, expr,
+				res = parse_quantifier_char_range(&p, &f, in_max, expr,
 						o, max_o, &n_found);
 				if (res < 0)
 					goto end_nomatch;
@@ -1504,7 +1503,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			debug(SCANF, 8, "found expr '%s'\n", expr);
 			f += res;
 			if (is_multiple_char(*f)) {
-				res = parse_multiplier_expr(&p, &f, in_max, expr,
+				res = parse_quantifier_expr(&p, &f, in_max, expr,
 						o, max_o, &n_found);
 				if (res < 0)
 					goto end_nomatch;
@@ -1552,7 +1551,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			if (is_multiple_char(f[1]))  {
 				f++;
 				expr[0] = EVAL_CHAR(c);
-				res = parse_multiplier_char(&p, &f, in_max, expr,
+				res = parse_quantifier_char(&p, &f, in_max, expr,
 						o, max_o, &n_found);
 				if (res < 0)
 					goto end_nomatch;
