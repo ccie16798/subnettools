@@ -253,8 +253,8 @@ out_ipv4:
 static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 {
 	int j, k;
-	int out_i = 0, out_i2, num_digit;
-	unsigned short current_block;
+	int out_i = 0, out_i2, num_digit = 0;
+	unsigned short current_block = 0;
 	unsigned short block_right[8];
 	struct ip_addr embedded;
 	const char *s_max = s + len;
@@ -264,26 +264,7 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 		s += 2;
 		goto loop2;
 	}
-	current_block = char2int(*s);
-	s++;
-	if (*s == ':')
-		goto first_loop;
-	current_block <<= 4;
-	current_block += char2int(*s);
-	s++;
-	if (*s == ':')
-		goto first_loop;
-	current_block <<= 4;
-	current_block += char2int(*s);
-	s++;
-	if (*s == ':')
-		goto first_loop;
-	current_block <<= 4;
-	current_block += char2int(*s);
-	s++;
-	if (*s != ':')
-		return BAD_IP;
-first_loop:
+
 	/* first loop, before '::' if any */
 	while (1) {
 		if (s == s_max) {
