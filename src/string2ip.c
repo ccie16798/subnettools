@@ -259,8 +259,143 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 	struct ip_addr embedded;
 	const char *s_max = s + len;
 	const char *p = s;
+	int c;
 
+block0:
 	/* first loop, before '::' if any */
+	if (*s == ':')
+		goto block1;
+	/* digit 1 */
+	current_block = hex_tab[*s];
+	/* digit 2 */
+	s++;
+	if (*s == ':')
+		goto block1;
+	current_block <<= 4;
+	current_block += hex_tab[*s];
+	/* digit 3 */
+	s++;
+	if (*s == ':')
+		goto block1;
+	current_block <<= 4;
+	current_block += hex_tab[*s];
+	/* digit 4 */
+	s++;
+	if (*s == ':')
+		goto block1;
+	current_block <<= 4;
+	current_block += hex_tab[*s];
+	s++;
+	if (*s != ':')
+		return BAD_IP;
+block1:
+	set_block(addr->ip6, 0, current_block);
+	s++;
+	if (*s == ':') {
+		s++;
+		if (*s == ':') {
+			debug(PARSEIPV6, 1, "Invalid IPv6 '%s' :::\n", s);
+			return BAD_IP;
+		}
+		out_i = 1;
+		current_block = 0;
+		goto loop2;
+	}
+	current_block = hex_tab[*s];
+	if (current_block < 0 | s == s_max)
+		return BAD_IP;
+	/** digit 2 **/
+	s++;
+	if (*s == ':')
+		goto block2;
+	c = hex_tab[*s];
+	if (c < 0 | s == s_max)
+		return BAD_IP;
+	current_block <<= 4;
+	current_block += c;
+	/** digit 3 **/
+	s++;
+	if (*s == ':')
+		goto block2;
+	c = hex_tab[*s];
+	if (c < 0 | s == s_max)
+		return BAD_IP;
+	current_block <<= 4;
+	current_block += c;
+	/** digit 4 **/
+	s++;
+	if (*s == ':')
+		goto block2;
+	c = hex_tab[*s];
+	if (c < 0 | s == s_max)
+		return BAD_IP;
+	current_block <<= 4;
+	current_block += c;
+	s++;
+	if (*s != ':')
+		return BAD_IP;
+block2:
+	set_block(addr->ip6, 1, current_block);
+	s++;
+	if (*s == ':') {
+		s++;
+		if (*s == ':') {
+			debug(PARSEIPV6, 1, "Invalid IPv6 '%s' :::\n", s);
+			return BAD_IP;
+		}
+		out_i = 2;
+		current_block = 0;
+		goto loop2;
+	}
+	current_block = hex_tab[*s];
+	if (current_block < 0 | s == s_max)
+		return BAD_IP;
+	/** digit 2 **/
+	s++;
+	if (*s == ':')
+		goto block3;
+	c = hex_tab[*s];
+	if (c < 0 | s == s_max)
+		return BAD_IP;
+	current_block <<= 4;
+	current_block += c;
+	/** digit 3 **/
+	s++;
+	if (*s == ':')
+		goto block3;
+	c = hex_tab[*s];
+	if (c < 0 | s == s_max)
+		return BAD_IP;
+	current_block <<= 4;
+	current_block += c;
+	/** digit 4 **/
+	s++;
+	if (*s == ':')
+		goto block3;
+	c = hex_tab[*s];
+	if (c < 0 | s == s_max)
+		return BAD_IP;
+	current_block <<= 4;
+	current_block += c;
+	s++;
+	if (*s != ':')
+		return BAD_IP;
+block3:
+	set_block(addr->ip6, 2, current_block);
+	s++;
+	if (*s == ':') {
+		s++;
+		if (*s == ':') {
+			debug(PARSEIPV6, 1, "Invalid IPv6 '%s' :::\n", s);
+			return BAD_IP;
+		}
+		out_i = 3;
+		current_block = 0;
+		goto loop2;
+	}
+	current_block = 0;
+	out_i = 3;
+
 	while (1) {
 		if (s == s_max)
 			goto  out_loop1;
