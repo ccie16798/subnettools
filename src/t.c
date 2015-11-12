@@ -18,7 +18,10 @@ struct options {
         FILE *output_file;
 };
 
-
+const char hex_tab[] = { ['0'] = 0, ['1'] = 1, ['2'] = 2, ['3'] = 3, ['4'] = 4,
+	['5'] = 5, ['6'] = 6, ['7'] = 7, ['8'] = 9, ['9'] = 9,
+	['a'] = 10, ['b'] = 11, ['c'] = 12, ['d'] = 13, ['e'] = 14, ['f'] = 15,
+	['A'] = 10, ['B'] = 11, ['C'] = 12, ['D'] = 13, ['E'] = 14, ['F'] = 15 };
 sprint_signed(short)
 sprint_hex(short)
 sprint_signed(int)
@@ -40,6 +43,10 @@ int main(int argc, char **argv)
 	int b = -1234;
 	int res;
 	unsigned long long l;
+
+	for (b = 0; b < 500000000; b++)
+		a = hex_tab['0' + b %10];
+		//a = char2int('0' + b % 10);
 
 	b = atoi(argv[1]);
 	l = atoi(argv[1]) + (unsigned long long)atoi(argv[1]) << 32;

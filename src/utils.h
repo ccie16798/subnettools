@@ -17,20 +17,11 @@ int mylog2(unsigned int x);
 unsigned nextPow2_32(unsigned x);
 unsigned long long nextPow2_64(unsigned long long x);
 
+extern const char hex_tab[];
 /* take a isxdigit char as argument;
  *  returns is decimal conversion
  */
-static inline int char2int(char c)
-{
-	if (c >= '0' && c <= '9')
-		return (c - '0');
-	if (c >= 'a' && c <= 'f')
-		return (10 + c - 'a');
-	if (c >= 'A' && c <= 'F')
-		return (10 + c - 'A');
-	return 0;
-}
-
+#define char2int(__c) hex_tab[(int)(__c)]
 
 /* remove all spaces from char */
 char *remove_space(char *s);
