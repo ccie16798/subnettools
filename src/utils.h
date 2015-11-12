@@ -17,7 +17,8 @@ int mylog2(unsigned int x);
 unsigned nextPow2_32(unsigned x);
 unsigned long long nextPow2_64(unsigned long long x);
 
-extern const short hex_tab[];
+extern const int hex_tab[];
+extern const int int_tab[];
 /* take a isxdigit char as argument;
  *  returns is decimal conversion
  */
