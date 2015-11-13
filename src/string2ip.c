@@ -594,11 +594,44 @@ try_ipv4:
 block7:
 	set_block(addr->ip6, 6, current_block);
 	s++;
+	out_i = 7;
 	if (*s == ':' || s == s_max)
 		return BAD_IP;
-	current_block = 0;
-	out_i = 7;
-
+	/** digit 1 */
+	current_block = hex_tab[*s];
+	if (current_block < 0)
+		return BAD_IP;
+	/** digit 2 **/
+	s++;
+	if (*s == '\0' || s == s_max)
+		goto out_loop1;
+	c = hex_tab[*s];
+	if (c < 0)
+		return BAD_IP;
+	current_block <<= 4;
+	current_block += c;
+	/** digit 3 **/
+	s++;
+	if (*s == '\0' || s == s_max)
+		goto out_loop1;
+	c = hex_tab[*s];
+	if (c < 0)
+		return BAD_IP;
+	current_block <<= 4;
+	current_block += c;
+	/** digit 4 **/
+	s++;
+	if (*s == '\0' || s == s_max)
+		goto out_loop1;
+	c = hex_tab[*s];
+	if (c < 0)
+		return BAD_IP;
+	current_block <<= 4;
+	current_block += c;
+	s++;
+	if (*s == '\0' || s == s_max)
+		goto out_loop1;
+	return BAD_IP;
 	while (1) {
 		if (s == s_max)
 			goto  out_loop1;
