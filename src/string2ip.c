@@ -302,7 +302,7 @@ block1:
 	}
 	/** digit 1 */
 	current_block = hex_tab[*s];
-	if (current_block < 0 || s == s_max)
+	if (current_block < 0 || s >= s_max - 2) /* space for '1::' needs 3 char */
 		return BAD_IP;
 	/** digit 2 **/
 	s++;
@@ -349,7 +349,7 @@ block2:
 	}
 	/** digit 1 */
 	current_block = hex_tab[*s];
-	if (current_block < 0 || s == s_max)
+	if (current_block < 0 || s >= s_max - 2)
 		return BAD_IP;
 	/** digit 2 **/
 	s++;
@@ -396,7 +396,7 @@ block3:
 	}
 	/** digit 1 */
 	current_block = hex_tab[*s];
-	if (current_block < 0 || s == s_max)
+	if (current_block < 0 || s >= s_max - 2)
 		return BAD_IP;
 	/** digit 2 **/
 	s++;
@@ -443,7 +443,7 @@ block4:
 	}
 	/** digit 1 */
 	current_block = hex_tab[*s];
-	if (current_block < 0 || s == s_max)
+	if (current_block < 0 || s >= s_max - 2)
 		return BAD_IP;
 	/** digit 2 **/
 	s++;
@@ -490,7 +490,7 @@ block5:
 	}
 	/** digit 1 */
 	current_block = hex_tab[*s];
-	if (current_block < 0 || s == s_max)
+	if (current_block < 0 || s >= s_max - 2)
 		return BAD_IP;
 	/** digit 2 **/
 	s++;
@@ -537,7 +537,7 @@ block6:
 	}
 	/* block6 is special, we can find a MAPPED/EMBEDDED IPv4 there */
 	current_block = hex_tab[*s];
-	if (current_block < 0 || s == s_max)
+	if (current_block < 0 || s >= s_max - 2)
 		return BAD_IP;
 	/** digit 2 **/
 	s++;
@@ -595,7 +595,7 @@ block7:
 	set_block(addr->ip6, 6, current_block);
 	s++;
 	/* we wont compress, even 1:2:3:4:5:6:7:: */
-	if (*s == ':' || s == s_max)
+	if (*s == ':' || s >= s_max)
 		return BAD_IP;
 	/** digit 1 */
 	current_block = hex_tab[*s];
