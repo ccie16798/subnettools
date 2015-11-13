@@ -594,6 +594,7 @@ try_ipv4:
 block7:
 	set_block(addr->ip6, 6, current_block);
 	s++;
+	/* we wont compress, even 1:2:3:4:5:6:7:: */
 	if (*s == ':' || s == s_max)
 		return BAD_IP;
 	/** digit 1 */
@@ -636,9 +637,14 @@ out_loop1:
 	addr->ip_ver = IPV6_A;
 	return IPV6_A;
 loop2:
+	/* handle special prefix case */
+	if (*s == 0 || s == s_max) {
+		for (j = out_i; j < 8; j++)
+			set_block(addr->ip6, j, 0);
+		addr->ip_ver = IPV6_A;
+		return IPV6_A;
+	}
 	out_i2 = 0;
-	if (out_i == 7) /* found 7 block, we wont compress, even 1:2:3:4:5:6:7:: */
-		return BAD_IP;
 	/* second loop, trying to get the right part after '::' */
 	while (1) {
 		if (s == s_max)
