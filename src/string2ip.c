@@ -536,8 +536,68 @@ block6:
 		goto loop2;
 	}
 	/* block6 is special, we can find a MAPPED/EMBEDDED IPv4 there */
-	out_i = 6;
+	current_block = hex_tab[*s];
+	if (current_block < 0 || s == s_max)
+		return BAD_IP;
+	/** digit 2 **/
+	s++;
+	if (*s == ':')
+		goto block7;
+	if (*s == '.') {
+		s -= 1;
+		goto try_ipv4;
+	}
+	c = hex_tab[*s];
+	if (c < 0 || s == s_max)
+		return BAD_IP;
+	current_block <<= 4;
+	current_block += c;
+	/** digit 3 **/
+	s++;
+	if (*s == ':')
+		goto block7;
+	if (*s == '.') {
+		s -= 2;
+		goto try_ipv4;
+	}
+	c = hex_tab[*s];
+	if (c < 0 || s == s_max)
+		return BAD_IP;
+	current_block <<= 4;
+	current_block += c;
+	/** digit 4 **/
+	s++;
+	if (*s == ':')
+		goto block7;
+	if (*s == '.') {
+		s -= 3;
+		goto try_ipv4;
+	}
+	c = hex_tab[*s];
+	if (c < 0 || s == s_max)
+		return BAD_IP;
+	current_block <<= 4;
+	current_block += c;
+	s++;
+	if (*s != ':')
+		return BAD_IP;
+	goto block7;
+try_ipv4:
+	debug_parseipv6(8, "String '%s' MAYBE embedded IPv4\n", s);
+	j = string2addrv4(s, &embedded, s_max - s);
+	if (j < 0)
+		return j;
+	set_block(addr->ip6, 6,  embedded.ip >> 16);
+	set_block(addr->ip6, 7, (unsigned short)(embedded.ip & 0xFFFF));
+	addr->ip_ver = IPV6_A;
+	return IPV6_A;
+block7:
+	set_block(addr->ip6, 6, current_block);
+	s++;
+	if (*s == ':' || s == s_max)
+		return BAD_IP;
 	current_block = 0;
+	out_i = 7;
 
 	while (1) {
 		if (s == s_max)
