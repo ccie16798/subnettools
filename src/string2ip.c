@@ -292,10 +292,6 @@ block1:
 	s++;
 	if (*s == ':') {
 		s++;
-		if (*s == ':') {
-			debug(PARSEIPV6, 1, "Invalid IPv6 '%s' :::\n", s);
-			return BAD_IP;
-		}
 		out_i = 1;
 		current_block = 0;
 		goto loop2;
@@ -339,10 +335,6 @@ block2:
 	s++;
 	if (*s == ':') {
 		s++;
-		if (*s == ':') {
-			debug(PARSEIPV6, 1, "Invalid IPv6 '%s' :::\n", s);
-			return BAD_IP;
-		}
 		out_i = 2;
 		current_block = 0;
 		goto loop2;
@@ -386,10 +378,6 @@ block3:
 	s++;
 	if (*s == ':') {
 		s++;
-		if (*s == ':') {
-			debug(PARSEIPV6, 1, "Invalid IPv6 '%s' :::\n", s);
-			return BAD_IP;
-		}
 		out_i = 3;
 		current_block = 0;
 		goto loop2;
@@ -433,10 +421,6 @@ block4:
 	s++;
 	if (*s == ':') {
 		s++;
-		if (*s == ':') {
-			debug(PARSEIPV6, 1, "Invalid IPv6 '%s' :::\n", s);
-			return BAD_IP;
-		}
 		out_i = 4;
 		current_block = 0;
 		goto loop2;
@@ -480,10 +464,6 @@ block5:
 	s++;
 	if (*s == ':') {
 		s++;
-		if (*s == ':') {
-			debug(PARSEIPV6, 1, "Invalid IPv6 '%s' :::\n", s);
-			return BAD_IP;
-		}
 		out_i = 5;
 		current_block = 0;
 		goto loop2;
@@ -527,10 +507,6 @@ block6:
 	s++;
 	if (*s == ':') {
 		s++;
-		if (*s == ':') {
-			debug(PARSEIPV6, 1, "Invalid IPv6 '%s' :::\n", s);
-			return BAD_IP;
-		}
 		out_i = 6;
 		current_block = 0;
 		goto loop2;
@@ -646,6 +622,10 @@ loop2:
 	}
 	if (s > s_max)
 		return BAD_IP;
+	if (*s == ':') { /* not needed since next test will validate */
+		debug(PARSEIPV6, 1, "Invalid IPv6 '%s' :::\n", s);
+		return BAD_IP;
+	}
 	out_i2 = 0;
 	/* second loop, trying to get the right part after '::' */
 
