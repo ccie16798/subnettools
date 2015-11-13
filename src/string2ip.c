@@ -261,7 +261,6 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 	const char *p = s;
 	int c;
 
-block0:
 	/* first loop, before '::' if any */
 	if (*s == ':')
 		goto block1;
@@ -439,7 +438,101 @@ block4:
 		current_block = 0;
 		goto loop2;
 	}
-	out_i = 4;
+	current_block = hex_tab[*s];
+	if (current_block < 0 || s == s_max)
+		return BAD_IP;
+	/** digit 2 **/
+	s++;
+	if (*s == ':')
+		goto block5;
+	c = hex_tab[*s];
+	if (c < 0 || s == s_max)
+		return BAD_IP;
+	current_block <<= 4;
+	current_block += c;
+	/** digit 3 **/
+	s++;
+	if (*s == ':')
+		goto block5;
+	c = hex_tab[*s];
+	if (c < 0 || s == s_max)
+		return BAD_IP;
+	current_block <<= 4;
+	current_block += c;
+	/** digit 4 **/
+	s++;
+	if (*s == ':')
+		goto block5;
+	c = hex_tab[*s];
+	if (c < 0 || s == s_max)
+		return BAD_IP;
+	current_block <<= 4;
+	current_block += c;
+	s++;
+	if (*s != ':')
+		return BAD_IP;
+block5:
+	set_block(addr->ip6, 4, current_block);
+	s++;
+	if (*s == ':') {
+		s++;
+		if (*s == ':') {
+			debug(PARSEIPV6, 1, "Invalid IPv6 '%s' :::\n", s);
+			return BAD_IP;
+		}
+		out_i = 5;
+		current_block = 0;
+		goto loop2;
+	}
+	out_i = 5;
+	current_block = 0;
+	current_block = hex_tab[*s];
+	if (current_block < 0 || s == s_max)
+		return BAD_IP;
+	/** digit 2 **/
+	s++;
+	if (*s == ':')
+		goto block6;
+	c = hex_tab[*s];
+	if (c < 0 || s == s_max)
+		return BAD_IP;
+	current_block <<= 4;
+	current_block += c;
+	/** digit 3 **/
+	s++;
+	if (*s == ':')
+		goto block6;
+	c = hex_tab[*s];
+	if (c < 0 || s == s_max)
+		return BAD_IP;
+	current_block <<= 4;
+	current_block += c;
+	/** digit 4 **/
+	s++;
+	if (*s == ':')
+		goto block6;
+	c = hex_tab[*s];
+	if (c < 0 || s == s_max)
+		return BAD_IP;
+	current_block <<= 4;
+	current_block += c;
+	s++;
+	if (*s != ':')
+		return BAD_IP;
+block6:
+	set_block(addr->ip6, 5, current_block);
+	s++;
+	if (*s == ':') {
+		s++;
+		if (*s == ':') {
+			debug(PARSEIPV6, 1, "Invalid IPv6 '%s' :::\n", s);
+			return BAD_IP;
+		}
+		out_i = 6;
+		current_block = 0;
+		goto loop2;
+	}
+	out_i = 6;
 	current_block = 0;
 
 	while (1) {
