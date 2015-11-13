@@ -300,6 +300,7 @@ block1:
 		current_block = 0;
 		goto loop2;
 	}
+	/** digit 1 */
 	current_block = hex_tab[*s];
 	if (current_block < 0 || s == s_max)
 		return BAD_IP;
@@ -346,6 +347,7 @@ block2:
 		current_block = 0;
 		goto loop2;
 	}
+	/** digit 1 */
 	current_block = hex_tab[*s];
 	if (current_block < 0 || s == s_max)
 		return BAD_IP;
@@ -392,6 +394,7 @@ block3:
 		current_block = 0;
 		goto loop2;
 	}
+	/** digit 1 */
 	current_block = hex_tab[*s];
 	if (current_block < 0 || s == s_max)
 		return BAD_IP;
@@ -438,6 +441,7 @@ block4:
 		current_block = 0;
 		goto loop2;
 	}
+	/** digit 1 */
 	current_block = hex_tab[*s];
 	if (current_block < 0 || s == s_max)
 		return BAD_IP;
@@ -484,8 +488,7 @@ block5:
 		current_block = 0;
 		goto loop2;
 	}
-	out_i = 5;
-	current_block = 0;
+	/** digit 1 */
 	current_block = hex_tab[*s];
 	if (current_block < 0 || s == s_max)
 		return BAD_IP;
@@ -532,6 +535,7 @@ block6:
 		current_block = 0;
 		goto loop2;
 	}
+	/* block6 is special, we can find a MAPPED/EMBEDDED IPv4 there */
 	out_i = 6;
 	current_block = 0;
 
