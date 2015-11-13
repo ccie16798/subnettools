@@ -617,10 +617,6 @@ loop2:
 	}
 	if (s > s_max)
 		return BAD_IP;
-	if (*s == ':') { /* not needed since next test will validate */
-		debug(PARSEIPV6, 1, "Invalid IPv6 '%s' :::\n", s);
-		return BAD_IP;
-	}
 	out_i2 = 0;
 	/* second loop, trying to get the right part after '::' */
 
