@@ -594,7 +594,6 @@ try_ipv4:
 block7:
 	set_block(addr->ip6, 6, current_block);
 	s++;
-	out_i = 7;
 	if (*s == ':' || s == s_max)
 		return BAD_IP;
 	/** digit 1 */
@@ -633,12 +632,7 @@ block7:
 		goto out_loop1;
 	return BAD_IP;
 out_loop1:
-	if (out_i != 7) {
-		debug(PARSEIPV6, 3, "Invalid IPv6 '%s', only %d blocks\n",
-				p, out_i);
-		return BAD_IP;
-	}
-	set_block(addr->ip6, out_i, current_block);
+	set_block(addr->ip6, 7, current_block);
 	addr->ip_ver = IPV6_A;
 	return IPV6_A;
 loop2:
