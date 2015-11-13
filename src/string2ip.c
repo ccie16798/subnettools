@@ -638,12 +638,14 @@ out_loop1:
 	return IPV6_A;
 loop2:
 	/* handle special prefix case */
-	if (*s == 0 || s == s_max) {
+	if (*s == '\0' || s == s_max) {
 		for (j = out_i; j < 8; j++)
 			set_block(addr->ip6, j, 0);
 		addr->ip_ver = IPV6_A;
 		return IPV6_A;
 	}
+	if (s > s_max)
+		return BAD_IP;
 	out_i2 = 0;
 	/* second loop, trying to get the right part after '::' */
 
@@ -713,10 +715,6 @@ BOZO:
 			goto end_ipv6;
 		if (*s == ':') {
 			debug(PARSEIPV6, 3, "Invalid IPv6 '%s', two '::'\n", p);
-			return BAD_IP;
-		}
-		if (*s == '\0' || s == s_max) {
-			debug(PARSEIPV6, 3, "Invalid IPv6 '%s',ends with :'\n", p);
 			return BAD_IP;
 		}
 		out_i2++;
