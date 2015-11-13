@@ -293,7 +293,6 @@ block1:
 	if (*s == ':') {
 		s++;
 		out_i = 1;
-		current_block = 0;
 		goto loop2;
 	}
 	/** digit 1 */
@@ -336,7 +335,6 @@ block2:
 	if (*s == ':') {
 		s++;
 		out_i = 2;
-		current_block = 0;
 		goto loop2;
 	}
 	/** digit 1 */
@@ -379,7 +377,6 @@ block3:
 	if (*s == ':') {
 		s++;
 		out_i = 3;
-		current_block = 0;
 		goto loop2;
 	}
 	/** digit 1 */
@@ -422,7 +419,6 @@ block4:
 	if (*s == ':') {
 		s++;
 		out_i = 4;
-		current_block = 0;
 		goto loop2;
 	}
 	/** digit 1 */
@@ -465,7 +461,6 @@ block5:
 	if (*s == ':') {
 		s++;
 		out_i = 5;
-		current_block = 0;
 		goto loop2;
 	}
 	/** digit 1 */
@@ -508,7 +503,6 @@ block6:
 	if (*s == ':') {
 		s++;
 		out_i = 6;
-		current_block = 0;
 		goto loop2;
 	}
 	/* block6 is special, we can find a MAPPED/EMBEDDED IPv4 there */
@@ -612,6 +606,7 @@ out_loop1:
 	set_block(addr->ip6, 7, current_block);
 	addr->ip_ver = IPV6_A;
 	return IPV6_A;
+
 loop2:
 	/* handle special prefix case */
 	if (*s == '\0' || s == s_max) {
