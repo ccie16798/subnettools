@@ -254,7 +254,7 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 {
 	int j, k;
 	int out_i, out_i2;
-	unsigned short current_block = 0;
+	int current_block = 0;
 	unsigned short block_right[8];
 	struct ip_addr embedded;
 	const char *s_max = s + len;
@@ -713,10 +713,6 @@ BOZO:
 		s++;
 		if (*s == '\0' || s == s_max)
 			goto end_ipv6;
-		if (*s == ':') {
-			debug(PARSEIPV6, 3, "Invalid IPv6 '%s', two '::'\n", p);
-			return BAD_IP;
-		}
 		out_i2++;
 	}
 
