@@ -646,6 +646,106 @@ loop2:
 	}
 	out_i2 = 0;
 	/* second loop, trying to get the right part after '::' */
+
+	while (1) {
+		/** digit 1 */
+		current_block = hex_tab[*s];
+		if (current_block < 0)
+			return BAD_IP;
+		/** digit 2 **/
+		s++;
+		if (*s == '\0' || s == s_max)
+			goto end_ipv6;
+		if (*s == ':')
+			goto BOZO;
+		if (*s == '.') {
+			s -= 1;
+			goto try_ipv4_loop2;
+		}
+		c = hex_tab[*s];
+		if (c < 0)
+			return BAD_IP;
+		current_block <<= 4;
+		current_block += c;
+		/** digit 3 **/
+		s++;
+		if (*s == '\0' || s == s_max)
+			goto end_ipv6;
+		if (*s == ':')
+			goto BOZO;
+		if (*s == '.') {
+			s -= 2;
+			goto try_ipv4_loop2;
+		}
+		c = hex_tab[*s];
+		if (c < 0)
+			return BAD_IP;
+		current_block <<= 4;
+		current_block += c;
+		/** digit 4 **/
+		s++;
+		if (*s == '\0' || s == s_max)
+			goto end_ipv6;
+		if (*s == ':')
+			goto BOZO;
+		if (*s == '.') {
+			s -= 3;
+			goto try_ipv4_loop2;
+		}
+		c = hex_tab[*s];
+		if (c < 0)
+			return BAD_IP;
+		current_block <<= 4;
+		current_block += c;
+		s++;
+		if (*s == '\0' || s == s_max)
+			goto end_ipv6;
+		if (*s != ':')
+			return BAD_IP;
+BOZO:
+		if (out_i + out_i2 >= 6) {
+			debug(PARSEIPV6, 3, "Invalid IPv6 '%s',too many blocks\n", p);
+			return BAD_IP;
+		}
+		block_right[out_i2] = current_block;
+		s++;
+		if (*s == '\0' || s == s_max)
+			goto end_ipv6;
+		if (*s == ':') {
+			debug(PARSEIPV6, 3, "Invalid IPv6 '%s', two '::'\n", p);
+			return BAD_IP;
+		}
+		if (*s == '\0' || s == s_max) {
+			debug(PARSEIPV6, 3, "Invalid IPv6 '%s',ends with :'\n", p);
+			return BAD_IP;
+		}
+		out_i2++;
+	}
+
+try_ipv4_loop2:
+	debug_parseipv6(8, "String '%s' MAYBE embedded IPv4\n", s);
+	if (out_i + out_i2 > 5) {
+		debug(PARSEIPV6, 3,
+				"Invalid IPv6 '%s', need 6 blocks before IPv4\n",
+				s);
+		return IPV4_A;
+	}
+	j = string2addrv4(s, &embedded, s_max - s);
+	if (j < 0)
+		return j;
+	set_block(addr->ip6, 6,  embedded.ip >> 16);
+	set_block(addr->ip6, 7, (unsigned short)(embedded.ip & 0xFFFF));
+	addr->ip_ver = IPV6_A;
+	for (j = out_i; j < 6 - out_i2; j++) {
+		set_block(addr->ip6, j, 0);
+		debug_parseipv6(8, "copying '%x' to block#%d\n", 0, j);
+	}
+	for (k = 0 ; k < out_i2; k++, j++) {
+		debug_parseipv6(8, "copying '%x' to block#%d\n", block_right[k], j);
+		set_block(addr->ip6, j, block_right[k]);
+	}
+	return IPV6_A;
+
 	while (1) {
 		if (s == s_max)
 			goto end_ipv6;
