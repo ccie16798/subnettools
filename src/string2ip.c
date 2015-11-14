@@ -182,17 +182,16 @@ end_block3:
 		goto end_block4;
 	return BAD_MASK;
 end_block4:
-	if (!isPower2(256 - a)) {
-		debug_parseipv4(3,
-				"Invalid DDN mask, 256 - '%d' is not power of 2\n",
-				a);
-		return BAD_MASK;
+	if (a != 0) {
+		c = mask_tab[a];
+		if (c == 0)
+			return BAD_MASK;
+		if (a < 255 && prev_a != 255) { /* 255.240.224.0 */
+			debug_parseipv4(3, "Invalid DDN mask, wrong\n");
+			return BAD_MASK;
+		}
+		ddn_mask += c;
 	}
-	if (a && (a < 255) && (prev_a != 255)) { /* 255.240.224.0 */
-		debug_parseipv4(3, "Invalid DDN mask, wrong\n");
-		return BAD_MASK;
-	}
-	ddn_mask += mask_tab[a];
 	return ddn_mask;
 }
 
