@@ -264,6 +264,7 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 	/* first loop, before '::' if any */
 	if (*s == ':')
 		goto block1;
+	/* string2addr had made sure there are only xdigit up to a ':'; so no check */
 	/* digit 1 */
 	current_block = char2int(*s);
 	/* digit 2 */
