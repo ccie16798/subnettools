@@ -81,7 +81,6 @@ end_block1:
 		return BAD_MASK;
 	}
 	ddn_mask = 8 - mylog2(256 - a);
-	count_dot = 1;
 	prev_a = a;
 	s++;
 	/** digit 1 */
@@ -121,10 +120,88 @@ end_block2:
 		return BAD_MASK;
 	}
 	ddn_mask += 8 - mylog2(256 - a);
-	a = 0;
 	prev_a = a;
 	count_dot = 2;
 	s++;
+	/** digit 1 */
+	if (!isdigit(*s))
+		return BAD_MASK;
+	a = *s - '0';
+	s++;
+	/* digit 2 */
+	if (*s == '.')
+		goto end_block3;
+	if (!isdigit(*s))
+		return BAD_MASK;
+	a *= 10;
+	a += *s - '0';
+	s++;
+	/* digit 3 */
+	if (*s == '.')
+		goto end_block3;
+	if (!isdigit(*s))
+		return BAD_MASK;
+	a *= 10;
+	a += *s - '0';
+	if (a > prev_a)
+		return BAD_MASK;
+	s++;
+	if (*s != '.')
+		return BAD_MASK;
+end_block3:
+	if (!isPower2(256 - a)) {
+		debug_parseipv4(3,
+				"Invalid DDN mask, 256 - '%d' is not power of 2\n",
+				a);
+		return BAD_MASK;
+	}
+	if (a && (a < 255) && (prev_a != 255)) { /* 255.240.224.0 */
+		debug_parseipv4(3, "Invalid DDN mask, wrong\n");
+		return BAD_MASK;
+	}
+	ddn_mask += 8 - mylog2(256 - a);
+	prev_a = a;
+	count_dot = 3;
+	s++;
+	/* digit 1 */
+	if (!isdigit(*s))
+		return BAD_MASK;
+	a = *s - '0';
+	s++;
+	/* digit 2 */
+	if (*s == '\0' || s == s_max)
+		goto end_block4;
+	if (!isdigit(*s))
+		return BAD_MASK;
+	a *= 10;
+	a += *s - '0';
+	s++;
+	/* digit 3 */
+	if (*s == '\0' || s == s_max)
+		goto end_block4;
+	if (!isdigit(*s))
+		return BAD_MASK;
+	a *= 10;
+	a += *s - '0';
+	if (a > prev_a)
+		return BAD_MASK;
+	s++;
+	if (s == s_max || *s == '\0')
+		goto end_block4;
+	return BAD_MASK;
+end_block4:
+	if (!isPower2(256 - a)) {
+		debug_parseipv4(3,
+				"Invalid DDN mask, 256 - '%d' is not power of 2\n",
+				a);
+		return BAD_MASK;
+	}
+	if (a && (a < 255) && (prev_a != 255)) { /* 255.240.224.0 */
+		debug_parseipv4(3, "Invalid DDN mask, wrong\n");
+		return BAD_MASK;
+	}
+	ddn_mask += 8 - mylog2(256 - a);
+	return ddn_mask;
 
 	while (1) {
 		if (*s == '\0' || s == s_max) {
