@@ -29,8 +29,8 @@
 
 int string2mask(const char *s, size_t len)
 {
-	int ddn_mask = 0;
-	int a, prev_a = 0;
+	int ddn_mask;
+	int a, prev_a;
 	const char *s_max = s + len;
 #ifdef DEBUG_PARSE_IPV4
 	const char *p = s;
