@@ -73,6 +73,7 @@ end_block1:
 	if (a == 0)
 		ddn_mask = 0;
 	else {
+		/* if 'a' is a valid block like 255,248,128,.. mask_tab[a] is > 0 */
 		ddn_mask = mask_tab[a];
 		if (ddn_mask == 0)
 			return BAD_MASK;
