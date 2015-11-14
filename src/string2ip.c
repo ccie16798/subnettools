@@ -683,8 +683,8 @@ BOZO:
 		}
 		block_right[out_i2] = current_block;
 		s++;
-		if (*s == '\0' || s == s_max)
-			goto end_ipv6;
+		if (s == s_max) /* no check for NUL, will be caught by char2int */
+			return BAD_IP;
 		out_i2++;
 	}
 
