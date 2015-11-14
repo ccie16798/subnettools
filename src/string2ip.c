@@ -31,7 +31,7 @@ static const int mask_tab[] = { [0] = 0, [128] = 1, [192] = 2, [224] = 3,
 		[240] = 4, [248] = 5, [252] = 6, [254] = 7, [255] = 8 };
 int string2mask(const char *s, size_t len)
 {
-	int ddn_mask;
+	int ddn_mask, c;
 	int a, prev_a;
 	const char *s_max = s + len;
 
@@ -70,11 +70,13 @@ int string2mask(const char *s, size_t len)
 end_block1:
 	if (s_max - s < 6) /* s cannot hold for .0.0.0 */
 		return BAD_IP;
-	if (!isPower2(256 - a)) {
-		debug_parseipv4(3, "Invalid DDN mask, 256 - '%d' is not power of 2\n", a);
-		return BAD_MASK;
+	if (a == 0)
+		ddn_mask = 0;
+	else {
+		ddn_mask = mask_tab[a];
+		if (ddn_mask == 0)
+			return BAD_MASK;
 	}
-	ddn_mask = mask_tab[a];
 	prev_a = a;
 	s++;
 	/** digit 1 */
@@ -103,15 +105,16 @@ end_block1:
 end_block2:
 	if (s_max - s < 4) /* s cannot hold for .0.0 */
 		return BAD_IP;
-	if (!isPower2(256 - a)) {
-		debug_parseipv4(3, "Invalid DDN mask, 256 - '%d' is not power of 2\n", a);
-		return BAD_MASK;
+	if (a != 0) {
+		c = mask_tab[a];
+		if (c == 0)
+			return BAD_MASK;
+		if (a < 255 && prev_a != 255) { /* 255.240.224.0 */
+			debug_parseipv4(3, "Invalid DDN mask, wrong\n");
+			return BAD_MASK;
+		}
+		ddn_mask += c;
 	}
-	if (a && (a < 255) && (prev_a != 255)) { /* 255.240.224.0 */
-		debug_parseipv4(3, "Invalid DDN mask, wrong\n");
-		return BAD_MASK;
-	}
-	ddn_mask += mask_tab[a];
 	prev_a = a;
 	s++;
 	/** digit 1 */
@@ -138,15 +141,16 @@ end_block2:
 	if (*s != '.')
 		return BAD_MASK;
 end_block3:
-	if (!isPower2(256 - a)) {
-		debug_parseipv4(3, "Invalid DDN mask, 256 - '%d' is not power of 2\n", a);
-		return BAD_MASK;
+	if (a != 0) {
+		c = mask_tab[a];
+		if (c == 0)
+			return BAD_MASK;
+		if (a < 255 && prev_a != 255) { /* 255.240.224.0 */
+			debug_parseipv4(3, "Invalid DDN mask, wrong\n");
+			return BAD_MASK;
+		}
+		ddn_mask += c;
 	}
-	if (a && (a < 255) && (prev_a != 255)) { /* 255.240.224.0 */
-		debug_parseipv4(3, "Invalid DDN mask, wrong\n");
-		return BAD_MASK;
-	}
-	ddn_mask += mask_tab[a];
 	prev_a = a;
 	s++;
 	if (s == s_max)
