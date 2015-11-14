@@ -60,16 +60,20 @@ int string2mask(const char *s, size_t len)
 		return a;
 	if (*s == '.')
 		goto end_block1;
+	if (!isdigit(*s))
+		return BAD_IP;
 	a *= 10;
 	a += *s - '0';
+	s++;
 	if (*s == '\0' || s == s_max)
 		return a <= 128 ? a : BAD_MASK;
 	if (a > 255)
 		return BAD_MASK;
-	s++;
-	if (*s != '.') /* shouldn't be needed */
-		return BAD_IP;
+	if (*s != '.')
+		return BAD_MASK;
 end_block1:
+	if (s_max - s < 6) /* s cannot hold for .1.1.1 */
+		return BAD_IP;
 	if (!isPower2(256 - a)) {
 		debug_parseipv4(3,
 				"Invalid DDN mask, 256 - '%d' is not power of 2\n",
@@ -79,7 +83,47 @@ end_block1:
 	ddn_mask = 8 - mylog2(256 - a);
 	count_dot = 1;
 	prev_a = a;
+	s++;
+	/** digit 1 */
+	if (!isdigit(*s))
+		return BAD_MASK;
+	a = *s - '0';
+	s++;
+	/* digit 2 */
+	if (*s == '.')
+		goto end_block2;
+	if (!isdigit(*s))
+		return BAD_MASK;
+	a *= 10;
+	a += *s - '0';
+	s++;
+	/* digit 3 */
+	if (*s == '.')
+		goto end_block2;
+	if (!isdigit(*s))
+		return BAD_MASK;
+	a *= 10;
+	a += *s - '0';
+	if (a > prev_a)
+		return BAD_MASK;
+	s++;
+	if (*s != '.')
+		return BAD_MASK;
+end_block2:
+	if (!isPower2(256 - a)) {
+		debug_parseipv4(3,
+				"Invalid DDN mask, 256 - '%d' is not power of 2\n",
+				a);
+		return BAD_MASK;
+	}
+	if (a && (a < 255) && (prev_a != 255)) { /* 255.240.224.0 */
+		debug_parseipv4(3, "Invalid DDN mask, wrong\n");
+		return BAD_MASK;
+	}
+	ddn_mask += 8 - mylog2(256 - a);
 	a = 0;
+	prev_a = a;
+	count_dot = 2;
 	s++;
 
 	while (1) {
