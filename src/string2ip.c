@@ -42,8 +42,44 @@ int string2mask(const char *s, size_t len)
 		debug_parseipv4(3, "Invalid mask '%s', starts with '%c'\n", p, *s);
 		return BAD_MASK;
 	}
-	/* since we are sure it is a digit, avoid a loop iteration */
+	/** digit 1 */
 	a = *s - '0';
+	s++;
+	/** digit 2 */
+	if (*s == '\0' || s == s_max)
+		return a;
+	if (*s == '.')
+		goto end_block1;
+	if (!isdigit(*s))
+		return BAD_IP;
+	a *= 10;
+	a += *s - '0';
+	s++;
+	/** digit 3 */
+	if (*s == '\0' || s == s_max)
+		return a;
+	if (*s == '.')
+		goto end_block1;
+	a *= 10;
+	a += *s - '0';
+	if (*s == '\0' || s == s_max)
+		return a <= 128 ? a : BAD_MASK;
+	if (a > 255)
+		return BAD_MASK;
+	s++;
+	if (*s != '.') /* shouldn't be needed */
+		return BAD_IP;
+end_block1:
+	if (!isPower2(256 - a)) {
+		debug_parseipv4(3,
+				"Invalid DDN mask, 256 - '%d' is not power of 2\n",
+				a);
+		return BAD_MASK;
+	}
+	ddn_mask = 8 - mylog2(256 - a);
+	count_dot = 1;
+	prev_a = a;
+	a = 0;
 	s++;
 
 	while (1) {
