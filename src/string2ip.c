@@ -54,8 +54,6 @@ int string2mask(const char *s, size_t len)
 	/** digit 3 */
 	if (*s == '\0' || s == s_max)
 		return a;
-	if (*s == '.')
-		goto end_block1;
 	if (!isdigit(*s))
 		return BAD_MASK;
 	a *= 10;
@@ -91,8 +89,6 @@ end_block1:
 	a += *s - '0';
 	s++;
 	/* digit 3 */
-	if (*s == '.')
-		goto end_block2;
 	if (!isdigit(*s))
 		return BAD_MASK;
 	a *= 10;
@@ -130,8 +126,6 @@ end_block2:
 	a += *s - '0';
 	s++;
 	/* digit 3 */
-	if (*s == '.')
-		goto end_block3;
 	if (!isdigit(*s))
 		return BAD_MASK;
 	a *= 10;
