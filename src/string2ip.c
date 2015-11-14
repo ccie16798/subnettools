@@ -32,13 +32,10 @@ int string2mask(const char *s, size_t len)
 	int ddn_mask;
 	int a, prev_a;
 	const char *s_max = s + len;
-#ifdef DEBUG_PARSE_IPV4
-	const char *p = s;
-#endif
 
 	/* masks must begin with a digit */
 	if (!isdigit(*s)) {
-		debug_parseipv4(3, "Invalid mask '%s', starts with '%c'\n", p, *s);
+		debug_parseipv4(3, "Invalid mask '%s', starts with '%c'\n", s, *s);
 		return BAD_MASK;
 	}
 	/** digit 1 */
