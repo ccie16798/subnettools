@@ -206,18 +206,24 @@ static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 	if (len < 7)
 		return BAD_IP;
 	s_max = s + len;
-	/* string2addr has made sure that there are only digits up to the first '.'
-	 * so optimisize the calculation of the first block, without too much checks
+	/* string2addr has made sure that there are only xdigits up to the first '.'
+	 * so optimize the calculation of the first block, without too much checks
 	 */
+	if (*s > '9')
+		return BAD_IP;
 	current_block = *s - '0';
 	s++;
 	if (*s == '.')
 		goto end_block1;
+	if (*s > '9')
+		return BAD_IP;
 	current_block *= 10;
 	current_block += *s - '0';
 	s++;
 	if (*s == '.')
 		goto end_block1;
+	if (*s > '9')
+		return BAD_IP;
 	current_block *= 10;
 	current_block += *s - '0';
 	if (current_block > 255)
@@ -696,7 +702,7 @@ loop2:
 		if (*s == '\0' || s == s_max)
 			goto end_ipv6;
 		if (*s == ':')
-			goto BOZO;
+			goto block_xx;
 		if (*s == '.') {
 			s -= 1;
 			goto try_ipv4_loop2;
@@ -711,7 +717,7 @@ loop2:
 		if (*s == '\0' || s == s_max)
 			goto end_ipv6;
 		if (*s == ':')
-			goto BOZO;
+			goto block_xx;
 		if (*s == '.') {
 			s -= 2;
 			goto try_ipv4_loop2;
@@ -726,7 +732,7 @@ loop2:
 		if (*s == '\0' || s == s_max)
 			goto end_ipv6;
 		if (*s == ':')
-			goto BOZO;
+			goto block_xx;
 		if (*s == '.') {
 			s -= 3;
 			goto try_ipv4_loop2;
@@ -741,7 +747,7 @@ loop2:
 			goto end_ipv6;
 		if (*s != ':')
 			return BAD_IP;
-BOZO:
+block_xx:
 		if (out_i + out_i2 >= 6) {
 			debug(PARSEIPV6, 3, "Invalid IPv6 '%s',too many blocks\n", p);
 			return BAD_IP;
