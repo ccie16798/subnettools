@@ -265,25 +265,25 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 	if (*s == ':')
 		goto block1;
 	/* digit 1 */
-	current_block = hex_tab[*s];
+	current_block = char2int(*s);
 	/* digit 2 */
 	s++;
 	if (*s == ':')
 		goto block1;
 	current_block <<= 4;
-	current_block += hex_tab[*s];
+	current_block += char2int(*s);
 	/* digit 3 */
 	s++;
 	if (*s == ':')
 		goto block1;
 	current_block <<= 4;
-	current_block += hex_tab[*s];
+	current_block += char2int(*s);
 	/* digit 4 */
 	s++;
 	if (*s == ':')
 		goto block1;
 	current_block <<= 4;
-	current_block += hex_tab[*s];
+	current_block += char2int(*s);
 	s++;
 	if (*s != ':')
 		return BAD_IP;
@@ -296,14 +296,14 @@ block1:
 		goto loop2;
 	}
 	/** digit 1 */
-	current_block = hex_tab[*s];
+	current_block = char2int(*s);
 	if (current_block < 0 || s >= s_max - 2) /* space for '1::' needs 3 char */
 		return BAD_IP;
 	/** digit 2 **/
 	s++;
 	if (*s == ':')
 		goto block2;
-	c = hex_tab[*s];
+	c = char2int(*s);
 	if (c < 0 || s == s_max)
 		return BAD_IP;
 	current_block <<= 4;
@@ -312,7 +312,7 @@ block1:
 	s++;
 	if (*s == ':')
 		goto block2;
-	c = hex_tab[*s];
+	c = char2int(*s);
 	if (c < 0 || s == s_max)
 		return BAD_IP;
 	current_block <<= 4;
@@ -321,7 +321,7 @@ block1:
 	s++;
 	if (*s == ':')
 		goto block2;
-	c = hex_tab[*s];
+	c = char2int(*s);
 	if (c < 0 || s == s_max)
 		return BAD_IP;
 	current_block <<= 4;
@@ -338,14 +338,14 @@ block2:
 		goto loop2;
 	}
 	/** digit 1 */
-	current_block = hex_tab[*s];
+	current_block = char2int(*s);
 	if (current_block < 0 || s >= s_max - 2)
 		return BAD_IP;
 	/** digit 2 **/
 	s++;
 	if (*s == ':')
 		goto block3;
-	c = hex_tab[*s];
+	c = char2int(*s);
 	if (c < 0 || s == s_max)
 		return BAD_IP;
 	current_block <<= 4;
@@ -354,7 +354,7 @@ block2:
 	s++;
 	if (*s == ':')
 		goto block3;
-	c = hex_tab[*s];
+	c = char2int(*s);
 	if (c < 0 || s == s_max)
 		return BAD_IP;
 	current_block <<= 4;
@@ -363,7 +363,7 @@ block2:
 	s++;
 	if (*s == ':')
 		goto block3;
-	c = hex_tab[*s];
+	c = char2int(*s);
 	if (c < 0 || s == s_max)
 		return BAD_IP;
 	current_block <<= 4;
@@ -380,14 +380,14 @@ block3:
 		goto loop2;
 	}
 	/** digit 1 */
-	current_block = hex_tab[*s];
+	current_block = char2int(*s);
 	if (current_block < 0 || s >= s_max - 2)
 		return BAD_IP;
 	/** digit 2 **/
 	s++;
 	if (*s == ':')
 		goto block4;
-	c = hex_tab[*s];
+	c = char2int(*s);
 	if (c < 0 || s == s_max)
 		return BAD_IP;
 	current_block <<= 4;
@@ -396,7 +396,7 @@ block3:
 	s++;
 	if (*s == ':')
 		goto block4;
-	c = hex_tab[*s];
+	c = char2int(*s);
 	if (c < 0 || s == s_max)
 		return BAD_IP;
 	current_block <<= 4;
@@ -405,7 +405,7 @@ block3:
 	s++;
 	if (*s == ':')
 		goto block4;
-	c = hex_tab[*s];
+	c = char2int(*s);
 	if (c < 0 || s == s_max)
 		return BAD_IP;
 	current_block <<= 4;
@@ -422,14 +422,14 @@ block4:
 		goto loop2;
 	}
 	/** digit 1 */
-	current_block = hex_tab[*s];
+	current_block = char2int(*s);
 	if (current_block < 0 || s >= s_max - 2)
 		return BAD_IP;
 	/** digit 2 **/
 	s++;
 	if (*s == ':')
 		goto block5;
-	c = hex_tab[*s];
+	c = char2int(*s);
 	if (c < 0 || s == s_max)
 		return BAD_IP;
 	current_block <<= 4;
@@ -438,7 +438,7 @@ block4:
 	s++;
 	if (*s == ':')
 		goto block5;
-	c = hex_tab[*s];
+	c = char2int(*s);
 	if (c < 0 || s == s_max)
 		return BAD_IP;
 	current_block <<= 4;
@@ -447,7 +447,7 @@ block4:
 	s++;
 	if (*s == ':')
 		goto block5;
-	c = hex_tab[*s];
+	c = char2int(*s);
 	if (c < 0 || s == s_max)
 		return BAD_IP;
 	current_block <<= 4;
@@ -464,14 +464,14 @@ block5:
 		goto loop2;
 	}
 	/** digit 1 */
-	current_block = hex_tab[*s];
+	current_block = char2int(*s);
 	if (current_block < 0 || s >= s_max - 2)
 		return BAD_IP;
 	/** digit 2 **/
 	s++;
 	if (*s == ':')
 		goto block6;
-	c = hex_tab[*s];
+	c = char2int(*s);
 	if (c < 0 || s == s_max)
 		return BAD_IP;
 	current_block <<= 4;
@@ -480,7 +480,7 @@ block5:
 	s++;
 	if (*s == ':')
 		goto block6;
-	c = hex_tab[*s];
+	c = char2int(*s);
 	if (c < 0 || s == s_max)
 		return BAD_IP;
 	current_block <<= 4;
@@ -489,7 +489,7 @@ block5:
 	s++;
 	if (*s == ':')
 		goto block6;
-	c = hex_tab[*s];
+	c = char2int(*s);
 	if (c < 0 || s == s_max)
 		return BAD_IP;
 	current_block <<= 4;
@@ -506,7 +506,7 @@ block6:
 		goto loop2;
 	}
 	/* block6 is special, we can find a MAPPED/EMBEDDED IPv4 there */
-	current_block = hex_tab[*s];
+	current_block = char2int(*s);
 	if (current_block < 0 || s >= s_max - 2)
 		return BAD_IP;
 	/** digit 2 **/
@@ -517,7 +517,7 @@ block6:
 		s -= 1;
 		goto try_ipv4;
 	}
-	c = hex_tab[*s];
+	c = char2int(*s);
 	if (c < 0 || s == s_max)
 		return BAD_IP;
 	current_block <<= 4;
@@ -530,7 +530,7 @@ block6:
 		s -= 2;
 		goto try_ipv4;
 	}
-	c = hex_tab[*s];
+	c = char2int(*s);
 	if (c < 0 || s == s_max)
 		return BAD_IP;
 	current_block <<= 4;
@@ -543,7 +543,7 @@ block6:
 		s -= 3;
 		goto try_ipv4;
 	}
-	c = hex_tab[*s];
+	c = char2int(*s);
 	if (c < 0 || s == s_max)
 		return BAD_IP;
 	current_block <<= 4;
@@ -568,14 +568,14 @@ block7:
 	if (*s == ':' || s >= s_max)
 		return BAD_IP;
 	/** digit 1 */
-	current_block = hex_tab[*s];
+	current_block = char2int(*s);
 	if (current_block < 0)
 		return BAD_IP;
 	/** digit 2 **/
 	s++;
 	if (*s == '\0' || s == s_max)
 		goto out_loop1;
-	c = hex_tab[*s];
+	c = char2int(*s);
 	if (c < 0)
 		return BAD_IP;
 	current_block <<= 4;
@@ -584,7 +584,7 @@ block7:
 	s++;
 	if (*s == '\0' || s == s_max)
 		goto out_loop1;
-	c = hex_tab[*s];
+	c = char2int(*s);
 	if (c < 0)
 		return BAD_IP;
 	current_block <<= 4;
@@ -593,7 +593,7 @@ block7:
 	s++;
 	if (*s == '\0' || s == s_max)
 		goto out_loop1;
-	c = hex_tab[*s];
+	c = char2int(*s);
 	if (c < 0)
 		return BAD_IP;
 	current_block <<= 4;
@@ -622,7 +622,7 @@ loop2:
 
 	while (1) {
 		/** digit 1 */
-		current_block = hex_tab[*s];
+		current_block = char2int(*s);
 		if (current_block < 0)
 			return BAD_IP;
 		/** digit 2 **/
@@ -635,7 +635,7 @@ loop2:
 			s -= 1;
 			goto try_ipv4_loop2;
 		}
-		c = hex_tab[*s];
+		c = char2int(*s);
 		if (c < 0)
 			return BAD_IP;
 		current_block <<= 4;
@@ -650,7 +650,7 @@ loop2:
 			s -= 2;
 			goto try_ipv4_loop2;
 		}
-		c = hex_tab[*s];
+		c = char2int(*s);
 		if (c < 0)
 			return BAD_IP;
 		current_block <<= 4;
@@ -665,7 +665,7 @@ loop2:
 			s -= 3;
 			goto try_ipv4_loop2;
 		}
-		c = hex_tab[*s];
+		c = char2int(*s);
 		if (c < 0)
 			return BAD_IP;
 		current_block <<= 4;
