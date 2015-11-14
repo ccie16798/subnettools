@@ -74,9 +74,7 @@ end_block1:
 	if (s_max - s < 6) /* s cannot hold for .1.1.1 */
 		return BAD_IP;
 	if (!isPower2(256 - a)) {
-		debug_parseipv4(3,
-				"Invalid DDN mask, 256 - '%d' is not power of 2\n",
-				a);
+		debug_parseipv4(3, "Invalid DDN mask, 256 - '%d' is not power of 2\n", a);
 		return BAD_MASK;
 	}
 	ddn_mask = 8 - mylog2(256 - a);
@@ -109,9 +107,7 @@ end_block1:
 		return BAD_MASK;
 end_block2:
 	if (!isPower2(256 - a)) {
-		debug_parseipv4(3,
-				"Invalid DDN mask, 256 - '%d' is not power of 2\n",
-				a);
+		debug_parseipv4(3, "Invalid DDN mask, 256 - '%d' is not power of 2\n", a);
 		return BAD_MASK;
 	}
 	if (a && (a < 255) && (prev_a != 255)) { /* 255.240.224.0 */
@@ -148,9 +144,7 @@ end_block2:
 		return BAD_MASK;
 end_block3:
 	if (!isPower2(256 - a)) {
-		debug_parseipv4(3,
-				"Invalid DDN mask, 256 - '%d' is not power of 2\n",
-				a);
+		debug_parseipv4(3, "Invalid DDN mask, 256 - '%d' is not power of 2\n", a);
 		return BAD_MASK;
 	}
 	if (a && (a < 255) && (prev_a != 255)) { /* 255.240.224.0 */
@@ -296,14 +290,14 @@ end_block3:
 	current_block = *s - '0';
 	s++;
 	if (s == s_max || *s == '\0')
-		goto out_ipv4;
+		goto end_block4;
 	if (!isdigit(*s))
 		return BAD_IP;
 	current_block *= 10;
 	current_block += *s - '0';
 	s++;
 	if (s == s_max || *s == '\0')
-		goto out_ipv4;
+		goto end_block4;
 	if (!isdigit(*s))
 		return BAD_IP;
 	current_block *= 10;
@@ -312,9 +306,9 @@ end_block3:
 		return BAD_IP;
 	s++;
 	if (s == s_max || *s == '\0')
-		goto out_ipv4;
+		goto end_block4;
 	return BAD_IP;
-out_ipv4:
+end_block4:
 	addr->ip = (block0 << 24) + (block1 << 16) + (block2 << 8) + current_block;
 	addr->ip_ver = IPV4_A;
 	return IPV4_A;
