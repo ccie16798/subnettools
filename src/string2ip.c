@@ -50,7 +50,7 @@ int string2mask(const char *s, size_t len)
 	if (*s == '.')
 		goto end_block1;
 	if (!isdigit(*s))
-		return BAD_IP;
+		return BAD_MASK;
 	a *= 10;
 	a += *s - '0';
 	s++;
@@ -60,7 +60,7 @@ int string2mask(const char *s, size_t len)
 	if (*s == '.')
 		goto end_block1;
 	if (!isdigit(*s))
-		return BAD_IP;
+		return BAD_MASK;
 	a *= 10;
 	a += *s - '0';
 	s++;
@@ -71,7 +71,7 @@ int string2mask(const char *s, size_t len)
 	if (*s != '.')
 		return BAD_MASK;
 end_block1:
-	if (s_max - s < 6) /* s cannot hold for .1.1.1 */
+	if (s_max - s < 6) /* s cannot hold for .0.0.0 */
 		return BAD_IP;
 	if (!isPower2(256 - a)) {
 		debug_parseipv4(3, "Invalid DDN mask, 256 - '%d' is not power of 2\n", a);
@@ -106,6 +106,8 @@ end_block1:
 	if (*s != '.')
 		return BAD_MASK;
 end_block2:
+	if (s_max - s < 4) /* s cannot hold for .0.0 */
+		return BAD_IP;
 	if (!isPower2(256 - a)) {
 		debug_parseipv4(3, "Invalid DDN mask, 256 - '%d' is not power of 2\n", a);
 		return BAD_MASK;
@@ -154,6 +156,8 @@ end_block3:
 	ddn_mask += 8 - mylog2(256 - a);
 	prev_a = a;
 	s++;
+	if (s == s_max)
+		return BAD_MASK;
 	/* digit 1 */
 	if (!isdigit(*s))
 		return BAD_MASK;
