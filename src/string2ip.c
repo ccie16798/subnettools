@@ -27,6 +27,8 @@
 #include "utils.h"
 #include "string2ip.h"
 
+static const int mask_tab[] = { [0] = 0, [128] = 1, [192] = 2, [224] = 3,
+		[240] = 4, [248] = 5, [252] = 6, [254] = 7, [255] = 8 };
 int string2mask(const char *s, size_t len)
 {
 	int ddn_mask;
@@ -72,7 +74,7 @@ end_block1:
 		debug_parseipv4(3, "Invalid DDN mask, 256 - '%d' is not power of 2\n", a);
 		return BAD_MASK;
 	}
-	ddn_mask = 8 - mylog2(256 - a);
+	ddn_mask = mask_tab[a];
 	prev_a = a;
 	s++;
 	/** digit 1 */
@@ -109,7 +111,7 @@ end_block2:
 		debug_parseipv4(3, "Invalid DDN mask, wrong\n");
 		return BAD_MASK;
 	}
-	ddn_mask += 8 - mylog2(256 - a);
+	ddn_mask += mask_tab[a];
 	prev_a = a;
 	s++;
 	/** digit 1 */
@@ -144,7 +146,7 @@ end_block3:
 		debug_parseipv4(3, "Invalid DDN mask, wrong\n");
 		return BAD_MASK;
 	}
-	ddn_mask += 8 - mylog2(256 - a);
+	ddn_mask += mask_tab[a];
 	prev_a = a;
 	s++;
 	if (s == s_max)
@@ -186,7 +188,7 @@ end_block4:
 		debug_parseipv4(3, "Invalid DDN mask, wrong\n");
 		return BAD_MASK;
 	}
-	ddn_mask += 8 - mylog2(256 - a);
+	ddn_mask += mask_tab[a];
 	return ddn_mask;
 }
 
