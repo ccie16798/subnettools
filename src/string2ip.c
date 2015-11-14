@@ -370,7 +370,7 @@ block1:
 	if (*s == ':')
 		goto block2;
 	c = char2int(*s);
-	if (c < 0 || s == s_max)
+	if (c < 0)
 		return BAD_IP;
 	current_block <<= 4;
 	current_block += c;
@@ -379,7 +379,7 @@ block1:
 	if (*s == ':')
 		goto block2;
 	c = char2int(*s);
-	if (c < 0 || s == s_max)
+	if (c < 0)
 		return BAD_IP;
 	current_block <<= 4;
 	current_block += c;
@@ -412,7 +412,7 @@ block2:
 	if (*s == ':')
 		goto block3;
 	c = char2int(*s);
-	if (c < 0 || s == s_max)
+	if (c < 0)
 		return BAD_IP;
 	current_block <<= 4;
 	current_block += c;
@@ -421,7 +421,7 @@ block2:
 	if (*s == ':')
 		goto block3;
 	c = char2int(*s);
-	if (c < 0 || s == s_max)
+	if (c < 0)
 		return BAD_IP;
 	current_block <<= 4;
 	current_block += c;
@@ -454,7 +454,7 @@ block3:
 	if (*s == ':')
 		goto block4;
 	c = char2int(*s);
-	if (c < 0 || s == s_max)
+	if (c < 0)
 		return BAD_IP;
 	current_block <<= 4;
 	current_block += c;
@@ -463,7 +463,7 @@ block3:
 	if (*s == ':')
 		goto block4;
 	c = char2int(*s);
-	if (c < 0 || s == s_max)
+	if (c < 0)
 		return BAD_IP;
 	current_block <<= 4;
 	current_block += c;
@@ -496,7 +496,7 @@ block4:
 	if (*s == ':')
 		goto block5;
 	c = char2int(*s);
-	if (c < 0 || s == s_max)
+	if (c < 0)
 		return BAD_IP;
 	current_block <<= 4;
 	current_block += c;
@@ -505,7 +505,7 @@ block4:
 	if (*s == ':')
 		goto block5;
 	c = char2int(*s);
-	if (c < 0 || s == s_max)
+	if (c < 0)
 		return BAD_IP;
 	current_block <<= 4;
 	current_block += c;
@@ -538,7 +538,7 @@ block5:
 	if (*s == ':')
 		goto block6;
 	c = char2int(*s);
-	if (c < 0 || s == s_max)
+	if (c < 0)
 		return BAD_IP;
 	current_block <<= 4;
 	current_block += c;
@@ -547,7 +547,7 @@ block5:
 	if (*s == ':')
 		goto block6;
 	c = char2int(*s);
-	if (c < 0 || s == s_max)
+	if (c < 0)
 		return BAD_IP;
 	current_block <<= 4;
 	current_block += c;
@@ -584,7 +584,7 @@ block6:
 		goto try_ipv4;
 	}
 	c = char2int(*s);
-	if (c < 0 || s == s_max)
+	if (c < 0)
 		return BAD_IP;
 	current_block <<= 4;
 	current_block += c;
@@ -597,7 +597,7 @@ block6:
 		goto try_ipv4;
 	}
 	c = char2int(*s);
-	if (c < 0 || s == s_max)
+	if (c < 0)
 		return BAD_IP;
 	current_block <<= 4;
 	current_block += c;
