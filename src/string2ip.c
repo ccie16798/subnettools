@@ -325,7 +325,7 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 {
 	int j, k;
 	int out_i, out_i2;
-	int current_block = 0;
+	int current_block;
 	unsigned short block_right[8];
 	struct ip_addr embedded;
 	const char *s_max = s + len;
@@ -333,8 +333,10 @@ static int string2addrv6(const char *s, struct ip_addr *addr, size_t len)
 	int c;
 
 	/* first loop, before '::' if any */
-	if (*s == ':')
+	if (*s == ':') {
+		current_block = 0;
 		goto block1;
+	}
 	/* string2addr had made sure there are only xdigit up to a ':'; so no check */
 	/* digit 1 */
 	current_block = char2int(*s);
