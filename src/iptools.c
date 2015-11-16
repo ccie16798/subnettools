@@ -24,17 +24,6 @@ sprint_hex(short)
 sprint_unsigned(int)
 
 
-inline void zero_ipaddr(struct ip_addr *a)
-{
-	memset(a, 0, sizeof(struct ip_addr));
-}
-
-inline int is_equal_ipv6(ipv6 ip1, ipv6 ip2)
-{
-	return !(ip1.n32[0] != ip2.n32[0] || ip1.n32[1] != ip2.n32[1] ||
-			ip1.n32[2] != ip2.n32[2] || ip1.n32[3] != ip2.n32[3]);
-}
-
 int is_equal_ip(struct ip_addr *ip1, struct ip_addr *ip2)
 {
 	if (ip1->ip_ver != ip2->ip_ver)

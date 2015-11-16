@@ -99,8 +99,17 @@ static inline void copy_subnet(struct subnet *a, const struct subnet *b)
 	memcpy(a, b, sizeof(*b));
 }
 
-void zero_ipaddr(struct ip_addr *a);
-int is_equal_ipv6(ipv6 ip1, ipv6 ip2);
+static inline void zero_ipaddr(struct ip_addr *a)
+{
+	memset(a, 0, sizeof(struct ip_addr));
+}
+
+static inline int is_equal_ipv6(ipv6 ip1, ipv6 ip2)
+{
+	return !(ip1.n32[0] != ip2.n32[0] || ip1.n32[1] != ip2.n32[1] ||
+			ip1.n32[2] != ip2.n32[2] || ip1.n32[3] != ip2.n32[3]);
+}
+
 int is_equal_ip(struct ip_addr *ip1, struct ip_addr *p2);
 
 int ipv6_is_link_local(ipv6 a);
