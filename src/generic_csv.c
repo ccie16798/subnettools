@@ -1,5 +1,5 @@
 /*
- *  Generic CSV parser functions
+ * Generic CSV parser functions
  *
  * Copyright (C) 2014, 2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
@@ -149,7 +149,7 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
  *	>0 on success
  *	<0 on ERROR
  */
-static int read_csv_body(FILE *f, struct csv_file *cf,
+static int read_csv_body(struct st_file *f, struct csv_file *cf,
 		struct csv_state *state, void *data,
 		char *init_buffer)
 {
@@ -165,7 +165,7 @@ static int read_csv_body(FILE *f, struct csv_file *cf,
 		s = init_buffer;
 		res = 0;
 	} else {
-		s = fgets_truncate_buffer(buffer, CSV_MAX_LINE_LEN, f, &res);
+		s = st_getline_truncate(f, CSV_MAX_LINE_LEN, &i, &res);
 		if (s == NULL) {
 			debug(LOAD_CSV, 1, "File %s doesn't have any content\n", cf->file_name);
 			return  CSV_EMPTY_FILE;
@@ -265,7 +265,7 @@ static int read_csv_body(FILE *f, struct csv_file *cf,
 		}
 		if (state->badline)
 			badlines++;
-	} while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res)) != NULL);
+	} while ((s = st_getline_truncate(f, sizeof(buffer), &i, &res)) != NULL);
 
 	/* end of file */
 	if (cf->endoffile_callback)
@@ -293,7 +293,7 @@ static void free_csv_field(struct csv_field *cf)
 int generic_load_csv(const char *filename, struct csv_file *cf,
 		struct csv_state *state, void *data)
 {
-	FILE *f;
+	struct st_file *f;
 	char buffer[CSV_MAX_LINE_LEN];
 	char *s;
 	int res, res2 = 0;
@@ -302,36 +302,32 @@ int generic_load_csv(const char *filename, struct csv_file *cf,
 		fprintf(stderr, "coding error:  no strtok function provided\n");
 		return -2;
 	}
-	if (filename == NULL)
-		f = stdin;
-	else {
-		f = fopen(filename, "r");
-		if (f == NULL) {
-			fprintf(stderr, "cannot open %s for reading\n", filename);
-			return CSV_CANNOT_OPEN_FILE;
-		}
+	f = st_open(filename, 128000);
+	if (f == NULL) {
+		fprintf(stderr, "cannot open %s for reading\n", filename);
+		return CSV_CANNOT_OPEN_FILE;
 	}
-	s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res);
+	s = st_getline_truncate(f, sizeof(buffer), &res2, &res);
 	if (s == NULL) {
 		fprintf(stderr, "empty file %s\n", filename ? filename : "<stdin>");
-		fclose(f);
+		st_close(f);
 		return CSV_EMPTY_FILE;
 	} else if (res) {
 		fprintf(stderr, "%s CSV header is longer than the allowed size %d\n",
 			 (filename ? filename : "<stdin>"), (int)sizeof(buffer));
-		fclose(f);
+		st_close(f);
 		return CSV_HEADER_TOOLONG;
 	}
-	res = read_csv_header(buffer, cf);
+	res = read_csv_header(s, cf);
 	if (res < 0) {
 		free_csv_field(cf->csv_field);
-		fclose(f);
+		st_close(f);
 		return res;
 	}
 	if (cf->validate_header) {
 		res2 = cf->validate_header(cf, data);
 		if (res2 < 0) {
-			fclose(f);
+			st_close(f);
 			free_csv_field(cf->csv_field);
 			return res2;
 		}
@@ -340,13 +336,13 @@ int generic_load_csv(const char *filename, struct csv_file *cf,
 	if (res == CSV_HEADER_FOUND) /* first line was a header, no need to put initial_buff */
 		res = read_csv_body(f, cf, state, data, NULL);
 	else if (res == CSV_NO_HEADER) /* we need to pass initial buff */
-		res = read_csv_body(f, cf, state, data, buffer);
+		res = read_csv_body(f, cf, state, data, s);
 	else {
 		fprintf(stderr, "BUG at %s line %d, invalid res=%d\n", __FILE__, __LINE__, res);
 		res = -3;
 	}
 	free_csv_field(cf->csv_field);
-	fclose(f);
+	st_close(f);
 	return res;
 }
 
