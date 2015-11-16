@@ -18,7 +18,10 @@ static inline void zero_route(struct route *a)
 	memset(a, 0, sizeof(struct route));
 }
 
-static inline void init_route(struct route *a)
+/* __init_route: set only required fields to zero
+ * @a  : the route to init
+ */
+static inline void __init_route(struct route *a)
 {
 	a->subnet.ip_ver = 0;
 	a->subnet.mask   = 0;

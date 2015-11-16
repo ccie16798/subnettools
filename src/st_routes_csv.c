@@ -63,18 +63,19 @@ void free_subnet_file(struct subnet_file *sf)
 	sf->ea_nr = 0;
 }
 
-/* sf_alloc_route_ea
- * alloc Extended Attribute array and copy name from sf->ea
+/* sf_init_route: init a route in a subnet_file
+ * alloc  Extended Attribute array and copy EA names from sf->ea int routes
  * @sf  : the subnet file
  * @n   : the element to alloc_memory
  * returns:
  *	1  on SUCCESS
  *	-1 on ENOMEM
  */
-int sf_alloc_route_ea(struct subnet_file *sf, unsigned long n)
+static int sf_init_route(struct subnet_file *sf, unsigned long n)
 {
 	int res, i;
 
+	__init_route(&sf->routes[n]);
 	res = alloc_route_ea(&sf->routes[n], sf->ea_nr);
 	if (res < 0) /* routes->ea will be set to NULL, an d ea_nr to zero */
 		return res;
@@ -214,8 +215,7 @@ static int netcsv_endofline_callback(struct csv_state *state, void *data)
 		sf->max_nr *= 2;
 		sf->routes = new_r;
 	}
-	zero_route(&sf->routes[sf->nr]);
-	res = sf_alloc_route_ea(sf, sf->nr);
+	res = sf_init_route(sf, sf->nr);
 	if (res < 0)
 		return CSV_CATASTROPHIC_FAILURE;
 	state->state[0] = 0; /* state[0] = we found a mask */
@@ -248,9 +248,8 @@ static int netcsv_validate_header(struct csv_file *cf, void *data)
 				return -1;
 		}
 	}
-	zero_route(&sf->routes[0]);
 	/* alloc EA for routes[0] */
-	res = sf_alloc_route_ea(sf, 0);
+	res = sf_init_route(sf, 0);
 	if (res < 0)
 		return res;
 	return 1;
