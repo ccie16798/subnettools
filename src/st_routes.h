@@ -12,12 +12,21 @@ struct route {
 	struct ipam_ea *ea; /* Extended Attributes */
 };
 
+
+static inline void zero_route(struct route *a)
+{
+	memset(a, 0, sizeof(struct route));
+}
+
 /* copy_route can be used if it is just moving route from one container to another
  * clone_route MUST BE used if the src route is still referenced
  */
-void copy_route(struct route *dst, const struct route *src);
-/* clone src into dest
- * if dest had alloc'ed buffer, free tham
+static inline void copy_route(struct route *a, const struct route *b)
+{
+	memcpy(a, b, sizeof(struct route));
+}
+/* clone src into dest, allocating new buffer to dst
+ * if dest had alloc'ed buffer, free them
  *
  * returns:
  *	1  on success
@@ -34,7 +43,6 @@ int clone_route(struct route *dst, const struct route *src);
  */
 int clone_route_nofree(struct route *dst, const struct route *src);
 
-void zero_route(struct route *a);
 void zero_route_ea(struct route *a);
 
 /*
