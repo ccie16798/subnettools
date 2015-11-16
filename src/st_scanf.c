@@ -1542,7 +1542,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			continue;
 		default:
 			c = *f;
-			if (*f == '\\') {
+			if (c == '\\') {
 				f++;
 				c = escape_char(*f);
 				if (c == '\0') {
@@ -1559,7 +1559,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 					goto end_nomatch;
 				continue;
 			}
-			if (EVAL_CHAR(*p) != EVAL_CHAR(*f)) {
+			if (EVAL_CHAR(*p) != EVAL_CHAR(c)) {
 				debug(SCANF, 2, "in[%d]='%c', != fmt[%d]='%c', exiting\n",
 						 (int)(p - in), *p, (int)(fmt - f), *f);
 				goto end_nomatch;
@@ -1574,6 +1574,7 @@ end_nomatch:
 	else
 		return n_found;
 }
+
 #ifdef CASE_INSENSITIVE
 int st_vscanf_ci(const char *in, const char *fmt, va_list ap)
 {
@@ -1596,6 +1597,7 @@ int st_sscanf_ci(const char *in, const char *fmt, ...)
 	return ret;
 }
 #else
+
 int st_vscanf(const char *in, const char *fmt, va_list ap)
 {
 	int res;
