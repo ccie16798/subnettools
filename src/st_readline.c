@@ -33,12 +33,17 @@ struct st_file *st_open(const char *name, int buffer_size)
 	int a;
 	struct st_file *f;
 
-	a = open(name, O_RDONLY);
-	if (a < 0)
-		return NULL;
+	if (name == NULL)
+		a = 0;
+	else {
+		a = open(name, O_RDONLY);
+		if (a < 0)
+			return NULL;
+	}
 	f = malloc(sizeof(struct st_file));
 	if (f == NULL) {
-		close(a);
+		if (a)
+			close(a);
 		return NULL;
 	}
 	if (buffer_size < 1024)
@@ -46,7 +51,8 @@ struct st_file *st_open(const char *name, int buffer_size)
 	f->buffer = malloc(buffer_size);
 	if (f->buffer == NULL) {
 		free(f);
-		close(a);
+		if (a)
+			close(a);
 		return NULL;
 	}
 	f->buffer_size  = buffer_size;
@@ -60,7 +66,8 @@ struct st_file *st_open(const char *name, int buffer_size)
 
 void st_close(struct st_file *f)
 {
-	close(f->fileno);
+	if (f->fileno)
+		close(f->fileno);
 	free(f->buffer);
 	free(f);
 }

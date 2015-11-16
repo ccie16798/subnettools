@@ -13,7 +13,7 @@ struct st_file {
 
 
 /* st_open: open a file R/O
- * @name : name of the file
+ * @name : name of the file; if NULL, open stdin
  * @buffer_size : size of internal buffer
  * returns:
  *	pointer to malloc struct on SUCCESS
