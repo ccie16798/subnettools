@@ -18,6 +18,13 @@ static inline void zero_route(struct route *a)
 	memset(a, 0, sizeof(struct route));
 }
 
+static inline void init_route(struct route *a)
+{
+	a->subnet.ip_ver = 0;
+	a->subnet.mask   = 0;
+	a->gw.ip_ver     = 0;
+	a->device[0]     = '\0';
+}
 /* copy_route can be used if it is just moving route from one container to another
  * clone_route MUST BE used if the src route is still referenced
  */
