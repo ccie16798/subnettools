@@ -72,16 +72,16 @@ void st_close(struct st_file *f)
  *	0 on EOF
  *	-1 on error
  */
-static int refill(struct st_file *f, char *buff)
+static int refill(struct st_file *f)
 {
 	int i, size;
 
-	if (f->bp - f->buffer + f->bytes > f->buffer_size / 2) { /* buffer has gone too big */
-		debug_read(3, "Moving#%s %d bytes of data\n", buff, f->bytes);
+	size = f->buffer_size / 2;
+	if (f->bp - f->buffer + f->bytes > size) { /* buffer has gone too big */
+		debug_read(3, "Moving#%s %d bytes of data\n", f->bytes);
 		memcpy(f->buffer, f->bp, f->bytes);
 		f->bp = f->buffer;
 	}
-	size = f->buffer_size / 2;
 	i = read(f->fileno, f->bp + f->bytes, size);
 	if (i < 0)
 		return i;
@@ -103,7 +103,7 @@ static void discard_bytes(struct st_file *f)
 	while (1) {
 		/* refill buffer until we find a newline */
 		debug_read(5, "discarding need refill %d\n", f->bytes);
-		i = refill(f, NULL);
+		i = refill(f);
 		if (i < 0) /* IO/error */
 			return;
 		t = memchr(f->bp, '\n', f->bytes);
@@ -135,7 +135,7 @@ char *st_getline_truncate(struct st_file *f, size_t size, int *read, int *discar
 	}
 	/** need to refill buffer or not **/
 	if (f->bytes <= size) {
-		i = refill(f, "tst");
+		i = refill(f);
 		if (i < 0)
 			return NULL;
 		if (i == 0)
