@@ -15,7 +15,7 @@ reg_test_scanf() {
 	local output_file
 	local n
 
-	n=52
+	n=53
 	$PROG scanf "1.1.1.1 zob    1.1.1.2    name 25" " *%I (%S )?.*%I *(name) %d" > res/scanf1 
 	$PROG scanf "1.1.1.1   1.1.1.2    name 25" " *%I (%S )?.*%I *(name) %d" > res/scanf2 
 	$PROG scanf "1.1.1.1  1.1.1.2 2.2.2.2 toto   r" " *%I .*%S" > res/scanf3
@@ -90,6 +90,7 @@ reg_test_scanf() {
 	$PROG scanf "wyabced-efghthty" "%[wya-f-]" > res/scanf50
 	$PROG scanf "wy[abced-efghthty" "(%[[wya-f-])" > res/scanf51
 	$PROG scanf "wy[abced-efghthty" "(%[^a-f-])" > res/scanf52
+	$PROG scanf "ab 223" "a\b %d" > res/scanf53
 	
 	for i in `seq 1 $n`; do
 		output_file=scanf$i
