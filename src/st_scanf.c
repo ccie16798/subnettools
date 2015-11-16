@@ -1081,7 +1081,7 @@ static int parse_quantifier_char(const char **in, const char **fmt, const char *
 	while (n_match < max_m) {
 		if (*expr != EVAL_CHAR(*p))
 			break;
-		p += 1;
+		p++;
 		n_match++;
 		if (*p == '\0') {
 			debug(SCANF, 3, "reached end of input scanning 'in'\n");
