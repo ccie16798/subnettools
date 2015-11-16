@@ -1093,8 +1093,8 @@ static int parse_quantifier_char(const char **in, const char **fmt, const char *
 				*expr, n_match, min_m);
 		return -2;
 	}
-	if (*p == '\0' && **fmt != '\0')
-		return -2;
+	/* if (*p == '\0' && **fmt != '\0')
+		return -2; */
 	*in = p;
 	return 1;
 }
@@ -1134,8 +1134,8 @@ static int parse_quantifier_char_range(const char **in, const char **fmt, const 
 				*expr, n_match, min_m);
 		return -2;
 	}
-	if (*p == '\0' && **fmt != '\0')
-		return -2;
+	/*if (*p == '\0' && **fmt != '\0')
+		return -2; */
 	*in = p;
 	return 1;
 }
@@ -1207,8 +1207,8 @@ static int parse_quantifier_expr(const char **in, const char **fmt, const char *
 			}
 		}
 	}
-	if (*p == '\0' && **fmt != '\0')
-		return -2;
+	/*if (*p == '\0' && **fmt != '\0')
+		return -2; */
 	*in = p;
 	return 1;
 }
@@ -1357,8 +1357,8 @@ static int parse_quantifier_dotstar(const char **in, const char **fmt, const cha
 		p    += e.skip_on_return;
 	}
 	/* quantifier went to the end of 'in', but without matching the end */
-	if (*p == '\0' && **fmt != '\0')
-		return -2;
+	/*if (*p == '\0' && **fmt != '\0')
+		return -2; */
 	*in = p;
 	return 1;
 }
