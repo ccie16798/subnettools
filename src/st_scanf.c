@@ -1093,8 +1093,6 @@ static int parse_quantifier_char(const char **in, const char **fmt, const char *
 				*expr, n_match, min_m);
 		return -2;
 	}
-	/* if (*p == '\0' && **fmt != '\0')
-		return -2; */
 	*in = p;
 	return 1;
 }
@@ -1122,7 +1120,7 @@ static int parse_quantifier_char_range(const char **in, const char **fmt, const 
 		res = match_char_against_range_clean(*p, expr);
 		if (res == 0)
 			break;
-		p += 1;
+		p++;
 		n_match++;
 		if (*p == '\0') {
 			debug(SCANF, 3, "reached end of input scanning 'in'\n");
@@ -1134,8 +1132,6 @@ static int parse_quantifier_char_range(const char **in, const char **fmt, const 
 				*expr, n_match, min_m);
 		return -2;
 	}
-	/*if (*p == '\0' && **fmt != '\0')
-		return -2; */
 	*in = p;
 	return 1;
 }
@@ -1207,8 +1203,6 @@ static int parse_quantifier_expr(const char **in, const char **fmt, const char *
 			}
 		}
 	}
-	/*if (*p == '\0' && **fmt != '\0')
-		return -2; */
 	*in = p;
 	return 1;
 }
@@ -1318,7 +1312,7 @@ static int parse_quantifier_dotstar(const char **in, const char **fmt, const cha
 				last_num_o          = e.num_o;
 			}
 			previous_could_stop = could_stop;
-			p += 1;
+			p++;
 			if (*p == '\0') {
 				debug(SCANF, 3, "reached end of input scanning 'in'\n");
 				break;
@@ -1356,9 +1350,6 @@ static int parse_quantifier_dotstar(const char **in, const char **fmt, const cha
 		*fmt += e.end_expr_len;
 		p    += e.skip_on_return;
 	}
-	/* quantifier went to the end of 'in', but without matching the end */
-	/*if (*p == '\0' && **fmt != '\0')
-		return -2; */
 	*in = p;
 	return 1;
 }
