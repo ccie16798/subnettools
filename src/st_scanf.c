@@ -1390,10 +1390,10 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 	int num_cs; /* number of conversion specifier found in an expression */
 	int min_m = -1, max_m;
 	const char *p, *f;
-	const char *in_max; /* bound cheking of input pointer */
+	const char *in_max; /* bound checking of input pointer */
 
-	p = in;  /* remaing in put buffer */
-	f = fmt; /* remaing format buffer */
+	p = in;  /* remaining input  buffer */
+	f = fmt; /* remaining format buffer */
 	n_found = 0; /* number of arguments/objects found */
 	in_max = in + strlen(in);
 
@@ -1401,24 +1401,19 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 		debug(SCANF, 8, "Still to parse in FMT  : '%s'\n", f);
 		debug(SCANF, 8, "Still to parse in 'in' : '%s'\n", p);
 		if (*p == '\0') { /* remaining format string may match, like '.*' */
-			if (*f == '\0')
+			if (*f == '\0') /* perfect match */
 				return n_found;
-			if (*f == '(' || *f == '[') {
-				if (*f == '(')
-					res = fill_expr(expr, f, sizeof(expr));
-				else
-					res = fill_char_range(expr, f, sizeof(expr));
-				if (res == -1) {
-					debug(SCANF, 1, "Invalid format '%s', unmatched '%c'\n",
-							fmt, c);
-					goto end_nomatch;
-				}
-				f += res;
-			} else {
-				if (c == '\\')
-					f++;
-				f++;
-			}
+			if (*f == '(')
+				res = fill_expr(expr, f, sizeof(expr));
+			else if (*f == '[')
+				res = fill_char_range(expr, f, sizeof(expr));
+			else if (*f == '\\')
+				res = 2;
+			else
+				res = 1;
+			if (res < 0) /* wrong expression/char range */
+				goto end_nomatch;
+			f += res;
 			if (is_multiple_char(*f)) {
 				if (*f == '{') {
 					res = parse_brace_quantifier(f, &min_m, &max_m);
@@ -1467,7 +1462,6 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 					goto end_nomatch;
 				continue;
 			}
-			debug(SCANF, 8, "fmt='.', match any char\n");
 			p++;
 			continue;
 			/* expression or char range */
@@ -1494,7 +1488,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			}
 			debug(SCANF, 4, "Range '%s' matched 'in' offset %d\n",
 					expr, (int)(p - in));
-			p += 1;
+			p++;
 			continue;
 		case '(':
 			res = fill_expr(expr, f, sizeof(expr));
