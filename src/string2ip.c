@@ -2,12 +2,12 @@
  *  string to IPv4, IPv6 functions
  *  these are VERY fast so code is ... fun
  *
- * string2addr beats inet_pton (my computer, compiled with -O3, loading a BIG csv)
- *	on 12,000,000 IPv4 address file inet_pton   takes 2,650 sec to read CSV
+ * string2addr beats <arpa/inet.h> inet_pton here (compiled with -O3, loading a BIG csv)
+ *	on 12,000,000 IPv4 address file inet_pton   takes 2,230 sec to read CSV
  *	on 12,000,000 IPv4 address file string2addr takes 2,480 sec to read CSV
  *
- *	on 12,000,000 IPv6 address file inet_pton   takes 3,330 sec to read CSV
- *	on 12,000,000 IPv6 address file string2addr takes 3,050 sec to read CSV
+ *	on 12,000,000 IPv6 address file inet_pton   takes 3,230 sec to read CSV
+ *	on 12,000,000 IPv6 address file string2addr takes 2,380 sec to read CSV
  * (and of course, you must specify AF_FAMILY to inet_pton, while string2addr
  * guesses the IP version number, so a generic func on top of inet_pton would have
  * some more overhead)
