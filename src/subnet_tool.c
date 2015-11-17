@@ -275,12 +275,11 @@ int missing_routes(const struct subnet_file *sf1, const struct subnet_file *sf2,
 void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *paip,
 		struct st_options *nof)
 {
-	int mask;
+	int mask, find_mask;
 	int res;
 	unsigned long i, j;
 	int find_included, find_equals, find_j;
 	int includes;
-	u32 find_mask;
 
 	debug_timing_start(2);
 	for (i = 0; i < sf1->nr; i++) {
