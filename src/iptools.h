@@ -83,7 +83,7 @@ struct subnet {
 		};
 		struct ip_addr ip_addr;
 	};
-	u32 mask;
+	uint32_t mask;
 };
 
 static inline int is_ip_char(char c)
@@ -169,7 +169,7 @@ int addr_filter(const struct ip_addr *test, const struct subnet *against, char o
  */
 int subnet2str(const struct subnet *ip, char *out, size_t len, int comp);
 int addr2str(const struct ip_addr *ip, char *out, size_t len, int comp);
-int mask2ddn(u32 ip, char *out_buffer, size_t len);
+int mask2ddn(int mask, char *out_buffer, size_t len);
 
 int addr2bitmask(const struct ip_addr *a, char *out, size_t len);
 

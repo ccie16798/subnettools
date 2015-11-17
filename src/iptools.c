@@ -62,7 +62,7 @@ int ipv6_is_multicast(ipv6 a)
 	return ((block(a, 0) >> 8) == (0xFF00 >> 8));
 }
 
-static inline int subnet_compare_ipv6(ipv6 ip1, u32 mask1, ipv6 ip2, u32 mask2)
+static inline int subnet_compare_ipv6(ipv6 ip1, int mask1, ipv6 ip2, int mask2)
 {
 	if (mask1 > mask2) {
 		shift_ipv6_right(ip1, (128 - mask2));
@@ -88,7 +88,7 @@ static inline int subnet_compare_ipv6(ipv6 ip1, u32 mask1, ipv6 ip2, u32 mask2)
 	}
 }
 
-static inline int subnet_compare_ipv4(ipv4 prefix1, u32 mask1, ipv4 prefix2, u32 mask2)
+static inline int subnet_compare_ipv4(ipv4 prefix1, int mask1, ipv4 prefix2, int mask2)
 {
 	ipv4 a, b;
 
@@ -340,7 +340,7 @@ int addr2str(const struct ip_addr *a, char *out_buffer, size_t len, int comp_lev
 	return -1;
 }
 /* IPv4 only, mask to Dot Decimal Notation */
-int mask2ddn(u32 mask, char *out, size_t len)
+int mask2ddn(int mask, char *out, size_t len)
 {
 	int i;
 	unsigned int s[4];
