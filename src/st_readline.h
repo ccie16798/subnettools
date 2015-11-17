@@ -52,6 +52,6 @@ char *st_getline_truncate(struct st_file *f, size_t size, int *read, int *discar
  *	NULL on error or EOF
  */
 char *st_gets_truncate(struct st_file *f, char *buffer, size_t size,
-		int *read, int *discarded)
+		int *read, int *discarded);
 #else
 #endif
