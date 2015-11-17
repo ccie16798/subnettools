@@ -624,16 +624,6 @@ block6:
 	s++;
 	if (*s != ':')
 		return BAD_IP;
-	goto block7;
-try_ipv4:
-	debug_parseipv6(8, "String '%s' MAYBE embedded IPv4\n", s);
-	j = string2addrv4(s, &embedded, s_max - s);
-	if (j < 0)
-		return j;
-	set_block(addr->ip6, 6,  embedded.ip >> 16);
-	set_block(addr->ip6, 7, (unsigned short)(embedded.ip & 0xFFFF));
-	addr->ip_ver = IPV6_A;
-	return IPV6_A;
 block7:
 	set_block(addr->ip6, 6, current_block);
 	s++;
@@ -687,6 +677,15 @@ block7:
 	return BAD_IP;
 out_loop1:
 	set_block(addr->ip6, 7, current_block);
+	addr->ip_ver = IPV6_A;
+	return IPV6_A;
+try_ipv4:
+	debug_parseipv6(8, "String '%s' MAYBE embedded IPv4\n", s);
+	j = string2addrv4(s, &embedded, s_max - s);
+	if (j < 0)
+		return j;
+	set_block(addr->ip6, 6,  embedded.ip >> 16);
+	set_block(addr->ip6, 7, (unsigned short)(embedded.ip & 0xFFFF));
 	addr->ip_ver = IPV6_A;
 	return IPV6_A;
 
