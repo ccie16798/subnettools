@@ -33,7 +33,7 @@ struct st_file *st_open(const char *name, int buffer_size)
 	int a;
 	struct st_file *f;
 
-	if (name == NULL)
+	if (name == NULL) /* name == NULL means stdin */
 		a = 0;
 	else {
 		a = open(name, O_RDONLY);
@@ -66,7 +66,7 @@ struct st_file *st_open(const char *name, int buffer_size)
 
 void st_close(struct st_file *f)
 {
-	if (f->fileno)
+	if (f->fileno) /* don't 'close' stdin */
 		close(f->fileno);
 	free(f->buffer);
 	free(f);
@@ -192,6 +192,73 @@ char *st_getline_truncate(struct st_file *f, size_t size, int *read, int *discar
 	*discarded = f->bytes + 1; /* at least */
 	f->need_discard++;
 	return p;
+}
+
+char *st_gets_truncate(struct st_file *f, char *buffer, size_t size,
+		int *read, int *discarded)
+{
+	int i, len;
+	char *t, *p;
+
+	if (size < 2)
+		return NULL;
+	size--; /* for NUL char */
+	/** need to refill buffer or not **/
+	if (f->bytes <= size) {
+		i = refill(f);
+		if (i < 0)
+			return NULL;
+		if (i == 0)
+			size = f->bytes;
+	}
+	p = f->bp;
+	t = memchr(p, '\n', f->bytes);
+	/* if we found a newline within 'size' char lets return */
+	if (t != NULL) {
+		debug_read(8, "GOOD: len = %d bytes=%d\n", t - f->bp, f->bytes);
+		len = t - p;
+		if (len <= size) {
+			*t  = '\0';
+			len++; /* room for the NUL char */
+			f->bytes  -= len;
+			f->bp     += len;
+			*discarded = 0;
+			*read = len;
+			memcpy(buffer, p, len);
+			return buffer;
+		}
+		/* line too long, discarding bytes */
+		p[size]    = '\0';
+		len++; /* room for the NUL char */
+		f->bytes  -= len;
+		f->bp     += len;
+		*discarded = len - size;
+		*read = size + 1;
+		debug_read(8, "Trunc1 discarding %d chars\n", *discarded);
+		memcpy(buffer, p, size + 1);
+		return buffer;
+	}
+	/* no newline found */
+	p[size] = '\0';
+	size++;
+	f->bp    += size;
+	f->bytes -= size;
+	if (f->endoffile) {
+		*discarded = 0;
+		if  (size == 1) {
+			*read = 0;
+			return NULL;
+		}
+		*read = size;
+		memcpy(buffer, p, size);
+		return buffer;
+	}
+	*read = size;
+	debug_read(3, "Need discard#2 : %d\n", f->bytes);
+	*discarded = f->bytes + 1; /* at least */
+	discard_bytes(f);
+	memcpy(buffer, p, size);
+	return buffer;
 }
 
 #ifdef TEST_READ
