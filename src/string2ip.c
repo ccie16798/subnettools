@@ -27,8 +27,10 @@
 #include "utils.h"
 #include "string2ip.h"
 
+/* used to speed-up DDN mask to int */
 static const int mask_tab[] = { [0] = 0, [128] = 1, [192] = 2, [224] = 3,
 		[240] = 4, [248] = 5, [252] = 6, [254] = 7, [255] = 8 };
+
 int string2mask(const char *s, size_t len)
 {
 	int ddn_mask, c;
@@ -68,6 +70,7 @@ int string2mask(const char *s, size_t len)
 	if (*s != '.')
 		return BAD_MASK;
 end_block1:
+	/* here *s == '.' */
 	if (s_max - s < 6) /* s cannot hold for .0.0.0 */
 		return BAD_IP;
 	if (a == 0)
@@ -104,16 +107,15 @@ end_block1:
 	if (*s != '.')
 		return BAD_MASK;
 end_block2:
+	/* here *s == '.' */
 	if (s_max - s < 4) /* s cannot hold for .0.0 */
 		return BAD_IP;
 	if (a != 0) {
 		c = mask_tab[a];
 		if (c == 0)
 			return BAD_MASK;
-		if (a < 255 && prev_a != 255) { /* 255.240.224.0 */
-			debug_parseipv4(3, "Invalid DDN mask, wrong\n");
+		if (a < 255 && prev_a != 255) /* 255.240.224.0 */
 			return BAD_MASK;
-		}
 		ddn_mask += c;
 	}
 	prev_a = a;
@@ -142,14 +144,13 @@ end_block2:
 	if (*s != '.')
 		return BAD_MASK;
 end_block3:
+	/* here *s == '.' */
 	if (a != 0) {
 		c = mask_tab[a];
 		if (c == 0)
 			return BAD_MASK;
-		if (a < 255 && prev_a != 255) { /* 255.240.224.0 */
-			debug_parseipv4(3, "Invalid DDN mask, wrong\n");
+		if (a < 255 && prev_a != 255) /* 255.240.224.0 */
 			return BAD_MASK;
-		}
 		ddn_mask += c;
 	}
 	prev_a = a;
@@ -187,10 +188,8 @@ end_block4:
 		c = mask_tab[a];
 		if (c == 0)
 			return BAD_MASK;
-		if (a < 255 && prev_a != 255) { /* 255.240.224.0 */
-			debug_parseipv4(3, "Invalid DDN mask, wrong\n");
+		if (a < 255 && prev_a != 255) /* 255.240.224.0 */
 			return BAD_MASK;
-		}
 		ddn_mask += c;
 	}
 	return ddn_mask;
@@ -209,7 +208,7 @@ static int string2addrv4(const char *s, struct ip_addr *addr, size_t len)
 	/* string2addr has made sure that there are only xdigits up to the first '.'
 	 * so optimize the calculation of the first block, without too much checks
 	 */
-	if (*s > '9')
+	if (*s > '9') /* equivalent to !isdigit(*s) in this context */
 		return BAD_IP;
 	current_block = *s - '0';
 	s++;
