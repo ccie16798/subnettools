@@ -5,6 +5,7 @@ prefix;mask;device;GW;comment
 ::ffff:192.168.0.1;96;;::;OK
 ::ffff:192.168.0.1;96;;::;OK
 ::ffff:0.1.0.2;96;;::;OK
+1:2:3:4:5:6:7:0;64;;::;OKISH '::' after 7 blocks
 2001:abcd::1234;128;;::;IPv6-1
 2001:abcd:1234::1234;128;;::;IPv6-2
 2001:abcd:ef01:4567::1234;128;;::;IPv6-3
