@@ -637,9 +637,19 @@ try_ipv4:
 block7:
 	set_block(addr->ip6, 6, current_block);
 	s++;
-	/* we wont compress, even 1:2:3:4:5:6:7:: */
-	if (*s == ':' || s >= s_max)
+	if (s >= s_max)
 		return BAD_IP;
+	if (*s == ':') {
+		/* 1:2:3:4:5:6:7:: seems to be a legal IPv6 address
+		 * but 1:2:3:4:5:6:7::8 is not
+		 */
+		s++;
+		if (*s != '\0' && s != s_max)
+			return BAD_IP;
+		set_block(addr->ip6, 7, 0);
+		addr->ip_ver = IPV6_A;
+		return IPV6_A;
+	}
 	/** digit 1 */
 	current_block = char2int(*s);
 	if (current_block < 0)
