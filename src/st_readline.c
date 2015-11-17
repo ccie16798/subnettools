@@ -266,8 +266,8 @@ char *st_gets_truncate(struct st_file *f, char *buffer, size_t size,
 	*read = size;
 	debug_read(3, "Need discard#2 : %d\n", f->bytes);
 	*discarded = f->bytes + 1; /* at least */
-	discard_bytes(f);
 	memcpy(buffer, p, size);
+	discard_bytes(f);
 	return buffer;
 }
 
@@ -277,13 +277,14 @@ int main(int argc, char **argv)
 	int f, i, line_l = 64;
 	struct st_file *sf;
 	char *s;
+	char buffer[2048];
 
 	sf = st_open(argv[1], 2048);
 	if (sf == NULL)
 		exit(1);
 	if (argc >= 3)
 		line_l = atoi(argv[2]);
-	while ((s = st_getline_truncate(sf, line_l, &i, &f))) {
+	while ((s = st_gets_truncate(sf, buffer, line_l, &i, &f))) {
 		printf("%s\n", s);
 		if (strlen(s) != i - 1)
 			fprintf(stderr, "BUG, st_get_line for %s return value=%d, len=%d\n",
