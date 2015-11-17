@@ -12,5 +12,21 @@ void decrease_bitmap(MYTYPE *buffer, int len);
 void increase_bitmap(MYTYPE *buffer, int len);
 
 int sprint_bitmap(char *outbuf, unsigned  short *buffer, int len);
+
+static inline int bitmap_is_superior(MYTYPE *buffer1, MYTYPE *buffer2, int len)
+{
+	int i, res;
+
+	for (i = 0; i < len; i++) {
+		if (buffer1[i] < buffer2[i]) {
+			res = 1;
+			break;
+		} else if (buffer1[i] > buffer2[i]) {
+			res = 0;
+			break;
+		}
+	}
+	return res;
+}
 #else
 #endif
