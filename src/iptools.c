@@ -389,19 +389,8 @@ int addr_is_superior(const struct ip_addr *ip1, const struct ip_addr *ip2)
 	res = 0;
 	if (ip1->ip_ver == IPV4_A)
 		return  (ip1->ip < ip2->ip);
-
-	if (ip1->ip_ver == IPV6_A) {
-		for (i = 0; i < 8; i++) {
-			if (block(ip1->ip6, i) < block(ip2->ip6, i)) {
-				res = 1;
-				break;
-			} else if (block(ip1->ip6, i) > block(ip2->ip6, i)) {
-				res = 0;
-				break;
-			}
-		}
-		return res;
-	}
+	if (ip1->ip_ver == IPV6_A)
+		return ipv6_is_superior(ip1->ip6, ip2->ip6);
 	return -1;
 }
 
