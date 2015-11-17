@@ -16,6 +16,7 @@
 #define IPV6_N    16 /*  IPV6_N must be IPV4_6 + 10 */
 
 #include <ctype.h>
+#include <inttypes.h>
 
 typedef unsigned int u32;
 typedef unsigned int ipv4;
@@ -26,7 +27,8 @@ struct ipv6_a {
 		 * current version of subnet tool manipulate ->n16 only, use n32 your own risk
 		 */
 		unsigned short	n16[8];
-		u32		n32[4];
+		uint32_t	n32[4];
+		uint64_t	n64[2];
 	};
 };
 typedef struct ipv6_a ipv6;
