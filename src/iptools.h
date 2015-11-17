@@ -48,6 +48,7 @@ typedef struct ipv6_a ipv6;
 #define shift_ipv6_right(__z, __len) shift_right(__z.n16, 8, __len)
 #define increase_ipv6(__z) increase_bitmap(__z.n16, 8)
 #define decrease_ipv6(__z) decrease_bitmap(__z.n16, 8)
+#define ipv6_is_superior(__ip1, __ip2) bitmap_is_inferior(__ip1.n16, __ip2.n16, 8)
 
 #else
 /* this so you get the idea ....*/
@@ -61,6 +62,7 @@ typedef struct ipv6_a ipv6;
 #define shift_ipv6_right(__z, __len) (__z >>= __n)
 #define increase_ipv6(__z) (__z++)
 #define decrease_ipv6(__z) (__z--)
+#define ipv6_is_superior(__ip1, __ip2) (__ip1) < (__ip2)
 
 #endif
 
