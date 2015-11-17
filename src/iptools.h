@@ -110,8 +110,7 @@ static inline void zero_ipaddr(struct ip_addr *a)
 
 static inline int is_equal_ipv6(ipv6 ip1, ipv6 ip2)
 {
-	return !(ip1.n32[0] != ip2.n32[0] || ip1.n32[1] != ip2.n32[1] ||
-			ip1.n32[2] != ip2.n32[2] || ip1.n32[3] != ip2.n32[3]);
+	return ip1.n64[0] == ip2.n64[0] && ip1.n64[1] == ip2.n64[1];
 }
 
 int is_equal_ip(struct ip_addr *ip1, struct ip_addr *p2);
