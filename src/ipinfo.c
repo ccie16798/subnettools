@@ -130,7 +130,7 @@ static void decode_ipv6_embedded_rp(FILE *out, const struct subnet *s)
 	struct subnet rp;
 	int rp_id;
 	int Plen;
-	u32 group_id;
+	uint32_t group_id;
 	int i, j;
 
 	memset(&rp, 0, sizeof(rp));

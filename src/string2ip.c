@@ -897,7 +897,7 @@ int classfull_get_subnet(const char *s, struct subnet *subnet)
 {
 	int truc[4];
 	int i;
-	u32 mask = 0;
+	unsigned int mask = 0;
 	int current_block = 0;
 	int count_dot = 0;
 
