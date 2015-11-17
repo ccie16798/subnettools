@@ -65,21 +65,21 @@ typedef struct ipv6_a ipv6;
 #endif
 
 struct ip_addr {
-	int ip_ver;
 	union {
 		ipv4 ip;
 		ipv6 ip6;
 	};
+	int ip_ver;
 };
 
 struct subnet {
 	union {
 		struct {
-			int ip_ver;
 			union {
 				ipv4 ip;
 				ipv6 ip6;
 			};
+			int ip_ver;
 		};
 		struct ip_addr ip_addr;
 	};
