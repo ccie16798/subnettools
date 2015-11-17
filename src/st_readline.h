@@ -30,7 +30,7 @@ void st_close(struct st_file *f);
  * if strlen(line) > size, chars are DISCARDED until a NEWLINE is found
  * returns a pointer to an internal buffer
  * @f         : struct file
- * @size      : read at most size char on each line
+ * @size      : read at most size char on each line; must be < buffer_size / 4
  * @read      : pointer to the number of char read (equals to strlen(s) + 1)
  * @discarded : number of discarded chars (not always precise)
  * returns:
@@ -41,10 +41,10 @@ char *st_getline_truncate(struct st_file *f, size_t size, int *read, int *discar
 
 /* st_gets_truncate: read one line from a file, truncate if line too long
  * if strlen(line) > size, chars are DISCARDED until a NEWLINE is found
- * store line in a user provided buffer
+ * As opposed to st_getline_truncate, store line in a user provided buffer
  * @f         : struct file
  * @buffer    : where to store the data
- * @size      : read at most size char on each line (sizeof(buffer))
+ * @size      : read at most size char on each line (sizeof(buffer)), must be < buffer_size / 4
  * @read      : pointer to the number of char read (equals to strlen(s) + 1)
  * @discarded : number of discarded chars (not always precise)
  * returns:
