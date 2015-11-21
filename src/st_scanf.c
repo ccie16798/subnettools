@@ -692,7 +692,6 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			return n_found;
 		}
 		f += (i2 - 1);
-		i2 = 0;
 		ptr_buff = v_s;
 		while (match_char_against_range_clean(*p, expr) && *p != '\0' && p < p_max)
 			*ptr_buff++ = *p++;

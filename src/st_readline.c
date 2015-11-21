@@ -137,7 +137,7 @@ char *st_getline_truncate(struct st_file *f, size_t size, int *read, int *discar
 		return NULL;
 	if (size > f->buffer_size /4) {
 		fprintf(stderr, "BUG, %s called with size too big:%d for internal buffer:%d\n",
-			__func__, size, f->buffer_size);
+			__func__, (int)size, f->buffer_size);
 		return NULL;
 	}
 	size--; /* for NUL char */
@@ -209,7 +209,7 @@ char *st_gets_truncate(struct st_file *f, char *buffer, size_t size,
 		return NULL;
 	if (size > f->buffer_size /4) {
 		fprintf(stderr, "BUG, %s called with size too big:%d for internal buffer:%d\n",
-			__func__, size, f->buffer_size);
+			__func__, (int)size, f->buffer_size);
 		return NULL;
 	}
 	size--; /* for NUL char */
