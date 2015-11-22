@@ -38,7 +38,8 @@ typedef struct ipv6_a ipv6;
  * if you change the representation of IPv6, you must redefine these macro,
  * (and only these) all code in .c file is safe
  */
-#ifndef BOGUS_U128
+#define IPV6_USHORT_ARRAY
+#ifdef IPV6_USHORT_ARRAY
 
 #define block(__ip6, __n) __ip6.n16[__n]
 #define set_block(__ip6, __n, __value) (__ip6.n16[__n] = __value)
