@@ -10,6 +10,9 @@
  */
 #define DEBUG_ST_MEMORY
 
+/* max size of a string collected by st_object */
+#define ST_OBJECT_MAX_STRING_LEN (128 - 2)
+
 #define MAX_DELIM	32
 #define IPAM_MAX_EA_LEN	128
 #define FMT_LEN		128

@@ -1,8 +1,9 @@
 #ifndef ST_OBJECT
 #define ST_OBJECT
-#include "iptools.h"
 
-#define ST_OBJECT_MAX_STRING_LEN (128 - 2)
+#include "iptools.h"
+#include "st_options.h"
+
 /* subnet tools object */
 struct sto {
 	char type;
