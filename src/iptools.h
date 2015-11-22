@@ -19,7 +19,6 @@
 #include <inttypes.h>
 #include <string.h>
 
-typedef unsigned int u32;
 typedef unsigned int ipv4;
 
 struct ipv6_a {
