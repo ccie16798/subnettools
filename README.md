@@ -6,7 +6,7 @@ IPv4/IPv6 subnet calculator, CSV route file manipulation and modification tool
 
 FEATURES
 ========
-Subnettools is a sotfware intending to help networ engineers manipulating route table and extract
+Subnettools is a sotfware intending to help network engineers manipulate large route tables and extract
 information from it; subnettools has :
 - native IPv6 & IPv4 support
 - IPv4 & IPv6 address information (known subnet membership, decoding of embedded IPs like Teredo)
@@ -26,7 +26,7 @@ Route file simplification
 -------------------------
 - sort FILE1          : sort CSV FILE1
 - sortby name file    : sort CSV file by (prefix|gw|mask), prefix is always a tie-breaker
-- sortby help	    : print available sort options
+- sortby help	      : print available sort options
 - subnetagg FILE1     : sort and aggregate subnets in CSV FILE1; GW is not checked
 - routeagg  FILE1     : sort and aggregate subnets in CSV FILE1; GW is checked
 - routesimplify1 FILE : simplify CSV subnet file FILE; duplicate or included networks are removed
@@ -97,7 +97,7 @@ it should work OK today for most functions
 Input CSV format
 ================
 When working on CSV route files, please note the following
-- Input routes files SHOULD have a CSV header describing its structure (prefix, mask,, GW, comment, etc...)
+- Input routes files SHOULD have a CSV header describing its structure (prefix, mask, GW, comment, etc...)
 - Input routes files without a CSV header are assumed to be : prefix;mask;GW;comment or prefix;mask;comment
 - default routes CSV header is "prefix;mask;device;GW;comment"
 - CSV header can be changed by using the configuration file (subnettools confdesc for more info)
@@ -105,6 +105,7 @@ When working on CSV route files, please note the following
 - BGP routes files MUST have a CSV header
 
 - some commands can take <stdin> as input : sort, sortby, bgpsortby, print, ipam, filter, bgpfilter
+
 OUTPUT FMT
 ==========
 The output of subnettools command working on route files can be dynamically modified by supplying an output FMT
@@ -124,14 +125,13 @@ Some theory first, next some examples :)
 - %P  : prefix/mask
 %I, %N, %B and %G MAY be followed by a IPv6 address compression level (0, 1, 2, 3)
 
-- compression level 0 : No compression at all
+- compression level 0 : no compression at all
 - compression level 1 : remove leading 0
 - compression level 2 : remove consecutives 16bits blocks of zero
 - compression level 3 : level 2 + print IPv4 Mapped & IPv4 compatible address in mixed IPv4 / IPv6 format
 - compression level 4 : bitmask printing
 
-The character % MAY be followed by a field width (see printf man pages); this can help to align the results vertically, but please note in case width is smaller
-than ouptut string, it WILL NOT be truncated
+The character % MAY be followed by a field width (see printf man pages); this can help to align the results vertically, but please note in case width is smaller than ouptut string, it WILL NOT be truncated
 
 EXAMPLE 1 (use fmt to convert to Cisco static routes):
 ------------------------------------------------------
