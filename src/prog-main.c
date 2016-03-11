@@ -1022,7 +1022,11 @@ static int run_bgpcmp(int argc, char **argv, void *st_options)
 	res = load_bgpcsv(argv[2], &sf1, st_options);
 	DIE_ON_BAD_FILE(argv[2]);
 	res = load_bgpcsv(argv[3], &sf2, st_options);
-	DIE_ON_BAD_FILE(argv[3]);
+	if (res < 0) {
+		BAD_FILE(argv[3]);
+		free_bgp_file(&sf1);
+		return res;
+	}
 
 	compare_bgp_file(&sf1, &sf2, st_options);
 	free_bgp_file(&sf1);
