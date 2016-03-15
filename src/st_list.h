@@ -69,6 +69,9 @@ static inline void list_add_tail(st_list *new, st_list *head)
 	head->prev = new;
 }
 
+/* list_del: remove an element from the list it belongs to
+ * @list : the element to remove
+ */
 static inline void list_del(st_list *list)
 {
 	list->prev->next = list->next;
