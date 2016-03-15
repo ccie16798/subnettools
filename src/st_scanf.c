@@ -266,7 +266,7 @@ static int fill_expr(char *expr, const char *fmt, int n)
  * match character c against STRING 'expr' like [acde-g]
  * @c    : the char to match
  * @expr : a pointer to the expr to test c against, pointer will be updated
- * returns :
+ * returns:
  *    1 if a match is found
  *    0 if no match
  *    -1 if range is invalid
@@ -831,7 +831,12 @@ static int find_subnet(const char *remain, struct expr *e)
 		return 0;
 	buffer[i] = '\0';
 	if (get_subnet_or_ip(buffer, &e->sto[0].s_subnet) > 0) {
-		e->can_skip = i; /* useful for .$* matching */
+		/* used for .$* matching, we know remain[0...i] is made * of IP chars
+		 * but do not represent an IP, so let's skip that on the next search
+		 * 111.2.2222.2.2.2 should not match, even if 222.2.2.2 or 22.2.2.2 is an IP
+		 */
+		e->can_skip = i;
+		/* record the object found, so we don't have to parse it again */
 		e->skip_on_return = i;
 		e->num_o = 1;
 		e->sto[0].type = 'P';
@@ -1334,7 +1339,7 @@ static int parse_quantifier_dotstar(const char **in, const char **fmt, const cha
 		}
 	}
 	/* if we stop a quantifier expansion on a complex conversion specifier, we may
-	 * have recorded it in e->sto, to avoid anaylising it again
+	 * have recorded it in e->sto, to avoid analysing it again
 	 * ie scanf('.*%I a', '    1.1.1.1 a', must fully analyse 1.1.1.1 in '.*' expansion
 	 * 1.1.1.1 was stored by 'find_ip' so use this instead of re-analysing again
 	 */
