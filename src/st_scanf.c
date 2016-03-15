@@ -66,7 +66,7 @@ static inline int max_match(char c)
 		return ST_STRING_INFINITY;
 	if (c == '?')
 		return 1;
-	debug(SCANF, 1, "BUG, Invalid quantifier char '%c'\n", c);
+	fprintf(stderr, "BUG, Invalid quantifier char '%c'\n", c);
 	return 0;
 }
 
@@ -78,7 +78,7 @@ static inline int min_match(char c)
 		return 1;
 	if (c == '?')
 		return 0;
-	debug(SCANF, 1, "BUG, Invalid quantifier char '%c'\n", c);
+	fprintf(stderr, "BUG, Invalid quantifier char '%c'\n", c);
 	return 0;
 }
 
@@ -154,7 +154,7 @@ static inline int count_cs(const char *expr)
 	return 0;
 }
 
-/* given an expression e, the following function
+/* given an expression e, the following functions
  * try to determine if the remaining chars match their type
  * for exemple, find_int will match on the first digit found
 */
