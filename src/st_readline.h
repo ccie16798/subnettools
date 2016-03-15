@@ -6,7 +6,7 @@ struct st_file {
 	unsigned long bytes;
 	int endoffile;
 	int need_discard;
-	char *buffer; / * dynamic pointer (malloc'ed) */
+	char *buffer; /* dynamic pointer (malloc'ed) */
 	char *bp; /* current pointer */
 	int buffer_size;
 };
