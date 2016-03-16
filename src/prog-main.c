@@ -534,7 +534,7 @@ static int run_filter(int argc, char **argv, void *st_options)
 	struct subnet_file sf;
 	struct st_options *nof = st_options;
 
-	if (!strcmp(argv[2], "help")) {
+	if (!strcmp(argv[2], "help") && argv[3] == NULL) {
 		fprint_routefilter_help(stdout);
 		return 0;
 	}
@@ -567,7 +567,7 @@ static int run_bgp_filter(int argc, char **argv, void *st_options)
 	struct bgp_file sf;
 	struct st_options *nof = st_options;
 
-	if (!strcmp(argv[2], "help")) {
+	if (!strcmp(argv[2], "help") && argv[3] == NULL) {
 		fprint_bgpfilter_help(stdout);
 		return 0;
 	}
@@ -597,7 +597,7 @@ static int run_ipam_filter(int argc, char **argv, void *st_options)
 	struct ipam_file sf;
 	struct st_options *nof = st_options;
 
-	if (!strcmp(argv[2], "help")) {
+	if (!strcmp(argv[2], "help") && argv[3] == NULL) {
 		fprint_ipamfilter_help(stdout);
 		return 0;
 	}
