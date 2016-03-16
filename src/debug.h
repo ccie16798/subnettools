@@ -34,7 +34,7 @@
 	do { \
 		if (debugs_level[__D_##__EVENT] >= __DEBUG_LEVEL || \
 				debugs_level[__D_ALL] >= __DEBUG_LEVEL) { \
-			fprintf(stderr, "%s : ", __func__); \
+			fprintf(stderr, "%s: ", __func__); \
 			fprintf(stderr, __FMT); \
 		} \
 	} while (0)
