@@ -292,7 +292,7 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 		free_subnet_file(sf);
 		return res;
 	}
-	/* we allocated one more route */
+	/* last line was allocated by endofline_callback, free it*/
 	free_route(&sf->routes[sf->nr]);
 	if (sf->nr == 0) {
 		debug(LOAD_CSV, 3, "Not a single valid line in %s", name);
