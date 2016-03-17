@@ -332,6 +332,10 @@ int load_ipam_no_EA(char  *name, struct subnet_file *sf, struct st_options *nof)
 	int res;
 	char *s;
 
+	init_csv_file(&cf, name, csv_field, 10, nof->ipam_delim, &st_strtok_r);
+	cf.is_header = netcsv_is_header;
+	cf.endofline_callback = netcsv_endofline_callback;
+	init_csv_state(&state, name);
 	if (nof->ipam_prefix_field[0])
 		csv_field[0].name = nof->ipam_prefix_field;
 	s = (nof->ipam_prefix_field[0] ? nof->ipam_prefix_field : "address*");
@@ -353,10 +357,6 @@ int load_ipam_no_EA(char  *name, struct subnet_file *sf, struct st_options *nof)
 		register_csv_field(&cf, "EA-Name", 0, 16, 1, &netcsv_comment_handle);
 		register_csv_field(&cf, "comment", 0, 17, 1, &ipam_comment_handle);
 	}
-	init_csv_file(&cf, name, csv_field, 10, nof->ipam_delim, &st_strtok_r);
-	cf.is_header = netcsv_is_header;
-	cf.endofline_callback = netcsv_endofline_callback;
-	init_csv_state(&state, name);
 
 	if (alloc_subnet_file(sf, 16192) < 0)
 		return -2;
