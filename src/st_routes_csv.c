@@ -43,7 +43,7 @@ int alloc_subnet_file(struct subnet_file *sf, unsigned long n)
 		return -1;
 	}
 	sf->ea[0].name = st_strdup("comment");
-	sf->ea_nr  = 1;
+	sf->ea_nr = 1;
 	return 0;
 }
 
@@ -275,15 +275,15 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 	cf.default_handler    = &netcsv_ea_handler;
 	/* netcsv field may have been set by conf file */
 	s = (nof->netcsv_prefix_field[0] ? nof->netcsv_prefix_field : "prefix");
-	register_csv_field(&cf, s, 1, 1, netcsv_prefix_handle);
+	register_csv_field(&cf, s, 0, 1, 1, netcsv_prefix_handle);
 	s = (nof->netcsv_mask[0] ? nof->netcsv_mask : "mask");
-	register_csv_field(&cf, s, 0, 2, netcsv_mask_handle);
+	register_csv_field(&cf, s, 0, 0, 2, netcsv_mask_handle);
 	s = (nof->netcsv_device[0] ? nof->netcsv_device : "device");
-	register_csv_field(&cf, s, 0, 0, netcsv_device_handle);
+	register_csv_field(&cf, s, 0, 0, 0, netcsv_device_handle);
 	s = (nof->netcsv_gw[0] ? nof->netcsv_gw : "GW");
-	register_csv_field(&cf, s, 0, 3, netcsv_GW_handle);
+	register_csv_field(&cf, s, 0, 0, 3, netcsv_GW_handle);
 	s = (nof->netcsv_comment[0] ? nof->netcsv_comment : "comment");
-	register_csv_field(&cf, s, 0, 4, netcsv_comment_handle);
+	register_csv_field(&cf, s, 0, 0, 4, netcsv_comment_handle);
 
 	if (alloc_subnet_file(sf, 4096) < 0)
 		return -2;
@@ -493,7 +493,7 @@ static int bgpcsv_aspath_handle(char *s, void *data, struct csv_state *state)
 
 	res = strxcpy(sf->routes[sf->nr].AS_PATH, s, sizeof(sf->routes[sf->nr].AS_PATH));
 	if (res >= sizeof(sf->routes[sf->nr].AS_PATH))
-		debug(LOAD_CSV, 1, "line %lu AS_PATH '%s'  too long, truncating to '%s'\n",
+		debug(LOAD_CSV, 1, "line %lu AS_PATH '%s' too long, truncating to '%s'\n",
 				state->line, s, sf->routes[sf->nr].AS_PATH);
 	return CSV_VALID_FIELD;
 }

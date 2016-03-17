@@ -100,8 +100,8 @@ void init_csv_state(struct csv_state *cs, const char *file_name);
  * returns :
  *	the position where is was inserted
  */
-int register_csv_field(struct csv_file *cf, char *name, int mandatory, int default_pos,
-	int (*handle)(char *token, void *data, struct csv_state *state));
+int register_csv_field(struct csv_file *cf, char *name, int mandatory, int pos,
+	int default_pos, int (*handle)(char *token, void *data, struct csv_state *state));
 
 /* register_dyn_csv_field: register a struct csv_field in csv_file
  * This MUST be used only for optional argument, whose name is dynamically alloced
