@@ -383,12 +383,23 @@ void init_csv_state(struct csv_state *cs, const char *file_name)
 int register_csv_field(struct csv_file *csv_file, char *name, int mandatory, int pos,
 		int default_pos, int (*handle)(char *token, void *data, struct csv_state *state))
 {
-	int i = csv_file->num_fields_registered;
-	struct csv_field *cf = csv_file->csv_field;
+	int i;
+	struct csv_field *cf;
 
+	if (csv_file == NULL)
+		return 0;
+	i  = csv_file->num_fields_registered;
+	cf = csv_file->csv_field;
 	if (i == csv_file->max_fields - 1) {
 		debug(CSVHEADER, 1, "Cannot register more than %d fields, dropping '%s\n",
 				i, name);
+		return -1;
+	}
+	/* if malloc has failed, we are in deep trouble; free
+	 * alloced field_name and reset csv_file->csv_field to NULL */
+	if (name == NULL) {
+		free_csv_field(cf);
+		csv_file->csv_field = NULL;
 		return -1;
 	}
 	cf[i].name        = name;

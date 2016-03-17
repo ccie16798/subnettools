@@ -93,11 +93,12 @@ void init_csv_state(struct csv_state *cs, const char *file_name);
 
 /* register_csv_field : register a struct csv_field in csv_file
  * @cf	        : a pointer to a CSV file
- * @name	: the name of the field (static);
+ * @name	: the name of the field (static)
  * @mandatory	: is the header mandatory
+ * @pos		: the position of the field (set in read_csv_header)
  * @default_pos : its pos in case no header is found
  * @handler	: a CSV field handler to parse data
- * returns :
+ * returns:
  *	the position where is was inserted
  */
 int register_csv_field(struct csv_file *cf, char *name, int mandatory, int pos,
