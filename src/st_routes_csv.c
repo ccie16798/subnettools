@@ -330,17 +330,28 @@ int load_ipam_no_EA(char  *name, struct subnet_file *sf, struct st_options *nof)
 	struct csv_file cf;
 	struct csv_state state;
 	int res;
+	char *s;
 
 	if (nof->ipam_prefix_field[0])
 		csv_field[0].name = nof->ipam_prefix_field;
+	s = (nof->ipam_prefix_field[0] ? nof->ipam_prefix_field : "address*");
+	register_csv_field(&cf, s, 0, 3, 1, netcsv_prefix_handle);
+
 	if (nof->ipam_mask[0])
 		csv_field[1].name = nof->ipam_mask;
+	s = (nof->ipam_prefix_field[0] ? nof->ipam_prefix_field : "netmask_dec");
+	register_csv_field(&cf, s, 0, 4, 1, netcsv_prefix_handle);
 	if (nof->ipam_comment1[0]) {
 		csv_field[2].name = nof->ipam_comment1;
+		register_csv_field(&cf, nof->ipam_comment1, 0, 16, 1, &netcsv_comment_handle);
 		/* if comment1 is set, we set also comment2, even if its NULL
 		 * if it is NULL, that means the ipam we have doesnt have a secondary comment field
 		 */
 		csv_field[3].name = nof->ipam_comment2;
+		register_csv_field(&cf, nof->ipam_comment2, 0, 17, 1, &ipam_comment_handle);
+	} else {
+		register_csv_field(&cf, "EA-Name", 0, 16, 1, &netcsv_comment_handle);
+		register_csv_field(&cf, "comment", 0, 17, 1, &ipam_comment_handle);
 	}
 	init_csv_file(&cf, name, csv_field, 10, nof->ipam_delim, &st_strtok_r);
 	cf.is_header = netcsv_is_header;
