@@ -380,8 +380,8 @@ void init_csv_state(struct csv_state *cs, const char *file_name)
 	cs->file_name = (file_name ? file_name : "<stdin>");
 }
 
-int register_csv_field(struct csv_file *csv_file, char *name, int mandatory, int default_pos,
-		int (*handle)(char *token, void *data, struct csv_state *state))
+int register_csv_field(struct csv_file *csv_file, char *name, int mandatory, int pos,
+		int default_pos, int (*handle)(char *token, void *data, struct csv_state *state))
 {
 	int i = csv_file->num_fields_registered;
 	struct csv_field *cf = csv_file->csv_field;
@@ -394,7 +394,7 @@ int register_csv_field(struct csv_file *csv_file, char *name, int mandatory, int
 	cf[i].name        = name;
 	cf[i].handle      = handle;
 	cf[i].mandatory   = mandatory;
-	cf[i].pos         = 0;
+	cf[i].pos         = pos;
 	cf[i].dyn_alloc	  = 0;
 	cf[i].default_pos = default_pos;
 	cf[i + 1].name    = NULL;
