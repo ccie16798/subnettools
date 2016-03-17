@@ -220,6 +220,10 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 		st_free(csv_field, ea_memory);
 		return -1;
 	}
+	if (cf.csv_field == NULL) { /* failed a malloc of csv_field name */
+		st_free(csv_field, ea_memory);
+		return -1;
+	}
 	debug(IPAM, 5, "Collected %d Extended Attributes\n", i);
 	res = alloc_ipam_file(sf, 16192, i);
 	if (res < 0) {

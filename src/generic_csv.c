@@ -400,7 +400,7 @@ int register_csv_field(struct csv_file *csv_file, char *name, int mandatory, int
 	if (name == NULL) {
 		free_csv_field(cf);
 		csv_file->csv_field = NULL;
-		return -1;
+		return 0;
 	}
 	cf[i].name        = name;
 	cf[i].handle      = handle;

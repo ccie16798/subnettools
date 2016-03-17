@@ -285,6 +285,8 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 	s = (nof->netcsv_comment[0] ? nof->netcsv_comment : "comment");
 	register_csv_field(&cf, s, 0, 0, 4, &netcsv_comment_handle);
 
+	if (cf.csv_field == NULL) /* failed malloc of csv_field name */
+		return -2;
 	if (alloc_subnet_file(sf, 4096) < 0)
 		return -2;
 	res = generic_load_csv(name, &cf, &state, sf);
@@ -357,6 +359,8 @@ int load_ipam_no_EA(char  *name, struct subnet_file *sf, struct st_options *nof)
 		register_csv_field(&cf, "EA-Name", 0, 16, 1, &netcsv_comment_handle);
 		register_csv_field(&cf, "comment", 0, 17, 1, &ipam_comment_handle);
 	}
+	if (cf.csv_field == NULL) /* failed malloc of csv_field name */
+		return -2;
 
 	if (alloc_subnet_file(sf, 16192) < 0)
 		return -2;
@@ -620,6 +624,8 @@ int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof)
 	register_csv_field(&cf, "ORIGIN", 0, 0, 1, &bgpcsv_origin_handle);
 	register_csv_field(&cf, "V", 0, 0, 1, &bgpcsv_valid_handle);
 	register_csv_field(&cf, "Proto", 0, 0, 1, &bgpcsv_type_handle);
+	if (cf.csv_field == NULL) /* failed malloc of csv_field name */
+		return -2;
 
 	if (alloc_bgp_file(sf, 16192) < 0)
 		return -2;
