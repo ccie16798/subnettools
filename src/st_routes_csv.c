@@ -599,19 +599,7 @@ static int bgp_field_compare(const char *s1, const char *s2)
 
 int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof)
 {
-	struct csv_field csv_field[] = {
-		{ "prefix",	0, 0, 1, &bgpcsv_prefix_handle },
-		{ "GW",		0, 0, 1, &bgpcsv_GW_handle },
-		{ "LOCAL_PREF",	0, 0, 1, &bgpcsv_localpref_handle },
-		{ "MED",	0, 0, 1, &bgpcsv_med_handle },
-		{ "WEIGHT",	0, 0, 1, &bgpcsv_weight_handle },
-		{ "AS_PATH",	0, 0, 0, &bgpcsv_aspath_handle },
-		{ "BEST",	0, 0, 1, &bgpcsv_best_handle },
-		{ "ORIGIN",	0, 0, 1, &bgpcsv_origin_handle },
-		{ "V",		0, 0, 1, &bgpcsv_valid_handle },
-		{ "Proto",	0, 0, 1, &bgpcsv_type_handle },
-		{ NULL, 0, 0, 0, NULL }
-	};
+	struct csv_field csv_field[12];
 	struct csv_file cf;
 	struct csv_state state;
 	int res;
@@ -621,6 +609,17 @@ int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof)
 	cf.endofline_callback   = bgpcsv_endofline_callback;
 	cf.header_field_compare = bgp_field_compare;
 	init_csv_state(&state, name);
+	register_csv_field(&cf, "prefix", 0, 0, 1, &bgpcsv_prefix_handle);
+	register_csv_field(&cf, "GW", 0, 0, 1, &bgpcsv_GW_handle);
+	register_csv_field(&cf, "LOCAL_PREF", 0, 0, 1, &bgpcsv_localpref_handle);
+	register_csv_field(&cf, "MED", 0, 0, 1, &bgpcsv_med_handle);
+	register_csv_field(&cf, "WEIGHT", 0, 0, 1, &bgpcsv_weight_handle);
+	register_csv_field(&cf, "AS_PATH", 0, 0, 0, &bgpcsv_aspath_handle);
+	register_csv_field(&cf, "WEIGHT", 0, 0, 1, &bgpcsv_weight_handle);
+	register_csv_field(&cf, "BEST", 0, 0, 1, &bgpcsv_best_handle);
+	register_csv_field(&cf, "ORIGIN", 0, 0, 1, &bgpcsv_origin_handle);
+	register_csv_field(&cf, "V", 0, 0, 1, &bgpcsv_valid_handle);
+	register_csv_field(&cf, "Proto", 0, 0, 1, &bgpcsv_type_handle);
 
 	if (alloc_bgp_file(sf, 16192) < 0)
 		return -2;
