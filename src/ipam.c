@@ -166,6 +166,13 @@ static int ipam_endofline_callback(struct csv_state *state, void *data)
 	return CSV_CONTINUE;
 }
 
+static int ipam_startofline_callback(struct csv_state *state, void *data)
+{
+	struct ipam_file *sf = data;
+
+	return CSV_VALID_FILE;
+}
+
 static int ipam_endoffile_callback(struct csv_state *state, void *data)
 {
 	struct ipam_file *sf = data;
@@ -193,8 +200,9 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 	if (res < 0)
 		return res;
 	init_csv_state(&state, name);
-	cf.endofline_callback = ipam_endofline_callback;
-	cf.endoffile_callback = ipam_endoffile_callback;
+	cf.endofline_callback   = ipam_endofline_callback;
+	cf.startofline_callback = ipam_startofline_callback;
+	cf.endoffile_callback   = ipam_endoffile_callback;
 
 	/* register network and mask handler */
 	s = (nof->ipam_prefix_field[0] ? nof->ipam_prefix_field : "address*");
