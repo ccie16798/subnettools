@@ -16,7 +16,7 @@
 #define MAX_DELIM	32
 #define IPAM_MAX_EA_LEN	128
 #define FMT_LEN		128
-
+#define CSV_MAX_FIELD_LENGTH 32
 
 struct st_options {
 	int subnet_off;
@@ -34,18 +34,18 @@ struct st_options {
 	char ipam_output_fmt[FMT_LEN];
 	/* set from config file only */
 	/* IPAM FILE description */
-	char ipam_prefix_field[32];
-	char ipam_mask[32];
-	char ipam_comment1[32];
-	char ipam_comment2[32];
+	char ipam_prefix_field[CSV_MAX_FIELD_LENGTH];
+	char ipam_mask[CSV_MAX_FIELD_LENGTH];
+	char ipam_comment1[CSV_MAX_FIELD_LENGTH];
+	char ipam_comment2[CSV_MAX_FIELD_LENGTH];
 	char ipam_delim[MAX_DELIM];
 	char ipam_ea[IPAM_MAX_EA_LEN];
 	/* netcsv FILE description */
-	char netcsv_prefix_field[32];
-	char netcsv_mask[32];
-	char netcsv_comment[32];
-	char netcsv_device[32];
-	char netcsv_gw[32];
+	char netcsv_prefix_field[CSV_MAX_FIELD_LENGTH];
+	char netcsv_mask[CSV_MAX_FIELD_LENGTH];
+	char netcsv_comment[CSV_MAX_FIELD_LENGTH];
+	char netcsv_device[CSV_MAX_FIELD_LENGTH];
+	char netcsv_gw[CSV_MAX_FIELD_LENGTH];
 	/* converter options */
 	int rt; /* dynamic type as a comment */
 	int ecmp; /* print 2 routes in case of ecmp */
