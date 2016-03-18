@@ -169,6 +169,7 @@ static int read_csv_body(struct st_file *f, struct csv_file *cf,
 			return  CSV_EMPTY_FILE;
 		}
 	}
+	state->badline = 0;
 	do {
 		if (state->line == ULONG_MAX) { /* paranoid check */
 			debug(LOAD_CSV, 1, "File %s is too big, we reached ULONG_MAX (%lu)\n",
