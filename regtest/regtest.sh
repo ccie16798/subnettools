@@ -1,8 +1,8 @@
 #! /bin/bash
 
 
-PROG='../subnet-tools '
-#PROG='../subnet-tools -D memory:4 '
+#PROG='../subnet-tools '
+PROG='../subnet-tools -D memory:4 '
 n_ok=0
 n_ko=0
 
@@ -192,8 +192,9 @@ reg_test_ipamfilter() {
 	$PROG -c st.conf -ea EA-Site ipamfilter ipam-test "EA-Site%.*defense.*" > res/ipamfilter13
 	$PROG -c st.conf -ea EA-Site ipamfilter ipam-test "EA-Site%[Saint denis]*" > res/ipamfilter14
 	$PROG -c st.conf -ea EA-Site ipamfilter ipam-test 'EA-Site%.*(sain).*' > res/ipamfilter15
+	$PROG -c st.conf -ea EA-Site ipamfilter ipam-test2 'EA-Site%.*(sain).*' > res/ipamfilter16
 
-	n=15
+	n=16
 	for i in `seq 1 $n`; do
 		output_file=ipamfilter$i
 		if [ ! -f ref/$output_file ]; then
