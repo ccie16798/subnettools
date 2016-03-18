@@ -97,28 +97,19 @@ void free_csv_file(struct csv_file *cf);
 
 /* register_csv_field : register a struct csv_field in csv_file
  * @cf	        : a pointer to a CSV file
- * @name	: the name of the field (static)
- * @mandatory	: is the header mandatory
+ * @name	: the name of the field
+ * @mandatory	: is the header mandatory in the file?
  * @pos		: the position of the field (set in read_csv_header)
  * @default_pos : its pos in case no header is found
  * @handler	: a CSV field handler to parse data
  * returns:
  *	the position where is was inserted
+ *	negative on error
  */
 int register_csv_field(struct csv_file *cf, char *name, int mandatory, int pos,
 	int default_pos, int (*handle)(char *token, void *data, struct csv_state *state));
 
-/* register_dyn_csv_field: register a struct csv_field in csv_file
- * This MUST be used only for optional argument, whose name is dynamically alloced
- * @csv_file : the file to which CSV field belongs
- * @name     : name of the field (malloc'ed)
- * @pos      : the position of the field in the header
- * @handler  : a handler
- */
-int register_dyn_csv_field(struct csv_file *csv_file, char *name, int pos,
-		int (*handle)(char *token, void *data, struct csv_state *state));
-
-/* this func will open the 'filename' FILE, parse it according to 'cf' and 'state'
+/* generic_load_csv: open the 'filename' FILE, parse it according to 'cf' and 'state'
  * and usually you'll want to feed a  pointer to a struct whatever in *data
  *
  * @filename : name of the file, stdin is used if filename == NULL

@@ -429,26 +429,3 @@ int register_csv_field(struct csv_file *csv_file, char *field_name, int mandator
 	debug(CSVHEADER, 3, "Registering handler #%d '%s'\n", i, name);
 	return i;
 }
-
-int register_dyn_csv_field(struct csv_file *csv_file, char *name, int pos,
-		int (*handle)(char *token, void *data, struct csv_state *state))
-{
-
-	int i = csv_file->num_fields_registered;
-	struct csv_field *cf = csv_file->csv_field;
-
-	if (i == csv_file->max_fields - 1) {
-		debug(CSVHEADER, 1, "Cannot register more than %d fields, dropping '%s\n",
-				i, name);
-		return -1;
-	}
-	cf[i].name        = name;
-	cf[i].handle      = handle;
-	cf[i].mandatory   = 0;
-	cf[i].pos         = pos;
-	cf[i].default_pos = 0;
-	cf[i + 1].name    = NULL;
-	csv_file->num_fields_registered++;
-	debug(CSVHEADER, 3, "Registering handler #%d '%s'\n", i, name);
-	return i;
-}
