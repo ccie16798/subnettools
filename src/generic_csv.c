@@ -181,6 +181,15 @@ static int read_csv_body(struct st_file *f, struct csv_file *cf,
 					cf->file_name, state->line, (int)sizeof(buffer), res);
 		}
 		debug(LOAD_CSV, 5, "Parsing line %lu : '%s'\n", state->line, s);
+		if (cf->startofline_callback) {
+			res = cf->startofline_callback(state, data);
+			if (res == CSV_CATASTROPHIC_FAILURE) {/* FATAL ERROR like no more memory*/
+				debug(LOAD_CSV, 1,  "line %lu : fatal error, aborting\n",
+						state->line);
+				debug_timing_end(2);
+				return res;
+			} 
+		}
 		s = cf->csv_strtok_r(s, cf->delim, &save_s);
 		pos  = 0;
 		state->badline = 0;
@@ -370,6 +379,7 @@ int init_csv_file(struct csv_file *cf, const char *file_name, int max_fields, co
 	cf->validate_header	 = NULL;
 	cf->default_handler	 = NULL;
 	cf->endofline_callback	 = NULL;
+	cf->startofline_callback = NULL;
 	cf->endoffile_callback	 = NULL;
 	cf->header_field_compare = generic_header_cmp;
 	cf->num_fields_registered = 0;
