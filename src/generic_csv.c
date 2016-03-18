@@ -356,12 +356,12 @@ int generic_header_cmp(const char *s1, const char *s2)
 	return strcmp(s1, s2);
 }
 
-void init_csv_file(struct csv_file *cf, const char *file_name, struct csv_field *csv_field,
+int init_csv_file(struct csv_file *cf, const char *file_name, struct csv_field *csv_field,
 		int max_fields, const char *delim,
 		char * (*func)(char *, const char *, char **))
 {
 	if (cf == NULL)
-		return;
+		return 0;
 	/* mandatory fields */
 	cf->csv_field	 = csv_field;
 	cf->delim	 = delim;
@@ -376,6 +376,7 @@ void init_csv_file(struct csv_file *cf, const char *file_name, struct csv_field 
 	cf->endoffile_callback	 = NULL;
 	cf->header_field_compare = generic_header_cmp;
 	cf->num_fields_registered = 0;
+	return 1;
 }
 
 
