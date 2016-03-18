@@ -91,6 +91,12 @@ void init_csv_file(struct csv_file *cf, const char *file_name,
 		const char *delim, char * (*strtok_r)(char *, const char *, char **));
 void init_csv_state(struct csv_state *cs, const char *file_name);
 
+
+/* free_csv_file: release resource associated to a struct csv_file
+ * @cf : a pointer to a struct csv_file
+ */
+void free_csv_file(struct csv_file *cf);
+
 /* register_csv_field : register a struct csv_field in csv_file
  * @cf	        : a pointer to a CSV file
  * @name	: the name of the field (static)

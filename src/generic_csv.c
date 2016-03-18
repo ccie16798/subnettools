@@ -374,6 +374,12 @@ void init_csv_file(struct csv_file *cf, const char *file_name, struct csv_field 
 	cf->num_fields_registered = 0;
 }
 
+
+void free_csv_file(struct csv_file *cf)
+{
+	free_csv_field(cf->csv_field);
+}
+
 void init_csv_state(struct csv_state *cs, const char *file_name)
 {
 	memset(cs, 0, sizeof(struct csv_state));
