@@ -258,16 +258,15 @@ static int netcsv_validate_header(struct csv_file *cf, void *data)
 int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 {
 	/* default netcsv fields */
-	struct csv_field csv_field[20 + 1]; /* 20 + last is NULL */
 	struct csv_file cf;
 	struct csv_state state;
 	int res;
 	char *s;
 
 	if (nof->delim[1] == '\0')
-		res = init_csv_file(&cf, name, csv_field, 20, nof->delim, &st_strtok_r1);
+		res = init_csv_file(&cf, name, NULL, 20 + 1, nof->delim, &st_strtok_r1);
 	else
-		res = init_csv_file(&cf, name, csv_field, 20, nof->delim, &st_strtok_r);
+		res = init_csv_file(&cf, name, NULL, 20 + 1, nof->delim, &st_strtok_r);
 	if (res < 0)
 		return res;
 	init_csv_state(&state, name);
@@ -327,44 +326,26 @@ static int ipam_comment_handle(char *s, void *data, struct csv_state *state)
  */
 int load_ipam_no_EA(char  *name, struct subnet_file *sf, struct st_options *nof)
 {
-	/*
-	 * default IPAM fields (Infoblox)
-	 * obviously if you have a different IPAM please describe it in the config file
-	 */
-	struct csv_field csv_field[] = {
-		{ "address*",	0,  3, 1, &netcsv_prefix_handle },
-		{ "netmask_dec", 0,  4, 1, &netcsv_mask_handle },
-		{ "EA-Name",	0, 16, 1, &netcsv_comment_handle },
-		{ "comment",	0, 17, 1, &ipam_comment_handle },
-		{ NULL, 0, 0, 0, NULL }
-	};
 	struct csv_file cf;
 	struct csv_state state;
 	int res;
 	char *s;
 
-	res = init_csv_file(&cf, name, csv_field, 10, nof->ipam_delim, &st_strtok_r);
+	res = init_csv_file(&cf, name, NULL, 10, nof->ipam_delim, &st_strtok_r);
 	if (res < 0)
 		return res;
 	cf.is_header = netcsv_is_header;
 	cf.endofline_callback = netcsv_endofline_callback;
 	init_csv_state(&state, name);
-	if (nof->ipam_prefix_field[0])
-		csv_field[0].name = nof->ipam_prefix_field;
 	s = (nof->ipam_prefix_field[0] ? nof->ipam_prefix_field : "address*");
 	register_csv_field(&cf, s, 0, 3, 1, netcsv_prefix_handle);
-
-	if (nof->ipam_mask[0])
-		csv_field[1].name = nof->ipam_mask;
 	s = (nof->ipam_prefix_field[0] ? nof->ipam_prefix_field : "netmask_dec");
 	register_csv_field(&cf, s, 0, 4, 1, netcsv_prefix_handle);
 	if (nof->ipam_comment1[0]) {
-		csv_field[2].name = nof->ipam_comment1;
 		register_csv_field(&cf, nof->ipam_comment1, 0, 16, 1, &netcsv_comment_handle);
 		/* if comment1 is set, we set also comment2, even if its NULL
 		 * if it is NULL, that means the ipam we have doesnt have a secondary comment field
 		 */
-		csv_field[3].name = nof->ipam_comment2;
 		register_csv_field(&cf, nof->ipam_comment2, 0, 17, 1, &ipam_comment_handle);
 	} else {
 		register_csv_field(&cf, "EA-Name", 0, 16, 1, &netcsv_comment_handle);
@@ -621,13 +602,12 @@ static int bgp_field_compare(const char *s1, const char *s2)
 
 int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof)
 {
-	struct csv_field csv_field[12];
 	struct csv_file cf;
 	struct csv_state state;
 	int res;
 
 	cf.is_header = NULL;
-	res = init_csv_file(&cf, name, csv_field, 12, nof->delim, &st_strtok_r);
+	res = init_csv_file(&cf, name, NULL, 12, nof->delim, &st_strtok_r);
 	if (res < 0)
 		return res;
 	cf.endofline_callback   = bgpcsv_endofline_callback;

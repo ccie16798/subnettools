@@ -180,7 +180,6 @@ static int ipam_endoffile_callback(struct csv_state *state, void *data)
 
 int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 {
-	struct csv_field *csv_field;
 	struct csv_file cf;
 	struct csv_state state;
 	char *s;
@@ -188,13 +187,10 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 
 	ea_nr = count_char(nof->ipam_ea, ',') + 1;
 	ea_memory = (ea_nr + 4) * sizeof(struct csv_field);
-	csv_field = st_malloc(ea_memory, "IPAM CSV field");
-	if (csv_field == NULL)
-		return -1;
 	if (nof->ipam_delim[1] == '\0')
-		res = init_csv_file(&cf, name, csv_field, ea_nr + 4, nof->ipam_delim, &st_strtok_r1);
+		res = init_csv_file(&cf, name, NULL, ea_nr + 4, nof->ipam_delim, &st_strtok_r1);
 	else
-		res = init_csv_file(&cf, name, csv_field, ea_nr + 4, nof->ipam_delim, &st_strtok_r);
+		res = init_csv_file(&cf, name, NULL, ea_nr + 4, nof->ipam_delim, &st_strtok_r);
 	if (res < 0)
 		return res;
 	init_csv_state(&state, name);
@@ -219,26 +215,22 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 	}
 	if (i == 0) {
 		fprintf(stderr, "Please specify at least one Extended Attribute\n");
-		st_free(csv_field, ea_memory);
 		free_csv_file(&cf);
 		return -1;
 	}
 	if (cf.csv_field == NULL) { /* failed a malloc of csv_field name */
-		st_free(csv_field, ea_memory);
 		free_csv_file(&cf);
 		return -1;
 	}
 	debug(IPAM, 5, "Collected %d Extended Attributes\n", i);
 	res = alloc_ipam_file(sf, 16192, i);
 	if (res < 0) {
-		st_free(csv_field, ea_memory);
 		free_csv_file(&cf);
 		return res;
 	}
 	for (i = 0; i < ea_nr; i++) {
-		sf->ea[i].name = st_strdup(csv_field[i + 2].name);
+		sf->ea[i].name = st_strdup(cf.csv_field[i + 2].name);
 		if (sf->ea[i].name == NULL) {
-			st_free(csv_field, ea_memory);
 			free_csv_file(&cf);
 			return -1;
 		}
@@ -248,21 +240,18 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 	res = alloc_ipam_ea(sf, 0);
 	if (res < 0) {
 		free_ipam_file(sf);
-		st_free(csv_field, ea_memory);
 		free_csv_file(&cf);
 		return res;
 	}
 	res = generic_load_csv(name, &cf, &state, sf);
 	if (res < 0) {
 		free_ipam_ea(&sf->lines[0]);
-		st_free(csv_field, ea_memory);
 		free_csv_file(&cf);
 		free_ipam_file(sf);
 		return res;
 	}
 	/* last line was allocated by endofline_callback, but is unused, so free it */
 	free_ipam_ea(&sf->lines[sf->nr]);
-	st_free(csv_field, ea_memory);
 	free_csv_file(&cf);
 	return res;
 }

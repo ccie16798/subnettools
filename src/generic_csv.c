@@ -363,7 +363,9 @@ int init_csv_file(struct csv_file *cf, const char *file_name, struct csv_field *
 	if (cf == NULL)
 		return 0;
 	/* mandatory fields */
-	cf->csv_field	 = csv_field;
+	cf->csv_field = st_malloc(sizeof(struct csv_field) * max_fields, "CSV Field");
+	if (cf->csv_field == NULL) /* unlikely but .. */
+		return -1;
 	cf->delim	 = delim;
 	cf->csv_strtok_r = func;
 	cf->file_name    = (file_name ? file_name : "<stdin>");
@@ -383,6 +385,7 @@ int init_csv_file(struct csv_file *cf, const char *file_name, struct csv_field *
 void free_csv_file(struct csv_file *cf)
 {
 	free_csv_field(cf->csv_field);
+	st_free(cf->csv_field, sizeof(struct csv_field) * cf->max_fields);
 }
 
 void init_csv_state(struct csv_state *cs, const char *file_name)
