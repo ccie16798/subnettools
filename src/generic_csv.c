@@ -21,7 +21,7 @@
 static int read_csv_header(const char *buffer, struct csv_file *cf)
 {
 	int i, j, found;
-	char *s, *save_s, *s2;
+	char *s, *save_s;
 	int pos = 1;
 	int bad_header = 0;
 	int max_mandatory_pos = 1;
@@ -55,18 +55,16 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
 					break;
 				}
 			}
+			/* dynamic registration of unknow EA / Field names */
 			if (found == 0) {
 				if (cf->default_handler) {
 					debug(CSVHEADER, 3,
 							"default handler for field '%s' at pos %d\n",
 							s, pos);
-					s2 = st_strdup(s);
-					if (s2 == NULL)
+					i = register_csv_field(cf, s, 0,
+							pos, 0, cf->default_handler);
+					if (i == CSV_ENOMEM)
 						return CSV_ENOMEM;
-					i = register_dyn_csv_field(cf, s2,
-							pos, cf->default_handler);
-					if (i < 0)
-						st_free_string(s2);
 				} else {
 					debug(CSVHEADER, 3, "no handler for field '%s' at pos %d\n",
 							s, pos);
@@ -419,7 +417,7 @@ int register_csv_field(struct csv_file *csv_file, char *field_name, int mandator
 	 * release all resources */
 	if (name == NULL) {
 		free_csv_file(csv_file);
-		return -2;
+		return CSV_ENOMEM;
 	}
 	cf[i].name        = name;
 	cf[i].handle      = handle;
