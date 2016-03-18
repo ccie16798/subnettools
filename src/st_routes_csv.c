@@ -233,7 +233,7 @@ static int netcsv_endofline_callback(struct csv_state *state, void *data)
 static int netcsv_validate_header(struct csv_file *cf, void *data)
 {
 	struct subnet_file *sf = data;
-	int i, res, new_n;
+	int i, new_n;
 	struct ipam_ea *new_ea;
 
 	new_n  = cf->num_fields_registered - 4;
@@ -305,8 +305,6 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 		free_csv_file(&cf);
 		return res;
 	}
-	/* last line was allocated by endofline_callback, free it*/
-	//free_route(&sf->routes[sf->nr]);
 	if (sf->nr == 0) {
 		debug(LOAD_CSV, 3, "Not a single valid line in %s", name);
 		free_subnet_file(sf);
