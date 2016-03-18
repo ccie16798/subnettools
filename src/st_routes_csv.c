@@ -265,9 +265,11 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 	char *s;
 
 	if (nof->delim[1] == '\0')
-		init_csv_file(&cf, name, csv_field, 20, nof->delim, &st_strtok_r1);
+		res = init_csv_file(&cf, name, csv_field, 20, nof->delim, &st_strtok_r1);
 	else
-		init_csv_file(&cf, name, csv_field, 20, nof->delim, &st_strtok_r);
+		res = init_csv_file(&cf, name, csv_field, 20, nof->delim, &st_strtok_r);
+	if (res < 0)
+		return res;
 	init_csv_state(&state, name);
 	cf.is_header          = &netcsv_is_header;
 	cf.endofline_callback = &netcsv_endofline_callback;
@@ -285,13 +287,18 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 	s = (nof->netcsv_comment[0] ? nof->netcsv_comment : "comment");
 	register_csv_field(&cf, s, 0, 0, 4, &netcsv_comment_handle);
 
-	if (cf.csv_field == NULL) /* failed malloc of csv_field name */
+	if (cf.csv_field == NULL) {/* failed malloc of csv_field name */
+		free_csv_file(&cf);
 		return -2;
-	if (alloc_subnet_file(sf, 4096) < 0)
+	}
+	if (alloc_subnet_file(sf, 4096) < 0) {
+		free_csv_file(&cf);
 		return -2;
+	}
 	res = generic_load_csv(name, &cf, &state, sf);
 	if (res < 0) {
 		free_subnet_file(sf);
+		free_csv_file(&cf);
 		return res;
 	}
 	/* last line was allocated by endofline_callback, free it*/
@@ -299,8 +306,10 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 	if (sf->nr == 0) {
 		debug(LOAD_CSV, 3, "Not a single valid line in %s", name);
 		free_subnet_file(sf);
+		free_csv_file(&cf);
 		return -2;
 	}
+	free_csv_file(&cf);
 	return res;
 }
 
@@ -334,7 +343,9 @@ int load_ipam_no_EA(char  *name, struct subnet_file *sf, struct st_options *nof)
 	int res;
 	char *s;
 
-	init_csv_file(&cf, name, csv_field, 10, nof->ipam_delim, &st_strtok_r);
+	res = init_csv_file(&cf, name, csv_field, 10, nof->ipam_delim, &st_strtok_r);
+	if (res < 0)
+		return res;
 	cf.is_header = netcsv_is_header;
 	cf.endofline_callback = netcsv_endofline_callback;
 	init_csv_state(&state, name);
@@ -359,24 +370,31 @@ int load_ipam_no_EA(char  *name, struct subnet_file *sf, struct st_options *nof)
 		register_csv_field(&cf, "EA-Name", 0, 16, 1, &netcsv_comment_handle);
 		register_csv_field(&cf, "comment", 0, 17, 1, &ipam_comment_handle);
 	}
-	if (cf.csv_field == NULL) /* failed malloc of csv_field name */
+	if (cf.csv_field == NULL) {/* failed malloc of csv_field name */
+		free_csv_file(&cf);
 		return -2;
+	}
 
-	if (alloc_subnet_file(sf, 16192) < 0)
+	if (alloc_subnet_file(sf, 16192) < 0) {
+		free_csv_file(&cf);
 		return -2;
+	}
 	zero_route(&sf->routes[0]);
 	res = alloc_route_ea(&sf->routes[0], 1);
 	if (res < 0) {
 		free_subnet_file(sf);
+		free_csv_file(&cf);
 		return res;
 	}
 	res = generic_load_csv(name, &cf, &state, sf);
 	if (res < 0) {
 		free_subnet_file(sf);
+		free_csv_file(&cf);
 		return res;
 	}
 	/* we allocated one more route */
 	free_route(&sf->routes[sf->nr]);
+	free_csv_file(&cf);
 	return res;
 }
 
@@ -609,7 +627,9 @@ int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof)
 	int res;
 
 	cf.is_header = NULL;
-	init_csv_file(&cf, name, csv_field, 12, nof->delim, &st_strtok_r);
+	res = init_csv_file(&cf, name, csv_field, 12, nof->delim, &st_strtok_r);
+	if (res < 0)
+		return res;
 	cf.endofline_callback   = bgpcsv_endofline_callback;
 	cf.header_field_compare = bgp_field_compare;
 	init_csv_state(&state, name);
@@ -624,11 +644,14 @@ int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof)
 	register_csv_field(&cf, "ORIGIN", 0, 0, 1, &bgpcsv_origin_handle);
 	register_csv_field(&cf, "V", 0, 0, 1, &bgpcsv_valid_handle);
 	register_csv_field(&cf, "Proto", 0, 0, 1, &bgpcsv_type_handle);
-	if (cf.csv_field == NULL) /* failed malloc of csv_field name */
+	if (cf.csv_field == NULL) {/* failed malloc of csv_field name */
+		free_csv_file(&cf);
 		return -2;
-
-	if (alloc_bgp_file(sf, 16192) < 0)
+	}
+	if (alloc_bgp_file(sf, 16192) < 0) {
+		free_csv_file(&cf);
 		return -2;
+	}
 	zero_bgproute(&sf->routes[0]);
 	res = generic_load_csv(name, &cf, &state, sf);
 	if (res < 0)
@@ -636,7 +659,9 @@ int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof)
 	if (sf->nr == 0) {
 		debug(LOAD_CSV, 3, "Not a single valid line in %s", name);
 		free_bgp_file(sf);
+		free_csv_file(&cf);
 		return -2;
 	}
+	free_csv_file(&cf);
 	return res;
 }

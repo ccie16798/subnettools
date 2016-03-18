@@ -192,9 +192,11 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 	if (csv_field == NULL)
 		return -1;
 	if (nof->ipam_delim[1] == '\0')
-		init_csv_file(&cf, name, csv_field, ea_nr + 4, nof->ipam_delim, &st_strtok_r1);
+		res = init_csv_file(&cf, name, csv_field, ea_nr + 4, nof->ipam_delim, &st_strtok_r1);
 	else
-		init_csv_file(&cf, name, csv_field, ea_nr + 4, nof->ipam_delim, &st_strtok_r);
+		res = init_csv_file(&cf, name, csv_field, ea_nr + 4, nof->ipam_delim, &st_strtok_r);
+	if (res < 0)
+		return res;
 	init_csv_state(&state, name);
 	cf.endofline_callback = ipam_endofline_callback;
 	cf.endoffile_callback = ipam_endoffile_callback;
@@ -218,22 +220,26 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 	if (i == 0) {
 		fprintf(stderr, "Please specify at least one Extended Attribute\n");
 		st_free(csv_field, ea_memory);
+		free_csv_file(&cf);
 		return -1;
 	}
 	if (cf.csv_field == NULL) { /* failed a malloc of csv_field name */
 		st_free(csv_field, ea_memory);
+		free_csv_file(&cf);
 		return -1;
 	}
 	debug(IPAM, 5, "Collected %d Extended Attributes\n", i);
 	res = alloc_ipam_file(sf, 16192, i);
 	if (res < 0) {
 		st_free(csv_field, ea_memory);
+		free_csv_file(&cf);
 		return res;
 	}
 	for (i = 0; i < ea_nr; i++) {
 		sf->ea[i].name = st_strdup(csv_field[i + 2].name);
 		if (sf->ea[i].name == NULL) {
 			st_free(csv_field, ea_memory);
+			free_csv_file(&cf);
 			return -1;
 		}
 	}
@@ -243,18 +249,21 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 	if (res < 0) {
 		free_ipam_file(sf);
 		st_free(csv_field, ea_memory);
+		free_csv_file(&cf);
 		return res;
 	}
 	res = generic_load_csv(name, &cf, &state, sf);
 	if (res < 0) {
 		free_ipam_ea(&sf->lines[0]);
 		st_free(csv_field, ea_memory);
+		free_csv_file(&cf);
 		free_ipam_file(sf);
 		return res;
 	}
 	/* last line was allocated by endofline_callback, but is unused, so free it */
 	free_ipam_ea(&sf->lines[sf->nr]);
 	st_free(csv_field, ea_memory);
+	free_csv_file(&cf);
 	return res;
 }
 
