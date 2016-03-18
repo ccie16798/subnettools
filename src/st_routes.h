@@ -37,7 +37,6 @@ static inline void copy_route(struct route *a, const struct route *b)
 }
 /* clone src into dest, allocating new buffer to dst
  * if dest had alloc'ed buffer, free them
- *
  * returns:
  *	1  on success
  *	-1 on failure (ENOMEM)
@@ -46,7 +45,6 @@ int clone_route(struct route *dst, const struct route *src);
 
 /* clone src into dest
  * doesnt free dest buffers, so make sure it hasnt
- *
  * returns:
  *	1  on success
  *	-1 on failure (ENOMEM)

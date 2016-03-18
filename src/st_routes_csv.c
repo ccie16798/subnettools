@@ -77,7 +77,7 @@ static int sf_init_route(struct subnet_file *sf, unsigned long n)
 
 	__init_route(&sf->routes[n]);
 	res = alloc_route_ea(&sf->routes[n], sf->ea_nr);
-	if (res < 0) /* routes->ea will be set to NULL, an d ea_nr to zero */
+	if (res < 0) /* routes->ea will be set to NULL, and ea_nr to zero */
 		return res;
 	for (i = 0; i < sf->ea_nr; i++)
 		sf->routes[n].ea[i].name = sf->ea[i].name;
