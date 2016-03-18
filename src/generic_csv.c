@@ -282,11 +282,15 @@ static void free_csv_field(struct csv_field *cf)
 {
 	int i;
 
+	if (cf == NULL)
+		return;
 	for (i = 0; ; i++) {
 		if (cf[i].name == NULL)
 			return;
-		if (cf[i].dyn_alloc)
+		if (cf[i].dyn_alloc) {
 			st_free_string(cf[i].name);
+			cf[i].name = NULL;
+		}
 	}
 }
 
