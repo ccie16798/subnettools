@@ -183,10 +183,9 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 	struct csv_file cf;
 	struct csv_state state;
 	char *s;
-	int i, res, ea_nr = 0, ea_memory;
+	int i, res, ea_nr = 0;
 
 	ea_nr = count_char(nof->ipam_ea, ',') + 1;
-	ea_memory = (ea_nr + 4) * sizeof(struct csv_field);
 	if (nof->ipam_delim[1] == '\0')
 		res = init_csv_file(&cf, name, ea_nr + 4, nof->ipam_delim, &st_strtok_r1);
 	else
