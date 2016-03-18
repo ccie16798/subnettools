@@ -383,8 +383,11 @@ int init_csv_file(struct csv_file *cf, const char *file_name, int max_fields, co
 
 void free_csv_file(struct csv_file *cf)
 {
+	if (cf->csv_field == NULL)
+		return;
 	free_csv_field(cf->csv_field);
 	st_free(cf->csv_field, sizeof(struct csv_field) * cf->max_fields);
+	cf->csv_field = NULL;
 }
 
 void init_csv_state(struct csv_state *cs, const char *file_name)
@@ -408,11 +411,10 @@ int register_csv_field(struct csv_file *csv_file, char *name, int mandatory, int
 				i, name);
 		return -1;
 	}
-	/* if malloc has failed, we are in deep trouble; free
-	 * alloced field_name and reset csv_file->csv_field to NULL */
+	/* if malloc has failed, we are in deep trouble;
+	 * release all resources */
 	if (name == NULL) {
-		free_csv_field(cf);
-		csv_file->csv_field = NULL;
+		free_csv_file(csv_file);
 		return 0;
 	}
 	cf[i].name        = name;
