@@ -257,16 +257,15 @@ static int netcsv_validate_header(struct csv_file *cf, void *data)
 
 int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 {
-	/* default netcsv fields */
 	struct csv_file cf;
 	struct csv_state state;
 	int res;
 	char *s;
 
 	if (nof->delim[1] == '\0')
-		res = init_csv_file(&cf, name, NULL, 20 + 1, nof->delim, &st_strtok_r1);
+		res = init_csv_file(&cf, name, 20 + 1, nof->delim, &st_strtok_r1);
 	else
-		res = init_csv_file(&cf, name, NULL, 20 + 1, nof->delim, &st_strtok_r);
+		res = init_csv_file(&cf, name, 20 + 1, nof->delim, &st_strtok_r);
 	if (res < 0)
 		return res;
 	init_csv_state(&state, name);
@@ -331,7 +330,7 @@ int load_ipam_no_EA(char  *name, struct subnet_file *sf, struct st_options *nof)
 	int res;
 	char *s;
 
-	res = init_csv_file(&cf, name, NULL, 10, nof->ipam_delim, &st_strtok_r);
+	res = init_csv_file(&cf, name, 10, nof->ipam_delim, &st_strtok_r);
 	if (res < 0)
 		return res;
 	cf.is_header = netcsv_is_header;
@@ -607,7 +606,7 @@ int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof)
 	int res;
 
 	cf.is_header = NULL;
-	res = init_csv_file(&cf, name, NULL, 12, nof->delim, &st_strtok_r);
+	res = init_csv_file(&cf, name, 12, nof->delim, &st_strtok_r);
 	if (res < 0)
 		return res;
 	cf.endofline_callback   = bgpcsv_endofline_callback;

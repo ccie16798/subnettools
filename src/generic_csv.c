@@ -356,8 +356,7 @@ int generic_header_cmp(const char *s1, const char *s2)
 	return strcmp(s1, s2);
 }
 
-int init_csv_file(struct csv_file *cf, const char *file_name, struct csv_field *csv_field,
-		int max_fields, const char *delim,
+int init_csv_file(struct csv_file *cf, const char *file_name, int max_fields, const char *delim,
 		char * (*func)(char *, const char *, char **))
 {
 	if (cf == NULL)

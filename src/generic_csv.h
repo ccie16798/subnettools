@@ -86,8 +86,7 @@ struct csv_file {
  * - simple_strtok_r : doesnt treat consecutive delims as one
  * - strtok_r        : treat consecutives delims as one
  */
-int init_csv_file(struct csv_file *cf, const char *file_name,
-		struct csv_field *csv_field, int max_fields,
+int init_csv_file(struct csv_file *cf, const char *file_name, int max_fields,
 		const char *delim, char * (*strtok_r)(char *, const char *, char **));
 void init_csv_state(struct csv_state *cs, const char *file_name);
 
