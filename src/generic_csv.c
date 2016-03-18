@@ -287,10 +287,8 @@ static void free_csv_field(struct csv_field *cf)
 	for (i = 0; ; i++) {
 		if (cf[i].name == NULL)
 			return;
-		if (cf[i].dyn_alloc) {
-			st_free_string(cf[i].name);
-			cf[i].name = NULL;
-		}
+		st_free_string(cf[i].name);
+		cf[i].name = NULL;
 	}
 }
 
@@ -396,32 +394,37 @@ void init_csv_state(struct csv_state *cs, const char *file_name)
 	cs->file_name = (file_name ? file_name : "<stdin>");
 }
 
-int register_csv_field(struct csv_file *csv_file, char *name, int mandatory, int pos,
+int register_csv_field(struct csv_file *csv_file, char *field_name, int mandatory, int pos,
 		int default_pos, int (*handle)(char *token, void *data, struct csv_state *state))
 {
 	int i;
 	struct csv_field *cf;
+	char *name;
 
 	if (csv_file == NULL)
 		return 0;
+	if (field_name == NULL) {
+		fprintf(stderr, "BUG, %s called with NULL field_name\n", __func__);
+		return -6;
+	}
 	i  = csv_file->num_fields_registered;
 	cf = csv_file->csv_field;
 	if (i == csv_file->max_fields - 1) {
 		debug(CSVHEADER, 1, "Cannot register more than %d fields, dropping '%s\n",
-				i, name);
+				i, field_name);
 		return -1;
 	}
+	name = st_strdup(field_name);
 	/* if malloc has failed, we are in deep trouble;
 	 * release all resources */
 	if (name == NULL) {
 		free_csv_file(csv_file);
-		return 0;
+		return -2;
 	}
 	cf[i].name        = name;
 	cf[i].handle      = handle;
 	cf[i].mandatory   = mandatory;
 	cf[i].pos         = pos;
-	cf[i].dyn_alloc	  = 0;
 	cf[i].default_pos = default_pos;
 	cf[i + 1].name    = NULL;
 	csv_file->num_fields_registered++;
@@ -445,7 +448,6 @@ int register_dyn_csv_field(struct csv_file *csv_file, char *name, int pos,
 	cf[i].handle      = handle;
 	cf[i].mandatory   = 0;
 	cf[i].pos         = pos;
-	cf[i].dyn_alloc	  = 1;
 	cf[i].default_pos = 0;
 	cf[i + 1].name    = NULL;
 	csv_file->num_fields_registered++;

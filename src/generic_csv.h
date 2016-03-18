@@ -50,12 +50,11 @@ struct csv_state {
 };
 
 struct csv_field {
-	char *name;
+	char *name; /* will be malloc'ed */
 	int pos; /* pos starts at 1, pos == 0 means it is not set */
 	int default_pos; /* used in CSV files where there is no HEADER */
 	int mandatory;
 	int (*handle)(char *token, void *data, struct csv_state *state);
-	int dyn_alloc; /* set to one if name was malloc'ed */
 };
 
 struct csv_file {
