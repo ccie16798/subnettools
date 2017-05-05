@@ -1,7 +1,7 @@
 #ifndef GENERIC_CSV
 #define GENERIC_CSV
 
-#define CSV_MAX_LINE_LEN 1024
+#define CSV_MAX_LINE_LEN 2048
 
 /* csv_field->handler return values */
 #define CSV_INVALID_FIELD_BREAK	-1
