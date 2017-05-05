@@ -140,10 +140,13 @@ static int ipam_endofline_callback(struct csv_state *state, void *data)
 {
 	struct ipam_file *sf = data;
 	struct ipam_line *new_r;
-	int res;
 
 	if (state->badline) {
 		debug(LOAD_CSV, 1, "%s : invalid line %lu\n", state->file_name, state->line);
+		/* if too much badlines, we will loose time alloc in startofline
+		 * and freeing in endofline but whatever
+		 */
+		free_ipam_ea(&sf->lines[sf->nr]);
 		return -1;
 	}
 	sf->nr++;
@@ -160,10 +163,19 @@ static int ipam_endofline_callback(struct csv_state *state, void *data)
 		sf->lines = new_r;
 	}
 	memset(&sf->lines[sf->nr], 0, sizeof(struct ipam_line));
+	return CSV_CONTINUE;
+}
+
+static int ipam_startofline_callback(struct csv_state *state, void *data)
+{
+	struct ipam_file *sf = data;
+	int res;
+
+	/* alloc memory for the new line */
 	res = alloc_ipam_ea(sf, sf->nr);
 	if (res < 0)
 		return  CSV_CATASTROPHIC_FAILURE;
-	return CSV_CONTINUE;
+	return CSV_VALID_FILE;
 }
 
 static int ipam_endoffile_callback(struct csv_state *state, void *data)
@@ -193,8 +205,9 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 	if (res < 0)
 		return res;
 	init_csv_state(&state, name);
-	cf.endofline_callback = ipam_endofline_callback;
-	cf.endoffile_callback = ipam_endoffile_callback;
+	cf.endofline_callback   = ipam_endofline_callback;
+	cf.startofline_callback = ipam_startofline_callback;
+	cf.endoffile_callback   = ipam_endoffile_callback;
 
 	/* register network and mask handler */
 	s = (nof->ipam_prefix_field[0] ? nof->ipam_prefix_field : "address*");
@@ -235,13 +248,6 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 		}
 	}
 	memset(&sf->lines[0], 0, sizeof(struct ipam_line));
-	/* alloc memory for first line of file */
-	res = alloc_ipam_ea(sf, 0);
-	if (res < 0) {
-		free_ipam_file(sf);
-		free_csv_file(&cf);
-		return res;
-	}
 	res = generic_load_csv(name, &cf, &state, sf);
 	if (res < 0) {
 		free_ipam_ea(&sf->lines[0]);
@@ -249,8 +255,6 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 		free_ipam_file(sf);
 		return res;
 	}
-	/* last line was allocated by endofline_callback, but is unused, so free it */
-	free_ipam_ea(&sf->lines[sf->nr]);
 	free_csv_file(&cf);
 	return res;
 }

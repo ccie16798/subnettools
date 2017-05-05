@@ -424,8 +424,9 @@ int register_csv_field(struct csv_file *csv_file, char *field_name, int mandator
 		return -1;
 	}
 	name = st_strdup(field_name);
-	/* if malloc has failed, we are in deep trouble;
-	 * release all resources */
+	/* in very unlikely case malloc has failed, we are in deep trouble;
+	 * release all resources
+	 */
 	if (name == NULL) {
 		free_csv_file(csv_file);
 		return CSV_ENOMEM;

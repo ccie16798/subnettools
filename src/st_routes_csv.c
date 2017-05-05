@@ -191,14 +191,25 @@ static int netcsv_is_header(char *s)
 		return 0;
 }
 
+static int netcsv_startofline_callback(struct csv_state *state, void *data)
+{
+	struct subnet_file *sf = data;
+	int res;
+
+	res = sf_init_route(sf, sf->nr);
+	if (res < 0)
+		return CSV_CATASTROPHIC_FAILURE;
+	return 1;
+}
+
 static int netcsv_endofline_callback(struct csv_state *state, void *data)
 {
 	struct subnet_file *sf = data;
 	struct route *new_r;
-	int res;
 
 	if (state->badline) {
 		debug(LOAD_CSV, 1, "%s : invalid line %lu\n", state->file_name, state->line);
+		free_route(&sf->routes[sf->nr]);
 		return -1;
 	}
 	sf->nr++;
@@ -215,9 +226,6 @@ static int netcsv_endofline_callback(struct csv_state *state, void *data)
 		sf->max_nr *= 2;
 		sf->routes = new_r;
 	}
-	res = sf_init_route(sf, sf->nr);
-	if (res < 0)
-		return CSV_CATASTROPHIC_FAILURE;
 	state->state[0] = 0; /* state[0] = we found a mask */
 	return CSV_CONTINUE;
 }
@@ -225,7 +233,7 @@ static int netcsv_endofline_callback(struct csv_state *state, void *data)
 static int netcsv_validate_header(struct csv_file *cf, void *data)
 {
 	struct subnet_file *sf = data;
-	int i, res, new_n;
+	int i, new_n;
 	struct ipam_ea *new_ea;
 
 	new_n  = cf->num_fields_registered - 4;
@@ -249,9 +257,6 @@ static int netcsv_validate_header(struct csv_file *cf, void *data)
 		}
 	}
 	/* alloc EA for routes[0] */
-	res = sf_init_route(sf, 0);
-	if (res < 0)
-		return res;
 	return 1;
 }
 
@@ -269,10 +274,11 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 	if (res < 0)
 		return res;
 	init_csv_state(&state, name);
-	cf.is_header          = &netcsv_is_header;
-	cf.endofline_callback = &netcsv_endofline_callback;
-	cf.validate_header    = &netcsv_validate_header;
-	cf.default_handler    = &netcsv_ea_handler;
+	cf.is_header            = &netcsv_is_header;
+	cf.endofline_callback   = &netcsv_endofline_callback;
+	cf.startofline_callback = &netcsv_startofline_callback;
+	cf.validate_header      = &netcsv_validate_header;
+	cf.default_handler      = &netcsv_ea_handler;
 	/* netcsv field may have been set by conf file */
 	s = (nof->netcsv_prefix_field[0] ? nof->netcsv_prefix_field : "prefix");
 	register_csv_field(&cf, s, 0, 1, 1, &netcsv_prefix_handle);
@@ -299,8 +305,6 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 		free_csv_file(&cf);
 		return res;
 	}
-	/* last line was allocated by endofline_callback, free it*/
-	free_route(&sf->routes[sf->nr]);
 	if (sf->nr == 0) {
 		debug(LOAD_CSV, 3, "Not a single valid line in %s", name);
 		free_subnet_file(sf);
@@ -334,12 +338,13 @@ int load_ipam_no_EA(char  *name, struct subnet_file *sf, struct st_options *nof)
 	if (res < 0)
 		return res;
 	cf.is_header = netcsv_is_header;
-	cf.endofline_callback = netcsv_endofline_callback;
+	cf.endofline_callback   = netcsv_endofline_callback;
+	cf.startofline_callback = netcsv_startofline_callback;
 	init_csv_state(&state, name);
 	s = (nof->ipam_prefix_field[0] ? nof->ipam_prefix_field : "address*");
 	register_csv_field(&cf, s, 0, 3, 1, netcsv_prefix_handle);
 	s = (nof->ipam_prefix_field[0] ? nof->ipam_prefix_field : "netmask_dec");
-	register_csv_field(&cf, s, 0, 4, 1, netcsv_prefix_handle);
+	register_csv_field(&cf, s, 0, 4, 1, netcsv_mask_handle);
 	if (nof->ipam_comment1[0]) {
 		register_csv_field(&cf, nof->ipam_comment1, 0, 16, 1, &netcsv_comment_handle);
 		/* if comment1 is set, we set also comment2, even if its NULL

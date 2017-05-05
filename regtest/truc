@@ -1,0 +1,549 @@
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+generic_command_run: Total amout of memory still allocated 0; print
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+heap.c:alloc_tas line 49 Allocated 32 bytes for heap
+subnet_tool.c:__subnet_sort_by line 1141 Allocated 416 Kbytes for struct route
+generic_command_run: Total amout of memory still allocated 0; sort
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+heap.c:alloc_tas line 49 Allocated 32 bytes for heap
+subnet_tool.c:__subnet_sort_by line 1141 Allocated 416 Kbytes for struct route
+generic_command_run: Total amout of memory still allocated 0; sort
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+heap.c:alloc_tas line 49 Allocated 48 bytes for heap
+subnet_tool.c:__subnet_sort_by line 1141 Allocated 416 Kbytes for struct route
+generic_command_run: Total amout of memory still allocated 0; sort
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+generic_command_run: Total amout of memory still allocated 0; print
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+generic_command_run: Total amout of memory still allocated 0; print
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+generic_command_run: Total amout of memory still allocated 0; print
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 1248 bytes for subnet_file
+generic_command_run: Total amout of memory still allocated 0; subnetcmp
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 1248 bytes for subnet_file
+generic_command_run: Total amout of memory still allocated 0; subnetcmp
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+generic_command_run: Total amout of memory still allocated 0; compare
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+generic_command_run: Total amout of memory still allocated 0; compare
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+generic_command_run: Total amout of memory still allocated 0; missing
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 18 Kbytes for subnet_file
+heap.c:alloc_tas line 49 Allocated 1488 bytes for heap
+generic_command_run: Total amout of memory still allocated 0; uniq
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 1248 bytes for subnet_file
+heap.c:alloc_tas line 49 Allocated 96 bytes for heap
+generic_command_run: Total amout of memory still allocated 0; uniq
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+heap.c:alloc_tas line 49 Allocated 1488 bytes for heap
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 18 Kbytes for subnet_file
+generic_command_run: Total amout of memory still allocated 0; common
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+heap.c:alloc_tas line 49 Allocated 96 bytes for heap
+subnet_tool.c:subnet_file_simplify line 491 Allocated 1248 bytes for struct route
+subnet_tool.c:aggregate_route_file line 630 Allocated 1248 bytes for struct route
+generic_command_run: Total amout of memory still allocated 0; subnetagg
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+heap.c:alloc_tas line 49 Allocated 80 bytes for heap
+subnet_tool.c:subnet_file_simplify line 491 Allocated 1040 bytes for struct route
+subnet_tool.c:aggregate_route_file line 630 Allocated 1040 bytes for struct route
+generic_command_run: Total amout of memory still allocated 0; subnetagg
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+st_routes_csv.c:netcsv_endofline_callback line 223 Reallocated 832 Kbytes for struct route
+st_routes_csv.c:netcsv_endofline_callback line 223 Reallocated 1664 Kbytes for struct route
+st_routes_csv.c:netcsv_endofline_callback line 223 Reallocated 3328 Kbytes for struct route
+st_routes_csv.c:netcsv_endofline_callback line 223 Reallocated 6656 Kbytes for struct route
+st_routes_csv.c:netcsv_endofline_callback line 223 Reallocated 13 Mbytes for struct route
+heap.c:alloc_tas line 49 Allocated 781 Kbytes for heap
+subnet_tool.c:subnet_file_simplify line 491 Allocated 10156 Kbytes for struct route
+subnet_tool.c:aggregate_route_file line 630 Allocated 10156 Kbytes for struct route
+generic_command_run: Total amout of memory still allocated 0; subnetagg
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+heap.c:alloc_tas line 49 Allocated 88 bytes for heap
+subnet_tool.c:subnet_file_simplify line 491 Allocated 1144 bytes for struct route
+subnet_tool.c:aggregate_route_file line 630 Allocated 1144 bytes for struct route
+generic_command_run: Total amout of memory still allocated 0; routeagg
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+heap.c:alloc_tas line 49 Allocated 88 bytes for heap
+subnet_tool.c:subnet_file_simplify line 491 Allocated 1144 bytes for struct route
+subnet_tool.c:aggregate_route_file line 630 Allocated 1144 bytes for struct route
+generic_command_run: Total amout of memory still allocated 0; routeagg
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+heap.c:alloc_tas line 49 Allocated 64 bytes for heap
+subnet_tool.c:subnet_file_simplify line 491 Allocated 832 bytes for struct route
+subnet_tool.c:aggregate_route_file line 630 Allocated 832 bytes for struct route
+generic_command_run: Total amout of memory still allocated 0; routeagg
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+heap.c:alloc_tas line 49 Allocated 1448 bytes for heap
+subnet_tool.c:route_file_simplify line 541 Allocated 18 Kbytes for struct route
+subnet_tool.c:route_file_simplify line 546 Allocated 18 Kbytes for struct route
+generic_command_run: Total amout of memory still allocated 0; routesimplify1
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+heap.c:alloc_tas line 49 Allocated 1448 bytes for heap
+subnet_tool.c:route_file_simplify line 541 Allocated 18 Kbytes for struct route
+subnet_tool.c:route_file_simplify line 546 Allocated 18 Kbytes for struct route
+generic_command_run: Total amout of memory still allocated 0; routesimplify2
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+heap.c:alloc_tas line 49 Allocated 112 bytes for heap
+subnet_tool.c:route_file_simplify line 541 Allocated 1456 bytes for struct route
+subnet_tool.c:route_file_simplify line 546 Allocated 1456 bytes for struct route
+generic_command_run: Total amout of memory still allocated 0; routesimplify1
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+heap.c:alloc_tas line 49 Allocated 112 bytes for heap
+subnet_tool.c:route_file_simplify line 541 Allocated 1456 bytes for struct route
+subnet_tool.c:route_file_simplify line 546 Allocated 1456 bytes for struct route
+generic_command_run: Total amout of memory still allocated 0; routesimplify2
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+heap.c:alloc_tas line 49 Allocated 96 bytes for heap
+subnet_tool.c:__subnet_sort_by line 1141 Allocated 416 Kbytes for struct route
+generic_command_run: Total amout of memory still allocated 0; sort
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+heap.c:alloc_tas line 49 Allocated 104 bytes for heap
+subnet_tool.c:__subnet_sort_by line 1141 Allocated 416 Kbytes for struct route
+generic_command_run: Total amout of memory still allocated 0; sortby
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+heap.c:alloc_tas line 49 Allocated 104 bytes for heap
+subnet_tool.c:__subnet_sort_by line 1141 Allocated 416 Kbytes for struct route
+generic_command_run: Total amout of memory still allocated 0; sortby
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+heap.c:alloc_tas line 49 Allocated 104 bytes for heap
+subnet_tool.c:__subnet_sort_by line 1141 Allocated 416 Kbytes for struct route
+generic_command_run: Total amout of memory still allocated 0; sortby
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+heap.c:alloc_tas line 49 Allocated 104 bytes for heap
+subnet_tool.c:route_file_simplify line 541 Allocated 1352 bytes for struct route
+subnet_tool.c:route_file_simplify line 546 Allocated 1352 bytes for struct route
+generic_command_run: Total amout of memory still allocated 0; routesimplify1
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+heap.c:alloc_tas line 49 Allocated 104 bytes for heap
+subnet_tool.c:route_file_simplify line 541 Allocated 1352 bytes for struct route
+subnet_tool.c:route_file_simplify line 546 Allocated 1352 bytes for struct route
+generic_command_run: Total amout of memory still allocated 0; routesimplify2
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+heap.c:alloc_tas line 49 Allocated 80 bytes for heap
+subnet_tool.c:__subnet_sort_by line 1141 Allocated 416 Kbytes for struct route
+generic_command_run: Total amout of memory still allocated 0; sort
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+heap.c:alloc_tas line 49 Allocated 72 bytes for heap
+subnet_tool.c:__subnet_sort_by line 1141 Allocated 416 Kbytes for struct route
+generic_command_run: Total amout of memory still allocated 0; sort
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+heap.c:alloc_tas line 49 Allocated 48 bytes for heap
+subnet_tool.c:__subnet_sort_by line 1141 Allocated 416 Kbytes for struct route
+generic_command_run: Total amout of memory still allocated 0; sort
+generic_command_run: Total amout of memory still allocated 0; removesubnet
+generic_command_run: Total amout of memory still allocated 0; removesubnet
+generic_command_run: Total amout of memory still allocated 0; removesubnet
+generic_command_run: Total amout of memory still allocated 0; removesubnet
+generic_command_run: Total amout of memory still allocated 0; removesubnet
+generic_command_run: Total amout of memory still allocated 0; removesubnet
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+generic_command_run: Total amout of memory still allocated 0; removesubnet
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+generic_command_run: Total amout of memory still allocated 0; removesubnet
+generic_command_run: Total amout of memory still allocated 0; split
+generic_command_run: Total amout of memory still allocated 0; split
+generic_command_run: Total amout of memory still allocated 0; split
+generic_command_run: Total amout of memory still allocated 0; exprtest
+generic_command_run: Total amout of memory still allocated 0; exprtest
+generic_command_run: Total amout of memory still allocated 0; exprtest
+generic_command_run: Total amout of memory still allocated 0; exprtest
+generic_command_run: Total amout of memory still allocated 0; exprtest
+generic_command_run: Total amout of memory still allocated 0; exprtest
+generic_command_run: Total amout of memory still allocated 0; exprtest
+generic_command_run: Total amout of memory still allocated 0; exprtest
+generic_command_run: Total amout of memory still allocated 0; exprtest
+generic_command_run: Total amout of memory still allocated 0; exprtest
+generic_command_run: Total amout of memory still allocated 0; exprtest
+generic_command_run: Total amout of memory still allocated 0; exprtest
+generic_command_run: Total amout of memory still allocated 0; exprtest
+generic_command_run: Total amout of memory still allocated 0; exprtest
+generic_command_run: Total amout of memory still allocated 0; exprtest
+generic_command_run: Total amout of memory still allocated 0; exprtest
+generic_command_run: Total amout of memory still allocated 0; exprtest
+generic_command_run: Total amout of memory still allocated 0; exprtest
+generic_command_run: Total amout of memory still allocated 0; exprtest
+generic_command_run: Total amout of memory still allocated 0; exprtest
+generic_command_run: Total amout of memory still allocated 0; exprtest
+generic_command_run: Total amout of memory still allocated 0; exprtest
+generic_command_run: Total amout of memory still allocated 0; exprtest
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+subnet_tool.c:subnet_file_filter line 1318 Allocated 936 bytes for struct route
+generic_command_run: Total amout of memory still allocated 0; filter
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+subnet_tool.c:subnet_file_filter line 1318 Allocated 936 bytes for struct route
+generic_command_run: Total amout of memory still allocated 0; filter
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+subnet_tool.c:subnet_file_filter line 1318 Allocated 936 bytes for struct route
+generic_command_run: Total amout of memory still allocated 0; filter
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+subnet_tool.c:subnet_file_filter line 1318 Allocated 936 bytes for struct route
+generic_command_run: Total amout of memory still allocated 0; filter
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+subnet_tool.c:subnet_file_filter line 1318 Allocated 936 bytes for struct route
+generic_command_run: Total amout of memory still allocated 0; filter
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+subnet_tool.c:subnet_file_filter line 1318 Allocated 936 bytes for struct route
+generic_command_run: Total amout of memory still allocated 0; filter
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+subnet_tool.c:subnet_file_filter line 1318 Allocated 936 bytes for struct route
+generic_command_run: Total amout of memory still allocated 0; filter
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+subnet_tool.c:subnet_file_filter line 1318 Allocated 936 bytes for struct route
+generic_command_run: Total amout of memory still allocated 0; filter
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+subnet_tool.c:subnet_file_filter line 1318 Allocated 936 bytes for struct route
+generic_command_run: Total amout of memory still allocated 0; filter
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+subnet_tool.c:subnet_file_filter line 1318 Allocated 936 bytes for struct route
+generic_command_run: Total amout of memory still allocated 0; filter
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+subnet_tool.c:subnet_file_filter line 1318 Allocated 936 bytes for struct route
+generic_command_run: Total amout of memory still allocated 0; filter
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+subnet_tool.c:subnet_file_filter line 1318 Allocated 936 bytes for struct route
+generic_command_run: Total amout of memory still allocated 0; filter
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+subnet_tool.c:subnet_file_filter line 1318 Allocated 936 bytes for struct route
+generic_command_run: Total amout of memory still allocated 0; filter
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+subnet_tool.c:subnet_file_filter line 1318 Allocated 936 bytes for struct route
+generic_command_run: Total amout of memory still allocated 0; filter
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+subnet_tool.c:subnet_file_filter line 1318 Allocated 936 bytes for struct route
+generic_command_run: Total amout of memory still allocated 0; filter
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+subnet_tool.c:subnet_file_filter line 1318 Allocated 936 bytes for struct route
+generic_command_run: Total amout of memory still allocated 0; filter
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+subnet_tool.c:subnet_file_filter line 1318 Allocated 936 bytes for struct route
+generic_command_run: Total amout of memory still allocated 0; filter
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+subnet_tool.c:subnet_file_filter line 1318 Allocated 624 bytes for struct route
+generic_command_run: Total amout of memory still allocated 0; filter
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+subnet_tool.c:subnet_file_filter line 1318 Allocated 624 bytes for struct route
+generic_command_run: Total amout of memory still allocated 0; filter
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+subnet_tool.c:subnet_file_filter line 1318 Allocated 624 bytes for struct route
+generic_command_run: Total amout of memory still allocated 0; filter
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+subnet_tool.c:subnet_file_filter line 1318 Allocated 624 bytes for struct route
+generic_command_run: Total amout of memory still allocated 0; filter
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+subnet_tool.c:subnet_file_filter line 1318 Allocated 624 bytes for struct route
+generic_command_run: Total amout of memory still allocated 0; filter
+generic_csv.c:init_csv_file line 371 Allocated 384 bytes for CSV Field
+st_routes_csv.c:alloc_bgp_file line 392 Allocated 5439 Kbytes for bgp_file
+bgp_tool.c:bgp_file_filter line 515 Allocated 5439 Kbytes for bgp_route
+generic_command_run: Total amout of memory still allocated 0; bgpfilter
+generic_csv.c:init_csv_file line 371 Allocated 384 bytes for CSV Field
+st_routes_csv.c:alloc_bgp_file line 392 Allocated 5439 Kbytes for bgp_file
+bgp_tool.c:bgp_file_filter line 515 Allocated 5439 Kbytes for bgp_route
+generic_command_run: Total amout of memory still allocated 0; bgpfilter
+generic_csv.c:init_csv_file line 371 Allocated 384 bytes for CSV Field
+st_routes_csv.c:alloc_bgp_file line 392 Allocated 5439 Kbytes for bgp_file
+bgp_tool.c:bgp_file_filter line 515 Allocated 5439 Kbytes for bgp_route
+generic_command_run: Total amout of memory still allocated 0; bgpfilter
+generic_csv.c:init_csv_file line 371 Allocated 384 bytes for CSV Field
+st_routes_csv.c:alloc_bgp_file line 392 Allocated 5439 Kbytes for bgp_file
+bgp_tool.c:bgp_file_filter line 515 Allocated 5439 Kbytes for bgp_route
+generic_command_run: Total amout of memory still allocated 0; bgpfilter
+generic_csv.c:init_csv_file line 371 Allocated 384 bytes for CSV Field
+st_routes_csv.c:alloc_bgp_file line 392 Allocated 5439 Kbytes for bgp_file
+bgp_tool.c:bgp_file_filter line 515 Allocated 5439 Kbytes for bgp_route
+generic_command_run: Total amout of memory still allocated 0; bgpfilter
+generic_csv.c:init_csv_file line 371 Allocated 384 bytes for CSV Field
+st_routes_csv.c:alloc_bgp_file line 392 Allocated 5439 Kbytes for bgp_file
+bgp_tool.c:bgp_file_filter line 515 Allocated 5439 Kbytes for bgp_route
+generic_command_run: Total amout of memory still allocated 0; bgpfilter
+generic_csv.c:init_csv_file line 371 Allocated 384 bytes for CSV Field
+st_routes_csv.c:alloc_bgp_file line 392 Allocated 5439 Kbytes for bgp_file
+bgp_tool.c:bgp_file_filter line 515 Allocated 5439 Kbytes for bgp_route
+generic_command_run: Total amout of memory still allocated 0; bgpfilter
+generic_csv.c:init_csv_file line 371 Allocated 384 bytes for CSV Field
+st_routes_csv.c:alloc_bgp_file line 392 Allocated 5439 Kbytes for bgp_file
+bgp_tool.c:bgp_file_filter line 515 Allocated 5439 Kbytes for bgp_route
+generic_command_run: Total amout of memory still allocated 0; bgpfilter
+generic_csv.c:init_csv_file line 371 Allocated 384 bytes for CSV Field
+st_routes_csv.c:alloc_bgp_file line 392 Allocated 5439 Kbytes for bgp_file
+bgp_tool.c:bgp_file_filter line 515 Allocated 5439 Kbytes for bgp_route
+generic_command_run: Total amout of memory still allocated 0; bgpfilter
+generic_csv.c:init_csv_file line 371 Allocated 384 bytes for CSV Field
+st_routes_csv.c:alloc_bgp_file line 392 Allocated 5439 Kbytes for bgp_file
+bgp_tool.c:bgp_file_filter line 515 Allocated 5439 Kbytes for bgp_route
+generic_command_run: Total amout of memory still allocated 0; bgpfilter
+generic_csv.c:init_csv_file line 371 Allocated 384 bytes for CSV Field
+st_routes_csv.c:alloc_bgp_file line 392 Allocated 5439 Kbytes for bgp_file
+bgp_tool.c:bgp_file_filter line 515 Allocated 5439 Kbytes for bgp_route
+generic_command_run: Total amout of memory still allocated 0; bgpfilter
+generic_csv.c:init_csv_file line 371 Allocated 384 bytes for CSV Field
+st_routes_csv.c:alloc_bgp_file line 392 Allocated 5439 Kbytes for bgp_file
+bgp_tool.c:bgp_file_filter line 515 Allocated 5439 Kbytes for bgp_route
+generic_command_run: Total amout of memory still allocated 0; bgpfilter
+generic_csv.c:init_csv_file line 371 Allocated 384 bytes for CSV Field
+st_routes_csv.c:alloc_bgp_file line 392 Allocated 5439 Kbytes for bgp_file
+bgp_tool.c:bgp_file_filter line 515 Allocated 5439 Kbytes for bgp_route
+generic_command_run: Total amout of memory still allocated 0; bgpfilter
+generic_csv.c:init_csv_file line 371 Allocated 384 bytes for CSV Field
+st_routes_csv.c:alloc_bgp_file line 392 Allocated 5439 Kbytes for bgp_file
+bgp_tool.c:bgp_file_filter line 515 Allocated 5439 Kbytes for bgp_route
+generic_command_run: Total amout of memory still allocated 0; bgpfilter
+generic_csv.c:init_csv_file line 371 Allocated 384 bytes for CSV Field
+st_routes_csv.c:alloc_bgp_file line 392 Allocated 5439 Kbytes for bgp_file
+bgp_tool.c:bgp_file_filter line 515 Allocated 5439 Kbytes for bgp_route
+generic_command_run: Total amout of memory still allocated 0; bgpfilter
+generic_csv.c:init_csv_file line 371 Allocated 192 bytes for CSV Field
+ipam.c:alloc_ipam_file line 30 Allocated 759 Kbytes for ipam_file
+ipam.c:alloc_ipam_file line 38 Allocated 48 bytes for ipam_ea
+ipam.c:ipam_file_filter line 331 Allocated 576 bytes for struct ipam_line
+generic_command_run: Total amout of memory still allocated 0; ipamfilter
+generic_csv.c:init_csv_file line 371 Allocated 192 bytes for CSV Field
+ipam.c:alloc_ipam_file line 30 Allocated 759 Kbytes for ipam_file
+ipam.c:alloc_ipam_file line 38 Allocated 48 bytes for ipam_ea
+ipam.c:ipam_file_filter line 331 Allocated 576 bytes for struct ipam_line
+generic_command_run: Total amout of memory still allocated 0; ipamfilter
+generic_csv.c:init_csv_file line 371 Allocated 192 bytes for CSV Field
+ipam.c:alloc_ipam_file line 30 Allocated 759 Kbytes for ipam_file
+ipam.c:alloc_ipam_file line 38 Allocated 48 bytes for ipam_ea
+ipam.c:ipam_file_filter line 331 Allocated 576 bytes for struct ipam_line
+generic_command_run: Total amout of memory still allocated 0; ipamfilter
+generic_csv.c:init_csv_file line 371 Allocated 256 bytes for CSV Field
+ipam.c:alloc_ipam_file line 30 Allocated 759 Kbytes for ipam_file
+ipam.c:alloc_ipam_file line 38 Allocated 96 bytes for ipam_ea
+ipam.c:ipam_file_filter line 331 Allocated 576 bytes for struct ipam_line
+generic_command_run: Total amout of memory still allocated 0; ipamfilter
+generic_csv.c:init_csv_file line 371 Allocated 256 bytes for CSV Field
+ipam.c:alloc_ipam_file line 30 Allocated 759 Kbytes for ipam_file
+ipam.c:alloc_ipam_file line 38 Allocated 96 bytes for ipam_ea
+ipam.c:ipam_file_filter line 331 Allocated 576 bytes for struct ipam_line
+generic_command_run: Total amout of memory still allocated 0; ipamfilter
+generic_csv.c:init_csv_file line 371 Allocated 224 bytes for CSV Field
+ipam.c:alloc_ipam_file line 30 Allocated 759 Kbytes for ipam_file
+ipam.c:alloc_ipam_file line 38 Allocated 72 bytes for ipam_ea
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+generic_command_run: Total amout of memory still allocated 0; getea
+generic_csv.c:init_csv_file line 371 Allocated 192 bytes for CSV Field
+ipam.c:alloc_ipam_file line 30 Allocated 759 Kbytes for ipam_file
+ipam.c:alloc_ipam_file line 38 Allocated 48 bytes for ipam_ea
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+generic_command_run: Total amout of memory still allocated 0; getea
+generic_csv.c:init_csv_file line 371 Allocated 160 bytes for CSV Field
+ipam.c:alloc_ipam_file line 30 Allocated 759 Kbytes for ipam_file
+ipam.c:alloc_ipam_file line 38 Allocated 24 bytes for ipam_ea
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+generic_command_run: Total amout of memory still allocated 0; getea
+generic_csv.c:init_csv_file line 371 Allocated 192 bytes for CSV Field
+ipam.c:alloc_ipam_file line 30 Allocated 759 Kbytes for ipam_file
+ipam.c:alloc_ipam_file line 38 Allocated 48 bytes for ipam_ea
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+generic_command_run: Total amout of memory still allocated 0; getea
+generic_csv.c:init_csv_file line 371 Allocated 192 bytes for CSV Field
+ipam.c:alloc_ipam_file line 30 Allocated 759 Kbytes for ipam_file
+ipam.c:alloc_ipam_file line 38 Allocated 48 bytes for ipam_ea
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+generic_command_run: Total amout of memory still allocated 0; getea
+generic_csv.c:init_csv_file line 371 Allocated 192 bytes for CSV Field
+ipam.c:alloc_ipam_file line 30 Allocated 759 Kbytes for ipam_file
+ipam.c:alloc_ipam_file line 38 Allocated 48 bytes for ipam_ea
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+generic_command_run: Total amout of memory still allocated 0; getea
+generic_csv.c:init_csv_file line 371 Allocated 192 bytes for CSV Field
+ipam.c:alloc_ipam_file line 30 Allocated 759 Kbytes for ipam_file
+ipam.c:alloc_ipam_file line 38 Allocated 48 bytes for ipam_ea
+generic_csv.c:init_csv_file line 371 Allocated 672 bytes for CSV Field
+st_routes_csv.c:alloc_subnet_file line 32 Allocated 416 Kbytes for subnet_file
+generic_command_run: Total amout of memory still allocated 0; getea
+generic_csv.c:init_csv_file line 371 Allocated 160 bytes for CSV Field
+ipam.c:alloc_ipam_file line 30 Allocated 759 Kbytes for ipam_file
+ipam.c:alloc_ipam_file line 38 Allocated 24 bytes for ipam_ea
+ipam.c:ipam_file_filter line 331 Allocated 576 bytes for struct ipam_line
+generic_command_run: Total amout of memory still allocated 0; ipamfilter
+generic_csv.c:init_csv_file line 371 Allocated 160 bytes for CSV Field
+ipam.c:alloc_ipam_file line 30 Allocated 759 Kbytes for ipam_file
+ipam.c:alloc_ipam_file line 38 Allocated 24 bytes for ipam_ea
+ipam.c:ipam_file_filter line 331 Allocated 576 bytes for struct ipam_line
+generic_command_run: Total amout of memory still allocated 0; ipamfilter
+generic_csv.c:init_csv_file line 371 Allocated 160 bytes for CSV Field
+ipam.c:alloc_ipam_file line 30 Allocated 759 Kbytes for ipam_file
+ipam.c:alloc_ipam_file line 38 Allocated 24 bytes for ipam_ea
+ipam.c:ipam_file_filter line 331 Allocated 576 bytes for struct ipam_line
+generic_command_run: Total amout of memory still allocated 0; ipamfilter
+generic_csv.c:init_csv_file line 371 Allocated 160 bytes for CSV Field
+ipam.c:alloc_ipam_file line 30 Allocated 759 Kbytes for ipam_file
+ipam.c:alloc_ipam_file line 38 Allocated 24 bytes for ipam_ea
+ipam.c:ipam_file_filter line 331 Allocated 720 bytes for struct ipam_line
+generic_command_run: Total amout of memory still allocated 0; ipamfilter
+routetocsv.c:cisco_routeconf_to_csv line 592 Allocated 128 bytes for route
+generic_command_run: Total amout of memory still allocated 0; convert
+routetocsv.c:cisco_routeconf_to_csv line 592 Allocated 128 bytes for route
+generic_command_run: Total amout of memory still allocated 0; convert
+routetocsv.c:cisco_fw_to_csv line 486 Allocated 128 bytes for route
+generic_command_run: Total amout of memory still allocated 0; convert
+routetocsv.c:cisco_fw_to_csv line 486 Allocated 128 bytes for route
+generic_command_run: Total amout of memory still allocated 0; convert
+routetocsv.c:cisco_fw_conf_to_csv line 556 Allocated 128 bytes for route
+generic_command_run: Total amout of memory still allocated 0; convert
+routetocsv.c:cisco_fw_conf_to_csv line 556 Allocated 128 bytes for route
+generic_command_run: Total amout of memory still allocated 0; convert
+routetocsv.c:cisco_route_to_csv line 348 Allocated 128 bytes for route
+generic_command_run: Total amout of memory still allocated 0; convert
+routetocsv.c:cisco_route_to_csv line 348 Allocated 128 bytes for route
+generic_command_run: Total amout of memory still allocated 0; convert
+routetocsv.c:cisco_route_to_csv line 348 Allocated 128 bytes for route
+generic_command_run: Total amout of memory still allocated 0; convert
+routetocsv.c:cisco_route_to_csv line 348 Allocated 128 bytes for route
+generic_command_run: Total amout of memory still allocated 0; convert
+routetocsv.c:cisco_route_to_csv line 348 Allocated 128 bytes for route
+generic_command_run: Total amout of memory still allocated 0; convert
+routetocsv.c:cisco_route_to_csv line 348 Allocated 128 bytes for route
+generic_command_run: Total amout of memory still allocated 0; convert
+routetocsv.c:cisco_route_to_csv line 348 Allocated 128 bytes for route
+generic_command_run: Total amout of memory still allocated 0; convert
+routetocsv.c:cisco_fw_to_csv line 486 Allocated 128 bytes for route
+generic_command_run: Total amout of memory still allocated 0; convert
+routetocsv.c:cisco_nexus_to_csv line 283 Allocated 128 bytes for route
+generic_command_run: Total amout of memory still allocated 0; convert
+routetocsv.c:ipso_route_to_csv line 213 Allocated 128 bytes for route
+generic_command_run: Total amout of memory still allocated 0; convert
+routetocsv.c:cisco_nexus_to_csv line 283 Allocated 128 bytes for route
+generic_command_run: Total amout of memory still allocated 0; convert
+routetocsv.c:cisco_route_to_csv line 348 Allocated 128 bytes for route
+generic_command_run: Total amout of memory still allocated 0; convert
+routetocsv.c:ipso_route_to_csv line 213 Allocated 128 bytes for route
+generic_command_run: Total amout of memory still allocated 0; convert
+routetocsv.c:ipso_route_to_csv line 213 Allocated 128 bytes for route
+generic_command_run: Total amout of memory still allocated 0; convert
+routetocsv.c:ipso_route_to_csv line 213 Allocated 128 bytes for route
+generic_command_run: Total amout of memory still allocated 0; convert
+routetocsv.c:cisco_nexus_to_csv line 283 Allocated 128 bytes for route
+generic_command_run: Total amout of memory still allocated 0; convert
+routetocsv.c:cisco_nexus_to_csv line 283 Allocated 128 bytes for route
+generic_command_run: Total amout of memory still allocated 0; convert
+routetocsv.c:palo_to_csv line 173 Allocated 128 bytes for route
+generic_command_run: Total amout of memory still allocated 0; convert
+generic_command_run: Total amout of memory still allocated 0; convert
+generic_csv.c:init_csv_file line 371 Allocated 384 bytes for CSV Field
+st_routes_csv.c:alloc_bgp_file line 392 Allocated 5439 Kbytes for bgp_file
+generic_csv.c:init_csv_file line 371 Allocated 384 bytes for CSV Field
+st_routes_csv.c:alloc_bgp_file line 392 Allocated 5439 Kbytes for bgp_file
+generic_command_run: Total amout of memory still allocated 0; bgpcmp
+generic_csv.c:init_csv_file line 371 Allocated 384 bytes for CSV Field
+st_routes_csv.c:alloc_bgp_file line 392 Allocated 5439 Kbytes for bgp_file
+generic_command_run: Total amout of memory still allocated 0; bgpprint
+generic_csv.c:init_csv_file line 371 Allocated 384 bytes for CSV Field
+st_routes_csv.c:alloc_bgp_file line 392 Allocated 5439 Kbytes for bgp_file
+heap.c:alloc_tas line 49 Allocated 160 bytes for heap
+bgp_tool.c:__bgp_sort_by line 266 Allocated 5439 Kbytes for new bgp_route
+generic_command_run: Total amout of memory still allocated 0; bgpsortby
+generic_csv.c:init_csv_file line 371 Allocated 384 bytes for CSV Field
+st_routes_csv.c:alloc_bgp_file line 392 Allocated 5439 Kbytes for bgp_file
+heap.c:alloc_tas line 49 Allocated 160 bytes for heap
+bgp_tool.c:__bgp_sort_by line 266 Allocated 5439 Kbytes for new bgp_route
+generic_command_run: Total amout of memory still allocated 0; bgpsortby
+generic_csv.c:init_csv_file line 371 Allocated 384 bytes for CSV Field
+st_routes_csv.c:alloc_bgp_file line 392 Allocated 5439 Kbytes for bgp_file
+heap.c:alloc_tas line 49 Allocated 160 bytes for heap
+bgp_tool.c:__bgp_sort_by line 266 Allocated 5439 Kbytes for new bgp_route
+generic_command_run: Total amout of memory still allocated 0; bgpsortby
+generic_csv.c:init_csv_file line 371 Allocated 384 bytes for CSV Field
+st_routes_csv.c:alloc_bgp_file line 392 Allocated 5439 Kbytes for bgp_file
+heap.c:alloc_tas line 49 Allocated 160 bytes for heap
+bgp_tool.c:__bgp_sort_by line 266 Allocated 5439 Kbytes for new bgp_route
+generic_command_run: Total amout of memory still allocated 0; bgpsortby
+generic_command_run: Total amout of memory still allocated 0; grep
+generic_command_run: Total amout of memory still allocated 0; ipinfo
+generic_command_run: Total amout of memory still allocated 0; ipinfo
+generic_command_run: Total amout of memory still allocated 0; ipinfo
+generic_command_run: Total amout of memory still allocated 0; ipinfo
+generic_command_run: Total amout of memory still allocated 0; ipinfo
+generic_command_run: Total amout of memory still allocated 0; ipinfo
+generic_command_run: Total amout of memory still allocated 0; ipinfo
+generic_command_run: Total amout of memory still allocated 0; ipinfo
