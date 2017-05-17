@@ -335,3 +335,23 @@ char *fgets_truncate_buffer(char *buffer, int size, FILE *stream, int *res)
 	*res = i;
 	return s;
 }
+
+/* count number of consersion specifier in an expr
+ * doesnt validate CS are valid
+ */
+int count_cs(const char *expr)
+{
+	int i;
+	int n = 0;
+
+	if (expr[0] == '%')
+		n++;
+	for (i = 1; ; i++) {
+		if (expr[i] == '\0')
+			return n;
+		/* unlike regular scanf, escape char is '\' and only that */
+		if (expr[i] == '%' && expr[i - 1] != '\\')
+			n++;
+	}
+	return 0;
+}

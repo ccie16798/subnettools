@@ -69,6 +69,15 @@ int strxcpy_until(char *dst, const char *src, int n, char end) __attribute__ ((w
  */
 char *fgets_truncate_buffer(char *buffer, int size, FILE *stream, int *res);
 
+/* count number of conversion specifier in an expr
+ * doesnt validate CS are valid
+ * @expr   : the expression to scan
+ * returns:
+ *	number of couversion specifier
+ */
+int count_cs(const char *expr);
+
+
 /* macros (copied from linux kernel) */
 #define max(x, y) ({ \
 		typeof(x) _max1 = (x); \

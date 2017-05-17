@@ -134,25 +134,6 @@ static int parse_brace_quantifier(const char *s, int *min, int *max)
 	debug(SCANF, 1, "Invalid range '%s' contains invalid char '%c'\n", s, s[i]);
 	return -1;
 }
-/* count number of consersion specifier in an expr
- * doesnt validate CS are valid
- */
-static inline int count_cs(const char *expr)
-{
-	int i;
-	int n = 0;
-
-	if (expr[0] == '%')
-		n++;
-	for (i = 1; ; i++) {
-		if (expr[i] == '\0')
-			return n;
-		/* unlike regular scanf, escape char is '\' and only that */
-		if (expr[i] == '%' && expr[i - 1] != '\\')
-			n++;
-	}
-	return 0;
-}
 
 /* given an expression e, the following functions
  * try to determine if the remaining chars match their type
