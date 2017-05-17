@@ -976,7 +976,6 @@ static int run_fscanf(int argc, char **argv, void *st_options)
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
 		res = sto_sscanf(s, argv[3], o, 40);
-		printf("Line %lu: ", line);
 		sto_printf("%O0 %O1 %O2 %O3 %O4 %O5 %O6 %O7\n", o, res);
 	}
 	return 0;
