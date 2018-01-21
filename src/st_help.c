@@ -109,7 +109,7 @@ void usage_en_debug(void)
 void usage_en_options(void)
 {
 	printf("\nOPTIONS :=\n");
-	printf("-d <delim>    : change the default field delim (;\n");
+	printf("-d <delim>    : change the default field delim ';'\n");
 	printf("-ea EA1,EA2   : load Extended Attributes in IPAM files; use ',' to select more\n");
 	printf("-c <file>     : use config file <file>  instead of st.conf\n");
 	printf("-o <file>     : write output in <file>\n");
@@ -120,7 +120,7 @@ void usage_en_options(void)
 	printf("-D <debug>    : DEBUG MODE ; use '%s -D help' for more info\n", PROG_NAME);
 	printf("-fmt          : change the output format (default :%s)\n", default_fmt);
 	printf("-V            : verbose mode; same as '-D all:1'\n");
-	printf("-VV           : more verbose mode; same as '-D all:1'\n");
+	printf("-VV           : more verbose mode; same as '-D all:2'\n");
 }
 
 void usage_en_csv(void)
