@@ -52,7 +52,7 @@ void usage_en_routecompare(void)
 	printf("addfiles FILE1 FILE2: merge FILE1 & FILE2; prints the sum of both files\n");
 	printf("grep FILE prefix    : grep FILE for prefix/mask\n");
 	printf("filter FILE EXPR    : grep netcsv   FILE using regexp EXPR\n");
-	printf("filter help         : prints help about bgp filters\n");
+	printf("filter help         : prints help about filters\n");
 }
 
 void usage_en_ipam(void)
