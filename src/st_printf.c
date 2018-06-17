@@ -303,7 +303,7 @@ static int __fprint_route_fmt(FILE *output, const struct route *r, const char *f
 	char c;
 	char outbuf[1024];
 	char buffer[ST_PRINTF_MAX_STRING_SIZE];
-	char buffer2[ST_PRINTF_MAX_STRING_SIZE];
+	char buffer2[ST_PRINTF_MAX_STRING_SIZE / 2];
 	struct subnet sub;
 	int field_width;
 	struct subnet v_sub;
@@ -332,7 +332,8 @@ static int __fprint_route_fmt(FILE *output, const struct route *r, const char *f
 			break;
 		if (c == '%') {
 			BLOCK_FIELD_WIDTH;
-			pad_value = ' '; /*in fprint_route, pad value is alwys a space */
+			/*in fprint_route, pad value is always a space */
+			pad_value = ' ';
 			switch (fmt[i2]) {
 			case '\0':
 				outbuf[j] = '%';
@@ -475,13 +476,13 @@ static int __fprint_ipam_fmt(FILE *output, const struct ipam_line *r,
 	char c;
 	char outbuf[1024];
 	char buffer[ST_PRINTF_MAX_STRING_SIZE];
-	char buffer2[ST_PRINTF_MAX_STRING_SIZE];
+	char buffer2[ST_PRINTF_MAX_STRING_SIZE / 2];
 	int field_width;
 	struct subnet v_sub;
 	char pad_value;
 	/* %I for IP */
 	/* %m for mask */
-	/* %00....9 for extanded attributes */
+	/* %O0....9 for extanded attributes */
 	i = 0;
 	j = 0; /* index in outbuf */
 	while (1) {
@@ -612,7 +613,7 @@ int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt
 	char c;
 	char outbuf[1024];
 	char buffer[ST_PRINTF_MAX_STRING_SIZE];
-	char buffer2[ST_PRINTF_MAX_STRING_SIZE];
+	char buffer2[ST_PRINTF_MAX_STRING_SIZE / 2];
 	struct subnet sub;
 	int field_width;
 	struct subnet v_sub;
@@ -649,7 +650,8 @@ int fprint_bgproute_fmt(FILE *output, const struct bgp_route *r, const char *fmt
 			break;
 		if (c == '%') {
 			BLOCK_FIELD_WIDTH;
-			pad_value = ' '; /*in fprint_bgp_route, pad value is alwys a space */
+			/* in fprint_bgp_route, pad value is always a space */
+			pad_value = ' ';
 			switch (fmt[i2]) {
 			case '\0':
 				outbuf[j] = '%';
@@ -795,7 +797,7 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap,
 	int res;
 	char c;
 	char buffer[ST_PRINTF_MAX_STRING_SIZE];
-	char buffer2[ST_PRINTF_MAX_STRING_SIZE];
+	char buffer2[ST_PRINTF_MAX_STRING_SIZE / 2];
 	int field_width;
 	int pad_left, pad_value;
 	int o_num;
