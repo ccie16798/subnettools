@@ -7,9 +7,14 @@ v1.5 (unreleased)
 prefix;EA-Site;
 10.128.0.0/16;Saint Denis;
 10.128.1.0/24;Saint Denis;
+-- scanf, fscanf can use user-defined format taken from '-fmt' options
+-- ./subnet-tools -fmt "%O0;%O1\n" scanf "1.1.1.1        y" "%I *%c"
+1.1.1.1;y
+
 
 - Internal changes
 -- optimized read_csv when delims is only ONE (common case)
+-- write a new file opening/reading framework (st_getline_truncate) to read lines from text file and truncate the line to a maximum allowed length
 -- rewrite of string2addr family functions, major speedups
 -- rewrite major parts of st_scanf pattern matching engine
 -- scanf mutliplier handling (+, *, ?) was trying to be generic, dividing it into 3 separates cases helps
