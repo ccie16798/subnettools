@@ -109,6 +109,9 @@ int count_cs(const char *expr);
 /*
  * Integer to String MACROs
  * Strings ARE NOT Nul-terminated
+ * c[32] is enough to store unsigned long (64 bit)
+ * digits are first stored in 'c' in reverse order
+ * buffer s is assumed to be large enough
  */
 #define sprint_hex(__type) \
 static inline int  sprint_hex##__type(char *s, unsigned __type a) \
