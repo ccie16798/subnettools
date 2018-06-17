@@ -1005,12 +1005,12 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap,
 			case 'O': /* st_object */
 				if (o == NULL)
 					break;
-				o_num = 0;
 				if (!isdigit(fmt[i + 2])) {
 					debug(FMT, 3, "Invalid char '%c' after %%O\n",
 							fmt[i + 2]);
 					break;
 				}
+				o_num = 0;
 				while (isdigit(fmt[i + 2])) {
 					o_num *= 10;
 					o_num += fmt[i + 2] - '0';
