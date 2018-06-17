@@ -963,7 +963,7 @@ static int run_scanf(int argc, char **argv, void *st_options)
 				num_cs, SCANF_MAX_OBJECTS);
 		return -1;
 	}
-	res = sto_sscanf(argv[2], argv[3], o, 40);
+	res = sto_sscanf(argv[2], argv[3], o, SCANF_MAX_OBJECTS);
 	if (res < 0) {
 		fprintf(stderr, "no match\n");
 		return res;
@@ -997,7 +997,7 @@ static int run_fscanf(int argc, char **argv, void *st_options)
 	}
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &res))) {
 		line++;
-		res = sto_sscanf(s, argv[3], o, 40);
+		res = sto_sscanf(s, argv[3], o, SCANF_MAX_OBJECTS);
 		/* we print the result only on exact match but not partial match */
 		if (res >= num_cs)
 			sto_printf(nof->scanf_output_fmt, o, res);
