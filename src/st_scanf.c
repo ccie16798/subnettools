@@ -769,8 +769,9 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 		p = strchr(expr, '|');
 		if (p == NULL)
 			return 0;
-		in = saved_in;
 		expr = p + 1;
+		/* restore input buffer and potential number of objects found */
+		in = saved_in;
 		*num_o = saved_num_o;
 		debug(SCANF, 4, "Logical OR found, trying again on expr '%s'\n", p);
 		continue;
@@ -815,7 +816,7 @@ static int find_subnet(const char *remain, struct expr *e)
 		return 0;
 	buffer[i] = '\0';
 	if (get_subnet_or_ip(buffer, &e->sto[0].s_subnet) > 0) {
-		/* used for .$* matching, we know remain[0...i] is made * of IP chars
+		/* used for .$* matching, we know remain[0...i] is made of IP chars
 		 * but do not represent an IP, so let's skip that on the next search
 		 * 111.2.2222.2.2.2 should not match, even if 222.2.2.2 or 22.2.2.2 is an IP
 		 */
