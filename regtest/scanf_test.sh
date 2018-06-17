@@ -96,7 +96,6 @@ reg_test_scanf() {
 	# ( in an expression is not interpreted
 	$PROG scanf  "(2.2.2.2) (1.1.1.1) a" "((%I) )*%c" > res/scanf55
 
-	
 	for i in `seq 1 $n`; do
 		output_file=scanf$i
 		if [ ! -f ref/$output_file ]; then
