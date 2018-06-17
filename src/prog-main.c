@@ -34,7 +34,8 @@
 #include "st_help.h"
 #include "prog-main.h"
 
-
+/* max number of objects collectable inf fscanf, and scanf */
+#define SCANF_MAX_OBJECTS 40
 const char *default_fmt      = "%I;%m;%D;%G;%O#";
 const char *bgp_default_fmt  = "%v;%5T;%4B;%16P;%16G;%10M;%10L;%10w;%6o;%A";
 const char *ipam_default_fmt = "%I;%m";
@@ -947,7 +948,7 @@ static int run_split_2(int argc, char **argv, void *st_options)
 static int run_scanf(int argc, char **argv, void *st_options)
 {
 	int res;
-	struct sto o[40];
+	struct sto o[SCANF_MAX_OBJECTS];
 
 	res = sto_sscanf(argv[2], argv[3], o, 40);
 	if (res < 0) {
@@ -958,11 +959,11 @@ static int run_scanf(int argc, char **argv, void *st_options)
 	return 0;
 }
 
-
+/* argv[2] == file, argv[3] == expr */
 static int run_fscanf(int argc, char **argv, void *st_options)
 {
 	int res;
-	struct sto o[40];
+	struct sto o[SCANF_MAX_OBJECTS];
 	FILE *f;
 	char buffer[FSCANF_LINE_LENGTH];
 	char *s;
