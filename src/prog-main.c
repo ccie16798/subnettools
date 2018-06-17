@@ -39,7 +39,12 @@
 const char *default_fmt       = "%I;%m;%D;%G;%O#";
 const char *bgp_default_fmt   = "%v;%5T;%4B;%16P;%16G;%10M;%10L;%10w;%6o;%A";
 const char *ipam_default_fmt  = "%I;%m";
-const char *scanf_default_fmt = "%O0 %O1 %O2 %O3 %O4 %O5 %O6 %O7 %O8";
+/*
+ * scanf default format; it prints 9 arguments, separated with spaces
+ * please run 'scanf' with -fmt "%O0, %O1 etc..." option to choose appropriate
+ * output format
+ */
+const char *scanf_default_fmt = "%O0 %O1 %O2 %O3 %O4 %O5 %O6 %O7 %O8\n";
 
 /* struct file_options and MACROs ffrom config_file.[ch] */
 struct file_options fileoptions[] = {
@@ -963,8 +968,8 @@ static int run_scanf(int argc, char **argv, void *st_options)
 		fprintf(stderr, "no match\n");
 		return res;
 	}
-	sto_printf("%O0 %O1 %O2 %O3 %O4 %O5 %O6 %O7\n", o, res);
-	//sto_printf(nof->output_fmt, o, res);
+	/* user-defined output format or default one */
+	sto_printf(nof->scanf_output_fmt, o, res);
 	return 0;
 }
 
@@ -1224,6 +1229,7 @@ static int option_fmt(int argc, char **argv, void *st_options)
 	/* sizeof(xxx_output_fmt) are the same, no need to check return value */
 	res = strxcpy(nof->bgp_output_fmt, argv[1], sizeof(nof->bgp_output_fmt));
 	res = strxcpy(nof->ipam_output_fmt, argv[1], sizeof(nof->ipam_output_fmt));
+	res = strxcpy(nof->scanf_output_fmt, argv[1], sizeof(nof->scanf_output_fmt));
 
 	debug(PARSEOPTS, 3, "Changing default FMT : '%s'\n", argv[1]);
 	return 0;
@@ -1338,6 +1344,8 @@ int main(int argc, char **argv)
 		strcpy(nof.output_fmt, default_fmt);
 	if (strlen(nof.bgp_output_fmt) < 2)
 		strcpy(nof.bgp_output_fmt, bgp_default_fmt);
+	if (strlen(nof.scanf_output_fmt) < 2)
+		strcpy(nof.scanf_output_fmt, scanf_default_fmt);
 
 	res = generic_command_run(argc, argv, PROG_NAME, &nof);
 	fclose(nof.output_file);
