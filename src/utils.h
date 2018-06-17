@@ -127,9 +127,10 @@ static inline int  sprint_hex##__type(char *s, unsigned __type a) \
 		a >>= 4; \
 		i++; \
 	} while (a); \
-	for (j = 0; j < i; j++) \
-		s[j] = c[i - j - 1]; \
-	return i; \
+	i--; \
+	for (j = 0; j <= i; j++) \
+		s[j] = c[i - j]; \
+	return j; \
 }
 
 #define sprint_unsigned(__type) \
@@ -143,9 +144,10 @@ static inline int sprint_u##__type(char *s, unsigned __type a) \
 		a /= 10; \
 		i++; \
 	} while (a); \
-	for (j = 0; j < i; j++) \
-		s[j] = c[i - j - 1]; \
-	return i; \
+	i--; \
+	for (j = 0; j <= i; j++) \
+		s[j] = c[i - j]; \
+	return j; \
 }
 
 #define  sprint_signed(__type) \
@@ -155,6 +157,7 @@ static inline int sprint_##__type(char *s, __type b) \
 	int j, i = 0; \
 	unsigned __type a = b; \
 	int is_signed = 0; \
+\
 	if (a >  ((unsigned __type)-1) / 2) { \
 		s[0] = '-'; \
 		a = ((unsigned __type)-1) - a; \
@@ -167,9 +170,10 @@ static inline int sprint_##__type(char *s, __type b) \
 		a /= 10; \
 		i++; \
 	} while (a); \
-	for (j = 0; j < i; j++) \
-		s[j + is_signed] = c[i - j - 1]; \
-	return (i + is_signed); \
+	i--; \
+	for (j = 0; j <= i; j++) \
+		s[j + is_signed] = c[i - j]; \
+	return (j + is_signed); \
 }
 
 #define snprint_hex(__type) \
@@ -186,8 +190,10 @@ static inline int  snprint_hex##__type(char *s, unsigned __type a, size_t __len)
 		a >>= 4; \
 		i++; \
 	} while (a); \
-	for (j = 0; j < min_t(int, i, __len); j++) \
-		s[j] = c[i - j - 1]; \
+	__len--; \
+	i--; \
+	for (j = 0; j <= min_t(int, i, __len); j++) \
+		s[j] = c[i - j]; \
 	return j; \
 }
 
@@ -202,8 +208,10 @@ static inline int snprint_u##__type(char *s, unsigned __type a, size_t __len) \
 		a /= 10; \
 		i++; \
 	} while (a); \
-	for (j = 0; j < min_t(int, i, __len); j++) \
-		s[j] = c[i - j - 1]; \
+	__len--; \
+	i--; \
+	for (j = 0; j <= min_t(int, i, __len); j++) \
+		s[j] = c[i - j]; \
 	return j; \
 }
 
@@ -226,8 +234,10 @@ static inline int snprint_##__type(char *s, __type b, size_t __len) \
 		a /= 10; \
 		i++; \
 	} while (a); \
-	for (j = 0; j < min(i, (int)__len - is_signed); j++) \
-		s[j + is_signed] = c[i - j - 1]; \
+	__len--; \
+	i--; \
+	for (j = 0; j <= min(i, (int)__len - is_signed); j++) \
+		s[j + is_signed] = c[i - j]; \
 	return (j + is_signed); \
 }
 
