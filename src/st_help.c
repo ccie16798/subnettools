@@ -1,7 +1,7 @@
 /*
  * Help and Usage functions
  *
- * Copyright (C) 2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ * Copyright (C) 2015,2018 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
@@ -19,108 +19,108 @@ void usage_en_arithmetic(void)
 {
 	printf("Subnet arithmetic\n");
 	printf("-----------------\n");
-	printf("relation IP1 IP2    : prints a relationship between IP1 and IP2\n");
-	printf("split S, <l1,l2,..> : split subnet S l1 times, the result l2 times, and so on..\n");
-	printf("split2 S, <m1,m2,..>: split subnet S with mask m1, then m2, and so on...\n");
-	printf("removesub TYPE O1 S1: remove Subnet S from Object O1; if TYPE=file O1=ile, if TYPE=subnet 01=subnet\n");
-	printf("removefile F1 F2    : remove all F2 subnets from F1\n");
-	printf("ipinfo IP|all|IPvX  : prints information about IP, or all known subnets (all, IPv4 or IPv6)\n");
+	printf("relation [IP1] [IP2]       : prints a relationship between IP1 and IP2\n");
+	printf("split [S], [l1,l2,..]      : split subnet S l1 times, the result l2 times, and so on..\n");
+	printf("split2 [S], [m1,m2,..]     : split subnet S with mask m1, then m2, and so on...\n");
+	printf("removesub [TYPE] [O1] [S1] : remove subnet S from Object O1; if TYPE=file O1=file, if TYPE=subnet 01=subnet\n");
+	printf("removefile [FILE1] [FILE2] : remove all subnets in FILE2 from FILE1\n");
+	printf("ipinfo [IP|all|IPvX]       : prints information about IP, or all known subnets (all, IPv4 or IPv6)\n");
 }
 
 void usage_en_simplify(void)
 {
 	printf("Route file simplification\n");
 	printf("-------------------------\n");
-	printf("sort FILE1          : sort FILE1 by prefix\n");
-	printf("sortby name FILE    : sort FILE by (prefix|gw|mask), prefix is a tie-breaker\n");
-	printf("sortby help	    : print available sort options\n");
-	printf("subnetagg FILE      : sort and aggregate subnets in FILE; GW is not checked\n");
-	printf("routeagg  FILE      : sort and aggregate subnets in FILE; GW is checked\n");
-	printf("routesimplify1 FILE : simplify CSV subnet file duplicate or included networks are removed;\n");
-	printf("routesimplify2 FILE : simplify CSV subnet file; prints redundant routes that can be removed\n");
+	printf("sort [FILE]           : sort FILE by prefix\n");
+	printf("sortby name [FILE]    : sort FILE by (prefix|gw|mask), prefix is a tie-breaker\n");
+	printf("sortby help	      : print available sort options\n");
+	printf("subnetagg [FILE]      : sort and aggregate subnets in FILE; GW is not checked\n");
+	printf("routeagg  [FILE]      : sort and aggregate subnets in FILE; GW is checked\n");
+	printf("routesimplify1 [FILE] : simplify CSV subnet file duplicate or included networks are removed;\n");
+	printf("routesimplify2 [FILE] : simplify CSV subnet file; prints redundant routes that can be removed\n");
 }
 
 void usage_en_routecompare(void)
 {
 	printf("Route file comparison\n");
 	printf("---------------------\n");
-	printf("compare FILE1 FILE2 : printing subnets in FILE1 and their relation with FILE2\n");
-	printf("subnetcmp befo afte : compare 'befo' and 'after', showing new/removed/changed routes\n");
-	printf("missing before after: prints subnets from 'before' missing from 'after'; GW is not checked\n");
-	printf("uniq FILE1 FILE2    : prints unique subnets from FILE1 and FILE2\n");
-	printf("common FILE1 FILE2  : merge FILE1 & FILE2; prints common routes only; GW isn't checked\n");
-	printf("addfiles FILE1 FILE2: merge FILE1 & FILE2; prints the sum of both files\n");
-	printf("grep FILE prefix    : grep FILE for prefix/mask\n");
-	printf("filter FILE EXPR    : grep netcsv   FILE using regexp EXPR\n");
-	printf("filter help         : prints help about filters\n");
+	printf("compare [FILE1] [FILE2]    : printing subnets in FILE1 and their relation with FILE2\n");
+	printf("subnetcmp [BEFORE] [AFTER] : compare files BEFORE and AFTER, showing new/removed/changed routes\n");
+	printf("missing [BEFORE] [AFTER]   : prints subnets from BEFORE missing from AFTER; GW is not checked\n");
+	printf("uniq [FILE1] [FILE2]       : prints unique subnets from FILE1 and FILE2\n");
+	printf("common [FILE1] [FILE2]     : merge FILE1 & FILE2; prints common routes only; GW isn't checked\n");
+	printf("addfiles [FILE1] [FILE2]   : merge FILE1 & FILE2; prints the sum of both files\n");
+	printf("grep [FILE] [prefix]       : grep FILE for prefix/mask\n");
+	printf("filter [FILE] [EXPR]       : grep netcsv FILE using regexp EXPR\n");
+	printf("filter help                : prints help about filters\n");
 }
 
 void usage_en_ipam(void)
 {
 	printf("IPAM tools\n");
 	printf("----------\n");
-	printf("ipam <IPAM> FILE    : load IPAM, and print FILE subnets with comments from IPAM\n");
-	printf("ipamfilter FILE EXPR: load IPAM, and filter using regexp EXPR\n");
-	printf("ipamprint FILE      : print IPAM; use option -ea to select Extended Attributes\n");
-	printf("getea <IPAM> FILE   : print FILE with Extended Attributes retrieved from IPAM\n");
+	printf("ipam [IPAM] [FILE]       : using IPAM, print all FILE subnets with comments extracted from IPAM\n");
+	printf("ipamfilter [IPAM] [EXPR] : filter IPAM file using regexp EXPR\n");
+	printf("ipamprint [IPAM]         : print IPAM; use option -ea to select Extended Attributes\n");
+	printf("getea [IPAM] [FILE]      : print FILE with Extended Attributes extracted from IPAM\n");
 }
 
 void usage_en_miscellaneous(void)
 {
 	printf("Miscellaneous route file tools\n");
 	printf("------------------------------\n");
-	printf("print FILE1         : just read & print FILE1; best used with a -fmt FMT\n");
-	printf("sum IPv4FILE        : get total number of hosts included in the list of subnets\n");
-	printf("sum IPv6FILE        : get total number of /64 subnets included\n");
+	printf("print [FILE]        : just read & print FILE; best used with a -fmt FMT\n");
+	printf("sum [IPv4FILE]      : get total number of hosts included in the list of subnets\n");
+	printf("sum [IPv6FILE]      : get total number of /64 subnets included\n");
 }
 
 void usage_en_bgp(void)
 {
 	printf("BGP route file tools\n");
 	printf("--------------------\n");
-	printf("bgpprint FILE1      : just read & print FILE1; best used with -fmt FMT\n");
-	printf("bgpcmp before after : show what changed in BGP file before & after\n");
-	printf("bgpsortby name file : sort file by prefix, MED, etc.. prefix is a tie-breaker\n");
-	printf("bgpsortby help	    : print available sort options\n");
-	printf("bgpfilter FILE EXPR : grep FILE using regexp EXPR\n");
-	printf("bgpfilter help      : prints help about bgp filters\n");
+	printf("bgpprint [FILE]         : just read & print FILE; best used with -fmt FMT\n");
+	printf("bgpcmp [BEFORE] [AFTER] : show what changed in BGP files BEFORE and AFTER\n");
+	printf("bgpsortby [NAME] [FILE] : sort FILE by prefix, MED, etc.. prefix is a tie-breaker\n");
+	printf("bgpsortby help	        : print available sort options\n");
+	printf("bgpfilter [FILE] [EXPR] : grep FILE using regexp EXPR\n");
+	printf("bgpfilter help          : prints help about bgp filters\n");
 }
 
 void usage_en_convert(void)
 {
 	printf("IP route to CSV converters\n");
 	printf("--------------------------\n");
-	printf("convert PARSER FILE1: convert FILE1 to csv using parser PARSER\n");
-	printf("convert help        : use '%s convert help' for available parsers\n", PROG_NAME);
+	printf("convert [PARSER] [FILE] : convert FILE to csv using parser PARSER\n");
+	printf("convert help            : use '%s convert help' for available parsers\n", PROG_NAME);
 }
 
 void usage_en_debug(void)
 {
 	printf("DEBUG and help\n");
 	printf("--------------\n");
-	printf("echo FMT ARG2       : try to get subnet from ARG2 and echo it according to FMT\n");
-	printf("scanf STRING1 FMT   : scan STRING1 according to scanf-like format FMT\n");
-	printf("fscanf FILE   FMT   : scan FILE according to scanf-like format FMT\n");
-	printf("confdesc            : print a small explanation of %s configuration file\n", PROG_NAME);
-	printf("help                : This HELP\n");
-	printf("version             : %s version\n", PROG_NAME);
+	printf("echo [FMT] [ARG]     : try to get subnet from ARG and echo it according to FMT\n");
+	printf("scanf [STRING] [FMT] : scan STRING according to scanf-like format FMT\n");
+	printf("fscanf [FILE] [FMT]  : scan FILE according to scanf-like format FMT\n");
+	printf("confdesc             : print a small explanation of %s configuration file\n", PROG_NAME);
+	printf("help                 : This HELP\n");
+	printf("version              : %s version\n", PROG_NAME);
 }
 
 void usage_en_options(void)
 {
 	printf("\nOPTIONS :=\n");
-	printf("-d <delim>    : change the default field delim ';'\n");
-	printf("-ea EA1,EA2   : load Extended Attributes in IPAM files; use ',' to select more\n");
-	printf("-c <file>     : use config file <file>  instead of st.conf\n");
-	printf("-o <file>     : write output in <file>\n");
-	printf("-rt           : when converting routing table, set route type as comment\n");
-	printf("-ecmp         : when converting routing table, print all routes in case of ECMP\n");
-	printf("-noheader|-nh : dont print netcsv header file\n");
-	printf("-grep_field N : grep field N only\n");
-	printf("-D <debug>    : DEBUG MODE ; use '%s -D help' for more info\n", PROG_NAME);
-	printf("-fmt          : change the output format (default :%s)\n", default_fmt);
-	printf("-V            : verbose mode; same as '-D all:1'\n");
-	printf("-VV           : more verbose mode; same as '-D all:2'\n");
+	printf("-d <delim>      : change the default field delim ';'\n");
+	printf("-ea <EA1,EA2>   : load IPAM Extended Attributes; use ',' to select more\n");
+	printf("-c <file>       : use config file <file>  instead of st.conf\n");
+	printf("-o <file>       : write output in <file>\n");
+	printf("-rt             : when converting routing table, set route type as comment\n");
+	printf("-ecmp           : when converting routing table, print all routes in case of ECMP\n");
+	printf("-noheader|-nh   : do not print netcsv header file\n");
+	printf("-grep_field <N> : grep field N only\n");
+	printf("-D <debug>      : DEBUG MODE ; use '%s -D help' for more info\n", PROG_NAME);
+	printf("-fmt            : change the output format (default :%s)\n", default_fmt);
+	printf("-V              : verbose mode; same as '-D all:1'\n");
+	printf("-VV             : more verbose mode; same as '-D all:2'\n");
 }
 
 void usage_en_csv(void)
@@ -221,7 +221,7 @@ void usage(int argc, char **argv, struct st_options *o)
 		return;
 	}
 	u = usages[lang];
-	printf("Usage: %s [OPTIONS] COMMAND ARGUMENTS ....\n", PROG_NAME);
+	printf("Usage: %s [OPTIONS] [COMMAND] [ARGUMENTS] ....\n", PROG_NAME);
 	printf("\n");
 	for (i = 0; ; i++) {
 		if (u[i].name == NULL) {
@@ -237,7 +237,7 @@ void usage(int argc, char **argv, struct st_options *o)
 
 void debug_usage(void)
 {
-	printf("Usage: %s -D Debugs [OPTIONS] COMMAND FILES\n", PROG_NAME);
+	printf("Usage: %s -D Debugs [OPTIONS] [COMMAND] [FILES]\n", PROG_NAME);
 	printf("Debugs looks like : symbol1:level,symbol2:level;...\n");
 	printf("symbol is the  symbol to  debug, increasing level gives more info, ie :\n");
 	printf("level 1 : get more infos on errors (badly formatted file, bad IP etc...)\n");
