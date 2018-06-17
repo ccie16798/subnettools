@@ -460,7 +460,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		}
 		*v_int = res;
 		break;
-	case 'h':
+	case 'h': /* half integer 'hd', half unsigned 'hu', half hex 'hx' */
 		f += 1;
 		c = *f;
 		if (c != 'd' && c != 'u' && c != 'x') {
@@ -514,7 +514,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		}
 		n_found++;
 		break;
-	case 'l':
+	case 'l': /* long integer 'hd', long unsigned 'hu', long hex 'hx' */
 		f += 1;
 		c = *f;
 		if (c != 'd' && c != 'u' && c != 'x') {
@@ -659,7 +659,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		while (isalpha(*p) && p < p_max)
 			*ptr_buff++ = *p++;
 
-		if (p == *in) {
+		if (p == *in) { /* p == *in means pointer didnt move */
 			debug(SCANF, 3, "no WORD found at %s\n", *in);
 			return 0;
 		}
@@ -676,7 +676,8 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		}
 		f += (i2 - 1);
 		ptr_buff = v_s;
-		while (match_char_against_range_clean(*p, expr) && *p != '\0' && p < p_max)
+		while (match_char_against_range_clean(*p, expr) && *p != '\0'
+				&& p < p_max)
 			*ptr_buff++ = *p++;
 
 		if (p == *in) {
