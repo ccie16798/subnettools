@@ -15,7 +15,7 @@ reg_test_scanf() {
 	local output_file
 	local n
 
-	n=54
+	n=55
 	$PROG scanf "1.1.1.1 zob    1.1.1.2    name 25" " *%I (%S )?.*%I *(name) %d" > res/scanf1 
 	$PROG scanf "1.1.1.1   1.1.1.2    name 25" " *%I (%S )?.*%I *(name) %d" > res/scanf2 
 	$PROG scanf "1.1.1.1  1.1.1.2 2.2.2.2 toto   r" " *%I .*%S" > res/scanf3
@@ -93,6 +93,8 @@ reg_test_scanf() {
 	$PROG scanf "ab 223" "a\b %d" > res/scanf53
 	#this should match
 	$PROG scanf "1111" "1{1,4}.*" > res/scanf54
+	# ( in an expression is not interpreted
+	$PROG scanf  "(2.2.2.2) (1.1.1.1) a" "((%I) )*%c" > res/scanf55
 
 	
 	for i in `seq 1 $n`; do

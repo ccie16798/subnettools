@@ -44,7 +44,7 @@ const char *ipam_default_fmt  = "%I;%m";
  * please run 'scanf' with -fmt "%O0, %O1 etc..." option to choose appropriate
  * output format
  */
-const char *scanf_default_fmt = "%O0 %O1 %O2 %O3 %O4 %O5 %O6 %O7 %O8\n";
+const char *scanf_default_fmt = "%O0 %O1 %O2 %O3 %O4 %O5 %O6 %O7\n";
 
 /* struct file_options and MACROs ffrom config_file.[ch] */
 struct file_options fileoptions[] = {
