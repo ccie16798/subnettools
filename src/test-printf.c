@@ -3,6 +3,18 @@
 #include "debug.h"
 #include "iptools.h"
 #include "st_printf.h"
+#include "utils.h"
+
+snprint_signed(short)
+snprint_signed(int)
+snprint_signed(long)
+snprint_hex(short)
+snprint_hex(int)
+snprint_hex(long)
+snprint_unsigned(short)
+snprint_unsigned(int)
+snprint_unsigned(long)
+
 
 int main(int argc, char **argv)
 {
@@ -22,8 +34,24 @@ int main(int argc, char **argv)
 	unsigned short  sh3 = 0xffff;
 	struct subnet s1, s2;
 	char *string = "STRING1";
+	unsigned long static1 = 123456789;
+	long  static2 = -123456789;
+	unsigned long static3 = 0xabcdef10;
 	char buffer1[6];
 	char buffer2[18];
+	int res;
+
+	res = snprint_ulong(buffer2, static1, 2);
+	buffer2[res] = '\0';
+	printf("snprint_long[2] %lu = %s\n", static1, buffer2);
+
+	res = snprint_long(buffer2, static2, 3);
+	buffer2[res] = '\0';
+	printf("snprint_long[3] %ld = %s\n", static2, buffer2);
+
+	res = snprint_hexint(buffer2, static3, 4);
+	buffer2[res] = '\0';
+	printf("snprint_long[4] %x = %s\n", static3, buffer2);
 
 	get_subnet_or_ip("2.2.2.2/24", &s1);
 	get_subnet_or_ip("2001:3:4::1/64", &s2);
