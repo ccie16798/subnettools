@@ -187,7 +187,7 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e)
 			/*
 			 * negate doesnt apply to the  whole expression
 			 */
-			return  (res1 | res2);
+			return (res1 | res2);
 		}
 		if (pattern[i] == '&') {
 			res1 = run_generic_expr(pattern + j, i - j, e);
