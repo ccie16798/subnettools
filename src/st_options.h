@@ -17,6 +17,7 @@
 #define IPAM_MAX_EA_LEN	128
 #define FMT_LEN		128
 #define CSV_MAX_FIELD_LENGTH 32
+#define FSCANF_LINE_LENGTH 2048
 
 struct st_options {
 	int subnet_off;

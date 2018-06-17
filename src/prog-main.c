@@ -964,7 +964,7 @@ static int run_fscanf(int argc, char **argv, void *st_options)
 	int res;
 	struct sto o[40];
 	FILE *f;
-	char buffer[1024];
+	char buffer[FSCANF_LINE_LENGTH];
 	char *s;
 	unsigned long line = 0;
 	int num_cs = count_cs(argv[3]);
