@@ -232,6 +232,8 @@ static int fill_expr(char *expr, const char *fmt, int n)
 		}
 		if (fmt[i] == '\0' || i == n - 2)
 			return -1;
+		/* parenthesis inside an expression are not interpreted
+		 * as a nested expression */
 		if (fmt[i] == ')' && parenthese-- == 0)
 			break;
 		if (fmt[i] == '(')
@@ -380,7 +382,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 	/* p is a pointer to 'in', f a pointer to 'fmt' */
 	p = *in;
 	f = (*fmt) + 1;
-	/* computing field length */
+	/* computing field length like %10d */
 	if (isdigit(*f)) {
 		max_field_length = *f - '0';
 		f++;
@@ -394,7 +396,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		debug(SCANF, 9, "Found max field length %d\n", max_field_length);
 	} else
 		max_field_length = sizeof(buffer) - 2;
-	p_max = *in + max_field_length - 1; /* we reserve on char for NUL ending char */
+	p_max = *in + max_field_length - 1; /* one char reserved for NUL ending char */
 	c = *f; /* c now points to the conversion specifier */
 	switch (c) {
 	case '\0':
