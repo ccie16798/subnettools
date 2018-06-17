@@ -240,7 +240,7 @@ static int fill_expr(char *expr, const char *fmt, int n)
 		i++;
 	}
 	expr[i] = '\0';
-	return i + 2; /* +2 since we remove opening [ and closing ] */
+	return i + 2; /* +2 since we remove opening ( and closing ) */
 }
 
 /*
