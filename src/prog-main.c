@@ -982,6 +982,7 @@ static int run_fscanf(int argc, char **argv, void *st_options)
 	char buffer[FSCANF_LINE_LENGTH];
 	char *s;
 	unsigned long line = 0;
+	struct st_options *nof = st_options;
 	int num_cs = count_cs(argv[3]);
 
 	if (num_cs > SCANF_MAX_OBJECTS) {
@@ -999,7 +1000,7 @@ static int run_fscanf(int argc, char **argv, void *st_options)
 		res = sto_sscanf(s, argv[3], o, 40);
 		/* we print the result only on exact match but not partial match */
 		if (res >= num_cs)
-			sto_printf("%O0 %O1 %O2 %O3 %O4 %O5 %O6 %O7\n", o, res);
+			sto_printf(nof->scanf_output_fmt, o, res);
 	}
 	return 0;
 }
