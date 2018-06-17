@@ -949,7 +949,13 @@ static int run_scanf(int argc, char **argv, void *st_options)
 {
 	int res;
 	struct sto o[SCANF_MAX_OBJECTS];
+	int num_cs = count_cs(argv[3]);
 
+	if (num_cs > SCANF_MAX_OBJECTS) {
+		fprintf(stderr, "You want to collect %d objects, but max is %d\n",
+				num_cs, SCANF_MAX_OBJECTS);
+		return -1;
+	}
 	res = sto_sscanf(argv[2], argv[3], o, 40);
 	if (res < 0) {
 		fprintf(stderr, "no match\n");
@@ -970,6 +976,11 @@ static int run_fscanf(int argc, char **argv, void *st_options)
 	unsigned long line = 0;
 	int num_cs = count_cs(argv[3]);
 
+	if (num_cs > SCANF_MAX_OBJECTS) {
+		fprintf(stderr, "You want to collect %d objects, but max is %d\n",
+				num_cs, SCANF_MAX_OBJECTS);
+		return -1;
+	}
 	f = fopen(argv[2], "r");
 	if (f == NULL) {
 		fprintf(stderr, "Cannot open %s for reading\n", argv[2]);
