@@ -33,6 +33,7 @@ struct st_options {
 	char output_fmt[FMT_LEN];
 	char bgp_output_fmt[FMT_LEN];
 	char ipam_output_fmt[FMT_LEN];
+	char scanf_output_fmt[FMT_LEN];
 	/* set from config file only */
 	/* IPAM FILE description */
 	char ipam_prefix_field[CSV_MAX_FIELD_LENGTH];

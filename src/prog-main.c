@@ -36,9 +36,10 @@
 
 /* max number of objects collectable inf fscanf, and scanf */
 #define SCANF_MAX_OBJECTS 40
-const char *default_fmt      = "%I;%m;%D;%G;%O#";
-const char *bgp_default_fmt  = "%v;%5T;%4B;%16P;%16G;%10M;%10L;%10w;%6o;%A";
-const char *ipam_default_fmt = "%I;%m";
+const char *default_fmt       = "%I;%m;%D;%G;%O#";
+const char *bgp_default_fmt   = "%v;%5T;%4B;%16P;%16G;%10M;%10L;%10w;%6o;%A";
+const char *ipam_default_fmt  = "%I;%m";
+const char *scanf_default_fmt = "%O0 %O1 %O2 %O3 %O4 %O5 %O6 %O7 %O8";
 
 /* struct file_options and MACROs ffrom config_file.[ch] */
 struct file_options fileoptions[] = {
@@ -950,6 +951,7 @@ static int run_scanf(int argc, char **argv, void *st_options)
 	int res;
 	struct sto o[SCANF_MAX_OBJECTS];
 	int num_cs = count_cs(argv[3]);
+	struct st_options *nof = st_options;
 
 	if (num_cs > SCANF_MAX_OBJECTS) {
 		fprintf(stderr, "You want to collect %d objects, but max is %d\n",
@@ -962,6 +964,7 @@ static int run_scanf(int argc, char **argv, void *st_options)
 		return res;
 	}
 	sto_printf("%O0 %O1 %O2 %O3 %O4 %O5 %O6 %O7\n", o, res);
+	//sto_printf(nof->output_fmt, o, res);
 	return 0;
 }
 
