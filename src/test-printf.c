@@ -12,7 +12,7 @@ int main(int argc, char **argv)
 	int 		a4 = -123;
 	unsigned short b = 65535;
 	/* long result will vary */
-	long		l1 = 200000000;
+	long		l1 = 9223372036854775805;
 	long		l2 = 300000000;
 	long		l3 = -1;
 	unsigned long   l4 = -1;

@@ -21,7 +21,7 @@ st_scanf_ci.o: st_scanf.c st_scanf.h st_options.h
 subnet-tools: $(OBJS) st_scanf_ci.o
 	$(CC) -o $@ $^ $(CFLAGS)
 
-test-printf: test-printf.o debug.o utils.o st_printf.o iptools.o bitmap.o st_object.o st_memory.o
+test-printf: test-printf.o debug.o utils.o st_printf.o iptools.o bitmap.o st_object.o st_memory.o string2ip.o
 	$(CC) -o $@ $^ $(CFLAGS)
 
 test : generic_csv.o debug.o utils.o
