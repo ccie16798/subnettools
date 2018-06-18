@@ -6,7 +6,7 @@
 struct  ipam_ea {
 	char *name;
 	char *value; /* value of EA; MUST be malloc'ed*/
-	int len;
+	int len; /* strlen(value) + 1 */
 };
 
 /* return the malloc'd size of ea*/
@@ -26,7 +26,7 @@ static inline void free_ea(struct ipam_ea *ea) {
 		}
 		return;
 	}
-	st_free(ea->value, ea_size(ea));
+	st_free(ea->value, ea->len);
 	ea->len   = 0;
 	ea->value = NULL;
 }
