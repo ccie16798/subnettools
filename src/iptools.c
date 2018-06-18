@@ -118,7 +118,7 @@ static inline int subnet_compare_ipv4(ipv4 prefix1, int mask1, ipv4 prefix2, int
 int subnet_compare(const struct subnet *sub1, const struct subnet *sub2)
 {
 	if (sub1->ip_ver != sub2->ip_ver) {
-		debug(ADDRCOMP, 1, "different address FAMILY : %d, %d\n",
+		debug(ADDRCOMP, 3, "different address FAMILY : %d, %d\n",
 				sub1->ip_ver, sub2->ip_ver);
 		return -1;
 	}
@@ -133,7 +133,7 @@ int subnet_compare(const struct subnet *sub1, const struct subnet *sub2)
 int addr_compare(const struct ip_addr *a, const struct subnet *sub)
 {
 	if (a->ip_ver != sub->ip_ver) {
-		debug(ADDRCOMP, 1, "different address FAMILY : %d, %d\n", a->ip_ver, sub->ip_ver);
+		debug(ADDRCOMP, 3, "different address FAMILY : %d, %d\n", a->ip_ver, sub->ip_ver);
 		return -1;
 	}
 	if (a->ip_ver == IPV4_A)
@@ -379,7 +379,7 @@ int ipv4_get_classfull_mask(const struct subnet *s)
 int addr_is_superior(const struct ip_addr *ip1, const struct ip_addr *ip2)
 {
 	if (ip1->ip_ver != ip2->ip_ver) {
-		debug(ADDRCOMP, 1, "cannot compare, different IP version %d != %d\n",
+		debug(ADDRCOMP, 3, "cannot compare, different IP version %d != %d\n",
 				ip1->ip_ver, ip2->ip_ver);
 		return -1;
 	}
@@ -395,7 +395,7 @@ int subnet_is_superior(const struct subnet *s1, const struct subnet *s2)
 	int i, res;
 
 	if (s1->ip_ver != s2->ip_ver) {
-		debug(ADDRCOMP, 1, "cannot compare, different IP version\n");
+		debug(ADDRCOMP, 3, "cannot compare, different IP version\n");
 		return -1;
 	}
 	res = 0;
