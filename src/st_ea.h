@@ -1,6 +1,8 @@
 #ifndef IPAM_EA_H
 #define IPAM_EA_H
 
+#include "st_memory.h"
+
 struct  ipam_ea {
 	char *name;
 	char *value; /* value of EA; MUST be malloc'ed*/
@@ -8,8 +10,18 @@ struct  ipam_ea {
 };
 
 /* return the malloc'd size of ea*/
-int ea_size(const struct ipam_ea *ea);
+static inline int ea_size(const struct ipam_ea *ea)
+{
+        if (ea->value == NULL)
+                return 0;
+        return ea->len;
+}
 
+static inline void free_ea(struct ipam_ea *ea) {
+	st_free(ea->value, ea_size(ea));
+	ea->len = 0;
+	ea->value = NULL;
+}
 /* set value of 'ea' to 'value'
  * returns:
  *	-1 if no memory

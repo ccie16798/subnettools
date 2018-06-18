@@ -16,12 +16,6 @@
 #include "st_ea.h"
 #include "st_scanf.h"
 
-int ea_size(const struct ipam_ea *ea)
-{
-	if (ea->value == NULL)
-		return 0;
-	return ea->len;
-}
 
 int ea_strdup(struct ipam_ea *ea, const char *value)
 {
