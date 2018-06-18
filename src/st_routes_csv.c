@@ -94,7 +94,7 @@ static int netcsv_prefix_handle(char *s, void *data, struct csv_state *state)
 		mask = sf->routes[sf->nr].subnet.mask;
 	res = get_subnet_or_ip(s, &sf->routes[sf->nr].subnet);
 	if (res < 0) {
-		debug(LOAD_CSV, 2, "invalid IP %s line %lu\n", s, state->line);
+		debug(LOAD_CSV, 3, "invalid IP %s line %lu\n", s, state->line);
 		return CSV_INVALID_FIELD_BREAK;
 	}
 	if (state->state[0]) /* if we found a mask before finding a subnet */
@@ -108,7 +108,7 @@ static int netcsv_mask_handle(char *s, void *data, struct csv_state *state)
 	int mask = string2mask(s, 21);
 
 	if (mask < 0) {
-		debug(LOAD_CSV, 2, "invalid mask %s line %lu\n", s, state->line);
+		debug(LOAD_CSV, 3, "invalid mask %s line %lu\n", s, state->line);
 		return CSV_INVALID_FIELD_BREAK;
 	}
 	sf->routes[sf->nr].subnet.mask = mask;
@@ -123,7 +123,7 @@ static int netcsv_device_handle(char *s, void *data, struct csv_state *state)
 
 	res = strxcpy(sf->routes[sf->nr].device, s, sizeof(sf->routes[sf->nr].device));
 	if (res >= sizeof(sf->routes[sf->nr].device))
-		debug(LOAD_CSV, 2, "line %lu STRING device '%s'  too long, truncating to '%s'\n",
+		debug(LOAD_CSV, 3, "line %lu STRING device '%s'  too long, truncating to '%s'\n",
 				state->line, s, sf->routes[sf->nr].device);
 	return CSV_VALID_FIELD;
 }
@@ -144,7 +144,7 @@ static int netcsv_GW_handle(char *s, void *data, struct csv_state *state)
 			copy_ipaddr(&sf->routes[sf->nr].gw, &addr);
 		} else {
 			zero_ipaddr(&sf->routes[sf->nr].gw);
-			debug(LOAD_CSV, 2, "invalid GW %s line %lu\n", s, state->line);
+			debug(LOAD_CSV, 3, "invalid GW %s line %lu\n", s, state->line);
 		}
 	}
 	return CSV_VALID_FIELD;
@@ -173,7 +173,7 @@ static int netcsv_ea_handler(char *s, void *data, struct csv_state *state)
 		}
 	}
 	if (found == 0) {
-		debug(LOAD_CSV, 2, "No EA match field '%s'\n",  state->csv_field);
+		debug(LOAD_CSV, 3, "No EA match field '%s'\n",  state->csv_field);
 		return CSV_INVALID_FIELD_BREAK;
 	}
 	/* we dont care if memory failed on strdup; we continue */
@@ -208,7 +208,7 @@ static int netcsv_endofline_callback(struct csv_state *state, void *data)
 	struct route *new_r;
 
 	if (state->badline) {
-		debug(LOAD_CSV, 1, "%s : invalid line %lu\n", state->file_name, state->line);
+		debug(LOAD_CSV, 2, "%s : invalid line %lu\n", state->file_name, state->line);
 		free_route(&sf->routes[sf->nr]);
 		return -1;
 	}
@@ -243,14 +243,14 @@ static int netcsv_validate_header(struct csv_file *cf, void *data)
 			return -1;
 		sf->ea    = new_ea;
 		sf->ea_nr = new_n;
-		debug(LOAD_CSV, 3, "Need to register %d EA, sf->ea_nr=%d\n", new_n, new_n);
+		debug(LOAD_CSV, 4, "Need to register %d EA, sf->ea_nr=%d\n", new_n, new_n);
 
 		/* we alloc memory for sf->ea[i].name
 		 * except comment because it is already alloc'ed
 		 */
 		for (i = 5; i < cf->num_fields_registered; i++) {
 			sf->ea[i - 4].name = st_strdup(cf->csv_field[i].name);
-			debug(LOAD_CSV, 3, "Register handler '%s' for EA=%d\n",
+			debug(LOAD_CSV, 4, "Register handler '%s' for EA=%d\n",
 					sf->ea[i - 4].name, i - 4);
 			if (sf->ea[i - 4].name == NULL)
 				return -1;
@@ -306,7 +306,7 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 		return res;
 	}
 	if (sf->nr == 0) {
-		debug(LOAD_CSV, 3, "Not a single valid line in %s", name);
+		debug(LOAD_CSV, 2, "Not a single valid line in %s", name);
 		free_subnet_file(sf);
 		free_csv_file(&cf);
 		return -2;
@@ -416,7 +416,7 @@ static int bgpcsv_prefix_handle(char *s, void *data, struct csv_state *state)
 		i++;
 	res = get_subnet_or_ip(s + i, &subnet);
 	if (res < 0) {
-		debug(LOAD_CSV, 2, "invalid IP %s line %lu\n", s, state->line);
+		debug(LOAD_CSV, 3, "invalid IP %s line %lu\n", s, state->line);
 		return CSV_INVALID_FIELD_BREAK;
 	}
 	copy_subnet(&sf->routes[sf->nr].subnet,  &subnet);
@@ -436,7 +436,7 @@ static int bgpcsv_GW_handle(char *s, void *data, struct csv_state *state)
 		copy_ipaddr(&sf->routes[sf->nr].gw, &addr);
 	} else {
 		zero_ipaddr(&sf->routes[sf->nr].gw);
-		debug(LOAD_CSV, 2, "invalid GW %s line %lu\n", s, state->line);
+		debug(LOAD_CSV, 3, "invalid GW %s line %lu\n", s, state->line);
 	}
 	return CSV_VALID_FIELD;
 }
@@ -455,7 +455,7 @@ static int bgpcsv_med_handle(char *s, void *data, struct csv_state *state)
 		i++;
 	}
 	if (s[i] != '\0') {
-		debug(LOAD_CSV, 2, "line %lu MED '%s' is not an INT\n", state->line, s);
+		debug(LOAD_CSV, 3, "line %lu MED '%s' is not an INT\n", state->line, s);
 		return CSV_INVALID_FIELD_BREAK;
 	}
 	sf->routes[sf->nr].MED = res;
@@ -476,7 +476,7 @@ static int bgpcsv_localpref_handle(char *s, void *data, struct csv_state *state)
 		i++;
 	}
 	if (s[i] != '\0') {
-		debug(LOAD_CSV, 2, "line %lu LOCAL_PREF '%s' is not an INT\n", state->line, s);
+		debug(LOAD_CSV, 3, "line %lu LOCAL_PREF '%s' is not an INT\n", state->line, s);
 		return CSV_INVALID_FIELD_BREAK;
 	}
 	sf->routes[sf->nr].LOCAL_PREF = res;
@@ -497,7 +497,7 @@ static int bgpcsv_weight_handle(char *s, void *data, struct csv_state *state)
 		i++;
 	}
 	if (s[i] != '\0') {
-		debug(LOAD_CSV, 2, "line %lu WEIGHT '%s' is not an INT\n", state->line, s);
+		debug(LOAD_CSV, 3, "line %lu WEIGHT '%s' is not an INT\n", state->line, s);
 		return CSV_INVALID_FIELD_BREAK;
 	}
 	sf->routes[sf->nr].weight = res;
@@ -511,7 +511,7 @@ static int bgpcsv_aspath_handle(char *s, void *data, struct csv_state *state)
 
 	res = strxcpy(sf->routes[sf->nr].AS_PATH, s, sizeof(sf->routes[sf->nr].AS_PATH));
 	if (res >= sizeof(sf->routes[sf->nr].AS_PATH))
-		debug(LOAD_CSV, 1, "line %lu AS_PATH '%s' too long, truncating to '%s'\n",
+		debug(LOAD_CSV, 3, "line %lu AS_PATH '%s' too long, truncating to '%s'\n",
 				state->line, s, sf->routes[sf->nr].AS_PATH);
 	return CSV_VALID_FIELD;
 }
@@ -553,7 +553,7 @@ static int bgpcsv_origin_handle(char *s, void *data, struct csv_state *state)
 		sf->routes[sf->nr].origin = s[i];
 		return CSV_VALID_FIELD;
 	}
-	debug(LOAD_CSV, 2, "line %lu ORIGIN CODE '%c' is invalid\n", state->line, s[i]);
+	debug(LOAD_CSV, 3, "line %lu ORIGIN CODE '%c' is invalid\n", state->line, s[i]);
 	return CSV_INVALID_FIELD_BREAK;
 }
 
@@ -574,7 +574,7 @@ static int bgpcsv_endofline_callback(struct csv_state *state, void *data)
 	struct bgp_route *new_r;
 
 	if (state->badline) {
-		debug(LOAD_CSV, 1, "%s : invalid line %lu\n", state->file_name, state->line);
+		debug(LOAD_CSV, 2, "%s : invalid line %lu\n", state->file_name, state->line);
 		return -1;
 	}
 	sf->nr++;
