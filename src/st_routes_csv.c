@@ -123,7 +123,7 @@ static int netcsv_device_handle(char *s, void *data, struct csv_state *state)
 
 	res = strxcpy(sf->routes[sf->nr].device, s, sizeof(sf->routes[sf->nr].device));
 	if (res >= sizeof(sf->routes[sf->nr].device))
-		debug(LOAD_CSV, 3, "line %lu STRING device '%s'  too long, truncating to '%s'\n",
+		debug(LOAD_CSV, 3, "line %lu STRING device '%s' too long, truncating to '%s'\n",
 				state->line, s, sf->routes[sf->nr].device);
 	return CSV_VALID_FIELD;
 }
@@ -208,7 +208,8 @@ static int netcsv_endofline_callback(struct csv_state *state, void *data)
 	struct route *new_r;
 
 	if (state->badline) {
-		debug(LOAD_CSV, 2, "%s : invalid line %lu\n", state->file_name, state->line);
+		debug(LOAD_CSV, 2, "%s : invalid line %lu\n",
+				state->file_name, state->line);
 		free_route(&sf->routes[sf->nr]);
 		return -1;
 	}
@@ -318,14 +319,19 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 static int ipam_comment_handle(char *s, void *data, struct csv_state *state)
 {
 	struct  subnet_file *sf = data;
-
-	if (strlen(s) > 2)/* sometimes comment are fucked and a better one is in EA-Name */
+	/* sometimes comment are fucked and a better one is in EA-Name */
+	if (strlen(s) > 2) {
+		free_ea(&sf->routes[sf->nr].ea[0]);
 		ea_strdup(&sf->routes[sf->nr].ea[0], s);
+	}
 	return CSV_VALID_FIELD;
 }
 
 /*
  * legacy IPAM loading function
+ * used for specific form of IPAM file, not really generic
+ * it uses fields 'comment' or 'EA-Name' to extract comments
+ * used getea command instead
  */
 int load_ipam_no_EA(char  *name, struct subnet_file *sf, struct st_options *nof)
 {
