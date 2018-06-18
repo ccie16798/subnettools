@@ -95,7 +95,7 @@ static int ipam_prefix_handle(char *s, void *data, struct csv_state *state)
 
 	res = get_subnet_or_ip(s, &sf->lines[sf->nr].subnet);
 	if (res < 0) {
-		debug(LOAD_CSV, 2, "invalid IP %s line %lu\n", s, state->line);
+		debug(IPAM, 3, "invalid IP %s line %lu\n", s, state->line);
 		return CSV_INVALID_FIELD_BREAK;
 	}
 	return CSV_VALID_FIELD;
@@ -107,7 +107,7 @@ static int ipam_mask_handle(char *s, void *data, struct csv_state *state)
 	int mask = string2mask(s, 21);
 
 	if (mask < 0) {
-		debug(LOAD_CSV, 2, "invalid mask %s line %lu\n", s, state->line);
+		debug(IPAM, 3, "invalid mask %s line %lu\n", s, state->line);
 		return CSV_INVALID_FIELD_BREAK;
 	}
 	sf->lines[sf->nr].subnet.mask = mask;
@@ -127,7 +127,7 @@ static int ipam_ea_handle(char *s, void *data, struct csv_state *state)
 		}
 	}
 	if (found == 0) {
-		debug(IPAM, 2, "No EA match field '%s'\n",  state->csv_field);
+		debug(IPAM, 3, "No EA match field '%s'\n",  state->csv_field);
 		return CSV_INVALID_FIELD_BREAK;
 	}
 	debug(IPAM, 6, "Found %s = %s\n",  sf->lines[sf->nr].ea[ea_nr].name, s);
@@ -142,7 +142,8 @@ static int ipam_endofline_callback(struct csv_state *state, void *data)
 	struct ipam_line *new_r;
 
 	if (state->badline) {
-		debug(LOAD_CSV, 1, "%s : invalid line %lu\n", state->file_name, state->line);
+		debug(IPAM, 2, "%s : invalid line %lu (use -D ipam:3) to get error for this line\n",
+				state->file_name, state->line);
 		/* if too much badlines, we will loose time alloc in startofline
 		 * and freeing in endofline but whatever
 		 */
@@ -215,13 +216,13 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 	s = (nof->ipam_mask[0] ? nof->ipam_mask : "netmask_dec");
 	register_csv_field(&cf, s, 0, 1, 0, ipam_mask_handle);
 
-	debug(IPAM, 3, "Parsing EA : '%s'\n", nof->ipam_ea);
+	debug(IPAM, 4, "Parsing EA : '%s'\n", nof->ipam_ea);
 	i = 0;
 	s = strtok(nof->ipam_ea, ",");
 	/* getting Extensible attributes from config file of cmd_line */
 	while (s) {
 		i++;
-		debug(IPAM, 3, "Registering Extended Attribute : '%s'\n", s);
+		debug(IPAM, 4, "Registering Extended Attribute : '%s'\n", s);
 		register_csv_field(&cf, s, 0, 0, 0, ipam_ea_handle);
 		s = strtok(NULL, ",");
 	}
@@ -286,7 +287,7 @@ static int ipam_filter(const char *s, const char *value, char op, void *object)
 	if (!strcmp(s, "prefix")) {
 		res = get_subnet_or_ip(value, &subnet);
 		if (res < 0) {
-			debug(FILTER, 1, "Filtering on prefix %c '%s',  but it is not an IP\n",
+			debug(FILTER, 1, "Filtering on prefix %c '%s', but it is not an IP\n",
 					op, value);
 			return -1;
 		}
@@ -295,7 +296,7 @@ static int ipam_filter(const char *s, const char *value, char op, void *object)
 		res =  string2mask(value, 42);
 		if (res < 0) {
 			debug(FILTER, 1,
-					"Filtering on mask %c '%s',  but it is not valid\n",
+					"Filtering on mask %c '%s', but it is not valid\n",
 					op, value);
 			return -1;
 		}
