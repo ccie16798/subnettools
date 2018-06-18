@@ -7,7 +7,6 @@
 #define __D_LOADFILE	3 /* UNUSED */
 #define __D_PARSEIPV6	4
 #define __D_PARSEOPTS	5
-#define __D_PAIP	6
 #define __D_IPAM	6
 #define __D_LOAD_CSV	7
 #define __D_PARSEIP	8
