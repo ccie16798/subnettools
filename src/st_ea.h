@@ -18,8 +18,16 @@ static inline int ea_size(const struct ipam_ea *ea)
 }
 
 static inline void free_ea(struct ipam_ea *ea) {
+	if (ea->value == NULL) {
+		if (ea->len) {
+			fprintf(stderr, "%s: BUG freeing NULL ea value with len %d\n",
+					__func__, ea->len);
+			ea->len = 0;
+		}
+		return;
+	}
 	st_free(ea->value, ea_size(ea));
-	ea->len = 0;
+	ea->len   = 0;
 	ea->value = NULL;
 }
 /* set value of 'ea' to 'value'
