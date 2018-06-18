@@ -44,6 +44,12 @@ int alloc_subnet_file(struct subnet_file *sf, unsigned long n)
 	}
 	sf->ea[0].name = st_strdup("comment");
 	sf->ea_nr = 1;
+	if (sf->ea[0].name == NULL) { /* really bad luck */
+		st_free(sf->routes, sf->max_nr * sizeof(struct route));
+		free_ea_array(sf->ea, sf->ea_nr);
+		sf->max_nr = 0;
+		return -1;
+	}
 	return 0;
 }
 
@@ -59,7 +65,7 @@ void free_subnet_file(struct subnet_file *sf)
 	sf->routes = NULL;
 	sf->nr = sf->max_nr = 0;
 	free_ea_array(sf->ea, sf->ea_nr);
-	sf->ea = NULL;
+	sf->ea    = NULL;
 	sf->ea_nr = 0;
 }
 
@@ -244,17 +250,18 @@ static int netcsv_validate_header(struct csv_file *cf, void *data)
 			return -1;
 		sf->ea    = new_ea;
 		sf->ea_nr = new_n;
-		debug(LOAD_CSV, 4, "Need to register %d EA, sf->ea_nr=%d\n", new_n, new_n);
-
+		debug(LOAD_CSV, 4, "Need to register %d EA, sf->ea_nr=%d\n",
+				new_n, new_n);
 		/* we alloc memory for sf->ea[i].name
 		 * except comment because it is already alloc'ed
 		 */
 		for (i = 5; i < cf->num_fields_registered; i++) {
+			/* sf->ea[x].name is freed by free_subnet_file */
 			sf->ea[i - 4].name = st_strdup(cf->csv_field[i].name);
-			debug(LOAD_CSV, 4, "Register handler '%s' for EA=%d\n",
-					sf->ea[i - 4].name, i - 4);
 			if (sf->ea[i - 4].name == NULL)
 				return -1;
+			debug(LOAD_CSV, 4, "Register handler '%s' for EA=%d\n",
+					sf->ea[i - 4].name, i - 4);
 		}
 	}
 	/* alloc EA for routes[0] */
@@ -268,7 +275,7 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 	int res;
 	char *s;
 
-	if (nof->delim[1] == '\0')
+	if (nof->delim[1] == '\0') /* one delim,, use optimised strtok */
 		res = init_csv_file(&cf, name, 20 + 1, nof->delim, &st_strtok_r1);
 	else
 		res = init_csv_file(&cf, name, 20 + 1, nof->delim, &st_strtok_r);
