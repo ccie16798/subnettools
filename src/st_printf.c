@@ -201,7 +201,8 @@ static int __print_ea(char *outbuf, size_t buffer_len,
 			const char *fmt, int *i,
 			int field_width, int pad_left,
 			struct ipam_ea *ea, int ea_nr,
-			int header) {
+			int header)
+{
 	int k, res;
 	char sep;
 	char buffer[ST_PRINTF_MAX_STRING_SIZE];
@@ -815,7 +816,7 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap,
 	char *v_s;
 	int v_int;
 	char v_c;
-	unsigned v_unsigned;
+	unsigned int v_unsigned;
 	long v_long;
 	unsigned long v_ulong;
 	short v_short;
@@ -899,7 +900,7 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap,
 				j++;
 				break;
 			case 'u':
-				v_unsigned = va_arg(ap, unsigned);
+				v_unsigned = va_arg(ap, unsigned int);
 				res = sprint_uint(buffer, v_unsigned);
 				res = pad_buffer_out(outbuf + j, len - j, buffer, res,
 						field_width, pad_left, pad_value);
@@ -914,7 +915,7 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap,
 				break;
 			case 'h':/* half integers handling */
 				if (fmt[i2 + 1] == 'u') {
-					v_ushort = va_arg(ap, unsigned);
+					v_ushort = va_arg(ap, unsigned int);
 					res = sprint_ushort(buffer, v_ushort);
 				} else if (fmt[i2 + 1] == 'd') {
 					v_short = va_arg(ap, int);
