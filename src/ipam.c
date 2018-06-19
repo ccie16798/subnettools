@@ -424,16 +424,15 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 		if (found_mask == -1) {
 			for (j = 0; j < ipam->ea_nr; j++) {
 				/* 'comment' get special treatment; it is included in struct route
-				 * by default as routes->ea[0]; so if we get 'comment' EA from ipam
-				 *  we need to overwrite it with IPAM value
-				 * and free some memory (we reserve 1 more struct ea)
+				 * by default as route->ea[0]; so if we get 'comment' EA from ipam
+				 *  we need to overwrite it with IPAM value and free previous value
 				 */
 				if (j == comment_index) {
 					sf->routes[i].ea[0].name  = ipam->ea[j].name;
-					sf->routes[i].ea[0].value = NULL;
+					free_ea(&sf->routes[i].ea[0]);
 				} else {
 					sf->routes[i].ea[k].name  = ipam->ea[j].name;
-					sf->routes[i].ea[k].value = NULL;
+					free_ea(&sf->routes[i].ea[0]);
 					k++;
 				}
 			}
@@ -441,11 +440,12 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 			for (j = 0; j < ipam->ea_nr; j++) {
 				if (j == comment_index) {
 					sf->routes[i].ea[0].name  = ipam->ea[j].name;
+					free_ea(&sf->routes[i].ea[0]);
 					ea_strdup(&sf->routes[i].ea[0],
 							ipam->lines[found_j].ea[j].value);
 				} else {
 					sf->routes[i].ea[k].name  = ipam->ea[j].name;
-					st_free_string(sf->routes[i].ea[k].value);
+					free_ea(&sf->routes[i].ea[k]);
 					ea_strdup(&sf->routes[i].ea[k],
 							ipam->lines[found_j].ea[j].value);
 					k++;
