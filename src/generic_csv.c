@@ -241,8 +241,8 @@ static int read_csv_body(struct st_file *f, struct csv_file *cf,
 						break;
 				} else if (res == CSV_CATASTROPHIC_FAILURE) {
 					/* FATAL ERROR like no more memory*/
-					debug(LOAD_CSV, 1,  "line %lu : fatal error, aborting\n",
-							state->line);
+					debug(LOAD_CSV, 1,  "File %s line %lu : fatal error, aborting\n",
+							cf->file_name, state->line);
 					debug_timing_end(2);
 					return -2;
 				}
@@ -261,8 +261,8 @@ static int read_csv_body(struct st_file *f, struct csv_file *cf,
 		if (cf->endofline_callback) {
 			res = cf->endofline_callback(state, data);
 			if (res == CSV_CATASTROPHIC_FAILURE) {/* FATAL ERROR like no more memory*/
-				debug(LOAD_CSV, 1,  "line %lu : fatal error, aborting\n",
-						state->line);
+				debug(LOAD_CSV, 1,  "File %s line %lu : fatal error, aborting\n",
+						cf->file_name, state->line);
 				debug_timing_end(2);
 				return res;
 			} else if (res == CSV_END_FILE) {
@@ -280,8 +280,8 @@ static int read_csv_body(struct st_file *f, struct csv_file *cf,
 		res = cf->endoffile_callback(state, data);
 	else
 		res = CSV_VALID_FILE;
-	debug(LOAD_CSV, 3, "Parsed %lu lines, %lu good, %lu bad\n",
-			state->line, state->line - badlines, badlines);
+	debug(LOAD_CSV, 3, "File %s Parsed %lu lines, %lu good, %lu bad\n",
+			cf->file_name, state->line, state->line - badlines, badlines);
 	debug_timing_end(2);
 	return res;
 }
