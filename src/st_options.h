@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 #ifndef ST_OPTIONS_H
 #define ST_OPTIONS_H
 
