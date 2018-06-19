@@ -124,6 +124,8 @@ Wwhen does (expr)* expansion ends??  there are 3 cases to consider :
 CASE 1 :  (EXPR)* expansion when expr is not '.'
 ------------------------------------------------
 In that case, expansion will end when EXPR doesn't match anymore
+that means that scanf("aaaaaaaab", "a*(aab)") doesnt match since 'a*' expansion ends on 'b'
+you probably want to write  and equivalent scanf(""aaaaaaaab", "a{2,}b")
 
 CASE 2: .* expansion
 --------------------
@@ -148,7 +150,7 @@ if REMAIN is a conversion specifier :
 --------------------------------------
 let's take an exemple with FMT=".*%I"
 ==> for each char, it tries to determine if "REMAIN" is an IP; for example :
-st_scanf("                   1.1.1.1", " *%I", string) will return "1.1.1.1"
+st_scanf("                   1.1.1.1", ".*%I", string) will return "1.1.1.1"
 ".*%s"
 ==> on first non-space char
 ".*%[
@@ -166,7 +168,7 @@ if next sequence is an expr (EXPR)
 expansion will end if the complete EXPR matches
 
 pattern matching is done 'char by char' by default so ".*STRING" is not what you think it is :
-st_scanf(" a 1.1.1.1 abcd 2.2.2.2", ".*abcd %I") will return 0 (expansion ends on second char 'a') 
+st_scanf(" a 1.1.1.1 abcd 2.2.2.2", ".*abcd %I") will not match (expansion ends on second char 'a')
 
 etienne@debian:~/st$ ./subnet-tools -D scanf:3 scanf " a 1.1.1.1 abcd 2.2.2.2", ".*abcd %I" 
 sto_sscanf : Exiting loop with expr '.' matched 1 times, found 0 objects so far
