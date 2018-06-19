@@ -18,7 +18,7 @@
 void zero_route_ea(struct route *a)
 {
 	int i;
-	void *ea = a->ea;
+	void *ea  = a->ea;
 	int ea_nr = a->ea_nr;
 
 	for (i = 0; i < ea_nr; i++)
