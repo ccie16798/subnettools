@@ -1,0 +1,5 @@
+prefix;comment;EA-Site;EA-Vlan
+10.58.0.29/32;;;
+10.58.0.72/30;;La Defense - Baobab;
+10.128.0.1/32;;Saint Denis;
+10.128.1.1/32;;Saint Denis;

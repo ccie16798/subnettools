@@ -193,8 +193,10 @@ reg_test_ipamfilter() {
 	$PROG -c st.conf -ea EA-Site ipamfilter ipam-test "EA-Site%[Saint denis]*" > res/ipamfilter14
 	$PROG -c st.conf -ea EA-Site ipamfilter ipam-test 'EA-Site%.*(sain).*' > res/ipamfilter15
 	$PROG -c st.conf -ea EA-Site ipamfilter ipam-test2 'EA-Site%.*(sain).*' > res/ipamfilter16
+	# toto2 has already EA, so more difficult to handle without leaking memory
+	$PROG -c st.conf -fmt "%P;%O#" -ea EA-Site,EA-Vlan getea ipam-test toto  > res/ipamfilter17
 
-	n=16
+	n=17
 	for i in `seq 1 $n`; do
 		output_file=ipamfilter$i
 		if [ ! -f ref/$output_file ]; then
