@@ -150,7 +150,7 @@ void st_free_string(char *s)
 	if (s == NULL)
 		return;
 	total_memory -= (strlen(s) + 1);
-	debug(MEMORY, 6, "Freeing string '%s', %d bytes\n", s, (int)(strlen(s) + 1));
+	debug(MEMORY, 7, "Freeing string '%s', %d bytes\n", s, (int)(strlen(s) + 1));
 	free(s);
 }
 
@@ -159,7 +159,7 @@ void st_free(void *ptr, unsigned long len)
 	if (ptr == NULL)
 		return;
 	total_memory -= len;
-	debug(MEMORY, 6, "Freeing %lu bytes\n", len);
+	debug(MEMORY, 8, "Freeing %lu bytes\n", len);
 	free(ptr);
 }
 #else
