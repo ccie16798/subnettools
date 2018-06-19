@@ -207,7 +207,7 @@ char *st_gets_truncate(struct st_file *f, char *buffer, size_t size,
 
 	if (size < 2)
 		return NULL;
-	if (size > f->buffer_size /4) {
+	if (size > f->buffer_size / 4) {
 		fprintf(stderr, "BUG, %s called with size too big:%d for internal buffer:%d\n",
 			__func__, (int)size, f->buffer_size);
 		return NULL;
