@@ -373,8 +373,12 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 	/* 
 	 * subnet file sfr may already have Extended Attributes
 	 * we must add EA from IPAM as well
+	 * comment from subnet_file is always overwritten 
 	 */
-	new_ea = realloc_ea_array(sf->ea, sf->ea_nr,  sf->ea_nr + ipam->ea_nr);
+	for (j = 0; j < ipam->ea_nr; j++)
+		if (!strcasecmp(ipam->ea[j].name, "comment"))
+			has_comment = 1;
+	new_ea = realloc_ea_array(sf->ea, sf->ea_nr,  sf->ea_nr + ipam->ea_nr - has_comment);
 	if (new_ea == NULL)
 		return -1;
 	sf->ea = new_ea;
@@ -382,7 +386,7 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 	
 	sf_ea_nr = sf->ea_nr; /* save original number of Extended Attributes */
 	k = sf_ea_nr;
-	sf->ea_nr += ipam->ea_nr;
+	sf->ea_nr += (ipam->ea_nr - has_comment);
 	for (j = 0; j < ipam->ea_nr; j++) {
 		if (!strcasecmp(ipam->ea[j].name, "comment")) {
 			has_comment = 1;
@@ -394,7 +398,7 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 
 	for (i = 0; i < sf->nr; i++) {
 		/* allocating new EA and setting value to NULL */
-		res = realloc_route_ea(&sf->routes[i], sf->routes[i].ea_nr + ipam->ea_nr);
+		res = realloc_route_ea(&sf->routes[i], sf->routes[i].ea_nr + ipam->ea_nr - has_comment);
 		if (res < 0)
 			return res;
 		found_mask = -1;
@@ -449,12 +453,6 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 					k++;
 				}
 			}
-		}
-		if (has_comment) {
-			sf->routes[i].ea = st_realloc_nodebug(sf->routes[i].ea,
-					(sf->routes[i].ea_nr - 1) * sizeof(struct ipam_ea),
-					sf->routes[i].ea_nr * sizeof(struct ipam_ea), "ipam ea");
-			sf->routes[i].ea_nr -= has_comment;
 		}
 	}
 	return 1;
