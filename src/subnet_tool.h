@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 #ifndef SUBNET_TOOLS_H
 #define SUBNET_TOOLS_H
 
