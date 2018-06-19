@@ -802,7 +802,8 @@ unsigned long long sum_subnet_file(struct subnet_file *sf)
  * result is stored in *sf2
  */
 int subnet_file_remove_subnet(const struct subnet_file *sf1, struct subnet_file *sf2,
-		const struct subnet *subnet) {
+		const struct subnet *subnet)
+{
 	unsigned long i, j;
 	int res, n;
 	struct subnet *r;
