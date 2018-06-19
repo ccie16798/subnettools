@@ -367,7 +367,7 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 	unsigned long i, j, found_j;
 	int k, res, sf_ea_nr;
 	int found_mask, mask;
-	int has_comment = 0;
+	int has_comment = 0, comment_index = -1;
 	struct ipam_ea *new_ea;
 
 	/* 
@@ -376,8 +376,10 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 	 * comment from subnet_file is always overwritten 
 	 */
 	for (j = 0; j < ipam->ea_nr; j++)
-		if (!strcasecmp(ipam->ea[j].name, "comment"))
+		if (!strcasecmp(ipam->ea[j].name, "comment")) {
 			has_comment = 1;
+			comment_index = j;
+		}
 	new_ea = realloc_ea_array(sf->ea, sf->ea_nr,  sf->ea_nr + ipam->ea_nr - has_comment);
 	if (new_ea == NULL)
 		return -1;
@@ -388,9 +390,7 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 	k = sf_ea_nr;
 	sf->ea_nr += (ipam->ea_nr - has_comment);
 	for (j = 0; j < ipam->ea_nr; j++) {
-		if (!strcasecmp(ipam->ea[j].name, "comment")) {
-			has_comment = 1;
-		} else {
+		if (j != comment_index) {
 			sf->ea[k].name = st_strdup(ipam->ea[j].name);
 			k++;
 		}
@@ -428,10 +428,9 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 				 *  we need to overwrite it with IPAM value
 				 * and free some memory (we reserve 1 more struct ea)
 				 */
-				if (!strcasecmp(ipam->ea[j].name, "comment")) {
+				if (j == comment_index) {
 					sf->routes[i].ea[0].name  = ipam->ea[j].name;
 					sf->routes[i].ea[0].value = NULL;
-					has_comment = 1;
 				} else {
 					sf->routes[i].ea[k].name  = ipam->ea[j].name;
 					sf->routes[i].ea[k].value = NULL;
@@ -440,11 +439,10 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 			}
 		} else {
 			for (j = 0; j < ipam->ea_nr; j++) {
-				if (!strcasecmp(ipam->ea[j].name, "comment")) {
+				if (j == comment_index) {
 					sf->routes[i].ea[0].name  = ipam->ea[j].name;
 					ea_strdup(&sf->routes[i].ea[0],
 							ipam->lines[found_j].ea[j].value);
-					has_comment = 1;
 				} else {
 					sf->routes[i].ea[k].name  = ipam->ea[j].name;
 					st_free_string(sf->routes[i].ea[k].value);
