@@ -214,10 +214,14 @@ static int __print_ea(char *outbuf, size_t buffer_len,
 		if (sep == '\0') /* set the default separator */
 			sep = ';';
 		for (k = 0; k < ea_nr; k++) {
-			if (header)
-				res = strxcpy(buffer, ea[k].name,
-						sizeof(buffer));
-			else {
+			if (header) {
+				if (ea[k].name == NULL) { /* happens only on programming errors */
+					buffer[0] = '\0';
+					fprintf(stderr, "BUG, EA#%d name is NULL\n", k);
+				} else
+					res = strxcpy(buffer, ea[k].name,
+							sizeof(buffer));
+			} else {
 				if (ea[k].value == NULL) {
 					buffer[0] = '\0';
 					res = 0;
@@ -262,9 +266,13 @@ static int __print_ea(char *outbuf, size_t buffer_len,
 					ea_num, ea_nr);
 			return 0;
 		}
-		if (header)
-			res = strxcpy(buffer, ea[ea_num].name, sizeof(buffer));
-		else {
+		if (header) {
+			if (ea[ea_num].name == NULL) { /* happens only on programming errors */
+				buffer[0] = '\0';
+				fprintf(stderr, "BUG, EA#%d name is NULL\n", ea_num);
+			} else
+				res = strxcpy(buffer, ea[ea_num].name, sizeof(buffer));
+		} else {
 			if (ea[ea_num].value == NULL) {
 				buffer[0] = '\0';
 				res = 0;
