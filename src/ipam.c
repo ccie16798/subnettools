@@ -370,13 +370,18 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 	int has_comment = 0;
 	struct ipam_ea *new_ea;
 
+	/* 
+	 * subnet file sfr may already have Extended Attributes
+	 * we must add EA from IPAM as well
+	 */
 	new_ea = realloc_ea_array(sf->ea, sf->ea_nr,  sf->ea_nr + ipam->ea_nr);
 	if (new_ea == NULL)
 		return -1;
 	sf->ea = new_ea;
+	debug(IPAM, 4, "File had already %d EA, need to add %d IPAM ea\n", sf->ea_nr, ipam->ea_nr);
+	
+	k = sf->ea_nr;
 	sf->ea_nr += ipam->ea_nr;
-
-	k = 1;
 	for (j = 0; j < ipam->ea_nr; j++) {
 		if (!strcasecmp(ipam->ea[j].name, "comment")) {
 			has_comment = 1;
@@ -397,11 +402,11 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 			res = subnet_compare(&sf->routes[i].subnet, &ipam->lines[j].subnet);
 			if (res == EQUALS) {
 				found_mask = ipam->lines[j].subnet.mask;
-				st_debug(IPAM, 4, "found exact match %P\n", ipam->lines[j].subnet);
+				st_debug(IPAM, 5, "found exact match %P\n", ipam->lines[j].subnet);
 				found_j = j;
 				break; /* we break on exact match */
 			} else if (res == INCLUDED) {
-				st_debug(IPAM, 4, "found included match %P\n",
+				st_debug(IPAM, 5, "found included match %P\n",
 						ipam->lines[j].subnet);
 				mask = ipam->lines[j].subnet.mask;
 				if (mask < found_mask)
