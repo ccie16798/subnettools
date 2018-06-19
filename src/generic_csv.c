@@ -185,8 +185,8 @@ static int read_csv_body(struct st_file *f, struct csv_file *cf,
 		if (cf->startofline_callback) {
 			res = cf->startofline_callback(state, data);
 			if (res == CSV_CATASTROPHIC_FAILURE) {/* FATAL ERROR like no more memory*/
-				debug(LOAD_CSV, 1,  "line %lu : fatal error, aborting\n",
-						state->line);
+				debug(LOAD_CSV, 1,  "File %s line %lu : fatal error, aborting\n",
+						cf->file_name, state->line);
 				debug_timing_end(2);
 				return res;
 			} 
