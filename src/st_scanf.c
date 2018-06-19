@@ -1333,8 +1333,10 @@ static int parse_quantifier_dotstar(const char **in, const char **fmt, const cha
 	if (e.skip_on_return) {
 		debug(SCANF, 3, "Trying to skip %d input chars, %d fmt chars\n",
 				 e.skip_on_return, e.end_expr_len);
+		debug(SCANF, 3, "Restoring %d objects\n", e.num_o);
 		for (k = 0; k < e.num_o; k++) {
-			debug(SCANF, 3, "Restoring analysed object '%c'\n", e.sto[k].type);
+			debug(SCANF, 3, "Restoring analysed object type '%c'\n",
+					e.sto[k].type);
 			memcpy(&o[*n_found], &e.sto[k], sizeof(struct sto));
 			*n_found += 1;
 		}
