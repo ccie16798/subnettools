@@ -31,6 +31,7 @@ static inline void free_ea(struct ipam_ea *ea) {
 	ea->value = NULL;
 }
 /* set value of 'ea' to 'value'
+ * ea->value should be freed before
  * returns:
  *	-1 if no memory
  *	1  if SUCCESS
