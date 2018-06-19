@@ -61,7 +61,7 @@ struct ipam_ea *alloc_ea_array(int n)
 	struct ipam_ea *ea;
 
 	if (n <= 0) {
-		fprintf(stderr, "BUG, alloc_ea_array called with %d size\n", n);
+		fprintf(stderr, "BUG, %s called with %d size\n", __func__, n);
 		return NULL;
 	}
 	ea = st_malloc_nodebug(n * sizeof(struct ipam_ea), "ipam_ea");
@@ -82,7 +82,7 @@ struct ipam_ea *realloc_ea_array(struct ipam_ea *ea, int old_n, int new_n)
 	struct ipam_ea *new_ea;
 
 	if (new_n <= old_n) {
-		fprintf(stderr, "BUG, realloc_ea_array called new size < old_size\n");
+		fprintf(stderr, "BUG, %s called new size < old_size\n", __func__);
 		return NULL;
 	}
 	new_ea = st_realloc_nodebug(ea, new_n * sizeof(struct ipam_ea),
@@ -139,8 +139,9 @@ int filter_ea(const struct ipam_ea *ea, int ea_nr, const char *ea_name,
 			return -1;
 		}
 		a = string2int(s, &err);
-		/* if Extended Attribute is not Int we don't return an error, just no match
-		*/
+		/* if Extended Attribute is not and Int we don't return an error,
+		 * just no match
+		 */
 		if (err < 0) {
 			debug(FILTER, 4, "Cannot interpret EA '%s' as an INT\n", s);
 			return 0;
