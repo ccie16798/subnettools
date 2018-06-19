@@ -370,10 +370,10 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 	int has_comment = 0, comment_index = -1;
 	struct ipam_ea *new_ea;
 
-	/* 
+	/*
 	 * subnet file sfr may already have Extended Attributes
 	 * we must add EA from IPAM as well
-	 * comment from subnet_file is always overwritten 
+	 * comment from subnet_file is always overwritten
 	 */
 	for (j = 0; j < ipam->ea_nr; j++)
 		if (!strcasecmp(ipam->ea[j].name, "comment")) {
@@ -384,8 +384,9 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 	if (new_ea == NULL)
 		return -1;
 	sf->ea = new_ea;
-	debug(IPAM, 4, "File had already %d EA, need to add %d IPAM ea\n", sf->ea_nr, ipam->ea_nr);
-	
+	debug(IPAM, 4, "File had already %d EA, need to add %d IPAM ea\n",
+			sf->ea_nr, ipam->ea_nr);
+
 	sf_ea_nr = sf->ea_nr; /* save original number of Extended Attributes */
 	k = sf_ea_nr;
 	sf->ea_nr += (ipam->ea_nr - has_comment);
