@@ -138,7 +138,7 @@ static int parse_brace_quantifier(const char *s, int *min, int *max)
 /* given an expression e, the following functions
  * try to determine if the remaining chars match their type
  * for exemple, find_int will match on the first digit found
-*/
+ */
 static int find_int(const char *remain, struct expr *e)
 {
 	return isdigit(*remain) || (*remain == '-' && isdigit(remain[1]));
@@ -233,7 +233,8 @@ static int fill_expr(char *expr, const char *fmt, int n)
 		if (fmt[i] == '\0' || i == n - 2)
 			return -1;
 		/* parenthesis inside an expression are not interpreted
-		 * as a nested expression */
+		 * as a nested expression
+		 */
 		if (fmt[i] == ')' && parenthese-- == 0)
 			break;
 		if (fmt[i] == '(')
@@ -349,7 +350,7 @@ static int match_char_against_range_clean(char c, const char *expr)
  * @o   : a struct to store a found objet
  * returns:
  *	the number of conversion specifiers found (0 or 1)
-*/
+ */
 static int parse_conversion_specifier(const char **in, const char **fmt,
 		struct sto *o)
 {
