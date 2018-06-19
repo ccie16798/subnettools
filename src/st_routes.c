@@ -62,7 +62,7 @@ int clone_route(struct route *dest, const struct route *src)
 		return res;
 	for (i = 0; i <	dest->ea_nr; i++) {
 		/* name IS not malloc'ed, only value */
-		dest->ea[i].name  = src->ea[i].name;
+		dest->ea[i].name = src->ea[i].name;
 		ea_strdup(&dest->ea[i], src->ea[i].value);
 	}
 	return 1;
@@ -77,7 +77,7 @@ int clone_route_nofree(struct route *dest, const struct route *src)
 	if (res < 0)
 		return res;
 	for (i = 0; i <	dest->ea_nr; i++) {
-		dest->ea[i].name  = src->ea[i].name;
+		dest->ea[i].name = src->ea[i].name;
 		ea_strdup(&dest->ea[i], src->ea[i].value);
 	}
 	return 1;
