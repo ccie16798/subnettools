@@ -72,10 +72,10 @@ int generic_command_run(int argc, char **argv, char *progname, void *opt)
 		debug_timing_start(1);
 		res = commands[found_i].run_cmd(argc, argv, opt);
 		debug_timing_end(1);
-		debug(MEMORY, 4, "Total amout of memory still allocated %lu; %s\n",
+		debug(MEMORY, 4, "Total amount of memory still allocated %lu; %s\n",
 				total_memory, argv[1]);
 		if (total_memory != 0) {
-			debug(MEMORY, 1, "%s didnt free memory %lu bytes, memory leak?\n",
+			debug(MEMORY, 1, "%s did not free memory %lu bytes, memory leak?\n",
 				 argv[1], total_memory);
 		}
 	} else {
