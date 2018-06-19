@@ -23,7 +23,7 @@
 
 struct csvconverter {
 	const char *name;
-	int (*converter)(char *name, FILE *, struct st_options *);
+	int (*converter)(char *name, FILE *f, struct st_options *sto);
 	const char *desc;
 };
 
@@ -75,7 +75,7 @@ int run_csvconverter(char *name, char *filename, struct st_options *o)
 {
 	int i = 0;
 	FILE *f;
-	int (*converter)(char *, FILE *, struct st_options *);
+	int (*converter)(char *name, FILE *f, struct st_options *sto);
 
 	if (!strcasecmp(name, "help")) {
 		csvconverter_help(stdout);
