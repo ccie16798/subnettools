@@ -191,7 +191,7 @@ static int netcsv_ea_handler(char *s, void *data, struct csv_state *state)
 
 static int netcsv_is_header(char *s)
 {
-	if (isalpha(s[0]))
+	if (isalpha(s[0])) /* FIXME with IPv6 */
 		return 1;
 	else
 		return 0;
@@ -243,7 +243,7 @@ static int netcsv_validate_header(struct csv_file *cf, void *data)
 	int i, new_n;
 	struct ipam_ea *new_ea;
 
-	new_n  = cf->num_fields_registered - 4;
+	new_n  = cf->num_fields_registered - 4; /* FIXME, this fixed 4 seems BUGGY */
 	if (new_n > 1) {
 		new_ea = realloc_ea_array(sf->ea, sf->ea_nr, new_n);
 		if (new_ea == NULL) /* we don't free original ea, caller should */
@@ -287,7 +287,7 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 	cf.startofline_callback = &netcsv_startofline_callback;
 	cf.validate_header      = &netcsv_validate_header;
 	cf.default_handler      = &netcsv_ea_handler;
-	/* netcsv field may have been set by conf file */
+	/* netcsv field may have been set by conf file, otherwise set their 'default' value */
 	s = (nof->netcsv_prefix_field[0] ? nof->netcsv_prefix_field : "prefix");
 	register_csv_field(&cf, s, 0, 1, 1, &netcsv_prefix_handle);
 	s = (nof->netcsv_mask[0] ? nof->netcsv_mask : "mask");
