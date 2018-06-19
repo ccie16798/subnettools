@@ -116,7 +116,7 @@ int filter_ea(const struct ipam_ea *ea, int ea_nr, const char *ea_name,
 		debug(FILTER, 1, "Cannot filter on attribute '%s'\n", ea_name);
 		return 0;
 	}
-	debug(IPAM, 5, "We will filter on EA: '%s'\n", ea[j].name);
+	debug(FILTER, 5, "We will filter on EA: '%s'\n", ea[j].name);
 	s = ea[j].value;
 	if (s == NULL) /* EA Value has not been set */
 		return 0;
