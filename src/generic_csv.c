@@ -189,7 +189,7 @@ static int read_csv_body(struct st_file *f, struct csv_file *cf,
 						cf->file_name, state->line);
 				debug_timing_end(2);
 				return res;
-			} 
+			}
 		}
 		s = cf->csv_strtok_r(s, cf->delim, &save_s);
 		pos  = 0;
