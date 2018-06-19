@@ -110,7 +110,7 @@ int mylog2(unsigned int x)
 	return a;
 }
 
-unsigned nextPow2_32(unsigned x)
+unsigned nextPow2_32(unsigned int x)
 {
 	x--;
 	x |= x >> 1;
