@@ -217,7 +217,10 @@ static int read_csv_body(struct st_file *f, struct csv_file *cf,
 			if (csv_field && csv_field->handle) {
 				res = csv_field->handle(s, data, state);
 				if (res == CSV_INVALID_FIELD_BREAK) {
-					debug(LOAD_CSV, 2, "Field '%s'='%s' handler ret='%s'\n",
+					/* more interesting debug info could be found in the actual handler
+					 * so debug level should be higher than 3
+					 */
+					debug(LOAD_CSV, 4, "Field '%s'='%s' handler ret='%s'\n",
 							csv_field->name, s,
 							"CSV_INVALID_FIELD_BREAK");
 					state->badline = 1;
@@ -254,8 +257,8 @@ static int read_csv_body(struct st_file *f, struct csv_file *cf,
 		} /* while s */
 		if (pos < cf->max_mandatory_pos) {
 			state->badline++;
-			debug(LOAD_CSV, 2, "line %lu, not enough fields : %d, requires : %d\n",
-					state->line, pos, cf->max_mandatory_pos);
+			debug(LOAD_CSV, 3, "File %s line %lu, not enough fields : %d, requires : %d\n",
+					cf->file_name, state->line, pos, cf->max_mandatory_pos);
 		}
 
 		if (cf->endofline_callback) {
@@ -280,7 +283,7 @@ static int read_csv_body(struct st_file *f, struct csv_file *cf,
 		res = cf->endoffile_callback(state, data);
 	else
 		res = CSV_VALID_FILE;
-	debug(LOAD_CSV, 3, "File %s Parsed %lu lines, %lu good, %lu bad\n",
+	debug(LOAD_CSV, 2, "File %s Parsed %lu lines, %lu good, %lu bad\n",
 			cf->file_name, state->line, state->line - badlines, badlines);
 	debug_timing_end(2);
 	return res;
