@@ -19,6 +19,7 @@
 #include "st_object.h"
 
 #define ST_STRING_INFINITY 1000000000  /* Subnet tool definition of infinity */
+#define MAX_COLLECTED_OBJECTS 10 /* max number of object collected in an expression */
 
 /* st_scanf.c can be compiled for case insensitive pattern matching */
 #ifdef CASE_INSENSITIVE
@@ -35,7 +36,7 @@ struct expr {
 	int end_expr_len; /* length of 'fmt' we want to sopt on */
 	int can_skip; /* number of char we can skip in next iteration */
 	int skip_on_return; /* number of char we can skip when '.*' exp finishes' */
-	struct sto sto[10]; /* object collected by find_xxx */
+	struct sto sto[MAX_COLLECTED_OBJECTS]; /* object collected by find_xxx */
 	int num_o; /* number of object collected by find_xxxx*/
 };
 
@@ -893,10 +894,10 @@ static int find_expr(const char *remain, struct expr *e)
 	int res;
 
 	res = match_expr_single(e->end_expr, remain, e->sto, &i);
-	if (i > 9) {
+	if (i > MAX_COLLECTED_OBJECTS - 1) {
 		debug(SCANF, 1, "Cannot have more than %d specifiers in an expression\n",
-			10);
-		i = 9;
+			MAX_COLLECTED_OBJECTS);
+		i = MAX_COLLECTED_OBJECTS - 1;
 	}
 	e->num_o = i;
 	/* we will not analyse the expression again on return */
