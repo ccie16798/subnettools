@@ -288,7 +288,7 @@ void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *
 		for (j = 0;  j < paip->nr; j++) {
 			res = subnet_compare(&sf1->routes[i].subnet, &paip->routes[j].subnet);
 			if (res == EQUALS) {
-				st_free_string(sf1->routes[i].ea[0].value);
+				free_ea(&sf1->routes[i].ea[0]); /* ea[0] == comment */
 				ea_strdup(&sf1->routes[i].ea[0], paip->routes[j].ea[0].value);
 				fprint_route_fmt(nof->output_file, &sf1->routes[i],
 						nof->output_fmt);
@@ -302,14 +302,14 @@ void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *
 		find_included = 0;
 		includes = 0;
 		find_mask = 0;
-		st_free_string(sf1->routes[i].ea[0].value);
+		free_ea(&sf1->routes[i].ea[0]);
 		ea_strdup(&sf1->routes[i].ea[0], "NOT FOUND");
 		fprint_route_fmt(nof->output_file, &sf1->routes[i], nof->output_fmt);
 
 		/* we look a second time for a non-equal match */
 		for (j = 0; j < paip->nr; j++) {
 			mask = paip->routes[j].subnet.mask;
-			res = subnet_compare(&sf1->routes[i].subnet, &paip->routes[j].subnet);
+			res  = subnet_compare(&sf1->routes[i].subnet, &paip->routes[j].subnet);
 			if (res == INCLUDED) {
 				find_included = 1;
 				/* we  get the largest including mask only */
