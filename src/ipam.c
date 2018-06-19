@@ -365,7 +365,7 @@ int ipam_file_filter(struct ipam_file *sf, char *expr)
 int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 {
 	unsigned long i, j, found_j;
-	int k, res;
+	int k, res, sf_ea_nr;
 	int found_mask, mask;
 	int has_comment = 0;
 	struct ipam_ea *new_ea;
@@ -380,7 +380,8 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 	sf->ea = new_ea;
 	debug(IPAM, 4, "File had already %d EA, need to add %d IPAM ea\n", sf->ea_nr, ipam->ea_nr);
 	
-	k = sf->ea_nr;
+	sf_ea_nr = sf->ea_nr; /* save original number of Extended Attributes */
+	k = sf_ea_nr;
 	sf->ea_nr += ipam->ea_nr;
 	for (j = 0; j < ipam->ea_nr; j++) {
 		if (!strcasecmp(ipam->ea[j].name, "comment")) {
@@ -415,7 +416,7 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 				found_j    = j;
 			}
 		}
-		k = 1;
+		k = sf_ea_nr;
 		if (found_mask == -1) {
 			for (j = 0; j < ipam->ea_nr; j++) {
 				/* 'comment' get special treatment; it is included in struct route
