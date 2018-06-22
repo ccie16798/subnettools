@@ -125,6 +125,9 @@ static int parse_brace_quantifier(const char *s, int *min, int *max)
 				return -1;
 			}
 			return i;
+		} else if (s[i] == '\0') {
+			debug(SCANF, 1, "Invalid range '%s', no closing '}'\n", s);
+			return -1;
 		}
 		debug(SCANF, 1, "Invalid range '%s' contains invalid char '%c'\n", s, s[i]);
 		return -1;
@@ -1516,7 +1519,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 					expr, res, (int)(p - in));
 			debug(SCANF, 4, "Found %d objects so far\n", n_found);
 			p += res;
-			if (p  > in_max) {
+			if (p > in_max) {
 				/* can happen only if there is a BUG in 'match_expr_single'
 				 * and its descendant
 				 */
