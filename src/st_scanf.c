@@ -758,7 +758,7 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 			if (c == '\0') {
 				debug(SCANF, 1, "Invalid expr '%s', '\\' at end of string\n",
 						expr);
-				return 0;
+				goto end_no_match;
 			}
 		default:
 			if (EVAL_CHAR(*in) != c)
@@ -770,14 +770,21 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 		/* we didnt match, but give a chance to try again if an 'OR' is found */
 		p = strchr(expr, '|');
 		if (p == NULL)
-			return 0;
+			goto end_no_match;
 		expr = p + 1;
 		/* restore input buffer and potential number of objects found */
-		in = saved_in;
+		in     = saved_in;
 		*num_o = saved_num_o;
 		debug(SCANF, 4, "Logical OR found, trying again on expr '%s'\n", p);
 		continue;
 	}
+end_no_match:
+	/* we may have found a conversion specifier before failing
+	 * int that case, we must not take it into account */
+	debug(SCANF, 4, "no more match, restoring num_o='%d' to its previous value='%d'\n",
+			*num_o, saved_num_o);
+	*num_o = saved_num_o;
+	return 0;
 }
 
 static int find_not_ip(const char *remain, struct expr *e)
