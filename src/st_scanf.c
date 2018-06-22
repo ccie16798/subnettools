@@ -748,7 +748,7 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 			res = parse_conversion_specifier(&in, &expr, o + *num_o);
 			if (res == 0)
 				break;
-			debug(SCANF, 4, "conv specifier successfull '%c' for %d\n",
+			debug(SCANF, 4, "conv specifier successfull '%c' for object #%d\n",
 						o[*num_o].type, *num_o);
 			*num_o += 1;
 			continue;
@@ -1178,12 +1178,12 @@ static int parse_quantifier_expr(const char **in, const char **fmt, const char *
 				*expr, n_match, min_m);
 		return -2;
 	}
-	if (num_cs) {
+	if (num_cs) { /* if the expression contained CS */
 		if (n_match) {
 			debug(SCANF, 4, "found %d CS so far\n", *n_found);
 		} else {
 			/* 0 match but we found 'num_cs' conversion specifiers
-			 * we must consume them because the caller add provisionned
+			 * we must consume them because the caller had provisionned
 			 * space for it
 			 */
 			debug(SCANF, 4, "0 match but there was %d CS so consume them\n",
