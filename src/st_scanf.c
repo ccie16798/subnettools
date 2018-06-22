@@ -198,6 +198,7 @@ static int fill_char_range(char *expr, const char *fmt, int n)
 	}
 
 	while (fmt[i] != ']') {
+		/* no debug message here, the caller will take care */
 		if (fmt[i] == '\0' || i == n - 2)
 			return -1;
 		expr[i] = EVAL_CHAR(fmt[i]);
@@ -675,8 +676,9 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 	case '[':
 		ARG_SET(v_s, char *);
 		i2 = fill_char_range(expr, f, sizeof(expr));
-		if (i2 == -1) {
-			debug(SCANF, 1, "Invalid format '%s', no closing ']'\n", *fmt);
+		if (i2 < 0) {
+			debug(SCANF, 1, "Invalid char range found in'%s', no closing ']'\n",
+					*fmt);
 			return n_found;
 		}
 		f += (i2 - 1);
@@ -1399,9 +1401,13 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				return n_found;
 			if (*f == '(')
 				res = fill_expr(expr, f, sizeof(expr));
-			else if (*f == '[')
+			else if (*f == '[') {
 				res = fill_char_range(expr, f, sizeof(expr));
-			else if (*f == '\\')
+				if (res < 0) {
+					debug(SCANF, 1, "Invalid char range '%s', no closing ']'\n", fmt);
+					goto end_nomatch;
+				}
+			} else if (*f == '\\')
 				res = 2;
 			else
 				res = 1;
