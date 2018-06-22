@@ -216,7 +216,7 @@ static int fill_char_range(char *expr, const char *fmt, int n)
  * @n     : max number of char to store in expr (including NUL)
  * returns:
  *     strlen(fmt) on SUCCESS
- *     -1 if fmt is badly formatted (no closing ']')
+ *     -1 if fmt is badly formatted (no closing ')')
  */
 static int fill_expr(char *expr, const char *fmt, int n)
 {
@@ -1399,20 +1399,22 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 		if (*p == '\0') { /* remaining format string may match, like '.*' */
 			if (*f == '\0') /* perfect match */
 				return n_found;
-			if (*f == '(')
+			if (*f == '(') {
 				res = fill_expr(expr, f, sizeof(expr));
-			else if (*f == '[') {
+				if (res < 0) {
+					debug(SCANF, 1, "Invalid expression '%s'\n", fmt);
+					goto end_nomatch;
+				}
+			}else if (*f == '[') {
 				res = fill_char_range(expr, f, sizeof(expr));
 				if (res < 0) {
-					debug(SCANF, 1, "Invalid char range '%s', no closing ']'\n", fmt);
+					debug(SCANF, 1, "Invalid char range '%s'\n", fmt);
 					goto end_nomatch;
 				}
 			} else if (*f == '\\')
 				res = 2;
 			else
 				res = 1;
-			if (res < 0) /* wrong expression/char range */
-				goto end_nomatch;
 			f += res;
 			if (is_multiple_char(*f)) {
 				if (*f == '{') {
