@@ -138,6 +138,9 @@ reg_test_scanf_invalid() {
 	# 2 successives conversion specifiers
 	$PROG -V scanf "1 2 3 4" "(%d )*+" 2> res/scanf_inv10
 	$PROG -V scanf "1 2 3 4" "(%d ){1,3}+" 2> res/scanf_inv11
+	#starts with multiplier
+	$PROG -V scanf "1 2 3 4" "*aaa" 2> res/scanf_inv12
+	$PROG -V scanf "1 2 3 4" "+" 2> res/scanf_inv13
 
 
 	for i in `seq 1 $n`; do
