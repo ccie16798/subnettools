@@ -1072,10 +1072,8 @@ static int parse_quantifier_char(const char **in, const char **fmt, const char *
 
 	if (**fmt == '{') {
 		res = parse_brace_quantifier(*fmt, &min_m, &max_m);
-		if (res < 0) {
-			fprintf(stderr, "Invalid expression\n");
+		if (res < 0)
 			return -1;
-		}
 		*fmt += res + 1;
 	} else {
 		min_m = min_match(**fmt);
@@ -1114,10 +1112,8 @@ static int parse_quantifier_char_range(const char **in, const char **fmt, const 
 
 	if (**fmt == '{') {
 		res = parse_brace_quantifier(*fmt, &min_m, &max_m);
-		if (res < 0) {
-			fprintf(stderr, "Invalid expression\n");
+		if (res < 0)
 			return -1;
-		}
 		*fmt += res + 1;
 	} else {
 		min_m = min_match(**fmt);
@@ -1155,10 +1151,8 @@ static int parse_quantifier_expr(const char **in, const char **fmt, const char *
 
 	if (**fmt == '{') {
 		res = parse_brace_quantifier(*fmt, &min_m, &max_m);
-		if (res < 0) {
-			fprintf(stderr, "Invalid expression\n");
+		if (res < 0)
 			return -1;
-		}
 		*fmt += res + 1;
 	} else {
 		min_m = min_match(**fmt);
