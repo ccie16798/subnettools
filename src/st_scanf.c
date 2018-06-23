@@ -1073,8 +1073,10 @@ static int parse_quantifier_char(const char **in, const char **fmt, const char *
 
 	if (**fmt == '{') {
 		res = parse_brace_quantifier(*fmt, &min_m, &max_m);
-		if (res < 0)
+		if (res < 0) {
+			fprintf(stderr, "Invalid expression\n");
 			return -1;
+		}
 		*fmt += res + 1;
 	} else {
 		min_m = min_match(**fmt);
@@ -1113,8 +1115,10 @@ static int parse_quantifier_char_range(const char **in, const char **fmt, const 
 
 	if (**fmt == '{') {
 		res = parse_brace_quantifier(*fmt, &min_m, &max_m);
-		if (res < 0)
+		if (res < 0) {
+			fprintf(stderr, "Invalid expression\n");
 			return -1;
+		}
 		*fmt += res + 1;
 	} else {
 		min_m = min_match(**fmt);
@@ -1152,8 +1156,10 @@ static int parse_quantifier_expr(const char **in, const char **fmt, const char *
 
 	if (**fmt == '{') {
 		res = parse_brace_quantifier(*fmt, &min_m, &max_m);
-		if (res < 0)
+		if (res < 0) {
+			fprintf(stderr, "Invalid expression\n");
 			return -1;
+		}
 		*fmt += res + 1;
 	} else {
 		min_m = min_match(**fmt);
@@ -1226,8 +1232,10 @@ static int parse_quantifier_dotstar(const char **in, const char **fmt, const cha
 
 	if (**fmt == '{') {
 		res = parse_brace_quantifier(*fmt, &min_m, &max_m);
-		if (res < 0)
+		if (res < 0) {
+			fprintf(stderr, "Invalid expression\n");
 			return -1;
+		}
 		*fmt += res + 1;
 	} else {
 		min_m = min_match(**fmt);
@@ -1241,7 +1249,7 @@ static int parse_quantifier_dotstar(const char **in, const char **fmt, const cha
 	previous_could_stop = 0;
 	if (**fmt == '$') {
 		if (max_m < 2) {
-			debug(SCANF, 1, "'$' not allowed in this context, max expansion=%d\n",
+			fprintf(stderr,"'$' not allowed in this context, max expansion=%d\n",
 					max_m);
 			return -1;
 		}
@@ -1422,8 +1430,10 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			if (is_multiple_char(*f)) {
 				if (*f == '{') {
 					res = parse_brace_quantifier(f, &min_m, &max_m);
-					if (res < 0)
+					if (res < 0) {
+						fprintf(stderr, "Invalid expression\n");
 						goto end_nomatch;
+					}
 					f += res;
 				} else
 					min_m = min_match(*f);
