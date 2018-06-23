@@ -33,6 +33,17 @@ void init_generic_expr(struct generic_expr *e, const char *s,
 	e->compare = compare;
 }
 
+/*
+ * simple_expr: evaluate a simple expression
+ * no OR '|', no AND '&', no negate '!', just 'A COMPARATOR B' is evaluated
+ * @pattern : the expression to evaluate
+ * @len	    : the length of the expression
+ * @e       : a struct containing compare function, recursion level
+ * returns:
+ * 	-1 : invalid expression
+ *  	1  : true
+ *  	0  : false
+ */
 static int simple_expr(char *pattern, int len, struct generic_expr *e)
 {
 	int i = 0, j = 0;
@@ -44,6 +55,7 @@ static int simple_expr(char *pattern, int len, struct generic_expr *e)
 		debug(GEXPR, 1, "Invalid expr '%s', too many recursion level\n", e->pattern);
 		return -1;
 	}
+	/* first try to find the comparator in the pattern */
 	while (1) {
 		if (pattern[i] == '\0' || i == len) {
 			debug(GEXPR, 1, "Invalid expr '%s', no comparator\n", pattern);
@@ -57,14 +69,15 @@ static int simple_expr(char *pattern, int len, struct generic_expr *e)
 	operator = pattern[i];
 	pattern[i] = '\0';
 	i++;
-	j = i;
+	j = i; /* j now points to the second part of the expression */
 	while (1) {
 		if (pattern[i] == '\0' || i == len)
 			break;
 		if (is_comp(pattern[i]) && pattern[i - 1] != '\\') {
-			debug(GEXPR, 1, "Invalid expr '%s', 2 x comparators\n", pattern);
-			e->recursion_level--;
 			pattern[j - 1] = operator;
+			debug(GEXPR, 1, "Invalid expr '%s', 2 x comparators\n",
+					pattern);
+			e->recursion_level--;
 			return -1;
 		}
 		i++;
@@ -80,6 +93,19 @@ static int simple_expr(char *pattern, int len, struct generic_expr *e)
 	return res;
 }
 
+/*
+ * run_generic_expr: evaluate a complex expression
+ * can contain multiples OR '|' , AND '&', NEGATE '!'
+ * if sub-expression is found, it will use recursion until it finds
+ * a 'simple' expression
+ * @pattern : the expression to evaluate
+ * @len	    : the length of the expression
+ * @e       : a struct containing compare function, recursion level
+ * returns:
+ * 	-1 : invalid expression
+ *  	1  : true
+ *  	0  : false
+ */
 int run_generic_expr(char *pattern, int len, struct generic_expr *e)
 {
 	int i = 0, j;
@@ -90,12 +116,14 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e)
 
 	e->recursion_level++;
 	if (e->recursion_level >= GENERIC_ST_MAX_RECURSION) {
-		debug(GEXPR, 1, "Invalid expr '%s', too many recursion level\n", e->pattern);
+		debug(GEXPR, 1, "Invalid expr '%s', too many recursion level\n",
+				e->pattern);
 		return -1;
 	}
 	/* FIXME this should die once code is stabilized */
 	strxcpy(buffer, pattern, sizeof(buffer));
-	debug(GEXPR, 9, "Pattern : '%s', len=%d, recursion=%d\n", buffer, len, e->recursion_level);
+	debug(GEXPR, 9, "Pattern : '%s', len=%d, recursion=%d\n",
+			buffer, len, e->recursion_level);
 
 	while (isspace(pattern[i]))
 		i++;
@@ -105,14 +133,14 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e)
 	}
 	if (i >= len) {
 		/* it should occur only on BUG*/
-		fprintf(stderr, "%s: BUG i=%i, len=%d\n", __FILE__, i, len);
+		fprintf(stderr, "%s: BUG i=%i, len=%d\n", __func__, i, len);
 		return -1;
 	}
 	/* handle expr inside parenthesis */
 	if (pattern[i] == '(') {
 		debug(GEXPR, 5, "Found a '(', trying to split expr\n");
 		i += 1;
-		j = i;
+		j = i; /* j is set to the start of tentative sub-expression */
 		parenthese++;
 		while (1) {
 			if (pattern[i] == '\0' || i == len) {
@@ -123,7 +151,7 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e)
 			if (pattern[i] == '(')
 				parenthese++;
 			else if (pattern[i] == ')' && parenthese == 1) {
-				debug(GEXPR, 5, "Found closing '(', recursion\n");
+				debug(GEXPR, 5, "Found closing ')', recursion\n");
 				res1 = run_generic_expr(pattern + j,  i - j, e);
 				e->recursion_level--;
 				if (res1 < 0)
@@ -138,7 +166,8 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e)
 					i++;
 				if (i > len) {
 					/* it should occur only on BUG*/
-					fprintf(stderr, "%s: BUG i=%i, len=%d\n", __FILE__, i, len);
+					fprintf(stderr, "%s: BUG i=%i, len=%d\n",
+							__func__, i, len);
 					return -1;
 				}
 				/* we reached end of string, just return */
@@ -152,8 +181,8 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e)
 					return 1;
 				if (res1 == 0 && pattern[i] == '&')
 					return 0;
-
-				res2 = run_generic_expr(pattern + i + 1,  len - i - 1, e);
+				/* calling recursion on second part of expression */
+				res2 = run_generic_expr(pattern + i + 1, len - i - 1, e);
 				e->recursion_level--;
 				if (res2 < 0)
 					return res2;
@@ -161,7 +190,8 @@ int run_generic_expr(char *pattern, int len, struct generic_expr *e)
 					return res1 | res2;
 				else if (pattern[i] == '&')
 					return res1 & res2;
-				debug(GEXPR, 1, "A comparator is required after ) '%s'\n", buffer);
+				debug(GEXPR, 1, "'%s' invalid, a comparator is required after ')'\n",
+						buffer);
 				return -1;
 			} else if (pattern[i] == ')')
 				parenthese--;
