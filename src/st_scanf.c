@@ -1555,7 +1555,8 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				f++;
 				c = escape_char(*f);
 				if (c == '\0') {
-					debug(SCANF, 1, "Invalid format string '%s'\n", fmt);
+					fprintf(stderr, "Invalid format '%s'\n", fmt);
+					debug(SCANF, 1, "Escape char `\\' at end of string'\n");
 					goto end_nomatch;
 				}
 			}
@@ -1564,8 +1565,10 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				expr[0] = EVAL_CHAR(c);
 				res = parse_quantifier_char(&p, &f, in_max, expr,
 						o, max_o, &n_found);
-				if (res < 0)
+				if (res < 0) {
+					fprintf(stderr, "Invalid format '%s'\n", fmt);
 					goto end_nomatch;
+				}
 				continue;
 			}
 			if (EVAL_CHAR(*p) != EVAL_CHAR(c)) {
@@ -1577,6 +1580,8 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			f++;
 		} /* switch */
 	} /* while 1 */
+
+end_badformat:
 end_nomatch:
 	if (n_found == 0)
 		return -1;
