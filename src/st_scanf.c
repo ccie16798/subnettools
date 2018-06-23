@@ -1168,10 +1168,8 @@ static int parse_quantifier_expr(const char **in, const char **fmt, const char *
 	debug(SCANF, 4, "Pattern expansion will end when in[j] != '%s'\n", expr);
 	while (n_match < max_m) {
 		res = match_expr_single(expr, p, o, n_found);
-		if (res < 0) {
-			debug(SCANF, 1, "Invalid format '%s'\n", expr);
+		if (res < 0)
 			return -1;
-		}
 		if (res == 0)
 			break;
 		p += res;
@@ -1225,10 +1223,8 @@ static int parse_quantifier_dotstar(const char **in, const char **fmt, const cha
 
 	if (**fmt == '{') {
 		res = parse_brace_quantifier(*fmt, &min_m, &max_m);
-		if (res < 0) {
-			fprintf(stderr, "Invalid expression\n");
+		if (res < 0)
 			return -1;
-		}
 		*fmt += res + 1;
 	} else {
 		min_m = min_match(**fmt);
@@ -1242,8 +1238,7 @@ static int parse_quantifier_dotstar(const char **in, const char **fmt, const cha
 	previous_could_stop = 0;
 	if (**fmt == '$') {
 		if (max_m < 2) {
-			fprintf(stderr,"'$' not allowed in this context, max expansion=%d\n",
-					max_m);
+			debug(SCANF, 1, "match last doesn't make sense here\n");
 			return -1;
 		}
 		match_last = 1;
