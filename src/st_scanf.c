@@ -1,7 +1,7 @@
 /*
  * IPv4, IPv6 subnet/routes scanf equivalent with PATTERN matching
  *
- * Copyright (C) 2014, 2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ * Copyright (C) 2014, 2018 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
