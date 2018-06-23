@@ -913,6 +913,8 @@ static int find_expr(const char *remain, struct expr *e)
 	int res;
 
 	res = match_expr_single(e->end_expr, remain, e->sto, &i);
+	if (res < 0)
+		return res;
 	if (i > MAX_COLLECTED_OBJECTS - 1) {
 		debug(SCANF, 1, "Cannot have more than %d specifiers in an expression\n",
 			MAX_COLLECTED_OBJECTS);
@@ -1004,10 +1006,8 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
 		case '[':
 			res = fill_char_range(e->end_expr, fmt + k,
 					sizeof(e->end_expr));
-			if (res < 0) {
-				fprintf(stderr, "Invalid format '%s'\n", fmt);
+			if (res < 0)
 				return -1;
-			}
 			debug(SCANF, 4, "pattern matching will end on '%s'\n",
 					e->end_expr);
 			e->can_stop = &find_char_range;
@@ -1019,23 +1019,19 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
 		} /* switch c */
 	} else if (fmt[0] == '(') {
 		res = fill_expr(e->end_expr, fmt, sizeof(e->end_expr));
-		if (res < 0) {
-			fprintf(stderr, "Invalid format '%s'\n", fmt);
+		if (res < 0)
 			return -1;
-		}
 		e->end_expr_len = res;
 		debug(SCANF, 4, "pattern matching will end on '%s'\n", e->end_expr);
 		e->can_stop = &find_expr;
 	} else if (fmt[0] == '[') {
 		res = fill_char_range(e->end_expr, fmt, sizeof(e->end_expr));
-		if (res < 0) {
-			fprintf(stderr, "Invalid format '%s'\n", fmt);
+		if (res < 0)
 			return -1;
-		}
 		debug(SCANF, 4, "pattern matching will end on '%s'\n", e->end_expr);
 		e->can_stop = &find_char_range;
 	} else if (fmt[0] == '\\') {
-		/* if not a special char, we try to find the first occurence of the next char
+		/* if a regular char, we try to find its first occurence
 		 * after '.*' in FMT;
 		 * Note that NUL char is a perfectly valid char in this case
 		 */
