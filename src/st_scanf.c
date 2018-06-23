@@ -816,7 +816,7 @@ static int find_not_ip(const char *remain, struct expr *e)
 		return 1;
 	buffer[i] = '\0';
 	if (get_subnet_or_ip(buffer, &s) > 0) {
-		/* remain[0...i] represents an IP, so dont try stop checking in that range */
+		/* remain[0...i] represents an IP, so skip that range */
 		e->can_skip = i;
 		/* we dont set skip_on_return here */
 		return 0;
@@ -1048,12 +1048,15 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
  * parse_quantifier_xxx starts when **fmt is a st_scanf quantifier char (*, +, ?, {a,b})
  * it will try to consume as many bytes as possible from 'in' and put objects
  * found in a struct sto *
- * parse_quantifier_xxx updates offset into 'in', 'fmt', the number of objects found (n_found)
+ * parse_quantifier_xxx updates :
+ * - consumed input buffer 'in',
+ * - consumed input fmt 'fmt',
+ * - the number of objects found (n_found)
  *
  * @in       : points to remaining input buffer
  * @fmt      : points to remaining fmt buffer
  * @in_max   : input buffer MUST be < in_max
- * @expr     : the string/expression  concerned by the quantifier
+ * @expr     : the string/expression concerned by the quantifier
  * @o        : objects will be stored in o (max_o)
  * @n_found  : num conversion specifier found so far
  *
@@ -1362,10 +1365,10 @@ static int parse_quantifier_dotstar(const char **in, const char **fmt, const cha
 
 /*
  * st_scanf CORE function
- * reads bytes from the buffer'in', tries to interpret/match againset regexp fmt
+ * reads bytes from the bufferi 'in', tries to interpret/match against regexp 'fmt'
  * if objects (corresponding to covnersion specifiers) are found,
  * store them in struct sto_object *o table
- * @in    ; input  buffer
+ * @in    : input  buffer
  * @fmt   : format buffer
  * @o     : will store input data (if conversion specifiers are found)
  * @max_o : max number of collected objects
@@ -1402,16 +1405,12 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				return n_found;
 			if (*f == '(') {
 				res = fill_expr(expr, f, sizeof(expr));
-				if (res < 0) {
-					fprintf(stderr, "Invalid format '%s'\n", fmt);
-					goto end_nomatch;
-				}
+				if (res < 0)
+					goto end_badformat;
 			}else if (*f == '[') {
 				res = fill_char_range(expr, f, sizeof(expr));
-				if (res < 0) {
-					fprintf(stderr, "Invalid format '%s'\n", fmt);
+				if (res < 0)
 					goto end_nomatch;
-				}
 			} else if (*f == '\\')
 				res = 2;
 			else
@@ -1420,10 +1419,8 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			if (is_multiple_char(*f)) {
 				if (*f == '{') {
 					res = parse_brace_quantifier(f, &min_m, &max_m);
-					if (res < 0) {
-						fprintf(stderr, "Invalid expression\n");
-						goto end_nomatch;
-					}
+					if (res < 0)
+						goto end_badformat;
 					f += res;
 				} else
 					min_m = min_match(*f);
@@ -1433,7 +1430,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			if (min_m == 0) /* if the expr can match zero time, the match was perfect */
 				return n_found;
 			goto end_nomatch;
-		}
+		} /* if p == NUL */
 
 		switch (*f) {
 		case '\0': /* if we are here 'in' wasnt fully consumed, so fail */
