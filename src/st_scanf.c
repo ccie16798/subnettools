@@ -706,6 +706,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		break;
 	default:
 		debug(SCANF, 1, "Unknown conversion specifier '%c'\n", c);
+		return -1;
 		break;
 	} /* switch */
 	*in = p;
