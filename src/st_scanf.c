@@ -199,7 +199,7 @@ static int fill_char_range(char *expr, const char *fmt, int n)
 
 	while (fmt[i] != ']') {
 		if (fmt[i] == '\0' || i == n - 2) {
-			debug(SCANF, 2, "no closing ']' on char range\n");
+			debug(SCANF, 1, "no closing ']' on char range\n");
 			return -1;
 		}
 		expr[i] = EVAL_CHAR(fmt[i]);
@@ -231,7 +231,7 @@ static int fill_expr(char *expr, const char *fmt, int n)
 			expr[i] = fmt[i];
 			i++;
 			if (fmt[i] == '\0' || i == n - 2) {
-				debug(SCANF, 2, "no closing ')' on expression\n");
+				debug(SCANF, 1, "no closing ')' on expression\n");
 				return -1;
 			}
 			expr[i] = EVAL_CHAR(fmt[i]);
@@ -239,7 +239,7 @@ static int fill_expr(char *expr, const char *fmt, int n)
 			continue;
 		}
 		if (fmt[i] == '\0' || i == n - 2) {
-			debug(SCANF, 2, "no closing ')' on expression\n");
+			debug(SCANF, 1, "no closing ')' on expression\n");
 			return -1;
 		}
 		/* parenthesis inside an expression are not interpreted
