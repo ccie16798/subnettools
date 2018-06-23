@@ -198,9 +198,10 @@ static int fill_char_range(char *expr, const char *fmt, int n)
 	}
 
 	while (fmt[i] != ']') {
-		/* no debug message here, the caller will take care */
-		if (fmt[i] == '\0' || i == n - 2)
+		if (fmt[i] == '\0' || i == n - 2) {
+			debug(SCANF, 2, "no closing ']' on char range\n");
 			return -1;
+		}
 		expr[i] = EVAL_CHAR(fmt[i]);
 		i++;
 	}
@@ -229,14 +230,18 @@ static int fill_expr(char *expr, const char *fmt, int n)
 		if (fmt[i] == '\\') { /* handle escape char */
 			expr[i] = fmt[i];
 			i++;
-			if (fmt[i] == '\0' || i == n - 2)
+			if (fmt[i] == '\0' || i == n - 2) {
+				debug(SCANF, 2, "no closing ')' on expression\n");
 				return -1;
+			}
 			expr[i] = EVAL_CHAR(fmt[i]);
 			i++;
 			continue;
 		}
-		if (fmt[i] == '\0' || i == n - 2)
+		if (fmt[i] == '\0' || i == n - 2) {
+			debug(SCANF, 2, "no closing ')' on expression\n");
 			return -1;
+		}
 		/* parenthesis inside an expression are not interpreted
 		 * as a nested expression
 		 */
@@ -677,9 +682,8 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		ARG_SET(v_s, char *);
 		i2 = fill_char_range(expr, f, sizeof(expr));
 		if (i2 < 0) {
-			debug(SCANF, 1, "Invalid char range found in'%s', no closing ']'\n",
-					*fmt);
-			return n_found;
+			fprintf(stderr, "Invalid format '%s'\n", *fmt);
+			return n_found; // FIXME return -1?
 		}
 		f += (i2 - 1);
 		ptr_buff = v_s;
@@ -998,8 +1002,7 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
 			res = fill_char_range(e->end_expr, fmt + k,
 					sizeof(e->end_expr));
 			if (res < 0) {
-				debug(SCANF, 1, "Invalid format '%s', unmatched '['\n",
-						e->end_expr);
+				fprintf(stderr, "Invalid format '%s'\n", fmt);
 				return -1;
 			}
 			debug(SCANF, 4, "pattern matching will end on '%s'\n",
@@ -1014,7 +1017,7 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
 	} else if (fmt[0] == '(') {
 		res = fill_expr(e->end_expr, fmt, sizeof(e->end_expr));
 		if (res < 0) {
-			debug(SCANF, 1, "Invalid format '%s', unmatched '('\n", e->end_expr);
+			fprintf(stderr, "Invalid format '%s'\n", fmt);
 			return -1;
 		}
 		e->end_expr_len = res;
@@ -1023,7 +1026,7 @@ static int set_expression_canstop(const char *fmt, struct expr *e)
 	} else if (fmt[0] == '[') {
 		res = fill_char_range(e->end_expr, fmt, sizeof(e->end_expr));
 		if (res < 0) {
-			debug(SCANF, 1, "Invalid format '%s', unmatched '['\n", e->end_expr);
+			fprintf(stderr, "Invalid format '%s'\n", fmt);
 			return -1;
 		}
 		debug(SCANF, 4, "pattern matching will end on '%s'\n", e->end_expr);
@@ -1402,13 +1405,13 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			if (*f == '(') {
 				res = fill_expr(expr, f, sizeof(expr));
 				if (res < 0) {
-					debug(SCANF, 1, "Invalid expression '%s'\n", fmt);
+					fprintf(stderr, "Invalid format '%s'\n", fmt);
 					goto end_nomatch;
 				}
 			}else if (*f == '[') {
 				res = fill_char_range(expr, f, sizeof(expr));
 				if (res < 0) {
-					debug(SCANF, 1, "Invalid char range '%s'\n", fmt);
+					fprintf(stderr, "Invalid format '%s'\n", fmt);
 					goto end_nomatch;
 				}
 			} else if (*f == '\\')
@@ -1469,9 +1472,9 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			/* expression or char range */
 		case '[':
 			res = fill_char_range(expr, f, sizeof(expr));
-			if (res == -1) {
-				debug(SCANF, 1, "Invalid format '%s', unmatched '%c'\n", fmt, *f);
-				return n_found;
+			if (res < 0) {
+				fprintf(stderr, "Invalid format '%s'\n", fmt);
+				goto end_nomatch;
 			}
 			debug(SCANF, 8, "found char range '%s'\n", expr);
 			f += res;
@@ -1494,9 +1497,9 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			continue;
 		case '(':
 			res = fill_expr(expr, f, sizeof(expr));
-			if (res == -1) {
-				debug(SCANF, 1, "Invalid format '%s', unmatched '%c'\n", fmt, *f);
-				return n_found;
+			if (res < 0) {
+				fprintf(stderr, "Invalid format '%s'\n", fmt);
+				goto end_nomatch;
 			}
 			debug(SCANF, 8, "found expr '%s'\n", expr);
 			f += res;
