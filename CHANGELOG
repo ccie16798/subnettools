@@ -17,8 +17,9 @@ prefix;EA-Site;
 -- write a new file opening/reading framework (st_getline_truncate) to read lines from text file and truncate the line to a maximum allowed length
 -- rewrite of string2addr family functions, major speedups
 -- rewrite major parts of st_scanf pattern matching engine
--- scanf mutliplier handling (+, *, ?) was trying to be generic, dividing it into 3 separates cases helps
+-- st_scanf mutliplier handling (+, *, ?) was trying to be generic, dividing it into 3 separates cases helps
 readability a lot, speeds up and simplify code
+-- st_scanf error handling was simplified and unified
 
 v1.4
 ====
