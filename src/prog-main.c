@@ -224,16 +224,16 @@ static int run_relation(int argc, char **argv, void *st_options)
 
 	res = get_subnet_or_ip(argv[2], &subnet1);
 	if (res < 0) {
-		printf("%s is not an IP\n", argv[2]);
+		fprintf(stderr, "%s is not an IP\n", argv[2]);
 		return 0;
 	}
 	res = get_subnet_or_ip(argv[3], &subnet2);
 	if (res < 0) {
-		printf("%s is not an IP\n", argv[3]);
+		fprintf(stderr, "%s is not an IP\n", argv[3]);
 		return 0;
 	}
 	if (subnet1.ip_ver != subnet2.ip_ver) {
-		printf("IP version is different\n");
+		fprintf(stderr, "IP version is different\n");
 		return 0;
 	}
 	res = subnet_compare(&subnet1, &subnet2);
