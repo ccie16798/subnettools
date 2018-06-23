@@ -127,17 +127,17 @@ reg_test_scanf_invalid() {
 	# bad multiplier
 	$PROG -V scanf "1 2 3 4 5.4.4.1 6 7|a" ".{1," 2> res/scanf_inv1
 	$PROG -V scanf "1 2 3 4 5.4.4.1 6 7|a" ".{}" 2> res/scanf_inv2
-	$PROG -V scanf "1 2 3 4 5.4.4.1 6 7|a" "(%d ){}" > res/scanf_inv3
-	$PROG -V scanf "1 2 3 4 5.4.4.1 6 7|a" "(%d ){2" > res/scanf_inv4
-	$PROG -V scanf "1 2 3 4 5.4.4.1 6 7|a" "(%d ){2,1}" > res/scanf_inv5
+	$PROG -V scanf "1 2 3 4 5.4.4.1 6 7|a" "(%d ){}" 2> res/scanf_inv3
+	$PROG -V scanf "1 2 3 4 5.4.4.1 6 7|a" "(%d ){2" 2> res/scanf_inv4
+	$PROG -V scanf "1 2 3 4 5.4.4.1 6 7|a" "(%d ){2,1}" 2> res/scanf_inv5
 	# bad expression
-	$PROG -V scanf "1 2 3 4 5.4.4.1 6 7|a" ".*(%d " > res/scanf_inv6
-	$PROG -V scanf "1 2 3 4" "%[1" > res/scanf_inv7
-	$PROG -V scanf "1 2 3 4" ".*%[1" > res/scanf_inv8
-	$PROG -V scanf "1 2 3 4" "%k" > res/scanf_inv9
+	$PROG -V scanf "1 2 3 4 5.4.4.1 6 7|a" ".*(%d " 2> res/scanf_inv6
+	$PROG -V scanf "1 2 3 4" "%[1" 2> res/scanf_inv7
+	$PROG -V scanf "1 2 3 4" ".*%[1" 2> res/scanf_inv8
+	$PROG -V scanf "1 2 3 4" "%k" 2> res/scanf_inv9
 	# 2 successives conversion specifiers
-	$PROG -V scanf "1 2 3 4" "(%d )*+" > res/scanf_inv10
-	$PROG -V scanf "1 2 3 4" "(%d ){1,3}+" > res/scanf_inv11
+	$PROG -V scanf "1 2 3 4" "(%d )*+" 2> res/scanf_inv10
+	$PROG -V scanf "1 2 3 4" "(%d ){1,3}+" 2> res/scanf_inv11
 
 
 	for i in `seq 1 $n`; do
