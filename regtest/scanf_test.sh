@@ -128,6 +128,7 @@ reg_test_scanf_invalid() {
 	$PROG -V scanf "1 2 3 4 5.4.4.1 6 7|a" ".{}" 2> res/scanf_inv2
 	$PROG -V -V scanf "1 2 3 4 5.4.4.1 6 7|a" "(%d ){}" > res/scanf_inv3
 	$PROG -V -V scanf "1 2 3 4 5.4.4.1 6 7|a" "(%d ){2" > res/scanf_inv4
+	$PROG -V -V scanf "1 2 3 4 5.4.4.1 6 7|a" "(%d ){2,1}" > res/scanf_inv5
 
 	for i in `seq 1 $n`; do
 		output_file=scanf_inv$i
