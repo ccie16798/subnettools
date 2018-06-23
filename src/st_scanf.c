@@ -413,7 +413,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 	switch (c) {
 	case '\0':
 		debug(SCANF, 1, "Invalid format '%s', ends with %%\n", *fmt);
-		return n_found;
+		return -1;
 	case 'Q': /* classfull subnet */
 	case 'P':
 		ARG_SET(v_sub, struct subnet *);
@@ -478,7 +478,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		if (c != 'd' && c != 'u' && c != 'x') {
 			debug(SCANF, 1, "Invalid format '%s', wrong char '%c' after 'h'\n",
 					*fmt, c);
-			return n_found;
+			return -1;
 		}
 		ARG_SET(v_short, short *);
 		o->conversion = 'h';
@@ -531,7 +531,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		c = *f;
 		if (c != 'd' && c != 'u' && c != 'x') {
 			debug(SCANF, 1, "Invalid format, wrong char '%c' after 'l'\n", c);
-			return n_found;
+			return -1;
 		}
 		ARG_SET(v_long, long *);
 		o->conversion = 'l';
@@ -638,12 +638,11 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 	case 'S': /* a special STRING that doesnt represent an IP */
 	case 's':
 		ARG_SET(v_s, char *);
-		if (f[1] == '.') {
-			debug(SCANF, 1, "Invalid format, found '.' after %%s\n");
-			return n_found;
-		} else if (f[1] == '%') {
-			debug(SCANF, 1, "Invalid format, found '%%' after %%s\n");
-			return n_found;
+		/* a '%s' cannot be followed by another conversion specifier
+		 * it cannot be followed by a '.' */
+		if (f[1] == '.' || f[1] == '%') {
+			debug(SCANF, 1, "Invalid format, found '%c' after %%s\n", f[1]);
+			return -1;
 		}
 		ptr_buff = v_s;
 		while (!isspace(*p) && *p != '\0' && p < p_max)
@@ -682,10 +681,8 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 	case '[':
 		ARG_SET(v_s, char *);
 		i2 = fill_char_range(expr, f, sizeof(expr));
-		if (i2 < 0) {
-			fprintf(stderr, "Invalid format '%s'\n", *fmt);
-			return n_found; // FIXME return -1?
-		}
+		if (i2 < 0)
+			return -1;
 		f += (i2 - 1);
 		ptr_buff = v_s;
 		while (match_char_against_range_clean(*p, expr) && *p != '\0'
@@ -759,6 +756,8 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 			continue;
 		case '%':
 			res = parse_conversion_specifier(&in, &expr, o + *num_o);
+			if (res < 0)
+				return res;
 			if (res == 0)
 				break;
 			debug(SCANF, 4, "conv specifier successfull '%c' for object #%d\n",
@@ -1459,7 +1458,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				debug(SCANF, 1, "Invalid expr, starts with a quantifier\n");
 			else
 				debug(SCANF, 1, "Invalid expr, 2 successives quantifiers\n");
-			goto end_nomatch;
+			goto end_badformat;
 		case '%': /* conversion specifier */
 			if (n_found > max_o - 1) {
 				debug(SCANF, 1, "Max objets %d, already found %d\n",
@@ -1467,6 +1466,8 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				return n_found;
 			}
 			res = parse_conversion_specifier(&p, &f, o + n_found);
+			if (res < 0)
+				goto end_badformat;
 			if (res == 0)
 				return n_found;
 			n_found += res;
@@ -1477,7 +1478,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				res = parse_quantifier_dotstar(&p, &f, in_max, expr,
 						o, max_o, &n_found);
 				if (res < 0)
-					goto end_nomatch;
+					goto end_badformat;
 				continue;
 			}
 			p++;
@@ -1487,7 +1488,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			res = fill_char_range(expr, f, sizeof(expr));
 			if (res < 0) {
 				fprintf(stderr, "Invalid format '%s'\n", fmt);
-				goto end_nomatch;
+				goto end_badformat;
 			}
 			debug(SCANF, 8, "found char range '%s'\n", expr);
 			f += res;
@@ -1495,7 +1496,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				res = parse_quantifier_char_range(&p, &f, in_max, expr,
 						o, max_o, &n_found);
 				if (res < 0)
-					goto end_nomatch;
+					goto end_badformat;
 				continue;
 			}
 			res = match_char_against_range_clean(*p, expr);
@@ -1512,7 +1513,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			res = fill_expr(expr, f, sizeof(expr));
 			if (res < 0) {
 				fprintf(stderr, "Invalid format '%s'\n", fmt);
-				goto end_nomatch;
+				goto end_badformat;
 			}
 			debug(SCANF, 8, "found expr '%s'\n", expr);
 			f += res;
@@ -1520,7 +1521,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				res = parse_quantifier_expr(&p, &f, in_max, expr,
 						o, max_o, &n_found);
 				if (res < 0)
-					goto end_nomatch;
+					goto end_badformat;
 				continue;
 			}
 			num_cs = count_cs(expr);
@@ -1530,10 +1531,8 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				return n_found;
 			}
 			res = match_expr_single(expr, p, o, &n_found);
-			if (res < 0) {
-				debug(SCANF, 1, "Invalid format '%s'\n", fmt);
-				return n_found;
-			}
+			if (res < 0)
+				goto end_badformat;
 			if (res == 0) {
 				debug(SCANF, 2, "Expr '%s' didnt match 'in' at offset %d\n",
 						expr, (int)(p - in));
@@ -1560,7 +1559,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				if (c == '\0') {
 					fprintf(stderr, "Invalid format '%s'\n", fmt);
 					debug(SCANF, 1, "Escape char `\\' at end of string'\n");
-					goto end_nomatch;
+					goto end_badformat;
 				}
 			}
 			if (is_multiple_char(f[1]))  {
@@ -1570,7 +1569,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 						o, max_o, &n_found);
 				if (res < 0) {
 					fprintf(stderr, "Invalid format '%s'\n", fmt);
-					goto end_nomatch;
+					goto end_badformat;
 				}
 				continue;
 			}
@@ -1585,11 +1584,16 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 	} /* while 1 */
 
 end_badformat:
+	return -1;
 end_nomatch:
+	/* we accept partial matches
+	 * if expression found objects but the match was not perfect,
+	 * we return the number of objects found instead of no match
+	 */
 	if (n_found == 0)
 		return -1;
-	else
-		return n_found;
+	debug(SCANF, 2, "not an exact match, but we found %d objects\n", n_found);
+	return n_found;
 }
 
 #ifdef CASE_INSENSITIVE
