@@ -790,8 +790,8 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 		continue;
 	}
 end_no_match:
-	/* we may have found a conversion specifier before failing
-	 * int that case, we must not take it into account */
+	/* we may have found an object before failing
+	 * in that case, we must not take it into account */
 	debug(SCANF, 4, "no more match, restoring num_o='%d' to its previous value='%d'\n",
 			*num_o, saved_num_o);
 	*num_o = saved_num_o;
