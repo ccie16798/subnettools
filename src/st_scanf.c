@@ -359,6 +359,7 @@ static int match_char_against_range_clean(char c, const char *expr)
  * @fmt : pointer to remaining FORMAT buffer
  * @o   : a struct to store a found objet
  * returns:
+ * 	-1 on invalid fmt
  *	the number of conversion specifiers found (0 or 1)
  */
 static int parse_conversion_specifier(const char **in, const char **fmt,
@@ -722,6 +723,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
  * @o     : will store input data (if conversion specifiers are found)
  * @num_o : number of found objects (will be updated)
  * returns:
+ *  -1 if format is invalid
  *  0 if it doesnt match,
  *  number of matched chars in input buffer if it matches
  */
@@ -749,7 +751,9 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 			continue;
 		case '[': /* try to handle char range like [a-Zbce-f] */
 			res = match_char_against_range(*in, &expr);
-			if (res <= 0)
+			if (res < 0)
+				return res;
+			if (res == 0)
 				break;
 			in++;
 			continue;
@@ -765,9 +769,8 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 			expr++;
 			c = escape_char(*expr);
 			if (c == '\0') {
-				debug(SCANF, 1, "Invalid expr '%s', '\\' at end of string\n",
-						expr);
-				goto end_no_match;
+				debug(SCANF, 1, "Escape char `\\' at end of string'\n");
+				return -1;
 			}
 		default:
 			if (EVAL_CHAR(*in) != c)
