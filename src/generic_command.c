@@ -17,7 +17,7 @@
 
 #define MAX_AMBIGUOUS 39
 
-static void enough_args(int argc, int value, char *com, char *progname)
+static void enough_args(int argc, int value, const char *com, const char *progname)
 {
 	if (argc < value) {
 		fprintf(stderr, "Not enough args for command '%s'\n", com);
@@ -26,7 +26,7 @@ static void enough_args(int argc, int value, char *com, char *progname)
 	}
 }
 
-int generic_command_run(int argc, char **argv, char *progname, void *opt)
+int generic_command_run(int argc, char **argv, const char *progname, void *opt)
 {
 	int i, res;
 	int found = 0, found_i = 0;
@@ -91,7 +91,7 @@ int generic_command_run(int argc, char **argv, char *progname, void *opt)
  *  new_argv = argv + offset
  *  new_argc = argc - offset
  */
-int generic_parse_options(int argc, char **argv, char *progname, void *opt)
+int generic_parse_options(int argc, char **argv, const char *progname, void *opt)
 {
 	int i, res, loop = 1;
 	int a = 1;

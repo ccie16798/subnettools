@@ -49,8 +49,8 @@ extern struct st_command options[];
  exit(0);
 */
 
-int generic_command_run(int argc, char **argv, char *progname, void *options);
-int generic_parse_options(int argc, char **argv, char *progname, void *opt);
+int generic_command_run(int argc, char **argv, const char *progname, void *options);
+int generic_parse_options(int argc, char **argv, const char *progname, void *opt);
 
 #else
 #endif
