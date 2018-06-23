@@ -99,6 +99,7 @@ reg_test_scanf() {
 	$PROG scanf "1 2 3 4 5 6 7" "(%d )+" > res/scanf56
 
 
+
 	for i in `seq 1 $n`; do
 		output_file=scanf$i
 		if [ ! -f ref/$output_file ]; then
@@ -118,6 +119,34 @@ reg_test_scanf() {
 	done
 	
 }
+reg_test_scanf_invalid() {
+	local output_file
+	local n
 
+	n=1
+	$PROG -V scanf "1 2 3 4 5.4.4.1 6 7|a" ".{1," 2> res/scanf_inv1
+	$PROG -V scanf "1 2 3 4 5.4.4.1 6 7|a" ".{}" 2> res/scanf_inv2
+	$PROG -V -V scanf "1 2 3 4 5.4.4.1 6 7|a" "(%d ){}" > res/scanf_inv3
+	$PROG -V -V scanf "1 2 3 4 5.4.4.1 6 7|a" "(%d ){2" > res/scanf_inv4
+
+	for i in `seq 1 $n`; do
+		output_file=scanf_inv$i
+		if [ ! -f ref/$output_file ]; then
+			echo "No ref file found for this test, creating it 'ref/$output_file'"
+			cp res/$output_file ref/$output_file
+		else
+			echo -n "reg test [scanf invalid #$i] :"
+			diff res/$output_file ref/$output_file > /dev/null
+			if [ $? -eq 0 ]; then
+				echo -e "\033[32mOK\033[0m"
+				n_ok=$((n_ok + 1))
+			else
+				n_ko=$((n_ko + 1))
+				echo -e "\033[31mKO\033[0m"
+			fi
+		fi
+	done
+}
 reg_test_scanf
+reg_test_scanf_invalid
 result
