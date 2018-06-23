@@ -135,7 +135,7 @@ static int parse_brace_quantifier(const char *s, int *min, int *max)
 		*max = *min;
 		return i;
 	}
-	debug(SCANF, 1, "Invalid range '%s' contains invalid char '%c'\n", s, s[i]);
+	debug(SCANF, 1, "Invalid range '%s', no closing '}'\n", s);
 	return -1;
 }
 
