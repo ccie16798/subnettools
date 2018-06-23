@@ -1468,13 +1468,10 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			}
 			p++;
 			continue;
-			/* expression or char range */
-		case '[':
+		case '[': /* char range */
 			res = fill_char_range(expr, f, sizeof(expr));
-			if (res < 0) {
-				fprintf(stderr, "Invalid format '%s'\n", fmt);
+			if (res < 0)
 				goto end_badformat;
-			}
 			debug(SCANF, 8, "found char range '%s'\n", expr);
 			f += res;
 			if (is_multiple_char(*f)) {
@@ -1486,7 +1483,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			}
 			res = match_char_against_range_clean(*p, expr);
 			if (res == 0) {
-				debug(SCANF, 2, "Range '%s' didnt match 'in' at offset %d\n",
+				debug(SCANF, 3, "Range '%s' didnt match 'in' at offset %d\n",
 						expr, (int)(p - in));
 				goto end_nomatch;
 			}
@@ -1494,12 +1491,10 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 					expr, (int)(p - in));
 			p++;
 			continue;
-		case '(':
+		case '(': /* expression */
 			res = fill_expr(expr, f, sizeof(expr));
-			if (res < 0) {
-				fprintf(stderr, "Invalid format '%s'\n", fmt);
+			if (res < 0)
 				goto end_badformat;
-			}
 			debug(SCANF, 8, "found expr '%s'\n", expr);
 			f += res;
 			if (is_multiple_char(*f)) {
@@ -1519,7 +1514,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			if (res < 0)
 				goto end_badformat;
 			if (res == 0) {
-				debug(SCANF, 2, "Expr '%s' didnt match 'in' at offset %d\n",
+				debug(SCANF, 3, "Expr '%s' didnt match 'in' at offset %d\n",
 						expr, (int)(p - in));
 				goto end_nomatch;
 			}
@@ -1542,7 +1537,6 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				f++;
 				c = escape_char(*f);
 				if (c == '\0') {
-					fprintf(stderr, "Invalid format '%s'\n", fmt);
 					debug(SCANF, 1, "Escape char `\\' at end of string'\n");
 					goto end_badformat;
 				}
@@ -1552,10 +1546,8 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				expr[0] = EVAL_CHAR(c);
 				res = parse_quantifier_char(&p, &f, in_max, expr,
 						o, max_o, &n_found);
-				if (res < 0) {
-					fprintf(stderr, "Invalid format '%s'\n", fmt);
+				if (res < 0)
 					goto end_badformat;
-				}
 				continue;
 			}
 			if (EVAL_CHAR(*p) != EVAL_CHAR(c)) {
@@ -1569,6 +1561,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 	} /* while 1 */
 
 end_badformat:
+	fprintf(stderr, "Invalid format '%s'\n", fmt);
 	return -1;
 end_nomatch:
 	/* we accept partial matches
