@@ -1265,6 +1265,8 @@ static int parse_quantifier_dotstar(const char **in, const char **fmt, const cha
 			e.can_skip = 0;
 			e.skip_on_return = 0;
 			could_stop = e.can_stop(p, &e);
+			if (could_stop < 0) /* if we have and invalid expression */
+				return -1;
 			debug(SCANF, 4, "trying to stop on remaining '%s', res=%d\n",
 					p, could_stop);
 			if (could_stop && match_last == 0)
