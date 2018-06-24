@@ -20,6 +20,8 @@
 #define FSCANF_LINE_LENGTH 	2048
 #define MAX_COLLECTED_EA	128
 
+#define DEFAULT_FMT "%I;%m;%D;%G;%O#"
+
 struct st_options {
 	int subnet_off;
 	int print_header;
