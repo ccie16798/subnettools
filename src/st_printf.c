@@ -1007,6 +1007,22 @@ static int st_vsnprintf(char *outbuf, size_t len, const char *fmt, va_list ap,
 			case 'O': /* st_object */
 				if (o == NULL)
 					break;
+				if (fmt[i + 2] == '#') { /* print all object */
+					for (o_num = 0; o_num < max_o; o_num++) {
+						res = sto2string(buffer, &o[o_num],
+								sizeof(buffer), 3);
+						if (res > 0)
+							res = pad_buffer_out(outbuf + j,
+									len - j, buffer, res,
+									field_width, pad_left, ' ');
+						else
+							res = 0;
+						j += res;
+						outbuf[j++] = ';';
+					} /* for */
+					i++;
+					break;
+				}
 				if (!isdigit(fmt[i + 2])) {
 					debug(FMT, 3, "Invalid char '%c' after %%O\n",
 							fmt[i + 2]);
