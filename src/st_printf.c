@@ -219,6 +219,7 @@ static int __print_ea(char *outbuf, size_t buffer_len,
 				if (ea[k].name == NULL) { /* happens only on programming errors */
 					buffer[0] = '\0';
 					fprintf(stderr, "BUG, EA#%d name is NULL\n", k);
+					res = 0;
 				} else
 					res = strxcpy(buffer, ea[k].name,
 							sizeof(buffer));
