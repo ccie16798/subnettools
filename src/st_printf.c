@@ -270,8 +270,9 @@ static int __print_ea(char *outbuf, size_t buffer_len,
 		}
 		if (header) {
 			if (ea[ea_num].name == NULL) { /* happens only on programming errors */
-				buffer[0] = '\0';
 				fprintf(stderr, "BUG, EA#%d name is NULL\n", ea_num);
+				buffer[0] = '\0';
+				res = 0;
 			} else
 				res = strxcpy(buffer, ea[ea_num].name, sizeof(buffer));
 		} else {
