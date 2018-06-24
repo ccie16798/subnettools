@@ -19,8 +19,6 @@
 #include "generic_expr.h"
 #include "bgp_tool.h"
 
-#define SIZE_T_MAX ((size_t)0 - 1)
-
 int fprint_bgp_route(FILE *output, struct bgp_route *route)
 {
 	return st_fprintf(output, "%d;%s;%s;%16P;%16a;%10d;%10d;%10d;     %c;%s\n",
