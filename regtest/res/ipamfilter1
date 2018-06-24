@@ -1,3 +1,3 @@
-prefix;EA-Site;EA-Vlan;
-10.40.172.0/27;Acheres;;
-10.40.174.0/27;Acheres;1948;
+prefix;EA-Site;EA-Vlan
+10.40.172.0/27;Acheres;
+10.40.174.0/27;Acheres;1948

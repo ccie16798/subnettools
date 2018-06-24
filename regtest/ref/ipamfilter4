@@ -1,13 +1,13 @@
-prefix;EA-Vlan;EA-Name;EA-Site;comment;
-10.40.172.0/27;;SVGEXTAH1SRV;Acheres;Sauvegarde Externe;
-10.40.174.0/27;1948;PFP-Prod;Acheres;POOL;
-10.58.0.0/30;;;La Defense - Baobab;Interco rc-defense4/rc-lefoullon1;
-10.128.0.0/16;;;Saint Denis;Zob;
-10.128.1.0/24;;;Saint Denis;Zob intensif;
-10.58.0.8/30;;;La Defense - Baobab;Interco rc-defense2/rc-valenton1;
-10.58.0.12/30;;;La Defense - Baobab;Interco rc-defense4/rc-estp1;
-10.58.0.36/30;;;La Defense - Baobab;Interco rc-defense4/rc-champlan1;
-10.58.0.40/30;;;La Defense - Baobab;Interco rc-defense4/rc-mitry-mory1;
-10.58.0.48/30;;;La Defense - Baobab;Interco rc-defense3/rc-defense4;
-10.58.0.68/30;;;La Defense - Baobab;Interco rc-defense4/rc-bezons3 1;
-10.58.0.72/30;;;La Defense - Baobab;Interco rc-defense4/rc-bezons3 2;
+prefix;EA-Vlan;EA-Name;EA-Site;comment
+10.40.172.0/27;;SVGEXTAH1SRV;Acheres;Sauvegarde Externe
+10.40.174.0/27;1948;PFP-Prod;Acheres;POOL
+10.58.0.0/30;;;La Defense - Baobab;Interco rc-defense4/rc-lefoullon1
+10.128.0.0/16;;;Saint Denis;Zob
+10.128.1.0/24;;;Saint Denis;Zob intensif
+10.58.0.8/30;;;La Defense - Baobab;Interco rc-defense2/rc-valenton1
+10.58.0.12/30;;;La Defense - Baobab;Interco rc-defense4/rc-estp1
+10.58.0.36/30;;;La Defense - Baobab;Interco rc-defense4/rc-champlan1
+10.58.0.40/30;;;La Defense - Baobab;Interco rc-defense4/rc-mitry-mory1
+10.58.0.48/30;;;La Defense - Baobab;Interco rc-defense3/rc-defense4
+10.58.0.68/30;;;La Defense - Baobab;Interco rc-defense4/rc-bezons3 1
+10.58.0.72/30;;;La Defense - Baobab;Interco rc-defense4/rc-bezons3 2
