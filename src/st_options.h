@@ -14,11 +14,11 @@
 /* max size of a string collected by st_object */
 #define ST_OBJECT_MAX_STRING_LEN (128 - 2)
 
-#define MAX_DELIM	32
-#define IPAM_MAX_EA_LEN	128
-#define FMT_LEN		128
-#define CSV_MAX_FIELD_LENGTH 32
-#define FSCANF_LINE_LENGTH 2048
+#define MAX_DELIM 32
+#define FMT_LEN	  128
+#define CSV_MAX_FIELD_LENGTH 	32
+#define FSCANF_LINE_LENGTH 	2048
+#define MAX_COLLECTED_EA	128
 
 struct st_options {
 	int subnet_off;
@@ -42,7 +42,7 @@ struct st_options {
 	char ipam_comment1[CSV_MAX_FIELD_LENGTH];
 	char ipam_comment2[CSV_MAX_FIELD_LENGTH];
 	char ipam_delim[MAX_DELIM];
-	char ipam_ea[IPAM_MAX_EA_LEN];
+	char ipam_ea[MAX_COLLECTED_EA];
 	/* netcsv FILE description */
 	char netcsv_prefix_field[CSV_MAX_FIELD_LENGTH];
 	char netcsv_mask[CSV_MAX_FIELD_LENGTH];
