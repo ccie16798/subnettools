@@ -118,7 +118,7 @@ void usage_en_options(void)
 	printf("-noheader|-nh   : do not print netcsv header file\n");
 	printf("-grep_field <N> : grep field N only\n");
 	printf("-D <debug>      : DEBUG MODE ; use '%s -D help' for more info\n", PROG_NAME);
-	printf("-fmt            : change the output format (default :%s)\n", default_fmt);
+	printf("-fmt            : change the output format (default :%s)\n", DEFAULT_FMT);
 	printf("-V              : verbose mode; same as '-D all:1'\n");
 	printf("-VV             : more verbose mode; same as '-D all:2'\n");
 }
