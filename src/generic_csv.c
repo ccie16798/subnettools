@@ -197,7 +197,8 @@ static int read_csv_body(struct st_file *f, struct csv_file *cf,
 		while (s) {
 			pos++;
 			if (pos > cf->num_fields) {
-				debug(LOAD_CSV, 1, "Line %lu too many tokens\n", state->line);
+				debug(LOAD_CSV, 1, "File %s line %lu : too many tokens\n",
+					       cf->file_name, state->line);
 				break;
 			}
 			csv_field    = NULL;
@@ -269,7 +270,7 @@ static int read_csv_body(struct st_file *f, struct csv_file *cf,
 				debug_timing_end(2);
 				return res;
 			} else if (res == CSV_END_FILE) {
-				debug(LOAD_CSV, 4, "line %lu : endofline callback asks stop\n",
+				debug(LOAD_CSV, 4, "line %lu : endofline callback asks to stop\n",
 						state->line);
 				break;
 			}
