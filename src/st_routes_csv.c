@@ -380,13 +380,7 @@ int load_ipam_no_EA(char  *name, struct subnet_file *sf, struct st_options *nof)
 		free_csv_file(&cf);
 		return -2;
 	}
-	zero_route(&sf->routes[0]);
-	res = alloc_route_ea(&sf->routes[0], 1);
-	if (res < 0) {
-		free_subnet_file(sf);
-		free_csv_file(&cf);
-		return res;
-	}
+
 	res = generic_load_csv(name, &cf, &state, sf);
 	if (res < 0) {
 		free_subnet_file(sf);
