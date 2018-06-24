@@ -189,11 +189,14 @@ static inline int pad_buffer_out(char *out, size_t len, const char *buffer, size
 
 /*
  * helper to print Extended Attributes
- * @outbuf, @buffer_len : the output buffer and its length
- * @fmt, @i  : the Format Buffer and its index
- * @field_width, @pad_left : how to pad
+ * @outbuf     : the output buffer
+ * @buffer_len : the output buffer length
+ * @fmt        : format buffer
+ * @i          : index of the format buffer
+ * @field_width: min length printed
+ * @pad_left   : how to pad
  * @ea, @ea_nr : pointer to Extended Attributes and number
- * @header : do we want to print EA or EA names
+ * @header     : do we want to print EA or EA names
  * returns :
  *	number of printed chars in outbuf
  */
