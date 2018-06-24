@@ -520,6 +520,7 @@ static int run_ipam_getea(int argc, char **argv, void *st_options)
 
 	res = populate_sf_from_ipam(&sf, &ipam);
 	if (res < 0) {
+		free_subnet_file(&sf);
 		free_ipam_file(&ipam);
 		return 1;
 	}
