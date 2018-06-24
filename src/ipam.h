@@ -6,10 +6,7 @@
 #include "st_object.h"
 #include "st_routes_csv.h"
 
-#ifndef SIZE_T_MAX
-#define SIZE_T_MAX ((size_t)0 - 1)
-#endif
-
+#define IPAM_MAX_LINE_NUMBER (((unsigned long)0 - 1) / (2 * sizeof(struct ipam_line)))
 
 struct ipam_line {
 	struct subnet subnet;

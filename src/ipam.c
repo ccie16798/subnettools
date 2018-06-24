@@ -23,7 +23,7 @@
 
 int alloc_ipam_file(struct ipam_file *sf, unsigned long n, int ea_nr)
 {
-	if (n > SIZE_T_MAX / sizeof(struct ipam_line)) { /* being paranoid */
+	if (n > IPAM_MAX_LINE_NUMBER) {
 		fprintf(stderr, "error: too much memory requested for struct ipam\n");
 		return -1;
 	}
@@ -152,7 +152,7 @@ static int ipam_endofline_callback(struct csv_state *state, void *data)
 	}
 	sf->nr++;
 	if  (sf->nr == sf->max_nr) {
-		if (sf->max_nr * 2 > SIZE_T_MAX / sizeof(struct ipam_line)) {
+		if (sf->max_nr * 2 > IPAM_MAX_LINE_NUMBER) {
 			fprintf(stderr, "error: too much memory requested for struct ipam_line\n");
 			return CSV_CATASTROPHIC_FAILURE;
 		}
