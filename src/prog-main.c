@@ -1296,7 +1296,7 @@ static void allow_core_dumps(void)
 int main(int argc, char **argv)
 {
 	struct st_options nof;
-	int res;
+	int res, res2;
 	char *s;
 	char conf_abs_path[256];
 
@@ -1325,7 +1325,13 @@ int main(int argc, char **argv)
 			fprintf(stderr, "buffer overrun attempt, $HOME too big\n");
 			exit(2);
 		}
-		strxcpy(conf_abs_path + res, "/st.conf", sizeof(conf_abs_path) - res);
+		res2 = strxcpy(conf_abs_path + res, "/st.conf",
+				sizeof(conf_abs_path) - res);
+		if (res2 >= sizeof(conf_abs_path) - res) {
+			fprintf(stderr, "buffer overrun attempt, $HOME/st.conf too big\n");
+			exit(2);
+		}
+
 		nof.config_file = conf_abs_path;
 		res = open_config_file(nof.config_file, &nof);
 		if (res == -1) { /* try to open ./st.conf */
