@@ -23,7 +23,7 @@
 /* generic load csv return values */
 #define CSV_CANNOT_OPEN_FILE  -1
 #define CSV_EMPTY_FILE        -2
-#define CSV_FILE_MAX_SIZE      4  /* state->line reached ULONG_MAX */
+#define CSV_FILE_MAX_SIZE      4  /* state->line reached CSV_MAX_LINE_NUMBER */
 
 /* csv parse header return value ; private */
 #define  CSV_HEADER_FOUND   1

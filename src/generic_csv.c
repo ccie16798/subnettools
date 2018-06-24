@@ -1,7 +1,7 @@
 /*
  * Generic CSV parser functions
  *
- * Copyright (C) 2014, 2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ * Copyright (C) 2014-2018 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
@@ -171,9 +171,9 @@ static int read_csv_body(struct st_file *f, struct csv_file *cf,
 	}
 	state->badline = 0;
 	do {
-		if (state->line == ULONG_MAX) { /* paranoid check */
-			debug(LOAD_CSV, 1, "File %s is too big, we reached ULONG_MAX (%lu)\n",
-					cf->file_name, ULONG_MAX);
+		if (state->line >= CSV_MAX_LINE_NUMBER) { /* paranoid check */
+			debug(LOAD_CSV, 1, "File %s is too many lines, MAX=%lu\n",
+					cf->file_name, CSV_MAX_LINE_NUMBER);
 			return CSV_FILE_MAX_SIZE;
 		}
 		state->line++;
