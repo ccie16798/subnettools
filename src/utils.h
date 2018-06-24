@@ -14,7 +14,7 @@ int isPower2(unsigned int x);
 int string2int(const char *s, int *res);
 int mylog2(unsigned int x);
 
-unsigned nextPow2_32(unsigned x);
+unsigned int nextPow2_32(unsigned int x);
 unsigned long long nextPow2_64(unsigned long long x);
 
 extern const int hex_tab[];

@@ -1,7 +1,7 @@
 /*
  * some "useful" functions
  *
- * Copyright (C) 2014 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ * Copyright (C) 2014-2018 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
@@ -105,7 +105,7 @@ int mylog2(unsigned int x)
 	return a;
 }
 
-unsigned nextPow2_32(unsigned int x)
+unsigned int nextPow2_32(unsigned int x)
 {
 	x--;
 	x |= x >> 1;
