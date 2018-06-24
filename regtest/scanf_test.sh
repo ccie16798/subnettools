@@ -123,7 +123,7 @@ reg_test_scanf_invalid() {
 	local output_file
 	local n
 
-	n=13
+	n=15
 	# bad multiplier
 	$PROG -V scanf "1 2 3 4 5.4.4.1 6 7|a" ".{1," 2> res/scanf_inv1
 	$PROG -V scanf "1 2 3 4 5.4.4.1 6 7|a" ".{}" 2> res/scanf_inv2
@@ -141,6 +141,9 @@ reg_test_scanf_invalid() {
 	#starts with multiplier
 	$PROG -V scanf "1 2 3 4" "*aaa" 2> res/scanf_inv12
 	$PROG -V scanf "1 2 3 4" "+" 2> res/scanf_inv13
+	# must match at least 1 time
+	$PROG -V scanf "1 2 3 4" ".{0}" 2> res/scanf_inv14
+	$PROG -V scanf "1 2 3 4" ".{0,0}" 2> res/scanf_inv15
 
 	for i in `seq 1 $n`; do
 		output_file=scanf_inv$i
