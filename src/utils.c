@@ -13,18 +13,13 @@
 #include <ctype.h>
 #include "utils.h"
 
-#define VAL4X    -1, -1, -1, -1
-#define VAL16X   VAL4X, VAL4X, VAL4X, VAL4X
-#define VAL64X   VAL16X, VAL16X, VAL16X, VAL16X
-#define VAL256X  VAL64X, VAL64X, VAL64X, VAL64X
-
-const int hex_tab[] = { VAL256X,
+const int hex_tab[] = { [0 ... 255] = -1,
 	['0'] = 0, ['1'] = 1, ['2'] = 2, ['3'] = 3, ['4'] = 4,
 	['5'] = 5, ['6'] = 6, ['7'] = 7, ['8'] = 8, ['9'] = 9,
 	['a'] = 10, ['b'] = 11, ['c'] = 12, ['d'] = 13, ['e'] = 14, ['f'] = 15,
 	['A'] = 10, ['B'] = 11, ['C'] = 12, ['D'] = 13, ['E'] = 14, ['F'] = 15 };
 
-const int int_tab[] = { VAL256X,
+const int int_tab[] = { [0  ... 255] = -1,
 	['0'] = 0, ['1'] = 1, ['2'] = 2, ['3'] = 3, ['4'] = 4,
 	['5'] = 5, ['6'] = 6, ['7'] = 7, ['8'] = 8, ['9'] = 9 };
 
