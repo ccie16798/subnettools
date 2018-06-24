@@ -1,7 +1,7 @@
 /*
  * generic HEAP implementation
  *
- * Copyright (C) 1999-2014 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ * Copyright (C) 1999-2018 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
@@ -20,7 +20,7 @@
 
 /* 3 not used functions, commented to silence warnings
  * But i prefer to let them here
- *x/
+ *
 static inline void *father(TAS t, int n)
 {
 	return t.tab[(n - 1) / 2];
@@ -34,12 +34,10 @@ static inline void *rightSon(TAS t, int n)
 	return t.tab[2 * n + 2];
 }
 */
-#ifndef SIZE_T_MAX
-#define SIZE_T_MAX ((size_t)0 - 1)
-#endif
+
 int alloc_tas(TAS *tas, unsigned long n, int (*compare)(void *v1, void *v2))
 {
-	if (n > (SIZE_T_MAX / sizeof(void *) - 1)) {
+	if (n > HEAP_MAX_NR) {
 		fprintf(stderr, "error: too much memory requested for heap\n");
 		tas->tab = NULL;
 		tas->nr  = 0;
@@ -76,8 +74,9 @@ void addTAS(TAS *tas, void *el)
 
 	while (n) { /* move it up */
 		n2--;
-		n2 >>= 1;
-		if (tas->compare(tas->tab[n], tas->tab[n2])) { /* if son  better than father swap */
+		n2 >>= 1; /* n2 points to father */
+		/* if son is better than father then swap */
+		if (tas->compare(tas->tab[n], tas->tab[n2])) {
 			swap(tas->tab[n2], tas->tab[n]);
 			n = n2; /* move to father */
 			continue;
@@ -91,7 +90,7 @@ int addTAS_may_fail(TAS *tas, void *el)
 	void **truc;
 
 	if (tas->nr == tas->max_nr - 1) {
-		if (tas->max_nr * 2 >  (SIZE_T_MAX / sizeof(void *))) {
+		if (tas->max_nr * 2 > HEAP_MAX_NR) {
 			fprintf(stderr, "error: too much memory requested for heap\n");
 			return -1;
 		}
@@ -116,13 +115,15 @@ void *popTAS(TAS *tas)
 		return NULL;
 	tas->nr--;
 	n = tas->nr;
-	tas->tab[0] = tas->tab[n]; /* first replace head with last element, then lets get it down */
+	/* first replace head with last element, then lets get it down */
+	tas->tab[0] = tas->tab[n];
 
 	while (1) { /* move down */
 		i2 =  i << 1;
 		i2++; /* i2 = 2 * i + 1, i2 = left son of i  */
 		if (i2 == n) { /* empty right son */
-			if (tas->compare(tas->tab[i], tas->tab[i2])) /* if father is better, stop */
+			/* if father is better, stop */
+			if (tas->compare(tas->tab[i], tas->tab[i2]))
 				break;
 			swap(tas->tab[i2], tas->tab[i]); /* swap father & left son */
 			break;
