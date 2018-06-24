@@ -380,7 +380,8 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 			has_comment = 1;
 			comment_index = j;
 		}
-	new_ea = realloc_ea_array(sf->ea, sf->ea_nr,  sf->ea_nr + ipam->ea_nr - has_comment);
+	new_ea = realloc_ea_array(sf->ea, sf->ea_nr,
+			sf->ea_nr + ipam->ea_nr - has_comment);
 	if (new_ea == NULL)
 		return -1;
 	sf->ea = new_ea;
