@@ -338,7 +338,7 @@ static int ipam_comment_handle(char *s, void *data, struct csv_state *state)
  * legacy IPAM loading function
  * used for specific form of IPAM file, not really generic
  * it uses fields 'comment' or 'EA-Name' to extract comments
- * used getea command instead
+ * use getea command instead
  */
 int load_ipam_no_EA(char  *name, struct subnet_file *sf, struct st_options *nof)
 {
