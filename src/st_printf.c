@@ -512,7 +512,7 @@ static int __fprint_ipam_fmt(FILE *output, const struct ipam_line *r,
 			break;
 		if (c == '%') {
 			BLOCK_FIELD_WIDTH;
-			pad_value = ' '; /*in fprint_route, pad value is alwys a space */
+			pad_value = ' '; /*in fprint_ipam, pad value is always a space */
 			switch (fmt[i2]) {
 			case '\0':
 				outbuf[j] = '%';
