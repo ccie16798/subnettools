@@ -203,10 +203,11 @@ static int __print_ea(char *outbuf, size_t buffer_len,
 			struct ipam_ea *ea, int ea_nr,
 			int header)
 {
+	int k, res;
 	char sep;
 	char buffer[ST_PRINTF_MAX_STRING_SIZE];
-	int k, ea_num;
-	int j = 0, res = 0;
+	int ea_num;
+	int j = 0;
 
 	/* print all extended attributes */
 	if (fmt[*i + 2] == '#') {
@@ -218,13 +219,15 @@ static int __print_ea(char *outbuf, size_t buffer_len,
 				if (ea[k].name == NULL) { /* happens only on programming errors */
 					buffer[0] = '\0';
 					fprintf(stderr, "BUG, EA#%d name is NULL\n", k);
+					res = 0;
 				} else
 					res = strxcpy(buffer, ea[k].name,
 							sizeof(buffer));
 			} else {
-				if (ea[k].value == NULL)
+				if (ea[k].value == NULL) {
 					buffer[0] = '\0';
-				else
+					res = 0;
+				} else
 					res = strxcpy(buffer, ea[k].value,
 							sizeof(buffer));
 			}
