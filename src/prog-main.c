@@ -84,6 +84,8 @@ struct file_options fileoptions[] = {
 static struct st_options nof = {
 	.ip_compress_mode = 3,
 	.print_header	= 1,
+	.delim		= ";",
+	.ipam_delim	= ",",
 	.ipam_ea 	= "comment",
 	.output_fmt 	= "%I;%m;%D;%G;%O#",
 	.bgp_output_fmt	= "%v;%5T;%4B;%16P;%16G;%10M;%10L;%10w;%6o;%A",
@@ -1339,19 +1341,6 @@ int main(int argc, char **argv)
 		}
 	} else
 		open_config_file(nof.config_file, &nof);
-
-	/* if delims are not set, set the default one*/
-	if (strlen(nof.delim) == 0)
-		strcpy(nof.delim, ";");
-	if (strlen(nof.ipam_delim) == 0)
-		strcpy(nof.ipam_delim, ",");
-	/* if the default output format has not been set */
-	if (strlen(nof.output_fmt) < 2)
-		strcpy(nof.output_fmt, default_fmt);
-	if (strlen(nof.bgp_output_fmt) < 2)
-		strcpy(nof.bgp_output_fmt, bgp_default_fmt);
-	if (strlen(nof.scanf_output_fmt) < 2)
-		strcpy(nof.scanf_output_fmt, scanf_default_fmt);
 
 	res = generic_command_run(argc, argv, PROG_NAME, &nof);
 	fclose(nof.output_file);
