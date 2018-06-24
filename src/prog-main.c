@@ -1220,8 +1220,8 @@ static int option_fmt(int argc, char **argv, void *st_options)
 {
 	struct st_options *nof = st_options;
 
-	if (strlen(argv[1]) >= sizeof(nof->output_fmt)) {
-		fprintf(stderr, "cannot change FMT, '%s' is too long, max '%d' char\n",
+	if (strlen(argv[1]) >= sizeof(nof->output_fmt) - 1) {
+		fprintf(stderr, "cannot change FMT, '%s' is too long, max '%d' chars\n",
 			argv[1], (int)sizeof(nof->output_fmt));
 		return -1;
 	}
@@ -1295,7 +1295,7 @@ static void allow_core_dumps(void)
 int main(int argc, char **argv)
 {
 	struct st_options nof;
-	int res, res2;
+	int res;
 	char *s;
 	char conf_abs_path[256];
 
@@ -1319,16 +1319,13 @@ int main(int argc, char **argv)
 		s = getenv("HOME");
 		if (s == NULL)
 			s = ".";
+		if (strlen(s) + sizeof("/st.conf") >= sizeof(conf_abs_path) - 1) {
+			fprintf(stderr, "buffer overrun, len($HOME)=%d too big \n",
+					(int)strlen(s));
+			exit(2);
+		}
 		res = strxcpy(conf_abs_path, s, sizeof(conf_abs_path));
-		if (res >= sizeof(conf_abs_path)) {
-			fprintf(stderr, "buffer overrun, $HOME too big\n");
-			exit(2);
-		}
-		res2 = strxcpy(conf_abs_path + res, "/st.conf", sizeof("/st.conf"));
-		if (res2 >= sizeof(conf_abs_path) - res) {
-			fprintf(stderr, "buffer overrun, $HOME/st.conf too big\n");
-			exit(2);
-		}
+		strcpy(conf_abs_path + res, "/st.conf");
 
 		nof.config_file = conf_abs_path;
 		res = open_config_file(nof.config_file, &nof);
