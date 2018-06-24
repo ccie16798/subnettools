@@ -1322,13 +1322,12 @@ int main(int argc, char **argv)
 			s = ".";
 		res = strxcpy(conf_abs_path, s, sizeof(conf_abs_path));
 		if (res >= sizeof(conf_abs_path)) {
-			fprintf(stderr, "buffer overrun attempt, $HOME too big\n");
+			fprintf(stderr, "buffer overrun, $HOME too big\n");
 			exit(2);
 		}
-		res2 = strxcpy(conf_abs_path + res, "/st.conf",
-				sizeof(conf_abs_path) - res);
+		res2 = strxcpy(conf_abs_path + res, "/st.conf", sizeof("/st.conf"));
 		if (res2 >= sizeof(conf_abs_path) - res) {
-			fprintf(stderr, "buffer overrun attempt, $HOME/st.conf too big\n");
+			fprintf(stderr, "buffer overrun, $HOME/st.conf too big\n");
 			exit(2);
 		}
 
