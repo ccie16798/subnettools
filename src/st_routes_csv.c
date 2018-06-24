@@ -1,7 +1,7 @@
 /*
  * routines to load CSV files into memory
  *
- * Copyright (C) 2015, 2018 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ * Copyright (C) 2015-2018 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
@@ -22,11 +22,11 @@
 #include "bgp_tool.h"
 #include "st_routes_csv.h"
 
-#define SIZE_T_MAX ((size_t)0 - 1)
 int alloc_subnet_file(struct subnet_file *sf, unsigned long n)
 {
-	if (n > SIZE_T_MAX / sizeof(struct route)) { /* being paranoid */
-		fprintf(stderr, "error: too much memory requested for struct route\n");
+	if (n > SF_MAX_ROUTES_NUMBER) {
+		fprintf(stderr, "Error, subnet file max routes number is %lu\n",
+				SF_MAX_ROUTES_NUMBER);
 		return -1;
 	}
 	sf->routes = st_malloc(sizeof(struct route) * n, "subnet_file");
@@ -221,8 +221,9 @@ static int netcsv_endofline_callback(struct csv_state *state, void *data)
 	}
 	sf->nr++;
 	if  (sf->nr == sf->max_nr) {
-		if (sf->max_nr * 2 > SIZE_T_MAX / sizeof(struct route)) {
-			fprintf(stderr, "error: too much memory requested for struct route\n");
+		if (sf->max_nr * 2 > SF_MAX_ROUTES_NUMBER) {
+			fprintf(stderr, "Error, subnet file max routes number is %lu\n",
+					SF_MAX_ROUTES_NUMBER);
 			return CSV_CATASTROPHIC_FAILURE;
 		}
 		new_r = st_realloc(sf->routes, sizeof(struct route) * 2 * sf->max_nr,
@@ -395,8 +396,9 @@ int load_ipam_no_EA(char  *name, struct subnet_file *sf, struct st_options *nof)
 
 int alloc_bgp_file(struct bgp_file *sf, unsigned long n)
 {
-	if (n > SIZE_T_MAX / sizeof(struct bgp_route)) { /* being paranoid */
-		fprintf(stderr, "error: too much memory requested for struct route\n");
+	if (n > SF_BGP_MAX_ROUTES_NUMBER) {
+		fprintf(stderr, "Error, bgp file max routes number is %lu\n",
+				SF_BGP_MAX_ROUTES_NUMBER);
 		return -1;
 	}
 	sf->routes = st_malloc(sizeof(struct bgp_route) * n, "bgp_file");
@@ -589,8 +591,9 @@ static int bgpcsv_endofline_callback(struct csv_state *state, void *data)
 	}
 	sf->nr++;
 	if  (sf->nr == sf->max_nr) {
-		if (sf->max_nr * 2 > SIZE_T_MAX / sizeof(struct bgp_route)) {
-			fprintf(stderr, "error: too much memory requested for struct route\n");
+		if (sf->max_nr * 2 > SF_BGP_MAX_ROUTES_NUMBER) {
+			fprintf(stderr, "Error, bgp file max routes number is %lu\n",
+					SF_BGP_MAX_ROUTES_NUMBER);
 			return CSV_CATASTROPHIC_FAILURE;
 		}
 		new_r = st_realloc(sf->routes, sizeof(struct bgp_route) * sf->max_nr * 2,
