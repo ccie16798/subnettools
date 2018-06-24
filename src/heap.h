@@ -1,6 +1,9 @@
 #ifndef HEAP_H
 #define HEAP_H
 
+/* max heap NR will be really large on 64 bits */
+#define HEAP_MAX_NR (((unsigned long )0 - 1) / (2 * sizeof(void *)))
+
 struct tas {
 	void **tab;
 	unsigned long nr; /* nr of elements in the HEAP */
