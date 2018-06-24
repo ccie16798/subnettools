@@ -81,6 +81,15 @@ struct file_options fileoptions[] = {
 	{NULL,                  0, 0}
 };
 
+static struct st_options nof = {
+	.ip_compress_mode = 3,
+	.print_header	= 1,
+	.ipam_ea 	= "comment",
+	.output_fmt 	= "%I;%m;%D;%G;%O#",
+	.bgp_output_fmt	= "%v;%5T;%4B;%16P;%16G;%10M;%10L;%10w;%6o;%A",
+	.ipam_output_fmt= "%P;%O#",
+	.scanf_output_fmt= "%O0 %O1 %O2 %O3 %O4 %O5 %O6 %O7\n"
+};
 
 static int run_compare(int argc, char **argv, void *st_options);
 static int run_subnetcmp(int argc, char **argv, void *st_options);
@@ -1294,17 +1303,12 @@ static void allow_core_dumps(void)
 
 int main(int argc, char **argv)
 {
-	struct st_options nof;
 	int res;
 	char *s;
 	char conf_abs_path[256];
 
-	memset(&nof, 0, sizeof(nof));
 	nof.output_file      = stdout;
 	/* full IPv6 address compression  with IPv4 mapped/compatible support*/
-	nof.ip_compress_mode = 3;
-	nof.print_header     = 1;
-	strcpy(nof.ipam_ea, "comment");
 	allow_core_dumps();
 	res = generic_parse_options(argc, argv, PROG_NAME, &nof);
 	if (res < 0)
