@@ -1,7 +1,7 @@
 /*
  * subnet tools MAIN
  *
- * Copyright (C) 2014, 2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ * Copyright (C) 2014-2018 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
@@ -36,15 +36,6 @@
 
 /* max number of objects collectable inf fscanf, and scanf */
 #define SCANF_MAX_OBJECTS 40
-const char *default_fmt       = "%I;%m;%D;%G;%O#";
-const char *bgp_default_fmt   = "%v;%5T;%4B;%16P;%16G;%10M;%10L;%10w;%6o;%A";
-const char *ipam_default_fmt  = "%I;%m";
-/*
- * scanf default format; it prints 9 arguments, separated with spaces
- * please run 'scanf' with -fmt "%O0, %O1 etc..." option to choose appropriate
- * output format
- */
-const char *scanf_default_fmt = "%O0 %O1 %O2 %O3 %O4 %O5 %O6 %O7\n";
 
 /* struct file_options and MACROs ffrom config_file.[ch] */
 struct file_options fileoptions[] = {
@@ -87,9 +78,14 @@ static struct st_options nof = {
 	.delim		= ";",
 	.ipam_delim	= ",",
 	.ipam_ea 	= "comment",
-	.output_fmt 	= "%I;%m;%D;%G;%O#",
+	.output_fmt 	= DEFAULT_FMT,
 	.bgp_output_fmt	= "%v;%5T;%4B;%16P;%16G;%10M;%10L;%10w;%6o;%A",
 	.ipam_output_fmt= "%P;%O#",
+/*
+ * scanf default format; it prints 9 arguments, separated with spaces
+ * please run 'scanf' with -fmt "%O0, %O1 etc..." option to choose appropriate
+ * output format
+ */
 	.scanf_output_fmt= "%O0 %O1 %O2 %O3 %O4 %O5 %O6 %O7\n"
 };
 
