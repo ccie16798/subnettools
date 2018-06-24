@@ -4,6 +4,8 @@
 #include "st_options.h"
 #include "st_routes_csv.h"
 
+#define SF_BGP_MAX_ROUTES_NUMBER (((unsigned long)0 - 1) / (2 * sizeof(struct bgp_route)))
+
 struct bgp_route {
 	struct subnet subnet;
 	struct ip_addr gw;
