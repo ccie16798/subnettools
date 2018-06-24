@@ -75,7 +75,7 @@ sprint_unsigned(long)
 		i += 2; \
 	} while (0)
 
-	/* this block computes field field between '%' and conversion specifier */
+	/* this block computes field width between '%' and conversion specifier */
 #define BLOCK_FIELD_WIDTH \
 	do { \
 		i2 = i + 1; \
@@ -144,16 +144,16 @@ static inline void pad_n(char *s, int n, char c)
  * Don't copy more than 'len - 1' chars into out to preserve one byte for NULL
  * pad_buffer_out don't add a NUL char
  * @out        : outpuf buffer
- * @len        : out length
+ * @len        : output buffer length
  * @buffer     : buffer containing string to print
  * @buff_size  : strlen(buffer)
- * @field_witdh: the requested size of output string
+ * @field_width: the minimum requested size of output string
  * @pad_left   : requires padding on left size
  * @c	       : the padding char
  * returns the number of copied chars
  */
-static inline int pad_buffer_out(char *out, size_t len, const char *buffer, size_t buff_size,
-		size_t field_width, int pad_left, char c)
+static inline int pad_buffer_out(char *out, size_t len, const char *buffer,
+		size_t buff_size, size_t field_width, int pad_left, char c)
 {
 	int res;
 
@@ -193,9 +193,10 @@ static inline int pad_buffer_out(char *out, size_t len, const char *buffer, size
  * @buffer_len : the output buffer length
  * @fmt        : format buffer
  * @i          : index of the format buffer
- * @field_width: min length printed
- * @pad_left   : how to pad
- * @ea, @ea_nr : pointer to Extended Attributes and number
+ * @field_width: the minimum requested size of output string
+ * @pad_left   : if 1, pad left, if 0 pad right
+ * @ea         : pointer to Extended Attributes
+ * @ea_nr      : number of Extended Attributes
  * @header     : do we want to print EA or EA names
  * returns :
  *	number of printed chars in outbuf
