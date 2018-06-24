@@ -1,7 +1,7 @@
 /*
  * IPv4, IPv6 subnet/routes printing functions
  *
- * Copyright (C) 2014, 2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ * Copyright (C) 2014-2018 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
@@ -604,15 +604,6 @@ int fprint_ipam_fmt(FILE *output, const struct ipam_line *r, const char *fmt)
 
 int fprint_ipam_header(FILE *output, const struct ipam_line *r, const char *fmt)
 {
-	int i, a = 0;
-
-	if (strlen(fmt) < 2) {
-		a += fprintf(output, "prefix;");
-		for (i = 0; i < r->ea_nr; i++)
-			a += fprintf(output, "%s;", r->ea[i].name);
-		a += fprintf(output, "\n");
-		return a;
-	}
 	return __fprint_ipam_fmt(output, r, fmt, 1);
 }
 
@@ -1160,25 +1151,10 @@ void print_bgp_file_fmt(const struct bgp_file *sf, const char *fmt)
 	fprint_bgp_file_fmt(stdout, sf, fmt);
 }
 
-static void fprint_ipam_file(FILE *out, const struct ipam_file *sf)
-{
-	unsigned long i, j;
-
-	for (i = 0; i < sf->nr; i++) {
-		st_fprintf(out, "%P;", sf->lines[i].subnet);
-		for (j = 0; j < sf->ea_nr; j++)
-			fprintf(out, "%s;", sf->lines[i].ea[j].value);
-		fprintf(out, "\n");
-	}
-}
-
 void fprint_ipam_file_fmt(FILE *output, const struct ipam_file *sf, const char *fmt)
 {
 	unsigned long i;
 
-	/* if user didnt provide a fmt, just use the simple fprint_ipam_file */
-	if (strlen(fmt) < 2)
-		return fprint_ipam_file(output, sf);
 	for (i = 0; i < sf->nr; i++)
 		fprint_ipam_fmt(output, &sf->lines[i], fmt);
 }
