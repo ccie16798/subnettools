@@ -4,6 +4,8 @@
 #include "st_options.h"
 #include "st_routes.h"
 
+#define SF_MAX_ROUTES_NUMBER (((unsigned long)0 - 1) / (2 * sizeof(struct route)))
+
 struct subnet_file {
 	struct route *routes;
 	unsigned long nr;
