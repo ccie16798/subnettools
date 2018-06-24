@@ -1,7 +1,7 @@
 /*
- * IPv4, IPv6 subnet/routes scanf equivalent with PATTERN matching
+ * IPv4, IPv6 subnet/routes scanf equivalent with pattern matching
  *
- * Copyright (C) 2014, 2018 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ * Copyright (C) 2014-2018 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
@@ -19,7 +19,7 @@
 #include "st_object.h"
 
 #define ST_STRING_INFINITY 1000000000  /* Subnet tool definition of infinity */
-#define MAX_COLLECTED_OBJECTS 10 /* max number of object collected in an expression */
+#define MAX_COLLECTED_OBJECTS 10 /* max number of objects collected in an expression */
 
 /* st_scanf.c can be compiled for case insensitive pattern matching */
 #ifdef CASE_INSENSITIVE
@@ -124,6 +124,10 @@ static int parse_brace_quantifier(const char *s, int *min, int *max)
 				debug(SCANF, 1, "Invalid range, min:%d > max:%d\n", *min, *max);
 				return -1;
 			}
+			if (*max == 0) {
+				debug(SCANF, 1, "Invalid range '%s' cannot match zero times\n", s);
+				return -1;
+			}
 			return i;
 		} else if (s[i] == '\0') {
 			debug(SCANF, 1, "Invalid range '%s', no closing '}'\n", s);
@@ -132,6 +136,10 @@ static int parse_brace_quantifier(const char *s, int *min, int *max)
 		debug(SCANF, 1, "Invalid range '%s' contains invalid char '%c'\n", s, s[i]);
 		return -1;
 	} else if (s[i] == '}') {
+		if (*min == 0) {
+			debug(SCANF, 1, "Invalid range '%s' cannot match zero times\n", s);
+			return -1;
+		}
 		*max = *min;
 		return i;
 	}
