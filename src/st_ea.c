@@ -64,6 +64,12 @@ struct ipam_ea *alloc_ea_array(int n)
 		fprintf(stderr, "BUG, %s called with %d size\n", __func__, n);
 		return NULL;
 	}
+	if (n >= MAX_EA_NUMBER) {
+		fprintf(stderr, "BUG, %s tries to allocate %d EAs but MAX_EA_NUMBER is %d\n",
+				__func__, n, MAX_EA_NUMBER);
+		return NULL;
+	}
+
 	ea = st_malloc_nodebug(n * sizeof(struct ipam_ea), "ipam_ea");
 	if (ea == NULL)
 		return NULL;
@@ -76,13 +82,19 @@ struct ipam_ea *alloc_ea_array(int n)
 	return ea;
 }
 
-struct ipam_ea *realloc_ea_array(struct ipam_ea *ea, int old_n, int new_n)
+struct ipam_ea *realloc_ea_array(struct ipam_ea *ea,
+		int old_n, int new_n)
 {
 	int j;
 	struct ipam_ea *new_ea;
 
 	if (new_n <= old_n) {
 		fprintf(stderr, "BUG, %s called new size < old_size\n", __func__);
+		return NULL;
+	}
+	if (new_n >= MAX_EA_NUMBER) {
+		fprintf(stderr, "BUG, %s tries to allocate %d EAs but MAX_EA_NUMBER is %d\n",
+				__func__, new_n, MAX_EA_NUMBER);
 		return NULL;
 	}
 	new_ea = st_realloc_nodebug(ea, new_n * sizeof(struct ipam_ea),

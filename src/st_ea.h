@@ -3,6 +3,11 @@
 
 #include "st_memory.h"
 
+/* max number of EA attached to a route
+ * current value seems reasonable
+ */
+#define MAX_EA_NUMBER 8096
+
 struct  ipam_ea {
 	char *name;
 	char *value; /* value of EA; MUST be malloc'ed*/
