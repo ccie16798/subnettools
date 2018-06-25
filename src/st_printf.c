@@ -22,10 +22,6 @@
 #include "ipam.h"
 #include "st_printf.h"
 
-#define ST_VSPRINTF_BUFFER_SIZE   2048
-#define ST_PRINTF_MAX_STRING_SIZE 256
-
-
 sprint_signed(short)
 sprint_signed(int)
 sprint_signed(long)

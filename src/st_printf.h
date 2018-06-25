@@ -4,6 +4,10 @@
 #include "ipam.h"
 #include "st_routes_csv.h"
 
+
+#define ST_VSPRINTF_BUFFER_SIZE   2048
+#define ST_PRINTF_MAX_STRING_SIZE 256
+
 /* simple and dummy print a route */
 void fprint_route(FILE *output, const struct route *r, int compress_level);
 /*
