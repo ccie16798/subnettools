@@ -10,6 +10,7 @@ prefix;EA-Site;
 -- scanf, fscanf can use user-defined format taken from '-fmt' options
 -- ./subnet-tools -fmt "%O0;%O1\n" scanf "1.1.1.1        y" "%I *%c"
 1.1.1.1;y
+-- new command 'limits' to print subnettools known limits
 
 
 - Internal changes
