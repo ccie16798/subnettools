@@ -19,7 +19,6 @@
 #include "st_object.h"
 
 #define ST_STRING_INFINITY 1000000000  /* Subnet tool definition of infinity */
-#define MAX_COLLECTED_OBJECTS 10 /* max number of objects collected in an expression */
 
 /* st_scanf.c can be compiled for case insensitive pattern matching */
 #ifdef CASE_INSENSITIVE

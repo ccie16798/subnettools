@@ -4,6 +4,8 @@
 
 /* max number of objects collected by sto_vscanf */
 #define ST_VSCANF_MAX_OBJECTS  40
+/* max number of objects collected in an expression */
+#define MAX_COLLECTED_OBJECTS 10
 
 int st_fscanf(FILE *f, const char *fmt, ...);
 int st_sscanf(const char *in, const char *fmt, ...);
