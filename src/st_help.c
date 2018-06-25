@@ -102,7 +102,8 @@ void usage_en_debug(void)
 	printf("scanf [STRING] [FMT] : scan STRING according to scanf-like format FMT\n");
 	printf("fscanf [FILE] [FMT]  : scan FILE according to scanf-like format FMT\n");
 	printf("confdesc             : print a small explanation of %s configuration file\n", PROG_NAME);
-	printf("help                 : This HELP\n");
+	printf("help                 : this help\n");
+	printf("limits               : print all limits known by %s\n", PROG_NAME);
 	printf("version              : %s version\n", PROG_NAME);
 }
 
