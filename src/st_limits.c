@@ -10,6 +10,7 @@
 #include "subnet_tool.h"
 #include "bgp_tool.h"
 #include "ipam.h"
+#include "config_file.h"
 
 #define STRINGIFY(x) #x, x
 struct st_limits {
@@ -37,6 +38,8 @@ const struct st_limits st_limits[] = {
 	{ STRINGIFY(MAX_COLLECTED_OBJECTS),	"Max number of objects that can be collected inside one expression '(EXPR)' of st_scanf" },
 	{ STRINGIFY(ST_PRINTF_MAX_STRING_SIZE),	"Max length of a string printed by st_printf(\"%s\");" },
 	{ STRINGIFY(ST_VSPRINTF_BUFFER_SIZE),	"Max length of the output buffer of st_printf" },
+	{ STRINGIFY(CONFFILE_MAX_LEN),		"Max number of line in a config file" },
+	{ STRINGIFY(CONFFILE_MAX_LINE_LEN),	"Max line length in a config file" },
 	 
 	{ NULL, 0 }
 };
