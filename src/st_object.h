@@ -17,7 +17,7 @@ struct sto {
 		unsigned int	s_uint;
 		long		s_long;
 		unsigned long	s_ulong;
-		char		s_char[ST_OBJECT_MAX_STRING_LEN];
+		char		s_char[ST_OBJECT_MAX_STRING_LEN + 1]; /* +1 for NUL */
 	};
 };
 
