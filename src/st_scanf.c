@@ -376,7 +376,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 	int n_found = 0; /* number of CS found */
 	int i2, res;
 	int max_field_length;
-	char buffer[ST_OBJECT_MAX_STRING_LEN];
+	char buffer[ST_OBJECT_MAX_STRING_LEN + 1]; /* +1 for NUL */
 	char *ptr_buff;
 	char c;
 	struct subnet *v_sub;
