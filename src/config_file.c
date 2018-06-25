@@ -17,7 +17,7 @@
 int open_config_file(char *name, void *nof)
 {
 	FILE *f;
-	char buffer[1024];
+	char buffer[CONFFILE_MAX_LINE_LEN];
 	char *s;
 	unsigned long line = 0;
 	int i, found, res;
@@ -34,6 +34,11 @@ int open_config_file(char *name, void *nof)
 
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &i))) {
 		line++;
+		if (line >= CONFFILE_MAX_LEN) {
+			fprintf(stderr, "%s has too many lines, max: %d\n", name, CONFFILE_MAX_LEN);
+			fclose(f);
+			return 0;
+		}
 		if (i) {
 			debug(CONFIGFILE, 1, "%s line %lu is longer than max size %d\n",
 					name, line, (int)sizeof(buffer));
