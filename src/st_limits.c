@@ -41,14 +41,14 @@ const struct st_limits st_limits[] = {
 	{ NULL, 0 }
 };
 
-void print_stlimits()
+void print_stlimits(FILE *f)
 {
 	int i;
 
 	for (i = 0; ; i++) {
 		if (st_limits[i].s == NULL)
 			break;
-		printf("%-25s: %-15lu, %s\n", st_limits[i].s,  st_limits[i].value, 
+		fprintf(f, "%-25s: %-15lu, %s\n", st_limits[i].s,  st_limits[i].value, 
 			st_limits[i].comment);
 	}
 }
