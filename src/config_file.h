@@ -4,6 +4,9 @@
 #define TYPE_STRING     1
 #define TYPE_INT        2
 
+#define CONFFILE_MAX_LINE_LEN	1024
+#define CONFFILE_MAX_LEN	1024
+
 struct file_options {
 	char *name;
 	int type; /* int or string */
