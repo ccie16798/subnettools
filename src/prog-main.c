@@ -33,6 +33,7 @@
 #include "st_memory.h"
 #include "st_help.h"
 #include "prog-main.h"
+#include "st_limits.h"
 
 /* max number of objects collectable inf fscanf, and scanf */
 #define SCANF_MAX_OBJECTS 40
@@ -116,6 +117,7 @@ static int run_remove_file(int argc, char **argv, void *st_options);
 static int run_split(int argc, char **argv, void *st_options);
 static int run_split_2(int argc, char **argv, void *st_options);
 static int run_help(int argc, char **argv, void *st_options);
+static int run_stlimits(int argc, char **argv, void *st_options);
 static int run_version(int argc, char **argv, void *st_options);
 static int run_confdesc(int argc, char **argv, void *st_options);
 static int run_relation(int argc, char **argv, void *st_options);
@@ -181,6 +183,7 @@ struct st_command commands[] = {
 	{ "scanf",		&run_scanf,	2},
 	{ "fscanf",		&run_fscanf,	2},
 	{ "help",		&run_help,	0},
+	{ "limits",		&run_stlimits,	0},
 	{ "version",		&run_version,	0},
 	{ "confdesc",		&run_confdesc,	0},
 	/* 'hidden' debug functions */
@@ -1018,6 +1021,14 @@ static int run_help(int argc, char **argv, void *st_options)
 	struct st_options *o = st_options;
 
 	usage(argc, argv, o);
+	return 0;
+}
+
+static int run_stlimits(int argc, char **argv, void *st_options)
+{
+	struct st_options *o = st_options;
+
+	print_stlimits(o->output_file);
 	return 0;
 }
 
