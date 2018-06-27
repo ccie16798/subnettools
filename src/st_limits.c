@@ -28,6 +28,7 @@ struct st_limits {
 	char *comment;
 };
 
+/* very naive, could use a generic algorithm */
 static void naive_sprint_large(char *buffer, unsigned long n)
 {
 	if ((sizeof(unsigned long) > 4) && (n > 1000000000000UL))
