@@ -1,3 +1,12 @@
+/*
+ * function to print compile-time limits of subnet-tools
+ *
+ * Copyright (C) 2018 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of version 2 of the GNU General Public License
+ * as published by the Free Software Foundation.
+ */
 #include <stdio.h>
 #include "iptools.h"
 #include "heap.h"
@@ -19,11 +28,23 @@ struct st_limits {
 	char *comment;
 };
 
+static void naive_sprint_large(char *buffer, unsigned long n)
+{
+	if ((sizeof(unsigned long) > 4) && (n > 1000000000000UL))
+		sprintf(buffer, "%lu*10^12", n / 1000000000000UL);
+	else if (n > 1000000000UL)
+		sprintf(buffer, "%lu*10^9", n / 1000000000UL);
+	else if (n > 1000000UL)
+		sprintf(buffer, "%lu*10^6", n / 1000000UL);
+	else
+		sprintf(buffer, "%lu", n);
+}
+
 const struct st_limits st_limits[] = {
-	{ STRINGIFY(MAX_DELIM), 		"Max number of delims used by '-d' option" },
+	{ STRINGIFY(MAX_DELIM),			"Max number of delims used by '-d' option" },
 	{ STRINGIFY(FMT_LEN),			"Max size of fmt string, used by option or from config file" },
 	{ STRINGIFY(CSV_MAX_FIELD_LENGTH),	"Max length of a CSV header field name" },
-	{ STRINGIFY(CSV_MAX_LINE_LEN), 		"Max length of a line a CSV; long lines will be truncated" },
+	{ STRINGIFY(CSV_MAX_LINE_LEN),		"Max length of a line a CSV; long lines will be truncated" },
 	{ STRINGIFY(CSV_MAX_LINE_NUMBER),	"Max number of lines in a CSV" },
 	{ STRINGIFY(MAX_COLLECTED_EA),		"Max size of the option string telling which EA to collect" },
 	{ STRINGIFY(FSCANF_LINE_LENGTH),	"Size of fscanf internal buffer" },
@@ -40,18 +61,19 @@ const struct st_limits st_limits[] = {
 	{ STRINGIFY(ST_VSPRINTF_BUFFER_SIZE),	"Max length of the output buffer of st_printf" },
 	{ STRINGIFY(CONFFILE_MAX_LEN),		"Max number of line in a config file" },
 	{ STRINGIFY(CONFFILE_MAX_LINE_LEN),	"Max line length in a config file" },
-	 
 	{ NULL, 0 }
 };
 
 void print_stlimits(FILE *f)
 {
 	int i;
+	char feurbu[72];
 
 	for (i = 0; ; i++) {
 		if (st_limits[i].s == NULL)
 			break;
-		fprintf(f, "%-25s: %-15lu, %s\n", st_limits[i].s,  st_limits[i].value, 
+		naive_sprint_large(feurbu, st_limits[i].value);
+		fprintf(f, "%-25s: %-15s, %s\n", st_limits[i].s, feurbu,
 			st_limits[i].comment);
 	}
 }
