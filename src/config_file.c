@@ -35,7 +35,8 @@ int open_config_file(char *name, void *nof)
 	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &i))) {
 		line++;
 		if (line >= CONFFILE_MAX_LEN) {
-			fprintf(stderr, "%s has too many lines, max: %d\n", name, CONFFILE_MAX_LEN);
+			fprintf(stderr, "%s has too many lines, max: %d\n",
+					name, CONFFILE_MAX_LEN);
 			fclose(f);
 			return 0;
 		}
