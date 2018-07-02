@@ -181,8 +181,8 @@ struct stat_bucket *increase_key_stat(struct hash_table *ht, char *key, int key_
 	sb = new_stat_bucket(key, key_len);
 	if (sb == NULL)
 		return NULL;
-	list_add(&sb->list, &ht->tab[h]);
 	ht->collisions++;
+	list_add(&sb->list, &ht->tab[h]);
 	ht->nr++;
 	return sb;
 }
@@ -220,6 +220,7 @@ void sort_stat_table(struct hash_table *ht, st_list *head)
 	list_sort(head, &stat_bucket_cmp);
 }
 
+#ifdef TEST_HASH
 int main(int argc, char **argv)
 {
 	struct hash_table ht;
@@ -247,3 +248,4 @@ int main(int argc, char **argv)
 	list_for_each_entry(sb, &head, list)
 		printf("KEY: %s count:%lu\n", (char *)sb->key, sb->count);
 }
+#endif
