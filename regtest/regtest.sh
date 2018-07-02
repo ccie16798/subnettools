@@ -276,6 +276,8 @@ reg_test removesubnet file route_aggipv4 10.1.4.0/32
 reg_test split 2001:db8:1::/48 16,16,16
 reg_test split 2001:db8:1::/48 16
 reg_test split 10.2.0.0/16 256,4
+reg_test split2 10.2.0.0/16 24,28
+reg_test split2 10.2.0.0/16 24,26,28
 
 # logic test
 reg_test_logic
