@@ -278,6 +278,8 @@ reg_test split 2001:db8:1::/48 16
 reg_test split 10.2.0.0/16 256,4
 reg_test split2 10.2.0.0/16 24,28
 reg_test split2 10.2.0.0/16 24,26,28
+reg_test split2 2001:0001::/32 34,35
+
 
 # logic test
 reg_test_logic
