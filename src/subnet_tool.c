@@ -342,8 +342,8 @@ void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *
 int network_grep_file(char *name, struct st_options *nof, char *ip)
 {
 	char *s;
-	char buffer[1024];
-	char save_buffer[1024];
+	char buffer[CSV_MAX_LINE_LEN];
+	char save_buffer[CSV_MAX_LINE_LEN];
 	FILE *f;
 	struct subnet subnet, subnet1;
 	int i, res, find_ip, do_compare, reevaluate;
