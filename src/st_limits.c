@@ -28,17 +28,19 @@ struct st_limits {
 	char *comment;
 };
 
-/* very naive, could use a generic algorithm */
-static void naive_sprint_large(char *buffer, unsigned long n)
+static void sprint_unsignedlong(char *buffer, unsigned long n)
 {
-	if ((sizeof(unsigned long) > 4) && (n > 1000000000000UL))
-		sprintf(buffer, "%lu*10^12", n / 1000000000000UL);
-	else if (n > 1000000000UL)
-		sprintf(buffer, "%lu*10^9", n / 1000000000UL);
-	else if (n > 1000000UL)
-		sprintf(buffer, "%lu*10^6", n / 1000000UL);
-	else
+	unsigned long a = n;
+	unsigned int exposant = 0;
+
+	while (a > 1000) {
+		a /= 1000;
+		exposant += 3;
+	}
+	if (exposant <= 3)
 		sprintf(buffer, "%lu", n);
+	else
+		sprintf(buffer, "%lu*10^%d", a, exposant);
 }
 
 const struct st_limits st_limits[] = {
@@ -73,7 +75,7 @@ void print_stlimits(FILE *f)
 	for (i = 0; ; i++) {
 		if (st_limits[i].s == NULL)
 			break;
-		naive_sprint_large(feurbu, st_limits[i].value);
+		sprint_unsignedlong(feurbu, st_limits[i].value);
 		fprintf(f, "%-25s: %-15s, %s\n", st_limits[i].s, feurbu,
 			st_limits[i].comment);
 	}
