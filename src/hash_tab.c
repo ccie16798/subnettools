@@ -62,6 +62,12 @@ int alloc_hash_tab(struct hash_table *ht, unsigned long nr, unsigned (*hash)(voi
 	if (nr == 0)
 		return -2;
 	new_nr = nextPow2_32(nr);
+	if (new_nr >  SF_HASHTAB_MAX_SIZE) {
+		fprintf(stderr, "Error, hash tab max size is %lu\n",
+				SF_HASHTAB_MAX_SIZE);
+		return -1;
+	}
+
 	ht->tab = st_malloc(new_nr * sizeof(struct st_list), "hash table");
 	if (ht->tab == NULL)
 		return -1;
