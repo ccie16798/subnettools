@@ -363,9 +363,20 @@ int network_grep_file(char *name, struct st_options *nof, char *ip)
 		return -3;
 	}
 	debug_timing_start(2);
-	while ((s = fgets(buffer, sizeof(buffer), f))) {
+	while ((s = fgets_truncate_buffer(buffer, sizeof(buffer), f, &i))) {
 		line++;
 		debug(GREP, 9, "grepping line %lu : %s\n", line, s);
+		if (i) {
+			debug(GREP, 1, "%s line %lu is longer than max size %d\n",
+					name, line, (int)sizeof(buffer));
+		}
+		if (line >= CSV_MAX_LINE_NUMBER) {
+			debug(GREP, 1, "File %s has too many lines, MAX=%lu\n",
+					name, CSV_MAX_LINE_NUMBER);
+			fclose(f);
+			debug_timing_end(2);
+			return -1;
+		}
 		strcpy(save_buffer, buffer);
 		s = strtok(s, nof->delim);
 		if (s == NULL)
@@ -442,17 +453,17 @@ int network_grep_file(char *name, struct st_options *nof, char *ip)
 			if (do_compare == 1) {
 				switch (subnet_compare(&subnet,  &subnet1)) {
 				case EQUALS:
-					fprintf(nof->output_file, "%s", save_buffer);
+					fprintf(nof->output_file, "%s\n", save_buffer);
 					debug(GREP, 5, "field %s line %lu equals\n",  s, line);
 					do_compare = 2;
 					break;
 				case INCLUDES:
-					fprintf(nof->output_file, "%s", save_buffer);
+					fprintf(nof->output_file, "%s\n", save_buffer);
 					debug(GREP, 5, "field %s line %lu includes\n",  s, line);
 					do_compare = 2;
 					break;
 				case INCLUDED:
-					fprintf(nof->output_file, "%s", save_buffer);
+					fprintf(nof->output_file, "%s\n", save_buffer);
 					debug(GREP, 5, "field %s line %lu included\n",  s, line);
 					do_compare = 2;
 					break;
