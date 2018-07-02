@@ -213,7 +213,6 @@ int stat_bucket_cmp(st_list *l1, st_list *l2)
 void sort_stat_table(struct hash_table *ht, st_list *head)
 {
 	unsigned i;
-	struct stat_bucket *sb;
 
 	for (i = 0; i < ht->max_nr; i++)
 		list_join(&ht->tab[i], head);
