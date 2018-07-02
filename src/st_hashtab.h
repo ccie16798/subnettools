@@ -3,7 +3,7 @@
 
 #include "st_list.h"
 
-#define ST_HASHTAB_MAX_SIZE (((unsigned long)0 - 1) / (2 * sizeof(struct st_list)))
+#define ST_HASHTAB_MAX_SIZE (((unsigned long)0 - 1) / (16 * sizeof(struct st_list)))
 
 
 struct st_bucket {

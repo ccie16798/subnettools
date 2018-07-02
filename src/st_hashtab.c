@@ -62,7 +62,7 @@ int alloc_hash_tab(struct hash_table *ht, unsigned long nr, unsigned (*hash)(voi
 	if (nr == 0)
 		return -2;
 	new_nr = nextPow2_32(nr);
-	if (new_nr >  ST_HASHTAB_MAX_SIZE) {
+	if (new_nr > ST_HASHTAB_MAX_SIZE) {
 		fprintf(stderr, "Error, hash tab max size is %lu\n",
 				ST_HASHTAB_MAX_SIZE);
 		return -1;
