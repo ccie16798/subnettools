@@ -19,7 +19,7 @@
 unsigned djb_hash(void *key, int len)
 {
 	unsigned char *s = key;
-	unsigned h;
+	unsigned int h;
 	int i;
 
 	h = *s;
@@ -31,7 +31,7 @@ unsigned djb_hash(void *key, int len)
 unsigned djb_hash_original(void *key, int len)
 {
 	unsigned char *s = key;
-	unsigned h = 0;
+	unsigned int h = 0;
 	int i;
 
 	for (i = 0; i < len; i++)
@@ -45,7 +45,7 @@ unsigned djb_hash_original(void *key, int len)
 
 unsigned fnv_hash(void *key, int len)
 {
-	unsigned h = FNV_Offset;
+	unsigned int h = FNV_Offset;
 	unsigned char *s = key;
 	int i = 0;
 

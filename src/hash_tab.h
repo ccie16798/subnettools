@@ -19,10 +19,10 @@ struct stat_bucket {
 
 
 struct hash_table {
-	unsigned max_nr; /* power of two */
-	unsigned table_mask; /* table_size - 1, used to do MODULUS */
+	unsigned int max_nr; /* power of two */
+	unsigned int table_mask; /* table_size - 1, used to do MODULUS */
 	int collisions;
-	unsigned nr;
+	unsigned int nr;
 	st_list *tab;
 	unsigned (*hash_fn)(void *, int);
 };
