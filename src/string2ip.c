@@ -759,7 +759,7 @@ loop2:
 			return BAD_IP;
 next_block:
 		if (out_i + out_i2 >= 6) {
-			debug(PARSEIPV6, 3, "Invalid IPv6 '%s',too many blocks\n", p);
+			debug(PARSEIPV6, 3, "Invalid IPv6 '%s', too many blocks\n", p);
 			return BAD_IP;
 		}
 		block_right[out_i2] = current_block;
@@ -854,7 +854,7 @@ int string2addr(const char *s, struct ip_addr *addr, size_t len)
  *    IPV4_A : IPv4 without mask
  *    IPV4_N : IPv4 + mask
  *    IPV6_A : IPv6 without mask
- *    IPV6_N : IPv6 +  mask
+ *    IPV6_N : IPv6 + mask
  *    BAD_IP, BAD_MASK on error
  */
 int get_subnet_or_ip(const char *s, struct subnet *subnet)
