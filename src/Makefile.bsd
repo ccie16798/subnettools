@@ -25,3 +25,6 @@ test-printf: test-printf.o debug.o utils.o st_printf.o iptools.o bitmap.o st_obj
 
 test : generic_csv.o debug.o utils.o
 	$(CC) -o $@ $^ $(CFLAGS) -DGENERICCSV_TEST
+
+test-hash: hash_tab.c debug.c st_memory.c st_list.c utils.c
+	$(CC) -o $@ $^ $(CFLAGS) -DTEST_HASH
