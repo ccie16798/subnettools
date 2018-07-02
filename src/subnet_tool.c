@@ -29,7 +29,8 @@
  * compare 2 CSV files sf1 and sf1
  * prints sf1 subnets, and subnet from sf2 that are equals or included
  */
-void compare_files(struct subnet_file *sf1, struct subnet_file *sf2, struct st_options *nof)
+void compare_files(struct subnet_file *sf1, struct subnet_file *sf2,
+		struct st_options *nof)
 {
 	unsigned long i, j, found_j;
 	int res;
@@ -357,7 +358,7 @@ int network_grep_file(char *name, struct st_options *nof, char *ip)
 	}
 	res = get_subnet_or_ip(ip, &subnet1);
 	if (res < 0) {
-		fprintf(stderr, "WTF? \"%s\"  IS  a prefix/mask ?? really?\n", ip);
+		fprintf(stderr, "'%s' is not a prefix/mask\n", ip);
 		fclose(f);
 		return -3;
 	}
