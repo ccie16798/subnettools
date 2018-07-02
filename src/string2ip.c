@@ -790,7 +790,11 @@ try_ipv4_loop2:
 	return IPV6_A;
 
 end_ipv6:
-	/* setting '0' on all skipped blocks */
+	/* setting '0' on all skipped block
+	 * out_i  == number of left blocks
+	 * out_i2 == number of right blocks
+	 * in case of address compression, some block must be zero'ed
+	 */
 	for (j = out_i; j < 7 - out_i2; j++)
 		set_block(addr->ip6, j, 0);
 	for (k = 0 ; k < out_i2; k++, j++)
