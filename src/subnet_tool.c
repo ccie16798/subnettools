@@ -339,7 +339,7 @@ void print_file_against_paip(struct subnet_file *sf1, const struct subnet_file *
 	debug_timing_end(2);
 }
 
-int network_grep_file(char *name, struct st_options *nof, char *ip)
+int network_grep_file(const char *name, struct st_options *nof, const char *ip)
 {
 	char *s;
 	char buffer[CSV_MAX_LINE_LEN];
@@ -622,7 +622,7 @@ int route_file_simplify(struct subnet_file *sf,  int mode)
 }
 
 /*
- * mode == 1 means we take the GW into acoount
+ * mode == 1 means we take the GW into account
  * mode == 0 means we dont take the GW into account
  */
 int aggregate_route_file(struct subnet_file *sf, int mode)
@@ -645,7 +645,9 @@ int aggregate_route_file(struct subnet_file *sf, int mode)
 		return -1;
 	}
 	copy_route(&new_r[0], &sf->routes[0]);
-	j = 0; /* i is the index in the original file, j is the index in the file we are building */
+	/* i is the index in the original file,
+	   j is the index in the file we are building */
+	j = 0;
 	for (i = 1; i < sf->nr; i++) {
 		if (mode == 1 && !is_equal_gw(&new_r[j],  &sf->routes[i])) {
 			st_debug(AGGREGATE, 4, "Entry %lu '%P' & %lu '%P' cant aggregate, different GW\n",
