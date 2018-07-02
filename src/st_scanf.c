@@ -1373,7 +1373,7 @@ static int parse_quantifier_dotstar(const char **in, const char **fmt, const cha
 /*
  * st_scanf CORE function
  * reads bytes from the buffer 'in', tries to interpret/match against regexp 'fmt'
- * if objects (corresponding to covnersion specifiers) are found,
+ * if objects (corresponding to conversion specifiers) are found,
  * store them in struct sto_object *o table
  * @in    : input  buffer
  * @fmt   : format buffer
