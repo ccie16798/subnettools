@@ -172,7 +172,7 @@ static int read_csv_body(struct st_file *f, struct csv_file *cf,
 	state->badline = 0;
 	do {
 		if (state->line >= CSV_MAX_LINE_NUMBER) { /* paranoid check */
-			debug(LOAD_CSV, 1, "File %s is too many lines, MAX=%lu\n",
+			debug(LOAD_CSV, 1, "File %s has too many lines, MAX=%lu\n",
 					cf->file_name, CSV_MAX_LINE_NUMBER);
 			return CSV_FILE_MAX_SIZE;
 		}
