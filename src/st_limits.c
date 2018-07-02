@@ -76,7 +76,7 @@ void print_stlimits(FILE *f)
 		if (st_limits[i].s == NULL)
 			break;
 		sprint_unsignedlong(feurbu, st_limits[i].value);
-		fprintf(f, "%-25s: %-15s, %s\n", st_limits[i].s, feurbu,
+		fprintf(f, "%-25s: %-10s, %s\n", st_limits[i].s, feurbu,
 			st_limits[i].comment);
 	}
 }
