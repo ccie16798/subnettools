@@ -1,3 +1,12 @@
+/*
+ * debug functions
+ *
+ * Copyright (C) 2014-2018 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of version 2 of the GNU General Public License
+ * as published by the Free Software Foundation.
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -7,7 +16,7 @@
 #include "debug.h"
 #include "utils.h"
 
-struct debug debugs[] = {
+const struct debug debugs[] = {
 	{ "all",	__D_ALL,	"activates ALL debugs" },
 	{ "timing",	__D_TIMING,	"records time to execute some functions" },
 	{ "memory",	__D_MEMORY,	"trace memory allocations" },
@@ -32,7 +41,7 @@ struct debug debugs[] = {
 	{ "bgpcmp",	__D_BGPCMP,	"debug BGP compare functions" },
 	{ "expr",	__D_GEXPR,	"debug generic expression matching" },
 	{ "filter",	__D_FILTER,	"debug route/BGP route filtering" },
-	{0, 0}
+	{ NULL}
 };
 
 char debugs_level[__D_MAX];
