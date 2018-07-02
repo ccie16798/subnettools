@@ -996,8 +996,7 @@ int subnet_split(FILE *out, const struct subnet *s, char *string_levels)
 	copy_subnet(&subnet, s);
 	base_mask = subnet.mask;
 
-	i = 0;
-	while (i < sum) {
+	for (i = 0; i < sum; i++) {
 		subnet.mask = base_mask;
 		for (k = 0; k < n_levels - 1; k++) {
 			subnet.mask += mylog2(levels[k]);
@@ -1006,7 +1005,6 @@ int subnet_split(FILE *out, const struct subnet *s, char *string_levels)
 		subnet.mask += mylog2(levels[k]); /* necessary to not print a final ; */
 		st_fprintf(out, "%N/%m\n", subnet, subnet);
 		next_subnet(&subnet);
-		i++;
 	}
 	return 1;
 }
@@ -1099,8 +1097,7 @@ int subnet_split_2(FILE *out, const struct subnet *s, char *string_levels)
 		sum *= (1 << (levels[i] - levels[i - 1]));
 	copy_subnet(&subnet, s);
 
-	i = 0;
-	while (i < sum) {
+	for (i = 0; i < sum; i++) {
 		for (k = 0; k < n_levels - 1; k++) {
 			subnet.mask = levels[k];
 			st_fprintf(out, "%N/%m;", subnet, subnet);
@@ -1108,7 +1105,6 @@ int subnet_split_2(FILE *out, const struct subnet *s, char *string_levels)
 		subnet.mask = levels[k];
 		st_fprintf(out, "%N/%m\n", subnet, subnet);
 		next_subnet(&subnet);
-		i++;
 	}
 	return 1;
 }
