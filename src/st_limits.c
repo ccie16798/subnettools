@@ -20,6 +20,7 @@
 #include "bgp_tool.h"
 #include "ipam.h"
 #include "config_file.h"
+#include "st_hashtab.h"
 
 #define STRINGIFY(x) #x, x
 struct st_limits {
@@ -56,6 +57,7 @@ const struct st_limits st_limits[] = {
 	{ STRINGIFY(SF_BGP_MAX_ROUTES_NUMBER),	"Max number of routes in a in-memory BGP subnet file" },
 	{ STRINGIFY(IPAM_MAX_LINE_NUMBER),	"Max number of routes in a in-memory IPAM file" },
 	{ STRINGIFY(HEAP_MAX_NR),		"Max number of objects in a heap structure" },
+	{ STRINGIFY(ST_HASHTAB_MAX_SIZE),	"Max size of a hash table" },
 	{ STRINGIFY(MAX_EA_NUMBER),		"Max number of Extended Attributes attached to a subnet" },
 	{ STRINGIFY(ST_OBJECT_MAX_STRING_LEN),	"Max length of string collected with st_scanf(\"%s\") and variants" },
 	{ STRINGIFY(ST_VSCANF_MAX_OBJECTS),	"Max number of objects that can be collected with st_scanf functions" },
