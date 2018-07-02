@@ -889,8 +889,10 @@ int subnet_file_remove_file(struct subnet_file *sf1, struct subnet_file *sf2,
 		st_free(sf.routes, sf.max_nr * sizeof(struct route));
 		memcpy(&sf, sf2, sizeof(struct subnet_file));
 	}
-	subnet_file_simplify(sf2);
+	res = subnet_file_simplify(sf2);
 	debug_timing_end(2);
+	if (res < 0)
+		return res;
 	return 1;
 }
 
