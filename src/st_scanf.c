@@ -1372,7 +1372,7 @@ static int parse_quantifier_dotstar(const char **in, const char **fmt, const cha
 
 /*
  * st_scanf CORE function
- * reads bytes from the bufferi 'in', tries to interpret/match against regexp 'fmt'
+ * reads bytes from the buffer 'in', tries to interpret/match against regexp 'fmt'
  * if objects (corresponding to covnersion specifiers) are found,
  * store them in struct sto_object *o table
  * @in    : input  buffer
@@ -1414,7 +1414,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				res = fill_expr(expr, f, sizeof(expr));
 				if (res < 0)
 					goto end_badformat;
-			}else if (*f == '[') {
+			} else if (*f == '[') {
 				res = fill_char_range(expr, f, sizeof(expr));
 				if (res < 0)
 					goto end_nomatch;
@@ -1461,7 +1461,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			if (res < 0)
 				goto end_badformat;
 			if (res == 0)
-				return n_found;
+				goto end_nomatch;
 			n_found += res;
 			continue;
 		case '.': /* any char */
@@ -1515,7 +1515,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 			if (n_found + num_cs >= max_o) {
 				debug(SCANF, 1, "Max objets %d, already found %d\n",
 						max_o, n_found);
-				return n_found;
+				goto end_nomatch;
 			}
 			res = match_expr_single(expr, p, o, &n_found);
 			if (res < 0)
@@ -1535,7 +1535,7 @@ int sto_sscanf(const char *in, const char *fmt, struct sto *o, int max_o)
 				 */
 				fprintf(stderr, "BUG, input buffer override in %s line %d\n",
 						__func__, __LINE__);
-				return n_found;
+				return -8;
 			}
 			continue;
 		default:
