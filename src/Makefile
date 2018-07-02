@@ -29,3 +29,6 @@ test : generic_csv.o debug.o utils.o
 
 test-read: st_readline.c
 	$(CC) -o $@ $^ $(CFLAGS) -D TEST_READ
+
+test-hash: hash_tab.c debug.c st_memory.c st_list.c utils.c
+	$(CC) -o $@ $^ $(CFLAGS) -DTEST_HASH
