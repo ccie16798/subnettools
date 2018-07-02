@@ -22,7 +22,6 @@ struct debug debugs[] = {
 	{ "loadcsv",	__D_LOAD_CSV,	"debug Generic CSV Body parsing" },
 	{ "csvheader",	__D_CSVHEADER,	"debug CSV header parsing" },
 	{ "grep",	__D_GREP,	"debug network grep" },
-	{ "parseroute", __D_PARSEROUTE,	"debug parsing of routes file to CSV" },
 	{ "convert",	__D_PARSEROUTE,	"debug parsing of routes file to CSV" },
 	{ "aggregate",	__D_AGGREGATE,	"debug subnet aggregate functions" },
 	{ "addrremove",	__D_ADDRREMOVE,	"debug address removal" },
