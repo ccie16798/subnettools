@@ -91,7 +91,7 @@ int ipam_stats(struct ipam_file *ipam, const char *statvalue)
 	} else {
 		list_for_each_entry(sb, &head, list) {
 			st_printf("%s,%P,%lu\n",
-					statvalue,*((struct subnet *)sb->key), sb->count);
+					statvalue, *((struct subnet *)sb->key), sb->count);
 			free_stat_bucket(sb);
 		}
 	}
