@@ -61,7 +61,6 @@ int ipam_stats(struct ipam_file *ipam, const char *statvalue)
 
 		for (i = 0; i < ipam->nr; i++) {
 			subnet = &ipam->lines[i].subnet;
-			st_debug(HASHT, 3, "%P %lu\n", *subnet, i);
 			increase_key_stat(&ht, (char *)subnet, sizeof(*subnet));
 		}
 	} else {
@@ -82,12 +81,22 @@ int ipam_stats(struct ipam_file *ipam, const char *statvalue)
 	}
 	init_list(&head);
 	sort_stat_table(&ht, &head);
+
 	if (strcmp(statvalue, "subnet")) {
-		list_for_each_entry(sb, &head, list)
-			printf("KEY: %s count:%lu\n", (char *)sb->key, sb->count);
+		list_for_each_entry(sb, &head, list) {
+			printf("%s,%s,%lu\n",
+					statvalue, (char *)sb->key, sb->count);
+			free_stat_bucket(sb);
+		}
 	} else {
-		list_for_each_entry(sb, &head, list)
-			st_printf("KEY: %P count:%lu\n", *((struct subnet *)sb->key), sb->count);
+		list_for_each_entry(sb, &head, list) {
+			st_printf("%s,%P,%lu\n",
+					statvalue,*((struct subnet *)sb->key), sb->count);
+			free_stat_bucket(sb);
+		}
 	}
+	/* we cannot use free_stat_hash_tab since the call to sort_stat_table modified
+	 * the structure of the hash table */
+	st_free(ht.tab, ht.max_nr * sizeof(struct st_list));
 	return 1;
 }
