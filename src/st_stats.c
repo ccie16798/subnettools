@@ -1,0 +1,67 @@
+/*
+ * stats -- code to create statistics about subnet_files, ipam_files, ..
+ *
+ * Copyright (C) 2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of version 2 of the GNU General Public License
+ * as published by the Free Software Foundation.
+ */
+#include <stdio.h>
+#include <stdlib.h>
+#include "iptool.h"
+#include "st_hashtab.h"
+#include "st_scanf.h"
+#include "st_options.h"
+#include "st_stats.h"
+#include "st_object.h"
+
+unsigned int hash_ipaddr(void *key, int len)
+{
+	struct ip_addr *a = key;
+
+	if (a->ip_ver == IPV4_A)
+		return djb_hash(a->ip, 4);
+	if (a->ip_ver == IPV6_A)
+		return djb_hash(a->ip6, 16);
+	printf(stderr, "cannot hash unknown ip version %d\n", a->ip_ver);
+	return 0;
+}
+
+unsigned int hash_subnet(void *key, int len)
+{
+	struct subnet *a = key;
+
+	if (a->ip_addr.ip_ver == IPV4_A)
+		return djb_hash(a->ip_addr.ip, 4) * a->mask;
+	if (a->ip_addr.ip_ver == IPV6_A)
+		return djb_hash(a->ip_addr.ip6, 16) * a->mask;
+	printf(stderr, "cannot hash unknown ip version %d\n", a->ip_ver);
+	return 0;
+}
+
+
+int ipam_stats(struct ipam_file *ipam, const char *statvalue)
+{
+	int res;
+	unsigned long i;
+	struct hash_table ht;
+	struct ipam_ea *ea;
+	st_list head;
+
+	if (!strcmp(statvalue, "subnet"))
+		res = alloc_hash_tab(&ht, ipam->nr, &hash_subnet);
+	else
+		res = alloc_hash_tab(&ht, ipam->nr, &djb_hash);
+	if (res < 0)
+		return res;
+
+	for (i = 0; i < ipam->nr; i++) {
+		ea = &ipam->lines[i].ea[0];
+		increase_key_stat(&ht, ea->value, ea->len);
+	}
+	sort_stat_table(&ht, &head);
+	list_for_each_entry(sb, &head, list)
+		printf("KEY: %s count:%lu\n", (char *)sb->key, sb->count);
+	return 1;
+}
