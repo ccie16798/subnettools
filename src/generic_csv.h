@@ -113,13 +113,13 @@ void free_csv_file(struct csv_file *cf);
 int register_csv_field(struct csv_file *cf, char *name, int mandatory, int pos,
 	int default_pos, int (*handle)(char *token, void *data, struct csv_state *state));
 
-/* generic_load_csv: open the 'filename' FILE, parse it according to 'cf' and 'state'
- * and usually you'll want to feed a  pointer to a struct whatever in *data
+/* generic_load_csv: open a file, parse it according to 'cf' and 'state'
+ * and usually you'll want to feed a pointer to a struct whatever in *data
  *
- * @filename : name of the file, stdin is used if filename == NULL
- * @cf       : struct csv_file, must have been init before
- * @state    : a generic state object used by run_body, to store data between callbacks
- * @data     : this will point to a struct you want to fill with data read from the file
+ * @name  : name of the file, stdin is used if name == NULL
+ * @cf    : struct csv_file, must have been init before
+ * @state : a generic state object used by run_body, to store data between callbacks
+ * @data  : this will point to a struct you want to fill with data read from the file
  */
 int generic_load_csv(const char *filename, struct csv_file *cf,
 		struct csv_state *state, void *data);
