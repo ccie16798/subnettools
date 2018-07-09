@@ -210,7 +210,7 @@ static int read_csv_body(struct st_file *f, struct csv_file *cf,
 			csv_field    = NULL;
 			debug(LOAD_CSV, 5, "Parsing token '%s' pos %d\n", s, pos);
 			/* try to find the handler */
-			for (i = 0; ; i++) {
+			for (i = 0; ; i++) { /* FIXME not optimal to do on each line */
 				if (cf->csv_field[i].name == NULL)
 					break;
 				if (pos == cf->csv_field[i].pos) {
