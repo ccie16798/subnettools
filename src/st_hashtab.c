@@ -103,13 +103,13 @@ struct stat_bucket *new_stat_bucket(const char *key, int key_len)
 void free_stat_bucket(struct stat_bucket *sb)
 {
 	list_del(&sb->list);
-	st_free_string(sb->key);
+	st_free(sb->key, sb->key_len);
 	st_free(sb, sizeof(struct stat_bucket));
 }
 
 void free_stat_hash_table(struct hash_table *ht)
 {
-	unsigned int i;
+	unsigned long i;
 	struct stat_bucket *sb;
 
 	hlist_for_each_entry(sb, ht, i)
@@ -248,7 +248,7 @@ int main(int argc, char **argv)
 	b = find_key(&ht, "KEY 4", 5);
 	/*
 	hlist_for_each_entry(sb, &ht, i) {
-		printf("KEY: %s count:%lu\n", (char *)sb->key, sb->count);
+		printf("KEY#%d: %s count:%lu\n", i, (char *)sb->key, sb->count);
 		free_stat_bucket(sb);
 	} */
 	sort_stat_table(&ht, &head);
