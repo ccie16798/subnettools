@@ -124,9 +124,9 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
 			}
 		}
 	}
-	if (mandatory_fields < cf->num_mandatory) {
+	if (mandatory_fields < cf->mandatory_fields) {
 		debug(CSVHEADER, 1, "file %s has only %d mandatory fields, %d required\n",
-				cf->file_name, mandatory_fields, cf->num_mandatory);
+				cf->file_name, mandatory_fields, cf->mandatory_fields);
 		bad_header = 1;
 	}
 	if (bad_header) {
@@ -197,9 +197,9 @@ static int read_csv_body(struct st_file *f, struct csv_file *cf,
 			}
 		}
 		s = cf->csv_strtok_r(s, cf->delim, &save_s);
-		pos  = 0;
+		pos = 0;
 		state->badline = 0;
-		state->mandatory_found = 0;
+		state->mandatory_fields = 0;
 		while (s) {
 			pos++;
 			if (pos > cf->num_fields) {
@@ -224,7 +224,7 @@ static int read_csv_body(struct st_file *f, struct csv_file *cf,
 			if (csv_field && csv_field->handle) {
 				res = csv_field->handle(s, data, state);
 				if (csv_field->mandatory)
-					state->mandatory_found++;
+					state->mandatory_fields++;
 				if (res == CSV_INVALID_FIELD_BREAK) {
 					/* more interesting debug info could be found in the actual handler
 					 * so debug level should be higher than 3
@@ -264,10 +264,10 @@ static int read_csv_body(struct st_file *f, struct csv_file *cf,
 			}
 			s = cf->csv_strtok_r(NULL, cf->delim, &save_s);
 		} /* while s */
-		if (state->mandatory_found < cf->num_mandatory) {
+		if (state->mandatory_fields < cf->mandatory_fields) {
 			state->badline++;
-			debug(LOAD_CSV, 3, "File %s line %lu, not enough fields : %d, requires : %d\n",
-					cf->file_name, state->line, state->mandatory_found, cf->num_mandatory);
+			debug(LOAD_CSV, 3, "File %s line %lu, not enough fields: %d, requires: %d\n",
+					cf->file_name, state->line, state->mandatory_fields, cf->mandatory_fields);
 		}
 
 		if (cf->endofline_callback) {
@@ -387,7 +387,7 @@ int init_csv_file(struct csv_file *cf, const char *file_name, int max_fields,
 	cf->csv_strtok_r = func;
 	cf->file_name    = (file_name ? file_name : "<stdin>");
 	cf->max_fields   = max_fields;
-	cf->num_mandatory= 0;
+	cf->mandatory_fields = 0;
 	/* optional fields */
 	cf->is_header		 = NULL;
 	cf->validate_header	 = NULL;
@@ -446,7 +446,7 @@ int register_csv_field(struct csv_file *csv_file, char *field_name, int mandator
 		return CSV_ENOMEM;
 	}
 	if (mandatory)
-		csv_file->num_mandatory++;
+		csv_file->mandatory_fields++;
 	cf[i].name        = name;
 	cf[i].handle      = handle;
 	cf[i].mandatory   = mandatory;
