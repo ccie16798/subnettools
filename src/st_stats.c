@@ -19,9 +19,9 @@
 #include "st_printf.h"
 
 
-unsigned int hash_ipaddr(void *key, int len)
+unsigned int hash_ipaddr(const void *key, int len)
 {
-	struct ip_addr *a = key;
+	const struct ip_addr *a = key;
 
 	if (a->ip_ver == IPV4_A)
 		return djb_hash(&a->ip, 4);
@@ -31,9 +31,9 @@ unsigned int hash_ipaddr(void *key, int len)
 	return 0;
 }
 
-unsigned int hash_subnet(void *key, int len)
+unsigned int hash_subnet(const void *key, int len)
 {
-	struct subnet *a = key;
+	const struct subnet *a = key;
 
 	if (a->ip_addr.ip_ver == IPV4_A || a->ip_addr.ip_ver == IPV4_N)
 		return djb_hash(&a->ip_addr.ip, 4) * a->mask;
@@ -60,8 +60,7 @@ int ipam_stats(struct ipam_file *ipam, const char *statvalue)
 
 		for (i = 0; i < ipam->nr; i++) {
 			subnet = &ipam->lines[i].subnet;
-			if (subnet)
-				increase_key_stat(&ht, (char *)subnet, sizeof(*subnet));
+			increase_key_stat(&ht, (char *)subnet, sizeof(*subnet));
 		}
 	} else {
 		res = alloc_hash_tab(&ht, ipam->nr, &djb_hash);
