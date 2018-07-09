@@ -34,6 +34,7 @@
 #include "st_help.h"
 #include "prog-main.h"
 #include "st_limits.h"
+#include "st_stats.h"
 
 /* max number of objects collectable inf fscanf, and scanf */
 #define SCANF_MAX_OBJECTS 40
@@ -1112,7 +1113,11 @@ static int run_test(int argc, char **argv, void *st_options)
 	res = load_ipam(argv[2], &sf1, st_options);
 	if (res < 0)
 		return res;
-	fprint_ipam_file_fmt(stdout, &sf1, o->ipam_output_fmt);
+	if (argv[3])
+		ipam_stats(&sf1, argv[3]);
+	else
+		ipam_stats(&sf1, "comment");
+	free_ipam_file(&sf1);
 	return 0;
 }
 
