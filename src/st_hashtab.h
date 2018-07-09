@@ -101,7 +101,7 @@ struct st_bucket *find_key(struct hash_table *ht, char *key, int key_len);
 struct st_bucket *remove_key(struct hash_table *ht, char *key, int key_len);
 
 
-/* increase_key_stat:  increase the count associated with a key; alloc memory on first count
+/* increase_key_stat: increase the count associated with a key; alloc memory on first count
  * @ht      : the hash table
  * @key     : the key to look
  * @key_len : its length
@@ -111,7 +111,7 @@ struct st_bucket *remove_key(struct hash_table *ht, char *key, int key_len);
  */
 struct stat_bucket *increase_key_stat(struct hash_table *ht, char *key, int key_len);
 
-/* get_key_stat:  get the struct bucket_stat associated with a key
+/* get_key_stat: get the struct bucket_stat associated with a key
  * @ht      : the hash table
  * @key     : the key to look
  * @key_len : its length
@@ -120,5 +120,11 @@ struct stat_bucket *increase_key_stat(struct hash_table *ht, char *key, int key_
  *	NULL if not found
  */
 struct stat_bucket *get_key_stat(struct hash_table *ht, char *key, int key_len);
+
+/* sort_stat_table: sort a hash_table
+ * @ht      : the hash table
+ * @head    : a list where the result will be put
+ */
+void sort_stat_table(struct hash_table *ht, st_list *head);
 #else
 #endif
