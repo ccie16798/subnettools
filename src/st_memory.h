@@ -32,6 +32,9 @@ char *__st_strdup(const char *s,
 		const char *file, const char *func, int line);
 #define st_strdup(__s) \
 		__st_strdup(__s, __FILE__, __func__, __LINE__)
+
+#define st_memdup(__s, __len) \
+		__st_memdup(__s, __len, __FILE__, __func__, __LINE__)
 void st_free_string(char *s);
 void st_free(void *ptr, unsigned long len);
 
@@ -44,6 +47,17 @@ void st_free(void *ptr, unsigned long len);
 #define st_free(__ptr, __n) free(__ptr)
 #define st_free_string(__s) free(__s)
 #define st_strdup(__s) strdup(__s)
+void st_memdup(const void *s, size_t len) {
+	char *b;
+
+	if (s == NULL)
+		return NULL;
+	b = malloc(len);
+	if (b == NULL)
+		return NULL;
+	memcpy(b, s, len);
+	return b;
+}
 
 #endif
 
