@@ -16,9 +16,9 @@
 #include "st_hashtab.h"
 #include "st_memory.h"
 
-unsigned int djb_hash(void *key, int len)
+unsigned int djb_hash(const void *key, int len)
 {
-	unsigned char *s = key;
+	const unsigned char *s = key;
 	unsigned int h;
 	int i;
 
@@ -28,9 +28,9 @@ unsigned int djb_hash(void *key, int len)
 	return h;
 }
 
-unsigned int djb_hash_original(void *key, int len)
+unsigned int djb_hash_original(const void *key, int len)
 {
-	unsigned char *s = key;
+	const unsigned char *s = key;
 	unsigned int h = 0;
 	int i;
 
@@ -43,10 +43,10 @@ unsigned int djb_hash_original(void *key, int len)
 #define FNV_Prime  16777619U
 #define FNV_Offset 2166136261U
 
-unsigned int fnv_hash(void *key, int len)
+unsigned int fnv_hash(const void *key, int len)
 {
+	const unsigned char *s = key;
 	unsigned int h = FNV_Offset;
-	unsigned char *s = key;
 	int i = 0;
 
 	for (i = 0; i < len; i++)
@@ -54,7 +54,7 @@ unsigned int fnv_hash(void *key, int len)
 	return h;
 }
 
-int alloc_hash_tab(struct hash_table *ht, unsigned long nr, unsigned (*hash)(void *, int))
+int alloc_hash_tab(struct hash_table *ht, unsigned long nr, unsigned (*hash)(const void *, int))
 {
 	unsigned long new_nr;
 	unsigned long i;
@@ -81,14 +81,14 @@ int alloc_hash_tab(struct hash_table *ht, unsigned long nr, unsigned (*hash)(voi
 	return new_nr;
 }
 
-struct stat_bucket *new_stat_bucket(char *key, int key_len)
+struct stat_bucket *new_stat_bucket(const char *key, int key_len)
 {
 	struct stat_bucket *sb;
 
 	sb = st_malloc(sizeof(struct stat_bucket), "Stat bucket");
 	if (sb == NULL)
 		return NULL;
-	sb->key = st_strdup(key);
+	sb->key = st_memdup(key, key_len);
 	if (sb->key == NULL) {
 		st_free(sb, sizeof(struct stat_bucket));
 		return NULL;
@@ -127,7 +127,7 @@ void insert_bucket(struct hash_table *ht, struct st_bucket *bucket)
 	ht->nr++;
 }
 
-struct st_bucket *find_key(struct hash_table *ht, char *key, int key_len)
+struct st_bucket *find_key(struct hash_table *ht, const char *key, int key_len)
 {
 	unsigned h = ht->hash_fn(key, key_len) & ht->table_mask;
 	struct st_bucket *b;
@@ -141,7 +141,7 @@ struct st_bucket *find_key(struct hash_table *ht, char *key, int key_len)
 	return NULL;
 }
 
-struct st_bucket *remove_key(struct hash_table *ht, char *key, int key_len)
+struct st_bucket *remove_key(struct hash_table *ht, const char *key, int key_len)
 {
 
 	unsigned h = ht->hash_fn(key, key_len) & ht->table_mask;
@@ -161,7 +161,8 @@ struct st_bucket *remove_key(struct hash_table *ht, char *key, int key_len)
 	return NULL;
 }
 
-struct stat_bucket *increase_key_stat(struct hash_table *ht, char *key, int key_len)
+struct stat_bucket *increase_key_stat(struct hash_table *ht, const char *key,
+		int key_len)
 {
 	unsigned h = ht->hash_fn(key, key_len) & ht->table_mask;
 	struct stat_bucket *sb;
@@ -193,7 +194,7 @@ struct stat_bucket *increase_key_stat(struct hash_table *ht, char *key, int key_
 	return sb;
 }
 
-struct stat_bucket *get_key_stat(struct hash_table *ht, char *key, int key_len)
+struct stat_bucket *get_key_stat(struct hash_table *ht, const char *key, int key_len)
 {
 	unsigned h = ht->hash_fn(key, key_len) & ht->table_mask;
 	struct stat_bucket *sb;
