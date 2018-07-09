@@ -55,7 +55,7 @@ unsigned int fnv_hash(const void *key, int len)
 }
 
 int alloc_hash_tab(struct hash_table *ht, unsigned long nr,
-		unsigned (*hash)(const void *, int))
+		unsigned int (*hash)(const void *, int))
 {
 	unsigned long new_nr;
 	unsigned long i;
@@ -250,7 +250,8 @@ int main(int argc, char **argv)
 	hlist_for_each_entry(sb, &ht, i) {
 		printf("KEY#%d: %s count:%lu\n", i, (char *)sb->key, sb->count);
 		free_stat_bucket(sb);
-	} */
+		}
+	*/
 	sort_stat_table(&ht, &head);
 	list_for_each_entry(sb, &head, list)
 		printf("KEY: %s count:%lu\n", (char *)sb->key, sb->count);
