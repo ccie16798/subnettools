@@ -16,6 +16,8 @@
 #include "st_options.h"
 #include "st_stats.h"
 #include "st_object.h"
+#include "st_printf.h"
+
 
 unsigned int hash_ipaddr(void *key, int len)
 {
@@ -59,7 +61,7 @@ int ipam_stats(struct ipam_file *ipam, const char *statvalue)
 		for (i = 0; i < ipam->nr; i++) {
 			subnet = &ipam->lines[i].subnet;
 			if (subnet)
-				increase_key_stat(&ht, (char *)subnet, sizeof(subnet));
+				increase_key_stat(&ht, (char *)subnet, sizeof(*subnet));
 		}
 	} else {
 		res = alloc_hash_tab(&ht, ipam->nr, &djb_hash);
@@ -79,7 +81,12 @@ int ipam_stats(struct ipam_file *ipam, const char *statvalue)
 	}
 	init_list(&head);
 	sort_stat_table(&ht, &head);
-	list_for_each_entry(sb, &head, list)
-		printf("KEY: %s count:%lu\n", (char *)sb->key, sb->count);
+	if (strcmp(statvalue, "subnet")) {
+		list_for_each_entry(sb, &head, list)
+			printf("KEY: %s count:%lu\n", (char *)sb->key, sb->count);
+	} else {
+		list_for_each_entry(sb, &head, list)
+			st_printf("KEY: %P count:%lu\n", *((struct subnet *)sb->key), sb->count);
+	}
 	return 1;
 }
