@@ -1,7 +1,7 @@
 /*
  * stats -- code to create statistics about subnet_files, ipam_files, ..
  *
- * Copyright (C) 2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ * Copyright (C) 2018 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
@@ -9,6 +9,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include "debug.h"
 #include "iptools.h"
 #include "st_list.h"
 #include "st_hashtab.h"
@@ -60,6 +61,7 @@ int ipam_stats(struct ipam_file *ipam, const char *statvalue)
 
 		for (i = 0; i < ipam->nr; i++) {
 			subnet = &ipam->lines[i].subnet;
+			st_debug(HASHT, 3, "%P %lu\n", *subnet, i);
 			increase_key_stat(&ht, (char *)subnet, sizeof(*subnet));
 		}
 	} else {
