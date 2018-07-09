@@ -145,7 +145,7 @@ char *__st_strdup(const char *s,
 	return broumf;
 }
 
-char *__st_memdup(const char *s, size_t n,
+void *__st_memdup(const char *s, size_t n,
 		const char *file, const char *func, int line)
 {
 	char *broumf;
@@ -163,6 +163,18 @@ char *__st_memdup(const char *s, size_t n,
 	debug_memory(5, "%s:%s line %d Allocated %d bytes for '%s'\n",
 			file, func, line, (int)n, s);
 	return broumf;
+}
+
+void *st_simple_memdup(const void *s, size_t len) {
+	char *b;
+
+	if (s == NULL)
+		return NULL;
+	b = malloc(len);
+	if (b == NULL)
+		return NULL;
+	memcpy(b, s, len);
+	return b;
 }
 
 void st_free_string(char *s)
