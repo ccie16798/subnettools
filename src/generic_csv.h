@@ -47,6 +47,7 @@ struct csv_state {
 	const char *file_name;
 	char *csv_field; /* name of the field we crossed */
 	int  badline;
+	int mandatory_found; /* number of mandatory field found */
 	int skip; /* tell the engine to skip fields without increasing the pos counter */
 	int state[8]; /* generic states table, csv_field->handle can use it as its wants */
 };
@@ -66,6 +67,7 @@ struct csv_file {
 	int num_fields_registered; /* number of field dynamically registered */
 	int max_fields; /* max number of fields */
 	const char *delim; /** delimiteur */
+	int num_mandatory ; /* number of mandatory fields */
 	int max_mandatory_pos ; /* used to track the pos of the last mandatory field */
 	/* given a line, try to guess if its a header or plain data;
 	 * if NULL, the file REQUIRES a header
