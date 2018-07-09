@@ -65,9 +65,8 @@ int ipam_stats(struct ipam_file *ipam, const char *statvalue)
 	       return -1;
 	}
 
-
 	for (i = 0; i < ipam->nr; i++) {
-		ea = &ipam->lines[i].ea[0];
+		ea = &ipam->lines[i].ea[ea_index];
 		if (ea->value)
 			increase_key_stat(&ht, ea->value, ea->len);
 	}
