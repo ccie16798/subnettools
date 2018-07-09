@@ -22,10 +22,10 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
 {
 	int i, j, found;
 	char *s, *save_s;
-	int pos = 1;
+	int pos	       = 1;
 	int bad_header = 0;
-	int max_mandatory_pos = 1;
-	int no_header = 0;
+	int no_header  = 0;
+	int mandatory_fields = 0;
 	char buffer2[CSV_MAX_LINE_LEN];
 
 	i = strxcpy(buffer2, buffer, sizeof(buffer2));
@@ -97,7 +97,7 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
 		if (cf->csv_field[i].name == NULL)
 			break;
 		if (cf->csv_field[i].mandatory)
-			max_mandatory_pos = max(max_mandatory_pos, cf->csv_field[i].pos);
+			mandatory_fields++;
 		if (cf->csv_field[i].pos == 0 && cf->csv_field[i].mandatory) {
 			bad_header++;
 			debug(CSVHEADER, 1, "mandatory CSV field '%s' not found in %s\n",
@@ -124,11 +124,15 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
 			}
 		}
 	}
+	if (mandatory_fields < cf->num_mandatory) {
+		debug(CSVHEADER, 1, "file %s has only %d mandatory fields, %d required\n",
+				cf->file_name, mandatory_fields, cf->num_mandatory);
+		bad_header = 1;
+	}
 	if (bad_header) {
 		fprintf(stderr, "file %s doesn't have a valid CSV header\n", cf->file_name);
 		return CSV_BAD_HEADER;
 	}
-	cf->max_mandatory_pos = max_mandatory_pos;
 	if (no_header == 1)
 		return CSV_NO_HEADER;
 	else
@@ -260,8 +264,7 @@ static int read_csv_body(struct st_file *f, struct csv_file *cf,
 			}
 			s = cf->csv_strtok_r(NULL, cf->delim, &save_s);
 		} /* while s */
-		if (pos < cf->max_mandatory_pos
-				|| state->mandatory_found < cf->num_mandatory) {
+		if (state->mandatory_found < cf->num_mandatory) {
 			state->badline++;
 			debug(LOAD_CSV, 3, "File %s line %lu, not enough fields : %d, requires : %d\n",
 					cf->file_name, state->line, state->mandatory_found, cf->num_mandatory);
