@@ -9,7 +9,8 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
-#include "iptool.h"
+#include "iptools.h"
+#include "st_list.h"
 #include "st_hashtab.h"
 #include "st_scanf.h"
 #include "st_options.h"
@@ -21,10 +22,10 @@ unsigned int hash_ipaddr(void *key, int len)
 	struct ip_addr *a = key;
 
 	if (a->ip_ver == IPV4_A)
-		return djb_hash(a->ip, 4);
+		return djb_hash(&a->ip, 4);
 	if (a->ip_ver == IPV6_A)
-		return djb_hash(a->ip6, 16);
-	printf(stderr, "cannot hash unknown ip version %d\n", a->ip_ver);
+		return djb_hash(&a->ip6, 16);
+	fprintf(stderr, "cannot hash unknown ip version %d\n", a->ip_ver);
 	return 0;
 }
 
@@ -33,10 +34,10 @@ unsigned int hash_subnet(void *key, int len)
 	struct subnet *a = key;
 
 	if (a->ip_addr.ip_ver == IPV4_A)
-		return djb_hash(a->ip_addr.ip, 4) * a->mask;
+		return djb_hash(&a->ip_addr.ip, 4) * a->mask;
 	if (a->ip_addr.ip_ver == IPV6_A)
-		return djb_hash(a->ip_addr.ip6, 16) * a->mask;
-	printf(stderr, "cannot hash unknown ip version %d\n", a->ip_ver);
+		return djb_hash(&a->ip_addr.ip6, 16) * a->mask;
+	fprintf(stderr, "cannot hash unknown ip version %d\n", a->ip_ver);
 	return 0;
 }
 
@@ -46,6 +47,7 @@ int ipam_stats(struct ipam_file *ipam, const char *statvalue)
 	int res;
 	unsigned long i;
 	struct hash_table ht;
+	struct stat_bucket *sb;
 	struct ipam_ea *ea;
 	st_list head;
 
