@@ -16,7 +16,7 @@
 #include "st_hashtab.h"
 #include "st_memory.h"
 
-unsigned djb_hash(void *key, int len)
+unsigned int djb_hash(void *key, int len)
 {
 	unsigned char *s = key;
 	unsigned int h;
@@ -28,7 +28,7 @@ unsigned djb_hash(void *key, int len)
 	return h;
 }
 
-unsigned djb_hash_original(void *key, int len)
+unsigned int djb_hash_original(void *key, int len)
 {
 	unsigned char *s = key;
 	unsigned int h = 0;
@@ -43,7 +43,7 @@ unsigned djb_hash_original(void *key, int len)
 #define FNV_Prime  16777619U
 #define FNV_Offset 2166136261U
 
-unsigned fnv_hash(void *key, int len)
+unsigned int fnv_hash(void *key, int len)
 {
 	unsigned int h = FNV_Offset;
 	unsigned char *s = key;

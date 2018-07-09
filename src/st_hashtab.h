@@ -31,8 +31,8 @@ struct hash_table {
 };
 
 /* two well-known hash-functions, see .c file for authors & copyrights */
-unsigned djb_hash(void *key, int len);
-unsigned fnv_hash(void *key, int len);
+unsigned int djb_hash(void *key, int len);
+unsigned int fnv_hash(void *key, int len);
 /* hlist_for_each_entry: iterate over all elements in a hash_table
  * @elem   : the iterator (the list embedded inside must be named 'list')
  * @__ht   : the hash table
