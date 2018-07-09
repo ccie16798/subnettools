@@ -41,10 +41,9 @@ unsigned int hash_subnet(void *key, int len)
 	return 0;
 }
 
-
 int ipam_stats(struct ipam_file *ipam, const char *statvalue)
 {
-	int res;
+	int res, ea_index = -1;
 	unsigned long i;
 	struct hash_table ht;
 	struct stat_bucket *sb;
@@ -57,11 +56,22 @@ int ipam_stats(struct ipam_file *ipam, const char *statvalue)
 		res = alloc_hash_tab(&ht, ipam->nr, &djb_hash);
 	if (res < 0)
 		return res;
+	for (i = 0; i < ipam->ea_nr; i++) {
+		if (!strcmp(statvalue, ipam->ea[i].name))
+			ea_index = i;
+	}
+	if (ea_index < 0) {
+		fprintf(stderr, "unknown EA '%s'\n", statvalue);
+	       return -1;
+	}
+
 
 	for (i = 0; i < ipam->nr; i++) {
 		ea = &ipam->lines[i].ea[0];
-		increase_key_stat(&ht, ea->value, ea->len);
+		if (ea->value)
+			increase_key_stat(&ht, ea->value, ea->len);
 	}
+	init_list(&head);
 	sort_stat_table(&ht, &head);
 	list_for_each_entry(sb, &head, list)
 		printf("KEY: %s count:%lu\n", (char *)sb->key, sb->count);
