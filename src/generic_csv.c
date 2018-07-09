@@ -141,7 +141,7 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
  * @f	  : the CSV file to parse
  * @cf    : a struct csv_file describing the fields
  * @state : a CSV state; can be set before
- * @date  : a generic structure where you will store the data
+ * @data  : a generic structure where you will store the data
  * @init_buffer : if non-NULL, will contain the first line of the file
  * returns:
  *	>0 on success
@@ -159,6 +159,7 @@ static int read_csv_body(struct st_file *f, struct csv_file *cf,
 	unsigned long badlines = 0;
 
 	debug_timing_start(2);
+	/* get the first line from f or from init_buffer if set */
 	if (init_buffer) {
 		s = init_buffer;
 		res = 0;
@@ -170,8 +171,8 @@ static int read_csv_body(struct st_file *f, struct csv_file *cf,
 		}
 	}
 	state->badline = 0;
-	do {
-		if (state->line >= CSV_MAX_LINE_NUMBER) { /* paranoid check */
+	do { /* loop for all lines in the files */
+		if (state->line >= CSV_MAX_LINE_NUMBER) {
 			debug(LOAD_CSV, 1, "File %s has too many lines, MAX=%lu\n",
 					cf->file_name, CSV_MAX_LINE_NUMBER);
 			return CSV_FILE_MAX_SIZE;
