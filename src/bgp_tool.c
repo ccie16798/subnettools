@@ -306,7 +306,7 @@ void bgp_available_cmpfunc(FILE *out)
 	}
 }
 
-int bgp_sort_by(struct bgp_file *sf, char *name)
+int bgp_sort_by(struct bgp_file *sf, const char *name)
 {
 	int i = 0, res;
 
