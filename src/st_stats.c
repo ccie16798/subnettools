@@ -96,7 +96,8 @@ int ipam_stats(struct ipam_file *ipam, const char *statvalue)
 		}
 	}
 	/* we cannot use free_stat_hash_tab since the call to sort_stat_table modified
-	 * the structure of the hash table */
+	 * the structure of the hash table
+	 */
 	st_free(ht.tab, ht.max_nr * sizeof(struct st_list));
 	return 1;
 }
