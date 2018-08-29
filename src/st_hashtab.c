@@ -16,9 +16,9 @@
 #include "st_hashtab.h"
 #include "st_memory.h"
 
-unsigned djb_hash(void *key, int len)
+unsigned int djb_hash(const void *key, int len)
 {
-	unsigned char *s = key;
+	const unsigned char *s = key;
 	unsigned int h;
 	int i;
 
@@ -28,9 +28,9 @@ unsigned djb_hash(void *key, int len)
 	return h;
 }
 
-unsigned djb_hash_original(void *key, int len)
+unsigned int djb_hash_original(const void *key, int len)
 {
-	unsigned char *s = key;
+	const unsigned char *s = key;
 	unsigned int h = 0;
 	int i;
 
@@ -43,10 +43,10 @@ unsigned djb_hash_original(void *key, int len)
 #define FNV_Prime  16777619U
 #define FNV_Offset 2166136261U
 
-unsigned fnv_hash(void *key, int len)
+unsigned int fnv_hash(const void *key, int len)
 {
+	const unsigned char *s = key;
 	unsigned int h = FNV_Offset;
-	unsigned char *s = key;
 	int i = 0;
 
 	for (i = 0; i < len; i++)
@@ -54,7 +54,8 @@ unsigned fnv_hash(void *key, int len)
 	return h;
 }
 
-int alloc_hash_tab(struct hash_table *ht, unsigned long nr, unsigned (*hash)(void *, int))
+int alloc_hash_tab(struct hash_table *ht, unsigned long nr,
+		unsigned int (*hash)(const void *, int))
 {
 	unsigned long new_nr;
 	unsigned long i;
@@ -81,14 +82,14 @@ int alloc_hash_tab(struct hash_table *ht, unsigned long nr, unsigned (*hash)(voi
 	return new_nr;
 }
 
-struct stat_bucket *new_stat_bucket(char *key, int key_len)
+struct stat_bucket *new_stat_bucket(const char *key, int key_len)
 {
 	struct stat_bucket *sb;
 
 	sb = st_malloc(sizeof(struct stat_bucket), "Stat bucket");
 	if (sb == NULL)
 		return NULL;
-	sb->key = st_strdup(key);
+	sb->key = st_memdup(key, key_len);
 	if (sb->key == NULL) {
 		st_free(sb, sizeof(struct stat_bucket));
 		return NULL;
@@ -102,13 +103,13 @@ struct stat_bucket *new_stat_bucket(char *key, int key_len)
 void free_stat_bucket(struct stat_bucket *sb)
 {
 	list_del(&sb->list);
-	st_free_string(sb->key);
+	st_free(sb->key, sb->key_len);
 	st_free(sb, sizeof(struct stat_bucket));
 }
 
 void free_stat_hash_table(struct hash_table *ht)
 {
-	unsigned i;
+	unsigned long i;
 	struct stat_bucket *sb;
 
 	hlist_for_each_entry(sb, ht, i)
@@ -119,7 +120,7 @@ void free_stat_hash_table(struct hash_table *ht)
 
 void insert_bucket(struct hash_table *ht, struct st_bucket *bucket)
 {
-	unsigned h = ht->hash_fn(bucket->key, bucket->key_len) & ht->table_mask;
+	unsigned int h = ht->hash_fn(bucket->key, bucket->key_len) & ht->table_mask;
 
 	if (!list_empty(&ht->tab[h]))
 		ht->collisions++;
@@ -127,9 +128,9 @@ void insert_bucket(struct hash_table *ht, struct st_bucket *bucket)
 	ht->nr++;
 }
 
-struct st_bucket *find_key(struct hash_table *ht, char *key, int key_len)
+struct st_bucket *find_key(struct hash_table *ht, const char *key, int key_len)
 {
-	unsigned h = ht->hash_fn(key, key_len) & ht->table_mask;
+	unsigned int h = ht->hash_fn(key, key_len) & ht->table_mask;
 	struct st_bucket *b;
 
 	if (list_empty(&ht->tab[h]))
@@ -141,10 +142,10 @@ struct st_bucket *find_key(struct hash_table *ht, char *key, int key_len)
 	return NULL;
 }
 
-struct st_bucket *remove_key(struct hash_table *ht, char *key, int key_len)
+struct st_bucket *remove_key(struct hash_table *ht, const char *key, int key_len)
 {
 
-	unsigned h = ht->hash_fn(key, key_len) & ht->table_mask;
+	unsigned int h = ht->hash_fn(key, key_len) & ht->table_mask;
 	struct st_bucket *b;
 
 	if (list_empty(&ht->tab[h]))
@@ -161,9 +162,10 @@ struct st_bucket *remove_key(struct hash_table *ht, char *key, int key_len)
 	return NULL;
 }
 
-struct stat_bucket *increase_key_stat(struct hash_table *ht, char *key, int key_len)
+struct stat_bucket *increase_key_stat(struct hash_table *ht, const char *key,
+		int key_len)
 {
-	unsigned h = ht->hash_fn(key, key_len) & ht->table_mask;
+	unsigned int h = ht->hash_fn(key, key_len) & ht->table_mask;
 	struct stat_bucket *sb;
 
 	if (list_empty(&ht->tab[h])) {
@@ -193,9 +195,9 @@ struct stat_bucket *increase_key_stat(struct hash_table *ht, char *key, int key_
 	return sb;
 }
 
-struct stat_bucket *get_key_stat(struct hash_table *ht, char *key, int key_len)
+struct stat_bucket *get_key_stat(struct hash_table *ht, const char *key, int key_len)
 {
-	unsigned h = ht->hash_fn(key, key_len) & ht->table_mask;
+	unsigned int h = ht->hash_fn(key, key_len) & ht->table_mask;
 	struct stat_bucket *sb;
 
 	if (list_empty(&ht->tab[h]))
@@ -218,7 +220,7 @@ int stat_bucket_cmp(st_list *l1, st_list *l2)
 
 void sort_stat_table(struct hash_table *ht, st_list *head)
 {
-	unsigned i;
+	unsigned int i;
 
 	for (i = 0; i < ht->max_nr; i++)
 		list_join(&ht->tab[i], head);
@@ -246,9 +248,10 @@ int main(int argc, char **argv)
 	b = find_key(&ht, "KEY 4", 5);
 	/*
 	hlist_for_each_entry(sb, &ht, i) {
-		printf("KEY: %s count:%lu\n", (char *)sb->key, sb->count);
+		printf("KEY#%d: %s count:%lu\n", i, (char *)sb->key, sb->count);
 		free_stat_bucket(sb);
-	} */
+		}
+	*/
 	sort_stat_table(&ht, &head);
 	list_for_each_entry(sb, &head, list)
 		printf("KEY: %s count:%lu\n", (char *)sb->key, sb->count);

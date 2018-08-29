@@ -46,7 +46,8 @@ struct csv_state {
 	unsigned long line; /* current line */
 	const char *file_name;
 	char *csv_field; /* name of the field we crossed */
-	int  badline;
+	int badline;
+	int mandatory_fields; /* number of mandatory fields found */
 	int skip; /* tell the engine to skip fields without increasing the pos counter */
 	int state[8]; /* generic states table, csv_field->handle can use it as its wants */
 };
@@ -66,7 +67,7 @@ struct csv_file {
 	int num_fields_registered; /* number of field dynamically registered */
 	int max_fields; /* max number of fields */
 	const char *delim; /** delimiteur */
-	int max_mandatory_pos ; /* used to track the pos of the last mandatory field */
+	int mandatory_fields; /* number of mandatory fields */
 	/* given a line, try to guess if its a header or plain data;
 	 * if NULL, the file REQUIRES a header
 	 */
@@ -112,13 +113,13 @@ void free_csv_file(struct csv_file *cf);
 int register_csv_field(struct csv_file *cf, char *name, int mandatory, int pos,
 	int default_pos, int (*handle)(char *token, void *data, struct csv_state *state));
 
-/* generic_load_csv: open the 'filename' FILE, parse it according to 'cf' and 'state'
- * and usually you'll want to feed a  pointer to a struct whatever in *data
+/* generic_load_csv: open a file, parse it according to 'cf' and 'state'
+ * and usually you'll want to feed a pointer to a struct whatever in *data
  *
- * @filename : name of the file, stdin is used if filename == NULL
- * @cf       : struct csv_file, must have been init before
- * @state    : a generic state object used by run_body, to store data between callbacks
- * @data     : this will point to a struct you want to fill with data read from the file
+ * @name  : name of the file, stdin is used if name == NULL
+ * @cf    : struct csv_file, must have been init before
+ * @state : a generic state object used by run_body, to store data between callbacks
+ * @data  : this will point to a struct you want to fill with data read from the file
  */
 int generic_load_csv(const char *filename, struct csv_file *cf,
 		struct csv_state *state, void *data);

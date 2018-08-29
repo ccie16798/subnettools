@@ -27,12 +27,12 @@ struct hash_table {
 	int collisions;
 	unsigned int nr;
 	st_list *tab;
-	unsigned (*hash_fn)(void *, int);
+	unsigned (*hash_fn)(const void *, int);
 };
 
 /* two well-known hash-functions, see .c file for authors & copyrights */
-unsigned djb_hash(void *key, int len);
-unsigned fnv_hash(void *key, int len);
+unsigned int djb_hash(const void *key, int len);
+unsigned int fnv_hash(const void *key, int len);
 /* hlist_for_each_entry: iterate over all elements in a hash_table
  * @elem   : the iterator (the list embedded inside must be named 'list')
  * @__ht   : the hash table
@@ -51,7 +51,7 @@ unsigned fnv_hash(void *key, int len);
  *	>0 on SUCCESS
  *	<0 on ENOMEM
  */
-int alloc_hash_tab(struct hash_table *ht, unsigned long nr, unsigned (*hash)(void *, int));
+int alloc_hash_tab(struct hash_table *ht, unsigned long nr, unsigned (*hash)(const void *, int));
 
 /* new_stat_bucket: allocate memory for a stat bucket
  * @key     : the key
@@ -60,7 +60,7 @@ int alloc_hash_tab(struct hash_table *ht, unsigned long nr, unsigned (*hash)(voi
  *	pointer to a new struct on SUCCESS
  *	NULL on ENOMEM
  */
-struct stat_bucket *new_stat_bucket(char *key, int key_len);
+struct stat_bucket *new_stat_bucket(const char *key, int key_len);
 
 /* free_stat_bucket: free a stat bucket, remove from list
  * @sb   : a pointer to a stat bucket
@@ -87,7 +87,7 @@ void insert_bucket(struct hash_table *ht, struct st_bucket *bucket);
  *	a pointer to a struct bucket if found
  *	NULL if not found
  */
-struct st_bucket *find_key(struct hash_table *ht, char *key, int key_len);
+struct st_bucket *find_key(struct hash_table *ht, const char *key, int key_len);
 
 
 /* remove_key: remove a bucket from a hash table (without freeing it)
@@ -98,10 +98,10 @@ struct st_bucket *find_key(struct hash_table *ht, char *key, int key_len);
  *	a pointer to a struct bucket if found
  *	NULL if not found
  */
-struct st_bucket *remove_key(struct hash_table *ht, char *key, int key_len);
+struct st_bucket *remove_key(struct hash_table *ht, const char *key, int key_len);
 
 
-/* increase_key_stat:  increase the count associated with a key; alloc memory on first count
+/* increase_key_stat: increase the count associated with a key; alloc memory on first count
  * @ht      : the hash table
  * @key     : the key to look
  * @key_len : its length
@@ -109,9 +109,9 @@ struct st_bucket *remove_key(struct hash_table *ht, char *key, int key_len);
  *	a pointer to the key_stat if successful
  *	NULL on ENOMEM
  */
-struct stat_bucket *increase_key_stat(struct hash_table *ht, char *key, int key_len);
+struct stat_bucket *increase_key_stat(struct hash_table *ht, const char *key, int key_len);
 
-/* get_key_stat:  get the struct bucket_stat associated with a key
+/* get_key_stat: get the struct bucket_stat associated with a key
  * @ht      : the hash table
  * @key     : the key to look
  * @key_len : its length
@@ -119,6 +119,12 @@ struct stat_bucket *increase_key_stat(struct hash_table *ht, char *key, int key_
  *	a pointer to the bucket_stat if found
  *	NULL if not found
  */
-struct stat_bucket *get_key_stat(struct hash_table *ht, char *key, int key_len);
+struct stat_bucket *get_key_stat(struct hash_table *ht, const char *key, int key_len);
+
+/* sort_stat_table: sort a hash_table
+ * @ht      : the hash table
+ * @head    : a list where the result will be put
+ */
+void sort_stat_table(struct hash_table *ht, st_list *head);
 #else
 #endif

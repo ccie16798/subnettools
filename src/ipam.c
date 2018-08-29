@@ -212,9 +212,9 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 
 	/* register network and mask handler */
 	s = (nof->ipam_prefix_field[0] ? nof->ipam_prefix_field : "address*");
-	register_csv_field(&cf, s, 0, 1, 0, ipam_prefix_handle);
+	register_csv_field(&cf, s, 1, 0, 0, ipam_prefix_handle);
 	s = (nof->ipam_mask[0] ? nof->ipam_mask : "netmask_dec");
-	register_csv_field(&cf, s, 0, 1, 0, ipam_mask_handle);
+	register_csv_field(&cf, s, 1, 0, 0, ipam_mask_handle);
 
 	debug(IPAM, 4, "Parsing EA : '%s'\n", nof->ipam_ea);
 	i = 0;

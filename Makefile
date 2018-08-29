@@ -20,3 +20,7 @@ regtest: src/*.c src/*.h
 
 scantest:
 	cd regtest; sh ./scanf_test.sh
+
+test-hash: src/st_hashtab.c
+	cd src; make test-hash
+	mv src/test-hash .

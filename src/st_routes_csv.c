@@ -290,7 +290,7 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 	cf.default_handler      = &netcsv_ea_handler;
 	/* netcsv field may have been set by conf file, otherwise set their 'default' value */
 	s = (nof->netcsv_prefix_field[0] ? nof->netcsv_prefix_field : "prefix");
-	register_csv_field(&cf, s, 0, 1, 1, &netcsv_prefix_handle);
+	register_csv_field(&cf, s, 1, 1, 1, &netcsv_prefix_handle);
 	s = (nof->netcsv_mask[0] ? nof->netcsv_mask : "mask");
 	register_csv_field(&cf, s, 0, 0, 2, &netcsv_mask_handle);
 	s = (nof->netcsv_device[0] ? nof->netcsv_device : "device");

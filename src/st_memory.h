@@ -2,6 +2,7 @@
 #define ST_MEMORY_H
 
 extern unsigned long total_memory;
+#include <stdlib.h>
 #include "st_options.h"
 
 /* this option is set in st_options.h */
@@ -32,11 +33,16 @@ char *__st_strdup(const char *s,
 		const char *file, const char *func, int line);
 #define st_strdup(__s) \
 		__st_strdup(__s, __FILE__, __func__, __LINE__)
+void *__st_memdup(const char *s, size_t len,
+		const char *file, const char *func, int line);
+#define st_memdup(__s, __len) \
+		__st_memdup(__s, __len, __FILE__, __func__, __LINE__)
 void st_free_string(char *s);
 void st_free(void *ptr, unsigned long len);
 
 #else
 
+void st_simple_memdup(const void *s, size_t len);
 #define st_malloc(__n, __s) malloc(__n)
 #define st_malloc_nodebug(__n, __s) malloc(__n)
 #define st_realloc_nodebug(__ptr, __new, __old, __s) realloc(__ptr, __new)
@@ -44,6 +50,7 @@ void st_free(void *ptr, unsigned long len);
 #define st_free(__ptr, __n) free(__ptr)
 #define st_free_string(__s) free(__s)
 #define st_strdup(__s) strdup(__s)
+#define st_memdup(__s, __len)  st_simple_memdup(__s, __len)
 
 #endif
 
