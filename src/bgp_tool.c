@@ -119,7 +119,7 @@ int compare_bgp_file(const struct bgp_file *sf1, const struct bgp_file *sf2, str
 	return 1;
 }
 
-int as_path_length(const char *s)
+static int as_path_length(const char *s)
 {
 	int i = 0;
 	int num = 0;
