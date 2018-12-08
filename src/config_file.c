@@ -1,7 +1,7 @@
 /*
  * generic config file parsing implementation
  *
- * Copyright (C) 2014, 2015 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ * Copyright (C) 2014-2018 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
@@ -76,6 +76,11 @@ int open_config_file(char *name, void *nof)
 			}
 			offset = fileoptions[i].object_offset;
 			switch (fileoptions[i].type) {
+			case TYPE_CHAR:
+				debug(CONFIGFILE, 5, "line %lu copying CHAR '%s'offset %d\n",
+						line, s, (int)offset);
+				memcpy(object + offset, s, 1);
+				break;
 			case TYPE_STRING:
 				debug(CONFIGFILE, 5, "line %lu copying STRING '%s'offset %d\n",
 						line, s, (int)offset);

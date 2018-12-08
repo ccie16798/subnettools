@@ -3,6 +3,7 @@
 
 #define TYPE_STRING     1
 #define TYPE_INT        2
+#define TYPE_CHAR       3
 
 #define CONFFILE_MAX_LINE_LEN	1024
 #define CONFFILE_MAX_LEN	1024
