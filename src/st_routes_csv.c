@@ -17,6 +17,7 @@
 #include "string2ip.h"
 #include "st_routes.h"
 #include "utils.h"
+#include "st_strtok.h"
 #include "generic_csv.h"
 #include "st_printf.h"
 #include "bgp_tool.h"
