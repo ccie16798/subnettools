@@ -39,7 +39,8 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
 	debug(CSVHEADER, 5, "CSV header : '%s'\n", s);
 
 	if (cf->is_header == NULL || cf->is_header(s)) { /* check if valid header */
-		s = cf->csv_strtok_r(s, cf->delim, &save_s);
+		s = cf->csv_strtok_r(s, cf->delim, &save_s,
+			       cf->string_delim, cf->string_delim_escape);
 		while (s) {
 			debug(CSVHEADER, 8, "parsing token '%s' at pos %d\n", s, pos);
 			found = 0;
@@ -71,7 +72,8 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
 				}
 			}
 			pos++;
-			s = cf->csv_strtok_r(NULL, cf->delim, &save_s);
+			s = cf->csv_strtok_r(NULL, cf->delim, &save_s,
+				       cf->string_delim, cf->string_delim_escape);
 		}
 		debug(CSVHEADER, 3, "found %d fields\n", pos - 1);
 		cf->num_fields = pos - 1;
@@ -161,6 +163,8 @@ static int read_csv_body(struct st_file *f, struct csv_file *cf,
 	char *s, *save_s;
 	int pos;
 	unsigned long badlines = 0;
+	char sd = cf->string_delim;
+	char se = cf->string_delim_escape;
 
 	debug_timing_start(2);
 	/* get the first line from f or from init_buffer if set */
@@ -196,7 +200,7 @@ static int read_csv_body(struct st_file *f, struct csv_file *cf,
 				return res;
 			}
 		}
-		s = cf->csv_strtok_r(s, cf->delim, &save_s);
+		s = cf->csv_strtok_r(s, cf->delim, &save_s, sd, se);
 		pos = 0;
 		state->badline = 0;
 		state->mandatory_fields = 0;
@@ -246,7 +250,7 @@ static int read_csv_body(struct st_file *f, struct csv_file *cf,
 					debug(LOAD_CSV, 5, "Field '%s' told us to skip %d fields\n",
 							csv_field->name, state->skip);
 					for (i = 0; i < state->skip && s != NULL; i++) {
-						s = cf->csv_strtok_r(NULL, cf->delim, &save_s);
+						s = cf->csv_strtok_r(NULL, cf->delim, &save_s, sd, se);
 						debug(LOAD_CSV, 6, "Skipping %s\n", s);
 					}
 					if (s == NULL)
@@ -262,7 +266,7 @@ static int read_csv_body(struct st_file *f, struct csv_file *cf,
 				debug(LOAD_CSV, 5, "No field handler for pos=%d data='%s'\n",
 						pos, s);
 			}
-			s = cf->csv_strtok_r(NULL, cf->delim, &save_s);
+			s = cf->csv_strtok_r(NULL, cf->delim, &save_s, sd, se);
 		} /* while s */
 		if (state->mandatory_fields < cf->mandatory_fields) {
 			state->badline++;
@@ -375,7 +379,8 @@ int generic_header_cmp(const char *s1, const char *s2)
 }
 
 int init_csv_file(struct csv_file *cf, const char *file_name, int max_fields,
-		const char *delim, char * (*func)(char *, const char *, char **))
+		const char *delim,
+		char * (*func)(char *, const char *, char **, char, char))
 {
 	if (cf == NULL)
 		return 0;
@@ -388,6 +393,8 @@ int init_csv_file(struct csv_file *cf, const char *file_name, int max_fields,
 	cf->file_name    = (file_name ? file_name : "<stdin>");
 	cf->max_fields   = max_fields;
 	cf->mandatory_fields = 0;
+	cf->string_delim 	= '\0';
+	cf->string_delim_escape = '\0';
 	/* optional fields */
 	cf->is_header		 = NULL;
 	cf->validate_header	 = NULL;

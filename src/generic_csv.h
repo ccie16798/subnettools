@@ -68,6 +68,8 @@ struct csv_file {
 	int max_fields; /* max number of fields */
 	const char *delim; /** delimiteur */
 	int mandatory_fields; /* number of mandatory fields */
+	char string_delim;
+	char string_delim_escape;
 	/* given a line, try to guess if its a header or plain data;
 	 * if NULL, the file REQUIRES a header
 	 */
@@ -81,7 +83,8 @@ struct csv_file {
 	int (*startofline_callback)(struct csv_state *state, void *data);
 	int (*endofline_callback)(struct csv_state *state, void *data);
 	int (*endoffile_callback)(struct csv_state *state, void *data);
-	char * (*csv_strtok_r)(char *s, const char *delim, char **save_ptr);
+	char * (*csv_strtok_r)(char *s, const char *delim, char **save_ptr,
+			char string_delim, char string_delim_escape);
 };
 
 /* will only set the mandatory things (field, delim, and strtok_r function
@@ -90,7 +93,9 @@ struct csv_file {
  * - strtok_r        : treat consecutives delims as one
  */
 int init_csv_file(struct csv_file *cf, const char *file_name, int max_fields,
-		const char *delim, char * (*strtok_r)(char *, const char *, char **));
+		const char *delim,
+		char * (*strtok_r)(char *, const char *, char **,
+			char string_delim, char string_delim_escape));
 void init_csv_state(struct csv_state *cs, const char *file_name);
 
 
