@@ -94,6 +94,7 @@ struct csv_file {
  */
 int init_csv_file(struct csv_file *cf, const char *file_name, int max_fields,
 		const char *delim,
+		char string_delim, char string_delim_escape,
 		char * (*strtok_r)(char *, const char *, char **,
 			char string_delim, char string_delim_escape));
 void init_csv_state(struct csv_state *cs, const char *file_name);

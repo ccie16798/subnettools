@@ -380,6 +380,7 @@ int generic_header_cmp(const char *s1, const char *s2)
 
 int init_csv_file(struct csv_file *cf, const char *file_name, int max_fields,
 		const char *delim,
+		char string_delim, char string_delim_escape,
 		char * (*func)(char *, const char *, char **, char, char))
 {
 	if (cf == NULL)
@@ -393,8 +394,8 @@ int init_csv_file(struct csv_file *cf, const char *file_name, int max_fields,
 	cf->file_name    = (file_name ? file_name : "<stdin>");
 	cf->max_fields   = max_fields;
 	cf->mandatory_fields = 0;
-	cf->string_delim 	= '\0';
-	cf->string_delim_escape = '\0';
+	cf->string_delim 	= string_delim;
+	cf->string_delim_escape = string_delim_escape;
 	/* optional fields */
 	cf->is_header		 = NULL;
 	cf->validate_header	 = NULL;
