@@ -198,6 +198,19 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 	struct csv_state state;
 	char *s;
 	int i, res, ea_nr = 0;
+	char c;
+
+	c = nof->ipam_comment_delim;
+	if (c != '\0' && c != '\'' && c != '"' && c != '`') {
+		fprintf(stderr, "invalid ipam comment delim '%c'\n", c);
+		return -1;
+	}
+	c = nof->ipam_comment_delim_escape;
+	if (c != '\0' && c != '\\') {
+		fprintf(stderr, "invalid ipam comment delim escape char '%c'\n",
+				c);
+		return -1;
+	}
 
 	ea_nr = count_char(nof->ipam_ea, ',') + 1;
 	if (nof->ipam_delim[1] == '\0')
