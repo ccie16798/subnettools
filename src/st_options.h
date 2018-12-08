@@ -45,6 +45,9 @@ struct st_options {
 	char ipam_comment2[CSV_MAX_FIELD_LENGTH];
 	char ipam_delim[MAX_DELIM];
 	char ipam_ea[MAX_COLLECTED_EA];
+	char ipam_comment_delim;
+	char ipam_comment_delim_escape;
+
 	/* netcsv FILE description */
 	char netcsv_prefix_field[CSV_MAX_FIELD_LENGTH];
 	char netcsv_mask[CSV_MAX_FIELD_LENGTH];
