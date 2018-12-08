@@ -44,7 +44,7 @@ char *st_strtok(char *s, const char *delim)
 	return s3;
 }
 
-char *st_strtok_r(char *s, const char *delim, char **s2)
+static inline char *__st_strtok_r(char *s, const char *delim, char **s2)
 {
 	int i;
 	char *s3;
@@ -72,8 +72,12 @@ char *st_strtok_r(char *s, const char *delim, char **s2)
 	return s3;
 }
 
+char *st_strtok_r(char *s, const char *delim, char **s2)
+{
+	return __st_strtok_r(s, delim, s2);
+}
 /* just one delim */
-char *st_strtok_r1(char *s, const char *delim, char **s2)
+static inline char *__st_strtok_r1(char *s, const char *delim, char **s2)
 {
 	char *s3;
 
@@ -98,3 +102,7 @@ char *st_strtok_r1(char *s, const char *delim, char **s2)
 	return s3;
 }
 
+char *st_strtok_r1(char *s, const char *delim, char **s2)
+{
+	return __st_strtok_r1(s, delim, s2);
+}
