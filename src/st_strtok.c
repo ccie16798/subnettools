@@ -106,3 +106,47 @@ char *st_strtok_r1(char *s, const char *delim, char **s2)
 {
 	return __st_strtok_r1(s, delim, s2);
 }
+
+
+char *st_strtok_string_r(char *s, const char *delim, char **s2,
+		char string_delim,
+		char string_delim_escape)
+{
+	char *s3;
+	if (string_delim == '\0')
+		return __st_strtok_r(s, delim, s2);
+	if (s == NULL)
+		s = *s2;
+	else
+		*s2 = s;
+	if (*s2 == NULL)
+		return NULL;
+	/* if the token doesn't start with a string delim
+	 * use regular strtok function */
+	if (*s != string_delim)
+		return __st_strtok_r(s, delim, s2);
+	s3 = s;
+	return __st_strtok_r(s, delim, s2);
+}
+
+char *st_strtok_string_r1(char *s, const char *delim, char **s2,
+		char string_delim,
+		char string_delim_escape)
+{
+	char *s3;
+	if (string_delim == '\0')
+		return __st_strtok_r1(s, delim, s2);
+	if (s == NULL)
+		s = *s2;
+	else
+		*s2 = s;
+	if (*s2 == NULL)
+		return NULL;
+	/* if the token doesn't start with a string delim
+	 * use regular strtok function */
+	if (*s != string_delim)
+		return __st_strtok_r1(s, delim, s2);
+	s3 = s;
+	return __st_strtok_r1(s, delim, s2);
+}
+
