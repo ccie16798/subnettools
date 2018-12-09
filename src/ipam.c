@@ -217,7 +217,7 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 		res = init_csv_file(&cf, name, ea_nr + 4, nof->ipam_delim,
 				nof->ipam_comment_delim,
 				nof->ipam_comment_delim_escape,
-				&st_strtok_string_r);
+				&st_strtok_string_r1);
 	else
 		res = init_csv_file(&cf, name, ea_nr + 4, nof->ipam_delim,
 				nof->ipam_comment_delim,
