@@ -1,0 +1,5 @@
+prefix;comment
+10.40.172.0/27;"Sauvegarde Externe"
+10.58.0.12/30;"Interco rc-defense4/rc-estp1"
+10.58.0.68/30;"Interco \"rc-defense4/rc-bezons3 1"
+10.68.0.68/30;"titi,tata,toto"
