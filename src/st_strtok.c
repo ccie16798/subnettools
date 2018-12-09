@@ -113,6 +113,7 @@ char *st_strtok_string_r(char *s, const char *delim, char **s2,
 		char string_delim_escape)
 {
 	char *s3;
+
 	if (string_delim == '\0')
 		return __st_strtok_r(s, delim, s2);
 	if (s == NULL)
@@ -126,7 +127,34 @@ char *st_strtok_string_r(char *s, const char *delim, char **s2,
 	if (*s != string_delim)
 		return __st_strtok_r(s, delim, s2);
 	s3 = s;
-	return __st_strtok_r(s, delim, s2);
+	s++;
+	/* we will find the next string_delim char */
+	while (*s != '\0') {
+		if (*s == string_delim_escape) {
+			s++;
+			if (*s == '\0')
+				break;
+			s++;
+			continue;
+		}
+		if (*s == string_delim) {
+			s++;
+			break;
+		}
+		s++;
+	}
+	while (*s != '\0') {
+		if (*s == *delim) {
+			*s = '\0';
+			*s2 = s + 1;
+			return s3;
+		}
+		s++;
+	}
+	if (s3 == s)
+		return NULL;
+	*s2 = NULL;
+	return s3;
 }
 
 char *st_strtok_string_r1(char *s, const char *delim, char **s2,
@@ -134,6 +162,7 @@ char *st_strtok_string_r1(char *s, const char *delim, char **s2,
 		char string_delim_escape)
 {
 	char *s3;
+
 	if (string_delim == '\0')
 		return __st_strtok_r1(s, delim, s2);
 	if (s == NULL)
