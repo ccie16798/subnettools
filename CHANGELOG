@@ -1,5 +1,11 @@
-v1.5 (unreleased)
+v1.6 (unreleased)
 =================
+-New features
+-- supports IPAM comments containing the delim char (1.1.1.1,24,"comment,is,good")
+
+
+v1.5 (2018 refresh)
+===================
 
 -New features
 -- Case insensitive pattern matching, use '%' special char for filter :
