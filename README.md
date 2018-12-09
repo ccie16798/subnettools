@@ -52,6 +52,21 @@ IPAM tools
 - ipamprint<IPAM>     : print <IPAM>; use option -ipamea to select Extended Attributes
 - getea <IPAM> FILE   : print FILE with Extended Attributes retrieved from IPAM
 
+ipam structure must be described in st.conf
+ipam_prefix_field    : IPAM CSV header field describing the prefix
+ipam_mask            : IPAM CSV header field describing the mask
+ipam_comment1        : IPAM CSV header field describing comment
+ipam_comment2        : IPAM CSV header field describing comment (optional)
+ipam_delim           : IPAM CSV delimitor (like ',' or ';')
+ipam_ea              : IPAM Extended Attributes to collect (prefix, mask and comment
+by default)
+
+if your IPAM may contain delim chars inside comments, usually comments are inside
+quotes or double quotes (" or ')
+you can describe that with:
+ipam_comment_delim   : IPAM CSV comment delimitor
+ipam_comment_delim_escape : IPAM CSV comment delimitor escape
+
 Miscellaneous route file tools
 ------------------------------
 - print FILE1         : just read & print FILE1; use a -fmt FMT to print CSV fields you want
