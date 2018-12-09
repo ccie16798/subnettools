@@ -46,8 +46,8 @@ char *st_strtok(char *s, const char *delim)
 
 static inline char *__st_strtok_r(char *s, const char *delim, char **s2)
 {
-	int i;
 	char *s3;
+	int i, delim_len;
 
 	if (s == NULL)
 		s = *s2;
@@ -56,8 +56,9 @@ static inline char *__st_strtok_r(char *s, const char *delim, char **s2)
 	if (*s2 == NULL)
 		return NULL;
 	s3 = s;
+	delim_len = strlen(delim);
 	while (*s != '\0') {
-		for (i = 0; i < strlen(delim); i++) {
+		for (i = 0; i < delim_len; i++) {
 			if (*s == delim[i]) {
 				*s = '\0';
 				*s2 = s + 1;
@@ -113,7 +114,7 @@ char *st_strtok_string_r(char *s, const char *delim, char **s2,
 		char string_delim_escape)
 {
 	char *s3;
-	int i;
+	int i, delim_len;
 
 	if (string_delim == '\0')
 		return __st_strtok_r(s, delim, s2);
@@ -144,8 +145,9 @@ char *st_strtok_string_r(char *s, const char *delim, char **s2,
 		}
 		s++;
 	}
+	delim_len = strlen(delim);
 	while (*s != '\0') {
-		for (i = 0; i < strlen(delim); i++) {
+		for (i = 0; i < delim_len; i++) {
 			if (*s == delim[i]) {
 				*s = '\0';
 				*s2 = s + 1;
