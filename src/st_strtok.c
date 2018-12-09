@@ -108,7 +108,14 @@ char *st_strtok_r1(char *s, const char *delim, char **s2)
 	return __st_strtok_r1(s, delim, s2);
 }
 
-
+/* another variant; don't interpret @delim if they are included
+ * inside a string delimiter (typically ")
+ * for example, with delim=, and string_delim="
+ * "a,b,c" is a token while regular strtork would make 3 tokens
+ * 1) "a
+ * 2) b
+ * 3) c"
+ */
 char *st_strtok_string_r(char *s, const char *delim, char **s2,
 		char string_delim,
 		char string_delim_escape)
