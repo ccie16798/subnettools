@@ -196,7 +196,9 @@ reg_test_ipamfilter() {
 	# toto2 has already EA, so more difficult to handle without leaking memory
 	$PROG -c st.conf -fmt "%P;%O#" -ea EA-Site,EA-Vlan getea ipam-test toto  > res/ipamfilter17
 
-	n=17
+	$PROG -c st-ipam.conf  ipamprint ipam-test3  > res/ipamfilter18
+	$PROG -c st-ipam2.conf  ipamprint ipam-test3  > res/ipamfilter19
+	n=19
 	for i in `seq 1 $n`; do
 		output_file=ipamfilter$i
 		if [ ! -f ref/$output_file ]; then
