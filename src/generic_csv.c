@@ -424,7 +424,8 @@ void init_csv_state(struct csv_state *cs, const char *file_name)
 	cs->file_name = (file_name ? file_name : "<stdin>");
 }
 
-int register_csv_field(struct csv_file *csv_file, char *field_name, int mandatory,
+int register_csv_field(struct csv_file *csv_file, char *field_name,
+		enum csv_mandatory_field mandatory,
 		int pos, int default_pos,
 		int (*handle)(char *token, void *data, struct csv_state *state))
 {

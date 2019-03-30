@@ -293,15 +293,15 @@ int load_netcsv_file(char *name, struct subnet_file *sf, struct st_options *nof)
 	cf.default_handler      = &netcsv_ea_handler;
 	/* netcsv field may have been set by conf file, otherwise set their 'default' value */
 	s = (nof->netcsv_prefix_field[0] ? nof->netcsv_prefix_field : "prefix");
-	register_csv_field(&cf, s, 1, 1, 1, &netcsv_prefix_handle);
+	register_csv_field(&cf, s, mandatory, 1, 1, &netcsv_prefix_handle);
 	s = (nof->netcsv_mask[0] ? nof->netcsv_mask : "mask");
-	register_csv_field(&cf, s, 0, 0, 2, &netcsv_mask_handle);
+	register_csv_field(&cf, s, optional, 0, 2, &netcsv_mask_handle);
 	s = (nof->netcsv_device[0] ? nof->netcsv_device : "device");
-	register_csv_field(&cf, s, 0, 0, 0, &netcsv_device_handle);
+	register_csv_field(&cf, s, optional, 0, 0, &netcsv_device_handle);
 	s = (nof->netcsv_gw[0] ? nof->netcsv_gw : "GW");
-	register_csv_field(&cf, s, 0, 0, 3, &netcsv_GW_handle);
+	register_csv_field(&cf, s, optional, 0, 3, &netcsv_GW_handle);
 	s = (nof->netcsv_comment[0] ? nof->netcsv_comment : "comment");
-	register_csv_field(&cf, s, 0, 0, 4, &netcsv_comment_handle);
+	register_csv_field(&cf, s, optional, 0, 4, &netcsv_comment_handle);
 
 	if (cf.csv_field == NULL) {/* failed malloc of csv_field name */
 		free_csv_file(&cf);
@@ -360,9 +360,9 @@ int load_ipam_no_EA(char  *name, struct subnet_file *sf, struct st_options *nof)
 	cf.startofline_callback = netcsv_startofline_callback;
 	init_csv_state(&state, name);
 	s = (nof->ipam_prefix_field[0] ? nof->ipam_prefix_field : "address*");
-	register_csv_field(&cf, s, 0, 3, 1, netcsv_prefix_handle);
+	register_csv_field(&cf, s, optional, 3, 1, netcsv_prefix_handle);
 	s = (nof->ipam_mask[0] ? nof->ipam_mask : "netmask_dec");
-	register_csv_field(&cf, s, 0, 4, 1, netcsv_mask_handle);
+	register_csv_field(&cf, s, optional, 4, 1, netcsv_mask_handle);
 	if (nof->ipam_comment1[0]) {
 		register_csv_field(&cf, nof->ipam_comment1, 0, 16, 1,
 				&netcsv_comment_handle);
@@ -370,11 +370,13 @@ int load_ipam_no_EA(char  *name, struct subnet_file *sf, struct st_options *nof)
 		 * if it is NULL, that means the ipam we have doesnt have a
 		 * secondary comment field
 		 */
-		register_csv_field(&cf, nof->ipam_comment2, 0, 17, 1,
+		register_csv_field(&cf, nof->ipam_comment2, optional, 17, 1,
 				&ipam_comment_handle);
 	} else {
-		register_csv_field(&cf, "EA-Name", 0, 16, 1, &netcsv_comment_handle);
-		register_csv_field(&cf, "comment", 0, 17, 1, &ipam_comment_handle);
+		register_csv_field(&cf, "EA-Name", optional, 16, 1,
+				&netcsv_comment_handle);
+		register_csv_field(&cf, "comment", optional, 17, 1,
+				&ipam_comment_handle);
 	}
 	if (cf.csv_field == NULL) {/* failed malloc of csv_field name */
 		free_csv_file(&cf);
@@ -635,17 +637,17 @@ int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof)
 	cf.endofline_callback   = bgpcsv_endofline_callback;
 	cf.header_field_compare = bgp_field_compare;
 	init_csv_state(&state, name);
-	register_csv_field(&cf, "prefix",	0, 0, 1, &bgpcsv_prefix_handle);
-	register_csv_field(&cf, "GW",		0, 0, 1, &bgpcsv_GW_handle);
-	register_csv_field(&cf, "LOCAL_PREF",	0, 0, 1, &bgpcsv_localpref_handle);
-	register_csv_field(&cf, "MED",		0, 0, 1, &bgpcsv_med_handle);
-	register_csv_field(&cf, "WEIGHT",	0, 0, 1, &bgpcsv_weight_handle);
-	register_csv_field(&cf, "AS_PATH",	0, 0, 0, &bgpcsv_aspath_handle);
-	register_csv_field(&cf, "WEIGHT",	0, 0, 1, &bgpcsv_weight_handle);
-	register_csv_field(&cf, "BEST",		0, 0, 1, &bgpcsv_best_handle);
-	register_csv_field(&cf, "ORIGIN",	0, 0, 1, &bgpcsv_origin_handle);
-	register_csv_field(&cf, "V",		0, 0, 1, &bgpcsv_valid_handle);
-	register_csv_field(&cf, "Proto",	0, 0, 1, &bgpcsv_type_handle);
+	register_csv_field(&cf, "prefix",	mandatory, 0, 1, &bgpcsv_prefix_handle);
+	register_csv_field(&cf, "GW",		mandatory, 0, 1, &bgpcsv_GW_handle);
+	register_csv_field(&cf, "LOCAL_PREF",	mandatory, 0, 1, &bgpcsv_localpref_handle);
+	register_csv_field(&cf, "MED",		mandatory, 0, 1, &bgpcsv_med_handle);
+	register_csv_field(&cf, "WEIGHT",	mandatory, 0, 1, &bgpcsv_weight_handle);
+	register_csv_field(&cf, "AS_PATH",	optional,  0, 0, &bgpcsv_aspath_handle);
+	register_csv_field(&cf, "WEIGHT",	optional,  0, 1, &bgpcsv_weight_handle);
+	register_csv_field(&cf, "BEST",		optional,  0, 1, &bgpcsv_best_handle);
+	register_csv_field(&cf, "ORIGIN",	mandatory, 0, 1, &bgpcsv_origin_handle);
+	register_csv_field(&cf, "V",		optional,  0, 1, &bgpcsv_valid_handle);
+	register_csv_field(&cf, "Proto",	optional,  0, 1, &bgpcsv_type_handle);
 	if (cf.csv_field == NULL) {/* failed malloc of csv_field name */
 		free_csv_file(&cf);
 		return -2;

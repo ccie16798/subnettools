@@ -32,6 +32,8 @@
 #define  CSV_HEADER_TOOLONG -18
 #define  CSV_ENOMEM	    -30
 
+enum csv_mandatory_field {optional, mandatory};
+
 /* csv_state is used to store data across calls to csv_field->handle
  * obvious exemple is the line number, but each caller of generic_load_csv
  * SHOULD set any value it requires
@@ -56,14 +58,14 @@ struct csv_field {
 	char *name; /* will be malloc'ed */
 	int pos; /* pos starts at 1, pos == 0 means it is not set */
 	int default_pos; /* used in CSV files where there is no HEADER */
-	int mandatory;
+	enum csv_mandatory_field mandatory;
 	int (*handle)(char *token, void *data, struct csv_state *state);
 };
 
 struct csv_file {
 	const char *file_name;
 	struct csv_field *csv_field;
-	int num_fields; /* number of fields inside the CSV (including those without handler) */
+	int num_fields; /* number of fields inside the CSV */
 	int num_fields_registered; /* number of field dynamically registered */
 	int max_fields; /* max number of fields */
 	const char *delim; /** delimiteur */
@@ -116,8 +118,9 @@ void free_csv_file(struct csv_file *cf);
  *	the position where is was inserted
  *	negative on error
  */
-int register_csv_field(struct csv_file *cf, char *name, int mandatory, int pos,
-	int default_pos, int (*handle)(char *token, void *data, struct csv_state *state));
+int register_csv_field(struct csv_file *cf, char *name,
+		enum csv_mandatory_field mandatory, int pos, int default_pos,
+		int (*handle)(char *token, void *data, struct csv_state *state));
 
 /* generic_load_csv: open a file, parse it according to 'cf' and 'state'
  * and usually you'll want to feed a pointer to a struct whatever in *data
