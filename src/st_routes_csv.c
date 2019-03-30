@@ -364,7 +364,7 @@ int load_ipam_no_EA(char  *name, struct subnet_file *sf, struct st_options *nof)
 	s = (nof->ipam_mask[0] ? nof->ipam_mask : "netmask_dec");
 	register_csv_field(&cf, s, optional, 4, 1, netcsv_mask_handle);
 	if (nof->ipam_comment1[0]) {
-		register_csv_field(&cf, nof->ipam_comment1, 0, 16, 1,
+		register_csv_field(&cf, nof->ipam_comment1, optional, 16, 1,
 				&netcsv_comment_handle);
 		/* if comment1 is set, we set also comment2, even if its NULL
 		 * if it is NULL, that means the ipam we have doesnt have a
