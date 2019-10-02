@@ -257,7 +257,7 @@ int count_cs(const char *expr)
 	for (i = 1; ; i++) {
 		if (expr[i] == '\0')
 			return (max_n > n ?  max_n : n);
-		if (expr[i] == '|' && n > max_n) {
+		if (expr[i] == '|' && expr[i - 1] && n > max_n) {
 			max_n = n;
 			n = 0;
 		}
