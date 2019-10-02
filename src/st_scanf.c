@@ -738,7 +738,7 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 	char c;
 	char *p;
 	const char *saved_in;
-	int saved_num_o = *num_o;
+	const int saved_num_o = *num_o;
 
 	saved_in = in;
 	while (1) {
