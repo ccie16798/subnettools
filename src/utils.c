@@ -250,14 +250,19 @@ int count_cs(const char *expr)
 {
 	int i;
 	int n = 0;
+	int max_n = 0;
 
 	if (expr[0] == '%')
 		n++;
 	for (i = 1; ; i++) {
 		if (expr[i] == '\0')
-			return n;
+			return (max_n > n ?  max_n : n);
+		if (expr[i] == '|' && n > max_n) {
+			max_n = n;
+			n = 0;
+		}
 		/* unlike regular scanf, escape char is '\' and only that */
-		if (expr[i] == '%' && expr[i - 1] != '\\')
+		else if (expr[i] == '%' && expr[i - 1] != '\\')
 			n++;
 	}
 	return 0;
