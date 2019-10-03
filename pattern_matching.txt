@@ -79,26 +79,28 @@ is to be made up of characters in (or not in) a particular set; the set is defin
 close bracket ] character.  The set excludes those characters if the first character after the open bracket is a circumflex (^).  To include a close
 bracket in the set, make it the first character after the open bracket or the circumflex; any other position will end the set.  The hyphen character
 -  is  also special; when placed between two other characters, it adds all intervening characters to the set.  To include a hyphen, make it the last
-character before the final close bracket.  For instance, [^]0-9-] means the set "everything except close bracket, zero through  nine,  and  hyphen".
+character before the final close bracket.  For instance, [^]0-9-] means the set "everything except close bracket, zero through nine, and hyphen".
 The string ends with the appearance of a character not in the (or, with a circumflex, in) set or when the field width runs out
 
 
 Pattern matching chars
 ======================
 
-st_scanf() define the 3 following additional sequences :
-[abcde-h] : any one of the chars in the brackets; see '%[' above; note that special chars ARE NOT interpreted inside a char range
-.		: matches ANY character
-(expr)		: a sequence to match;
+st_scanf() define the 3 following additional sequences:
+[abcde-h] : any one of the chars in the brackets; see '%[' above;
+Note that special chars ARE NOT interpreted inside a char range:
+.	  : matches ANY character
+(expr)	  : a sequence to match
 
-expr can alse the form of '(expr_1|expr_2|...|expr_n)' ; the first expr to match will stop the pattern engine
+expr can also have the form of '(expr_1|expr_2|...|expr_n)';
+The first expr_n to match will stop the pattern engine.
 
-Please note the following limitations (subnettools v1.5)
+Please note the following limitations (subnettools v1.5):
 - Expression CANNOT be nested
 - Expression CANNOT include a sequence quantifier
 - in case a parenthesis or quantifier char is found inside an expression, it is handled like a regular char
 
-Expressions can also contain one or more conversion specifier with '?' like
+Expressions can also contain one or more conversion specifieris with '?' like:
 st_scanf("1.1.1.0 vlan55 2.2.2.2", "%I (%S )?%I", &ip, &device, &nhop)
 st_scanf("1.1.1.0 2.2.2.2",        "%I (%S )?%I", &ip, &device, &nhop)
 
@@ -118,19 +120,20 @@ $ 	: the sequence expansion ends on the "last match" (see below)
 
 Understand '(expr)*' expansion, specifically '.*' expansion
 ===========================================================
-(in the text below i'm talking about (EXPR)* expansion, but this applies equally to any other quantifier
+(in the text below i'm talking about (EXPR)* expansion, but this applies equally to any other quantifiers)
 
 Wwhen does (expr)* expansion ends??  there are 3 cases to consider :
 CASE 1 :  (EXPR)* expansion when expr is not '.'
 ------------------------------------------------
 In that case, expansion will end when EXPR doesn't match anymore
-that means that scanf("aaaaaaaab", "a*(aab)") doesnt match since 'a*' expansion ends on 'b'
-you probably want to write  and equivalent scanf(""aaaaaaaab", "a{2,}b")
+Which means that st_scanf("aaaaaaaab", "a*(aab)") does not match since 'a*' expansion ends on 'b'
+The pattern "a*(aab)" make no sense, you probably want to write an equivalent:
+st_scanf(""aaaaaaaab", "a{2,}b")
 
 CASE 2: .* expansion
 --------------------
-This case is more complicated since .* could match every char in the INPUT string, but that interpretation
-would be uninteresting (though correct)
+This case is more complicated since .* could match every char in the INPUT string,
+but that interpretation would be uninteresting (though correct)
 
 .* expansion ends based on the REMAINING chars of FMT (we call that REMAIN)
 
@@ -160,14 +163,14 @@ st_scanf("                   1.1.1.1", ".*%I", string) will return "1.1.1.1"
 ".*%S"
 ==> on the first string that DO NOT represent an IP
 scanf("1.1.1.1 toto",  ".*%S", string) will set string to 'toto';
-it will not set '.1.1.1', even if '.1.1.1' is not an IP; st_scanf detects that "1.1.1.1" is an IP
-and thus skip the whole "1.1.1.1" string in its expansion
+it will not set '.1.1.1', even if '.1.1.1' is not an IP;
+st_scanf detects that "1.1.1.1" is an IP and thus skip the whole "1.1.1.1" string in its expansion.
 
 if next sequence is an expr (EXPR)
 ----------------------------------
 expansion will end if the complete EXPR matches
 
-pattern matching is done 'char by char' by default so ".*STRING" is not what you think it is :
+pattern matching is done 'char by char' by default so ".*STRING" is not what you think it is:
 st_scanf(" a 1.1.1.1 abcd 2.2.2.2", ".*abcd %I") will not match (expansion ends on second char 'a')
 
 etienne@debian:~/st$ ./subnet-tools -D scanf:3 scanf " a 1.1.1.1 abcd 2.2.2.2", ".*abcd %I" 
@@ -184,8 +187,8 @@ If '+' or '*' is preceded by a special '$' char, than means expansion will stop 
 (pos CAN stop AND previous pos CANNOT stop)
 For example :
 st_scanf("10.73.0.6/32 [115/200] via 10.73.10.106, 5d08h, Vlan860",  ".*$%s", string) will return 'Vlan860' ('Vlan860' is a STRING and ' Vlan860' is not)
-it is important to understand AND '&& previous pos CANNOT stop' without that clause,
-scanf("i L2     10.73.0.6/32 [115/200] via 10.73.10.106, 5d08h, Vlan860" ".*$%s") would return the last input char '0', which is a valid STRING.
+It is important to understand AND '&& previous pos CANNOT stop' without that clause,
+st_scanf("i L2     10.73.0.6/32 [115/200] via 10.73.10.106, 5d08h, Vlan860" ".*$%s") would return the last input char '0', which is a valid STRING.
 
 
 Debugging your pattern
