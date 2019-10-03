@@ -454,10 +454,10 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		}
 		res = string2addr(*in, v_addr, p - *in);
 		if (res > 0) {
-			debug(SCANF, 5, "valid IP found at %s\n", *in);
+			debug(SCANF, 5, "valid IP found at '%s'\n", *in);
 			n_found++;
 		} else {
-			debug(SCANF, 3, "invalid IP at %s\n", *in);
+			debug(SCANF, 3, "invalid IP at '%s'\n", *in);
 			return n_found;
 		}
 		break;
@@ -466,15 +466,15 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		while (isdigit(*p) || *p == '.')
 			p++;
 		if (p - *in == 0) {
-			debug(SCANF, 3, "no MASK found at %s\n", *in);
+			debug(SCANF, 3, "no MASK found at '%s'\n", *in);
 			return n_found;
 		}
 		res = string2mask(*in, p - *in);
 		if (res != BAD_MASK) {
-			debug(SCANF, 5, "Valid MASK found at %s\n", *in);
+			debug(SCANF, 5, "Valid MASK found at '%s'\n", *in);
 			n_found++;
 		} else {
-			debug(SCANF, 3, "Invalid MASK at %s\n", *in);
+			debug(SCANF, 3, "Invalid MASK at '%s'\n", *in);
 			return n_found;
 		}
 		*v_int = res;
@@ -493,7 +493,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			if (*p == '0' && p[1] == 'x')
 				p += 2;
 			if (!isxdigit(*p)) {
-				debug(SCANF, 3, "no HEX found at %s\n", *in);
+				debug(SCANF, 3, "no HEX found at '%s'\n", *in);
 				return n_found;
 			}
 			*v_short = char2int(*p);
@@ -503,7 +503,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 				*v_short += char2int(*p);
 				p++;
 			}
-			debug(SCANF, 5, "found short hex '%x' at %s\n",
+			debug(SCANF, 5, "found short hex '%x' at '%s'\n",
 					*v_short, *in);
 		} else {
 			if (*p == '-' && c == 'd') {
@@ -512,7 +512,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			} else
 				sign = 1;
 			if (!isdigit(*p)) {
-				debug(SCANF, 3, "no short int found at %s\n", *in);
+				debug(SCANF, 3, "no short int found at '%s'\n", *in);
 				return n_found;
 			}
 			*v_short = (*p - '0');
@@ -524,10 +524,10 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			}
 			*v_short *= sign;
 			if (c == 'u') {
-				debug(SCANF, 5, "found unsigned short '%hu' at %s\n",
+				debug(SCANF, 5, "found unsigned short '%hu' at '%s'\n",
 						(unsigned short)*v_short, *in);
 			} else {
-				debug(SCANF, 5, "found short int '%hd' at %s\n",
+				debug(SCANF, 5, "found short int '%hd' at '%s'\n",
 						*v_short, *in);
 			}
 		}
@@ -546,7 +546,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			if (*p == '0' && p[1] == 'x')
 				p += 2;
 			if (!isxdigit(*p)) {
-				debug(SCANF, 3, "no long hex found at %s\n", *in);
+				debug(SCANF, 3, "no long hex found at '%s'\n", *in);
 				return n_found;
 			}
 			*v_long = char2int(*p);
@@ -556,7 +556,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 				*v_long += char2int(*p);
 				p++;
 			}
-			debug(SCANF, 5, "found long hex '%lx' at %s\n",
+			debug(SCANF, 5, "found long hex '%lx' at '%s'\n",
 					(unsigned long)*v_long, *in);
 		} else {
 			if (*p == '-' && c == 'd') {
@@ -565,7 +565,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			} else
 				sign = 1;
 			if (!isdigit(*p)) {
-				debug(SCANF, 3, "no long int found at %s\n", *in);
+				debug(SCANF, 3, "no long int found at '%s'\n", *in);
 				return n_found;
 			}
 			*v_long = char2int(*p);
@@ -577,10 +577,10 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			}
 			*v_long *= sign;
 			if (c == 'u') {
-				debug(SCANF, 5, "found unsigned long '%lu' at %s\n",
+				debug(SCANF, 5, "found unsigned long '%lu' at '%s'\n",
 						(unsigned long)*v_long, *in);
 			} else {
-				debug(SCANF, 5, "found long int '%ld' at %s\n",
+				debug(SCANF, 5, "found long int '%ld' at '%s'\n",
 						*v_long, *in);
 			}
 		}
@@ -594,7 +594,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		} else
 			sign = 1;
 		if (!isdigit(*p)) {
-			debug(SCANF, 3, "no int found at %s\n", *in);
+			debug(SCANF, 3, "no int found at '%s'\n", *in);
 			return n_found;
 		}
 		*v_int = (*p - '0');
@@ -605,13 +605,13 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			p++;
 		}
 		*v_int *= sign;
-		debug(SCANF, 5, "found int '%d' at %s\n", *v_int, *in);
+		debug(SCANF, 5, "found int '%d' at '%s'\n", *v_int, *in);
 		n_found++;
 		break;
 	case 'u':
 		ARG_SET(v_uint, unsigned int *);
 		if (!isdigit(*p)) {
-			debug(SCANF, 3, "no unsigned int found at %s\n", *in);
+			debug(SCANF, 3, "no unsigned int found at '%s'\n", *in);
 			return n_found;
 		}
 		*v_uint = (*p - '0');
@@ -621,7 +621,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			*v_uint += (*p - '0');
 			p++;
 		}
-		debug(SCANF, 5, "found unisgned int '%u' at %s\n", *v_uint, *in);
+		debug(SCANF, 5, "found unisgned int '%u' at '%s'\n", *v_uint, *in);
 		n_found++;
 		break;
 	case 'x':
@@ -629,7 +629,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		if (*p == '0' && p[1] == 'x')
 			p += 2;
 		if (!isxdigit(*p)) {
-			debug(SCANF, 3, "no hex found at %s\n", *in);
+			debug(SCANF, 3, "no hex found at '%s'\n", *in);
 			return n_found;
 		}
 		*v_uint = char2int(*p);
@@ -639,7 +639,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			*v_uint += char2int(*p);
 			p++;
 		}
-		debug(SCANF, 5, "found HEX '%x' at %s\n", *v_uint, *in);
+		debug(SCANF, 5, "found HEX '%x' at '%s'\n", *v_uint, *in);
 		n_found++;
 		break;
 	case 'S': /* a special STRING that doesnt represent an IP */
@@ -656,7 +656,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			*ptr_buff++ = *p++; /* fast copy */
 
 		if (p == *in) {
-			debug(SCANF, 3, "no STRING found at %s\n", *in);
+			debug(SCANF, 3, "no STRING found at '%s'\n", *in);
 			return n_found;
 		}
 		*ptr_buff = '\0';
@@ -678,7 +678,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			*ptr_buff++ = *p++;
 
 		if (p == *in) { /* p == *in means pointer didnt move */
-			debug(SCANF, 3, "no WORD found at %s\n", *in);
+			debug(SCANF, 3, "no WORD found at '%s'\n", *in);
 			return 0;
 		}
 		*ptr_buff = '\0';
@@ -697,11 +697,11 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 			*ptr_buff++ = *p++;
 
 		if (p == *in) {
-			debug(SCANF, 3, "no CHAR RANGE '%s' found at %s\n", expr, *in);
+			debug(SCANF, 3, "no CHAR RANGE '%s' found at '%s'\n", expr, *in);
 			return 0;
 		}
 		*ptr_buff = '\0';
-		debug(SCANF, 5, "CHAR RANGE '%s' found at %s\n", v_s,  *in);
+		debug(SCANF, 5, "CHAR RANGE '%s' found at '%s'\n", v_s,  *in);
 		n_found++;
 		break;
 	case 'c':
@@ -800,7 +800,7 @@ static int match_expr_single(const char *expr, const char *in, struct sto *o, in
 end_no_match:
 	/* we may have found an object before failing
 	 * in that case, we must not take it into account */
-	debug(SCANF, 4, "no more match, restoring num_o='%d' to its previous value='%d'\n",
+	debug(SCANF, 4, "no more match, restoring num_o=%d to its previous value=%d\n",
 			*num_o, saved_num_o);
 	*num_o = saved_num_o;
 	return 0;
@@ -1090,7 +1090,8 @@ static int parse_quantifier_char(const char **in, const char **fmt, const char *
 		max_m = max_match(**fmt);
 		*fmt += 1;
 	}
-	debug(SCANF, 5, "need to find expression '%s' {%d,%d} times\n", expr, min_m, max_m);
+	debug(SCANF, 5, "need to find expression '%s' {%d,%d} times\n",
+			expr, min_m, max_m);
 	/* simple case, we match a single char {n,m} times */
 	debug(SCANF, 4, "Pattern expansion will end when in[j] != '%c'\n", *expr);
 	while (n_match < max_m) {
@@ -1112,8 +1113,8 @@ static int parse_quantifier_char(const char **in, const char **fmt, const char *
 	return 1;
 }
 
-static int parse_quantifier_char_range(const char **in, const char **fmt, const char *in_max,
-		char *expr, struct sto *o, int max_o, int *n_found)
+static int parse_quantifier_char_range(const char **in, const char **fmt,
+		const char *in_max, char *expr, struct sto *o, int max_o, int *n_found)
 {
 	int res;
 	int min_m, max_m;
@@ -1186,7 +1187,7 @@ static int parse_quantifier_expr(const char **in, const char **fmt, const char *
 		n_match++;
 		if (p > in_max) {
 			/* can happen only if there is a BUG in max_expr_single */
-			fprintf(stderr, "BUG, input buffer override in %s line %d\n",
+			fprintf(stderr, "BUG, input buffer override in '%s' line %d\n",
 					__func__, __LINE__);
 			return -5;
 		}
