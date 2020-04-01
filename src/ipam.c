@@ -255,7 +255,7 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 		free_csv_file(&cf);
 		return -1;
 	}
-	debug(IPAM, 5, "Collected %d Extended Attributes\n", i);
+	debug(IPAM, 5, "Registered %d Extended Attributes\n", i);
 	res = alloc_ipam_file(sf, 16192, i);
 	if (res < 0) {
 		free_csv_file(&cf);
@@ -264,6 +264,8 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 	for (i = 0; i < ea_nr; i++) {
 		sf->ea[i].name = st_strdup(cf.csv_field[i + 2].name);
 		if (sf->ea[i].name == NULL) {
+			debug(IPAM, 5, " Extended Attributes %i is NULL\n", i);
+			free_ipam_file(sf);
 			free_csv_file(&cf);
 			return -1;
 		}
