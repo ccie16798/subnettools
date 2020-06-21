@@ -397,8 +397,8 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 	struct ipam_ea *new_ea;
 
 	/*
-	 * subnet file sfr may already have Extended Attributes
-	 * we must add EA from IPAM as well
+	 * subnet file sf may already have Extended Attributes
+	 * we must append EA from IPAM as well
 	 * comment from subnet_file is always overwritten
 	 */
 	for (j = 0; j < ipam->ea_nr; j++)
@@ -426,7 +426,9 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 
 	for (i = 0; i < sf->nr; i++) {
 		/* allocating new EA and setting value to NULL */
-		res = realloc_route_ea(&sf->routes[i], sf->routes[i].ea_nr + ipam->ea_nr - has_comment);
+		res = realloc_route_ea(&sf->routes[i],
+				sf->routes[i].ea_nr + ipam->ea_nr - has_comment);
+
 		if (res < 0)
 			return res;
 		found_mask = -1;
