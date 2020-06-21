@@ -212,9 +212,9 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 		return -1;
 	}
 	/*
-	 * this ea_nr is just an estimate; the ea_nr field could be 
-	 * badly formatted, like ',EA-Site' or 'comment,"
-	 */ 
+	 * this ea_nr is just a naive estimate; the ea_nr field could be
+	 * badly formatted, like ',EA-Site' or 'comment,'
+	 */
 	ea_nr = count_char(nof->ipam_ea, ',') + 1;
 	if (nof->ipam_delim[1] == '\0')
 		res = init_csv_file(&cf, name, ea_nr + 4, nof->ipam_delim,
@@ -254,7 +254,7 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 		free_csv_file(&cf);
 		return -1;
 	}
-	ea_nr = i; /* real value here */
+	ea_nr = i; /* accurate value here */
 	if (cf.csv_field == NULL) { /* failed a malloc of csv_field name */
 		free_csv_file(&cf);
 		return -1;
