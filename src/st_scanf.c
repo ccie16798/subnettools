@@ -383,7 +383,7 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		struct sto *o)
 {
 	int n_found = 0; /* number of CS found */
-	int i2, res;
+	int j, res;
 	int max_field_length;
 	char buffer[ST_OBJECT_MAX_STRING_LEN + 1]; /* +1 for NUL */
 	char *ptr_buff;
@@ -697,10 +697,10 @@ static int parse_conversion_specifier(const char **in, const char **fmt,
 		break;
 	case '[':
 		ARG_SET(v_s, char *);
-		i2 = fill_char_range(expr, f, sizeof(expr));
-		if (i2 < 0)
+		j = fill_char_range(expr, f, sizeof(expr));
+		if (j < 0)
 			return -1;
-		f += (i2 - 1);
+		f += (j - 1);
 		ptr_buff = v_s;
 		while (match_char_against_range_clean(*p, expr) && *p != '\0'
 				&& p < p_max)
