@@ -102,6 +102,11 @@ static int parse_brace_quantifier(const char *s, int *min, int *max)
 	while (isdigit(s[i])) {
 		*min *= 10;
 		*min += s[i] - '0';
+		/* we dont want to wrap around */
+		if (*min > ST_STRING_INFINITY) {
+			debug(SCANF, 1, "Invalid range '%s', min > %d}'\n", s, ST_STRING_INFINITY);
+			return -1;
+		}
 		i++;
 	}
 	if (s[i] == ',') {
@@ -113,6 +118,11 @@ static int parse_brace_quantifier(const char *s, int *min, int *max)
 			while (isdigit(s[i])) {
 				*max *= 10;
 				*max += s[i] - '0';
+				if (*max > ST_STRING_INFINITY) {
+					debug(SCANF, 1, "Invalid range '%s', max > %d}'\n",
+							s, ST_STRING_INFINITY);
+					return -1;
+				}
 				i++;
 			}
 			if (s[i] != '}') {
