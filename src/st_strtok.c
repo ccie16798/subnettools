@@ -152,6 +152,14 @@ char *st_strtok_string_r(char *s, const char *delim, char **s2,
 		}
 		s++;
 	}
+	/* FIXME  (maybe)
+	 * we have exited the loop after a string delim
+	 * we should check if the next char is a delimiter
+	 * '"STRING"aaaa, toto, ff' should be invalid
+	 * because "STRING" is not followed by a ','
+	 * or maybe not; might be up to the caller to check
+	 * the validity of the token
+	 */
 	delim_len = strlen(delim);
 	while (*s != '\0') {
 		for (i = 0; i < delim_len; i++) {
