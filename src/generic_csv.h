@@ -64,7 +64,8 @@ struct csv_field {
 
 struct csv_file {
 	const char *file_name;
-	struct csv_field *csv_field;
+	struct csv_field *csv_field; /* CSV field, in the order they are REGISTERED, not the order they appear in the CSV */
+	struct csv_field *csv_field_sorted; /* CSV field, sorted by the order they appear in the actual CSV */
 	int num_fields; /* number of fields inside the CSV */
 	int num_fields_registered; /* number of field dynamically registered */
 	int max_fields; /* max number of fields */
