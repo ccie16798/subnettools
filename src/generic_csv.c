@@ -56,7 +56,7 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
 					break;
 				}
 			}
-			/* dynamic registration of unknow EA / Field names */
+			/* dynamic registration of unknow Field names */
 			if (found == 0) {
 				if (cf->default_handler) {
 					debug(CSVHEADER, 3,
@@ -75,7 +75,6 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
 			s = cf->csv_strtok_r(NULL, cf->delim, &save_s,
 				       cf->string_delim, cf->string_delim_escape);
 		}
-		debug(CSVHEADER, 3, "found %d fields\n", pos - 1);
 		cf->num_fields = pos - 1;
 	} else  {
 		debug(CSVHEADER, 2, "File %s does not have a CSV header, using default values\n",
@@ -86,6 +85,13 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
 		for (i = 0; ; i++) {
 			if (cf->csv_field[i].name == NULL)
 				break;
+			if (cf->csv_field[i].default_pos > cf->max_fields) { /* programming error only */
+				fprintf(stderr, "BUG, file %s wants a CSV header with a handler at pos %d\n",
+						cf->file_name, cf->csv_field[i].default_pos  );
+				return CSV_BAD_HEADER;
+			}
+
+
 			cf->csv_field[i].pos = cf->csv_field[i].default_pos;
 
 			cf->num_fields = max(cf->num_fields, cf->csv_field[i].pos);
@@ -94,10 +100,24 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
 		}
 	}
 
+	debug(CSVHEADER, 3, "found %d fields\n", cf->num_fields);
+	/* the CSV field_sorted must be allocated now and not in init_csv_file
+	* reason is that we might be interested in only 4 fields in a CSV (input of init_csv_file)
+	*  but on a given file one of them could be at position 20
+	* csv_field_sorted thus consume MORE memory, but speeds up CSV treatment
+	*/
+	cf->csv_field_sorted = st_malloc(sizeof(struct csv_field) * (cf->num_fields + 1) , "CSV Field sorted");
+	if (cf->csv_field_sorted == NULL) /* unlikely but .. */
+		return -1;
+	memset(cf->csv_field_sorted, 0, sizeof(struct csv_field) * (cf->num_fields + 1) );
 	/* check the presence or mandatory fields and set default values */
 	for (i = 0; ; i++) {
 		if (cf->csv_field[i].name == NULL)
 			break;
+		pos = cf->csv_field[i].pos;
+		debug(CSVHEADER, 3, "copying field %d at in csv_field_sorted %d\n", i, pos);
+		memcpy(&cf->csv_field_sorted[pos],  &cf->csv_field[i], sizeof(cf->csv_field[i]));
+
 		if (cf->csv_field[i].mandatory)
 			mandatory_fields++;
 		if (cf->csv_field[i].pos == 0 && cf->csv_field[i].mandatory) {
@@ -213,19 +233,11 @@ static int read_csv_body(struct st_file *f, struct csv_file *cf,
 			}
 			csv_field    = NULL;
 			debug(LOAD_CSV, 5, "Parsing token '%s' pos %d\n", s, pos);
-			/* try to find the handler */
-			for (i = 0; ; i++) { /* FIXME not optimal to do on each line */
-				if (cf->csv_field[i].name == NULL)
-					break;
-				if (pos == cf->csv_field[i].pos) {
-					csv_field = &cf->csv_field[i];
-					state->csv_field = csv_field->name;
-					debug(LOAD_CSV, 5, "handler#%d='%s' pos=%d data='%s'\n",
-							i, csv_field->name, pos, s);
-					break;
-				}
-			}
-			if (csv_field && csv_field->handle) {
+			csv_field = &cf->csv_field_sorted[pos];
+			state->csv_field = csv_field->name;
+			debug(LOAD_CSV, 5, "handler='%s' pos=%d data='%s'\n",
+							 csv_field->name, pos, s); 
+			if (csv_field->handle) {
 				res = csv_field->handle(s, data, state);
 				if (csv_field->mandatory)
 					state->mandatory_fields++;
@@ -246,6 +258,7 @@ static int read_csv_body(struct st_file *f, struct csv_file *cf,
 							csv_field->name, s,
 							"CSV_VALID_FIELD_BREAK");
 					break;
+				
 				} else if (res == CSV_VALID_FIELD_SKIP) {
 					debug(LOAD_CSV, 5, "Field '%s' told us to skip %d fields\n",
 							csv_field->name, state->skip);
@@ -346,7 +359,6 @@ int generic_load_csv(const char *filename, struct csv_file *cf,
 	}
 	res = read_csv_header(s, cf);
 	if (res < 0) {
-		free_csv_field(cf->csv_field);
 		st_close(f);
 		return res;
 	}
@@ -354,7 +366,6 @@ int generic_load_csv(const char *filename, struct csv_file *cf,
 		res2 = cf->validate_header(cf, data);
 		if (res2 < 0) {
 			st_close(f);
-			free_csv_field(cf->csv_field);
 			return res2;
 		}
 	}
@@ -367,7 +378,6 @@ int generic_load_csv(const char *filename, struct csv_file *cf,
 		fprintf(stderr, "BUG at %s line %d, invalid res=%d\n", __FILE__, __LINE__, res);
 		res = -3;
 	}
-	free_csv_field(cf->csv_field);
 	st_close(f);
 	return res;
 }
@@ -389,6 +399,9 @@ int init_csv_file(struct csv_file *cf, const char *file_name, int max_fields,
 	cf->csv_field = st_malloc(sizeof(struct csv_field) * max_fields, "CSV Field");
 	if (cf->csv_field == NULL) /* unlikely but .. */
 		return -1;
+	cf->csv_field_sorted = NULL;
+	debug(CSVHEADER, 3, "Initializing CSV file %s max fields %d\n", file_name, max_fields);
+	debug(CSVHEADER, 3, "delim '%c' delim escape '%c'\n", string_delim, string_delim_escape);
 	cf->delim	 = delim;
 	cf->csv_strtok_r = func;
 	cf->file_name    = (file_name ? file_name : "<stdin>");
@@ -411,11 +424,16 @@ int init_csv_file(struct csv_file *cf, const char *file_name, int max_fields,
 
 void free_csv_file(struct csv_file *cf)
 {
-	if (cf->csv_field == NULL)
-		return;
-	free_csv_field(cf->csv_field);
-	st_free(cf->csv_field, sizeof(struct csv_field) * cf->max_fields);
-	cf->csv_field = NULL;
+	if (cf->csv_field != NULL) {
+		free_csv_field(cf->csv_field);
+		st_free(cf->csv_field, sizeof(struct csv_field) * cf->max_fields);
+	}
+	if (cf->csv_field_sorted != NULL) {
+		/* CSV fields referenced by CSV field sorted are not allocated, they are COPYED
+		* from csv_field (which has been freed above */
+		st_free(cf->csv_field_sorted, sizeof(struct csv_field) * (cf->num_fields + 1));
+		cf->csv_field_sorted = NULL;
+	}
 }
 
 void init_csv_state(struct csv_state *cs, const char *file_name)
