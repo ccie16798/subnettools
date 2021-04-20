@@ -1,7 +1,7 @@
 /*
  * Generic CSV parser functions
  *
- * Copyright (C) 2014-2018 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ * Copyright (C) 2014-2021 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
@@ -56,7 +56,7 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
 					break;
 				}
 			}
-			/* dynamic registration of unknow Field names */
+			/* dynamic registration of unknown CSV Field names */
 			if (found == 0) {
 				if (cf->default_handler) {
 					debug(CSVHEADER, 3,
@@ -108,18 +108,20 @@ static int read_csv_header(const char *buffer, struct csv_file *cf)
 	*/
 	cf->csv_field_sorted = st_malloc(sizeof(struct csv_field) * (cf->num_fields + 1) , "CSV Field sorted");
 	if (cf->csv_field_sorted == NULL) /* unlikely but .. */
-		return -1;
+		return CSV_ENOMEM;
 	memset(cf->csv_field_sorted, 0, sizeof(struct csv_field) * (cf->num_fields + 1) );
 	/* check the presence or mandatory fields and set default values */
 	for (i = 0; ; i++) {
 		if (cf->csv_field[i].name == NULL)
 			break;
 		pos = cf->csv_field[i].pos;
-		debug(CSVHEADER, 3, "copying field %d at in csv_field_sorted %d\n", i, pos);
+		debug(CSVHEADER, 3, "csv_field_sorted pos:%d handler: %s, from index:%d\n", 
+				pos, cf->csv_field[i].name, i);
 		memcpy(&cf->csv_field_sorted[pos],  &cf->csv_field[i], sizeof(cf->csv_field[i]));
 
 		if (cf->csv_field[i].mandatory)
 			mandatory_fields++;
+		/* .pos == 0 means that the previous loop was unable to find it */
 		if (cf->csv_field[i].pos == 0 && cf->csv_field[i].mandatory) {
 			bad_header++;
 			debug(CSVHEADER, 1, "mandatory CSV field '%s' not found in %s\n",
@@ -369,12 +371,13 @@ int generic_load_csv(const char *filename, struct csv_file *cf,
 			return res2;
 		}
 	}
-	state->line = 0;
-	if (res == CSV_HEADER_FOUND) /* first line was a header, no need to put initial_buff */
+	if (res == CSV_HEADER_FOUND) {/* first line was a header, no need to put initial_buff */
+		state->line = 1;
 		res = read_csv_body(f, cf, state, data, NULL);
-	else if (res == CSV_NO_HEADER) /* we need to pass initial buff */
+	} else if (res == CSV_NO_HEADER) {/* we need to pass initial buff */
+		state->line = 0;
 		res = read_csv_body(f, cf, state, data, s);
-	else {
+	} else {
 		fprintf(stderr, "BUG at %s line %d, invalid res=%d\n", __FILE__, __LINE__, res);
 		res = -3;
 	}
