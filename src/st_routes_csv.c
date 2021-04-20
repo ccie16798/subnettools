@@ -641,7 +641,7 @@ int load_bgpcsv(char  *name, struct bgp_file *sf, struct st_options *nof)
 	register_csv_field(&cf, "GW",		mandatory, 0, 1, &bgpcsv_GW_handle);
 	register_csv_field(&cf, "LOCAL_PREF",	mandatory, 0, 1, &bgpcsv_localpref_handle);
 	register_csv_field(&cf, "MED",		mandatory, 0, 1, &bgpcsv_med_handle);
-	register_csv_field(&cf, "WEIGHT",	mandatory, 0, 1, &bgpcsv_weight_handle);
+//	register_csv_field(&cf, "WEIGHT",	mandatory, 0, 1, &bgpcsv_weight_handle);
 	register_csv_field(&cf, "AS_PATH",	optional,  0, 0, &bgpcsv_aspath_handle);
 	register_csv_field(&cf, "WEIGHT",	optional,  0, 1, &bgpcsv_weight_handle);
 	register_csv_field(&cf, "BEST",		optional,  0, 1, &bgpcsv_best_handle);
