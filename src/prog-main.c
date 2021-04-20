@@ -377,7 +377,6 @@ static int run_ipamprint(int argc, char **argv, void *st_options)
 	res = load_ipam(argv[2], &sf, nof);
 	DIE_ON_BAD_FILE(argv[2]);
 	/* print fmt header just if user provided a fmt */
-	fprint_ipam_header(nof->output_file, &sf.lines[0], nof->ipam_output_fmt);
 	fprint_ipam_file_fmt(nof->output_file, &sf, nof->ipam_output_fmt);
 	free_ipam_file(&sf);
 	return 0;
@@ -631,12 +630,10 @@ static int run_ipam_filter(int argc, char **argv, void *st_options)
 		res = load_ipam(NULL, &sf, nof);
 		if (res < 0)
 			return res;
-		fprint_ipam_header(nof->output_file, &sf.lines[0], nof->ipam_output_fmt);
 		res = ipam_file_filter(&sf, argv[2]);
 	} else {
 		res = load_ipam(argv[2], &sf, nof);
 		DIE_ON_BAD_FILE(argv[2]);
-		fprint_ipam_header(nof->output_file, &sf.lines[0], nof->ipam_output_fmt);
 		res = ipam_file_filter(&sf, argv[3]);
 	}
 	if (res < 0) {

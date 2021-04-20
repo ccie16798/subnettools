@@ -1167,12 +1167,17 @@ void print_bgp_file_fmt(const struct bgp_file *sf, const char *fmt)
 	fprint_bgp_file_fmt(stdout, sf, fmt);
 }
 
-void fprint_ipam_file_fmt(FILE *output, const struct ipam_file *sf, const char *fmt)
+void fprint_ipam_file_fmt_noheader(FILE *output, const struct ipam_file *sf, const char *fmt)
 {
 	unsigned long i;
 
 	for (i = 0; i < sf->nr; i++)
 		fprint_ipam_fmt(output, &sf->lines[i], fmt);
+}
+
+void fprint_ipam_file_fmt(FILE *output, const struct ipam_file *sf, const char *fmt) {
+	fprint_ipam_header(output, &sf->lines[0], fmt);	
+	fprint_ipam_file_fmt_noheader(output, sf, fmt);	
 }
 
 void print_ipam_file_fmt(const struct ipam_file *sf, const char *fmt)
