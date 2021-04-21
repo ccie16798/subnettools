@@ -183,7 +183,7 @@ static int netcsv_ea_handler(char *s, void *data, struct csv_state *state)
 	
 	/* we dont care if memory failed on strdup; we continue */
 	ea_strdup(&sf->routes[sf->nr].ea[ea_nr], s);
-	debug(LOAD_CSV, 6, "Found ea_nr#%d, %s = %s\n",  ea_nr, sf->routes[sf->nr].ea[ea_nr].name, s);
+	debug(LOAD_CSV, 6, "Found ea_nr#%d, %s = %s\n",  ea_nr, sf->ea[ea_nr].name, s);
 
 	return CSV_VALID_FIELD;
 }
