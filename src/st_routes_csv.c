@@ -1,7 +1,7 @@
 /*
  * routines to load CSV files into memory
  *
- * Copyright (C) 2015-2018 Etienne Basset <etienne POINT basset AT ensta POINT org>
+ * Copyright (C) 2015-2021 Etienne Basset <etienne POINT basset AT ensta POINT org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
@@ -22,6 +22,8 @@
 #include "st_printf.h"
 #include "bgp_tool.h"
 #include "st_routes_csv.h"
+
+#define ROUTEFILE_STATIC_REGISTERED_FIELDS 4
 
 int alloc_subnet_file(struct subnet_file *sf, unsigned long n)
 {
@@ -171,21 +173,17 @@ static int netcsv_ea_handler(char *s, void *data, struct csv_state *state)
 {
 	struct subnet_file *sf = data;
 	int ea_nr;
-	int found = 0;
 
-	for (ea_nr = 1; ea_nr < sf->ea_nr; ea_nr++) {
-		if (!strcmp(state->csv_field, sf->ea[ea_nr].name)) {
-			found = 1;
-			break;
-		}
-	}
-	if (found == 0) {
-		debug(LOAD_CSV, 3, "No EA match field '%s'\n",  state->csv_field);
-		return CSV_INVALID_FIELD_BREAK;
-	}
+	/* to get the EA NR, this will depend on the CSV FIELD ID that handle the request
+	 * we have csv_id 0 & 1 that are set for prefix and MASK handling 
+	 * we have csv_id 2 & 3 that are set for device and GW handling
+	 * so  EA handling will start at csv_id - 4
+	 */
+	ea_nr = state->csv_id - ROUTEFILE_STATIC_REGISTERED_FIELDS;
+	
 	/* we dont care if memory failed on strdup; we continue */
 	ea_strdup(&sf->routes[sf->nr].ea[ea_nr], s);
-	debug(LOAD_CSV, 6, "Found %s = %s\n",  sf->routes[sf->nr].ea[ea_nr].name, s);
+	debug(LOAD_CSV, 6, "Found ea_nr#%d, %s = %s\n",  ea_nr, sf->routes[sf->nr].ea[ea_nr].name, s);
 
 	return CSV_VALID_FIELD;
 }
@@ -245,7 +243,8 @@ static int netcsv_validate_header(struct csv_file *cf, void *data)
 	int i, new_n;
 	struct ipam_ea *new_ea;
 
-	new_n  = cf->num_fields_registered - 4; /* FIXME, this fixed 4 seems BUGGY */
+	new_n  = cf->num_fields_registered - ROUTEFILE_STATIC_REGISTERED_FIELDS;
+	/* FIXME, this fixed ROUTEFILE_STATIC_REGISTERED_FIELDS seems fragile */
 	if (new_n > 1) {
 		new_ea = realloc_ea_array(sf->ea, sf->ea_nr, new_n);
 		if (new_ea == NULL) /* we don't free original ea, caller should */
@@ -257,10 +256,10 @@ static int netcsv_validate_header(struct csv_file *cf, void *data)
 		/* we alloc memory for sf->ea[i].name
 		 * except comment because it is already alloc'ed
 		 */
-		for (i = 5; i < cf->num_fields_registered; i++) {
+		for (i = ROUTEFILE_STATIC_REGISTERED_FIELDS + 1; i < cf->num_fields_registered; i++) {
 			/* sf->ea[x].name is freed by free_subnet_file */
-			sf->ea[i - 4].name = st_strdup(cf->csv_field[i].name);
-			if (sf->ea[i - 4].name == NULL)
+			sf->ea[i - ROUTEFILE_STATIC_REGISTERED_FIELDS].name = st_strdup(cf->csv_field[i].name);
+			if (sf->ea[i - ROUTEFILE_STATIC_REGISTERED_FIELDS].name == NULL)
 				return -1;
 			debug(LOAD_CSV, 4, "Register handler '%s' for EA=%d\n",
 					sf->ea[i - 4].name, i - 4);
