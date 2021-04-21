@@ -22,6 +22,8 @@
 #include "ipam.h"
 #include "string2ip.h"
 
+#define IPAM_STATIC_REGISTERD_FIELDS 2
+
 int alloc_ipam_file(struct ipam_file *sf, unsigned long n, int ea_nr)
 {
 	if (n > IPAM_MAX_LINE_NUMBER) {
@@ -119,19 +121,12 @@ static int ipam_ea_handle(char *s, void *data, struct csv_state *state)
 {
 	struct ipam_file *sf = data;
 	int ea_nr;
-	int found = 0;
 
-	for (ea_nr = 0; ea_nr < sf->ea_nr; ea_nr++) {
-		if (!strcmp(state->csv_field, sf->ea[ea_nr].name)) {
-			found = 1;
-			break;
-		}
-	}
-	if (found == 0) {
-		debug(IPAM, 3, "No EA match field '%s'\n",  state->csv_field);
-		return CSV_INVALID_FIELD_BREAK;
-	}
-	debug(IPAM, 6, "Found %s = %s\n",  sf->lines[sf->nr].ea[ea_nr].name, s);
+	/* to get the EA NR, this will depend on the CSV FIELD ID that handle the request
+	* we  have csv_id 0 & 1 that are set for prefix and MASK, csv_id 2.... will handle EA
+	*/
+	ea_nr = state->csv_id - IPAM_STATIC_REGISTERD_FIELDS;
+	debug(IPAM, 6, "Found ea#%d %s = %s\n",  ea_nr, sf->lines[sf->nr].ea[ea_nr].name, s);
 	/* we dont care if memory failed on strdup; we continue */
 	ea_strdup(&sf->lines[sf->nr].ea[ea_nr], s);
 	return CSV_VALID_FIELD;
