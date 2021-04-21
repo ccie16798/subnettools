@@ -237,6 +237,7 @@ static int read_csv_body(struct st_file *f, struct csv_file *cf,
 			debug(LOAD_CSV, 5, "Parsing token '%s' pos %d\n", s, pos);
 			csv_field = &cf->csv_field_sorted[pos];
 			state->csv_field = csv_field->name;
+			state->csv_id	 = csv_field->id;
 			debug(LOAD_CSV, 5, "handler='%s' pos=%d data='%s'\n",
 							 csv_field->name, pos, s); 
 			if (csv_field->handle) {
@@ -477,6 +478,7 @@ int register_csv_field(struct csv_file *csv_file, char *field_name,
 	}
 	if (mandatory)
 		csv_file->mandatory_fields++;
+	cf[i].id	  = i;
 	cf[i].name        = name;
 	cf[i].handle      = handle;
 	cf[i].mandatory   = mandatory;
@@ -484,6 +486,6 @@ int register_csv_field(struct csv_file *csv_file, char *field_name,
 	cf[i].default_pos = default_pos;
 	cf[i + 1].name    = NULL;
 	csv_file->num_fields_registered++;
-	debug(CSVHEADER, 3, "Registering handler #%d '%s'\n", i, name);
+	debug(CSVHEADER, 3, "Registering handler ID#%d '%s'\n", i, name);
 	return i;
 }

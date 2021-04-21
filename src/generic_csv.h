@@ -50,11 +50,13 @@ struct csv_state {
 	char *csv_field; /* name of the field we crossed */
 	int badline;
 	int mandatory_fields; /* number of mandatory fields found */
+	int csv_id; /* the ID of the CSV field we crossed */
 	int skip; /* tell the engine to skip fields without increasing the pos counter */
 	int state[8]; /* generic states table, csv_field->handle can use it as its wants */
 };
 
 struct csv_field {
+	int  id; /* Identifier, order by which the csv field has been registered */
 	char *name; /* will be malloc'ed */
 	int pos; /* pos starts at 1, pos == 0 means it is not set */
 	int default_pos; /* used in CSV files where there is no HEADER */
