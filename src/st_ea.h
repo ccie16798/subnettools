@@ -9,7 +9,7 @@
 #define MAX_EA_NUMBER 8096
 
 struct  ipam_ea {
-	char *name;
+	const char *name; /* name must not be malloced or strdup; it has to point to a table of name or static string */ 
 	char *value; /* value of EA; MUST be malloc'ed*/
 	int len; /* strlen(value) + 1 */
 };
