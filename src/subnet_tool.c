@@ -83,8 +83,8 @@ int subnet_file_cmp(const struct subnet_file *before, const struct subnet_file *
 	res = alloc_subnet_file(sf, before->nr + after->nr);
 	if (res < 0)
 		return res;
-	/* realloc route EA "status and "change" */
-	new_ea = st_realloc(sf->ea, (sf->ea_nr + 2 ) * sizeof(char *),  sf->ea_nr * sizeof(char *), "EA route array");
+	/* realloc route EA to store "status" and "change" value*/
+	new_ea = st_realloc(sf->ea, (sf->ea_nr + 2) * sizeof(char *),  sf->ea_nr * sizeof(char *), "EA route array");
 	if (new_ea == NULL)
 		return -1;
 	sf->ea = new_ea;
