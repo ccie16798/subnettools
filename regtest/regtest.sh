@@ -1,8 +1,8 @@
 #! /bin/bash
 
 
-#PROG='../subnet-tools '
-PROG='../subnet-tools -D memory:4 '
+PROG='../subnet-tools '
+#PROG='../subnet-tools -D memory:4 '
 n_ok=0
 n_ko=0
 
