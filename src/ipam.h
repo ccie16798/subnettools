@@ -20,7 +20,7 @@ struct ipam_file {
 	unsigned long nr;
 	unsigned long max_nr; /* the number of routes that has been malloc'ed */
 	int ea_nr; /* number of Extensible Attributes */
-	struct ipam_ea *ea;
+	char **ea; /* Extensible attributes names */
 };
 
 int alloc_ipam_file(struct ipam_file *sf, unsigned long n, int ea_nr);

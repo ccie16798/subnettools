@@ -38,7 +38,7 @@ int alloc_ipam_file(struct ipam_file *sf, unsigned long n, int ea_nr)
 	sf->nr     = 0;
 	sf->max_nr = n;
 	sf->ea_nr  = ea_nr;
-	sf->ea     = st_malloc(ea_nr * sizeof(struct ipam_ea), "ipam_ea");
+	sf->ea     = st_malloc(ea_nr * sizeof(char *), "ipam_ea");
 	if (sf->ea == NULL) {
 		sf->max_nr = 0;
 		sf->ea_nr  = 0;
@@ -61,7 +61,7 @@ static int alloc_ipam_ea(struct ipam_file *sf, unsigned long i)
 		return -1;
 	}
 	for (j = 0; j < sf->ea_nr; j++)
-		ea[j].name  = sf->ea[j].name;
+		ea[j].name  = sf->ea[j];
 	sf->lines[i].ea    = ea;
 	sf->lines[i].ea_nr = sf->ea_nr;
 	return 0;
@@ -81,8 +81,8 @@ void free_ipam_file(struct ipam_file *sf)
 	for (i = 0; i < sf->nr; i++)
 		free_ipam_ea(&sf->lines[i]);
 	for (i = 0; i < sf->ea_nr; i++)
-		st_free_string(sf->ea[i].name);
-	st_free(sf->ea, sizeof(struct ipam_ea) * sf->ea_nr);
+		st_free_string(sf->ea[i]);
+	st_free(sf->ea, sizeof(char *) * sf->ea_nr);
 	st_free(sf->lines, sizeof(struct ipam_line) * sf->max_nr);
 	sf->nr     = 0;
 	sf->max_nr = 0;
@@ -126,7 +126,7 @@ static int ipam_ea_handle(char *s, void *data, struct csv_state *state)
 	* we  have csv_id 0 & 1 that are set for prefix and MASK, csv_id 2.... will handle EA
 	*/
 	ea_nr = state->csv_id - IPAM_STATIC_REGISTERED_FIELDS;
-	debug(IPAM, 6, "Found ea#%d %s = %s\n",  ea_nr, sf->ea[ea_nr].name, s);
+	debug(IPAM, 6, "Found ea#%d %s = %s\n",  ea_nr, sf->ea[ea_nr], s);
 	/* we dont care if memory failed on strdup; we continue */
 	ea_strdup(&sf->lines[sf->nr].ea[ea_nr], s);
 	return CSV_VALID_FIELD;
@@ -261,8 +261,8 @@ int load_ipam(char  *name, struct ipam_file *sf, struct st_options *nof)
 		return res;
 	}
 	for (i = 0; i < ea_nr; i++) {
-		sf->ea[i].name = st_strdup(cf.csv_field[i + 2].name);
-		if (sf->ea[i].name == NULL) {
+		sf->ea[i] = st_strdup(cf.csv_field[i + 2].name);
+		if (sf->ea[i] == NULL) {
 			debug(IPAM, 5, " Extended Attributes %i is NULL\n", i);
 			free_ipam_file(sf);
 			free_csv_file(&cf);
@@ -397,7 +397,7 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 	 * comment from subnet_file is always overwritten
 	 */
 	for (j = 0; j < ipam->ea_nr; j++)
-		if (!strcasecmp(ipam->ea[j].name, "comment")) {
+		if (!strcasecmp(ipam->ea[j], "comment")) {
 			has_comment = 1;
 			comment_index = j;
 		}
@@ -414,7 +414,7 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 	sf->ea_nr += (ipam->ea_nr - has_comment);
 	for (j = 0; j < ipam->ea_nr; j++) {
 		if (j != comment_index) {
-			sf->ea[k].name = st_strdup(ipam->ea[j].name);
+			sf->ea[k].name = st_strdup(ipam->ea[j]);
 			k++;
 		}
 	}
@@ -453,10 +453,10 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 				 *  we need to overwrite it with IPAM value and free previous value
 				 */
 				if (j == comment_index) {
-					sf->routes[i].ea[0].name  = ipam->ea[j].name;
+					sf->routes[i].ea[0].name  = ipam->ea[j];
 					free_ea(&sf->routes[i].ea[0]);
 				} else {
-					sf->routes[i].ea[k].name  = ipam->ea[j].name;
+					sf->routes[i].ea[k].name  = ipam->ea[j];
 					free_ea(&sf->routes[i].ea[0]);
 					k++;
 				}
@@ -464,12 +464,12 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 		} else {
 			for (j = 0; j < ipam->ea_nr; j++) {
 				if (j == comment_index) {
-					sf->routes[i].ea[0].name  = ipam->ea[j].name;
+					sf->routes[i].ea[0].name  = ipam->ea[j];
 					free_ea(&sf->routes[i].ea[0]);
 					ea_strdup(&sf->routes[i].ea[0],
 							ipam->lines[found_j].ea[j].value);
 				} else {
-					sf->routes[i].ea[k].name  = ipam->ea[j].name;
+					sf->routes[i].ea[k].name  = ipam->ea[j];
 					free_ea(&sf->routes[i].ea[k]);
 					ea_strdup(&sf->routes[i].ea[k],
 							ipam->lines[found_j].ea[j].value);
