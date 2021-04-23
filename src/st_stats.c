@@ -50,7 +50,7 @@ int ipam_stats(struct ipam_file *ipam, const char *statvalue)
 	unsigned long i;
 	struct hash_table ht;
 	struct stat_bucket *sb;
-	struct ipam_ea *ea;
+	struct st_ea *ea;
 	struct subnet *subnet;
 	st_list head;
 

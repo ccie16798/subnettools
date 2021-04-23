@@ -11,7 +11,7 @@
 struct ipam_line {
 	struct subnet subnet;
 	int ea_nr; /* number of Extensible Attributes */
-	struct ipam_ea *ea;
+	struct st_ea *ea;
 };
 
 

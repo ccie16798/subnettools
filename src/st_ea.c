@@ -17,7 +17,7 @@
 #include "st_scanf.h"
 
 
-int ea_strdup(struct ipam_ea *ea, const char *value)
+int ea_strdup(struct st_ea *ea, const char *value)
 {
 	int len;
 
@@ -41,7 +41,7 @@ int ea_strdup(struct ipam_ea *ea, const char *value)
 	return 1;
 }
 
-void free_ea_array(struct ipam_ea *ea, int n)
+void free_ea_array(struct st_ea *ea, int n)
 {
 	int i;
 
@@ -52,13 +52,13 @@ void free_ea_array(struct ipam_ea *ea, int n)
 			free_ea(&ea[i]);
 		}
 	}
-	st_free(ea, sizeof(struct ipam_ea) * n);
+	st_free(ea, sizeof(struct st_ea) * n);
 }
 
-struct ipam_ea *alloc_ea_array(int n)
+struct st_ea *alloc_ea_array(int n)
 {
 	int j;
-	struct ipam_ea *ea;
+	struct st_ea *ea;
 
 	if (n <= 0) {
 		fprintf(stderr, "BUG, %s called with %d size\n", __func__, n);
@@ -70,7 +70,7 @@ struct ipam_ea *alloc_ea_array(int n)
 		return NULL;
 	}
 
-	ea = st_malloc_nodebug(n * sizeof(struct ipam_ea), "ipam_ea");
+	ea = st_malloc_nodebug(n * sizeof(struct st_ea), "st_ea");
 	if (ea == NULL)
 		return NULL;
 
@@ -81,11 +81,11 @@ struct ipam_ea *alloc_ea_array(int n)
 	return ea;
 }
 
-struct ipam_ea *realloc_ea_array(struct ipam_ea *ea,
+struct st_ea *realloc_ea_array(struct st_ea *ea,
 		int old_n, int new_n)
 {
 	int j;
-	struct ipam_ea *new_ea;
+	struct st_ea *new_ea;
 
 	if (new_n <= old_n) {
 		fprintf(stderr, "BUG, %s called new size < old_size\n", __func__);
@@ -96,9 +96,9 @@ struct ipam_ea *realloc_ea_array(struct ipam_ea *ea,
 				__func__, new_n, MAX_EA_NUMBER);
 		return NULL;
 	}
-	new_ea = st_realloc_nodebug(ea, new_n * sizeof(struct ipam_ea),
-			old_n * sizeof(struct ipam_ea),
-			"ipam_ea");
+	new_ea = st_realloc_nodebug(ea, new_n * sizeof(struct st_ea),
+			old_n * sizeof(struct st_ea),
+			"st_ea");
 	if (new_ea == NULL)
 		return NULL;
 
@@ -109,7 +109,7 @@ struct ipam_ea *realloc_ea_array(struct ipam_ea *ea,
 	return new_ea;
 }
 
-int filter_ea(const struct ipam_ea *ea, int ea_nr, const char *ea_name,
+int filter_ea(const struct st_ea *ea, int ea_nr, const char *ea_name,
 		const char *value, char op)
 {
 	int j, a, b, res, err;

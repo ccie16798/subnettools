@@ -41,7 +41,7 @@ int alloc_route_ea(struct route *r, int n)
 
 int realloc_route_ea(struct route *r, int new_n)
 {
-	struct ipam_ea *new_ea;
+	struct st_ea *new_ea;
 
 	new_ea = realloc_ea_array(r->ea, r->ea_nr, new_n);
 	if (new_ea == NULL) /* we don't free original ea, caller should */

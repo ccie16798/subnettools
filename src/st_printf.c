@@ -200,7 +200,7 @@ static inline int pad_buffer_out(char *out, size_t len, const char *buffer,
 static int __print_ea(char *outbuf, size_t buffer_len,
 			const char *fmt, int *i,
 			int field_width, int pad_left,
-			struct ipam_ea *ea, int ea_nr,
+			struct st_ea *ea, int ea_nr,
 			int header)
 {
 	int k, res;

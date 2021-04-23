@@ -51,7 +51,7 @@ int alloc_ipam_file(struct ipam_file *sf, unsigned long n, int ea_nr)
 
 static int alloc_ipam_ea(struct ipam_file *sf, unsigned long i)
 {
-	struct ipam_ea *ea;
+	struct st_ea *ea;
 	int j;
 
 	ea = alloc_ea_array(sf->ea_nr);
