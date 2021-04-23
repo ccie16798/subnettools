@@ -66,7 +66,7 @@ int ipam_stats(struct ipam_file *ipam, const char *statvalue)
 	} else {
 		res = alloc_hash_tab(&ht, ipam->nr, &djb_hash);
 		for (i = 0; i < ipam->ea_nr; i++) {
-			if (!strcmp(statvalue, ipam->ea[i].name))
+			if (!strcmp(statvalue, ipam->ea[i]))
 				ea_index = i;
 		}
 		if (ea_index < 0) {

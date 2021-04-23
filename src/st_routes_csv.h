@@ -11,7 +11,7 @@ struct subnet_file {
 	unsigned long nr;
 	unsigned long max_nr; /* the number of routes that has been malloced */
 	int ea_nr;
-	struct ipam_ea *ea;
+	char **ea;
 };
 
 struct bgp_file {

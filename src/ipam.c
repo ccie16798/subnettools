@@ -389,7 +389,7 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 	int k, res, sf_ea_nr;
 	int found_mask, mask;
 	int has_comment = 0, comment_index = -1;
-	struct ipam_ea *new_ea;
+	char **new_ea;
 
 	/*
 	 * subnet file sf may already have Extended Attributes
@@ -401,8 +401,8 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 			has_comment = 1;
 			comment_index = j;
 		}
-	new_ea = realloc_ea_array(sf->ea, sf->ea_nr,
-			sf->ea_nr + ipam->ea_nr - has_comment);
+	new_ea = st_realloc(sf->ea, (sf->ea_nr + ipam->ea_nr - has_comment) * sizeof(char *),
+			sf->ea_nr * sizeof(char *), "ST route EA array");
 	if (new_ea == NULL)
 		return -1;
 	sf->ea = new_ea;
@@ -414,7 +414,7 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 	sf->ea_nr += (ipam->ea_nr - has_comment);
 	for (j = 0; j < ipam->ea_nr; j++) {
 		if (j != comment_index) {
-			sf->ea[k].name = st_strdup(ipam->ea[j]);
+			sf->ea[k] = st_strdup(ipam->ea[j]);
 			k++;
 		}
 	}

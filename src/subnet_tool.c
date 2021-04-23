@@ -77,21 +77,21 @@ int subnet_file_cmp(const struct subnet_file *before, const struct subnet_file *
 	int res, found;
 	int ea_nr;
 	char buffer[128];
-	struct ipam_ea *new_ea;
+	char **new_ea;
 
 	k = 0;
 	res = alloc_subnet_file(sf, before->nr + after->nr);
 	if (res < 0)
 		return res;
 	/* realloc route EA "status and "change" */
-	new_ea = realloc_ea_array(sf->ea, sf->ea_nr,  sf->ea_nr + 2);
+	new_ea = st_realloc(sf->ea, (sf->ea_nr + 2 ) * sizeof(char *),  sf->ea_nr * sizeof(char *), "EA route array");
 	if (new_ea == NULL)
 		return -1;
 	sf->ea = new_ea;
 	sf->ea_nr += 2;
-	sf->ea[sf->ea_nr - 2].name = st_strdup("status");
-	sf->ea[sf->ea_nr - 1].name = st_strdup("change");
-	if (sf->ea[sf->ea_nr - 1].name == NULL || sf->ea[sf->ea_nr - 2].name == NULL)
+	sf->ea[sf->ea_nr - 2] = st_strdup("status");
+	sf->ea[sf->ea_nr - 1] = st_strdup("change");
+	if (sf->ea[sf->ea_nr - 1] == NULL || sf->ea[sf->ea_nr - 2] == NULL)
 		return -1;
 
 	for (i = 0; i < before->nr; i++) {

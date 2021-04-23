@@ -39,17 +39,17 @@ int alloc_subnet_file(struct subnet_file *sf, unsigned long n)
 	}
 	sf->nr     = 0;
 	sf->max_nr = n;
-	sf->ea	   = alloc_ea_array(1);
+	sf->ea	   = st_malloc(sizeof(char *) * 1, "st route ea");
 	if (sf->ea == NULL) {
 		st_free(sf->routes, sf->max_nr * sizeof(struct route));
 		sf->max_nr = 0;
 		return -1;
 	}
-	sf->ea[0].name = st_strdup("comment");
+	sf->ea[0] = st_strdup("comment");
 	sf->ea_nr = 1;
-	if (sf->ea[0].name == NULL) { /* really bad luck */
+	if (sf->ea[0] == NULL) { /* really bad luck */
 		st_free(sf->routes, sf->max_nr * sizeof(struct route));
-		free_ea_array(sf->ea, sf->ea_nr);
+		st_free(sf->ea, sf->ea_nr  * sizeof(char *));
 		sf->max_nr = 0;
 		return -1;
 	}
@@ -63,11 +63,11 @@ void free_subnet_file(struct subnet_file *sf)
 	for (i = 0; i < sf->nr; i++)
 		free_route(&sf->routes[i]);
 	for (i = 0; i < sf->ea_nr; i++)
-		st_free_string(sf->ea[i].name);
+		st_free_string(sf->ea[i]);
 	st_free(sf->routes, sf->max_nr * sizeof(struct route));
 	sf->routes = NULL;
 	sf->nr = sf->max_nr = 0;
-	free_ea_array(sf->ea, sf->ea_nr);
+	st_free(sf->ea, sf->ea_nr  * sizeof(char *));
 	sf->ea    = NULL;
 	sf->ea_nr = 0;
 }
@@ -89,7 +89,7 @@ static int sf_init_route(struct subnet_file *sf, unsigned long n)
 	if (res < 0) /* routes->ea will be set to NULL, and ea_nr to zero */
 		return res;
 	for (i = 0; i < sf->ea_nr; i++)
-		sf->routes[n].ea[i].name = sf->ea[i].name;
+		sf->routes[n].ea[i].name = sf->ea[i];
 	return 1;
 }
 
@@ -183,7 +183,7 @@ static int netcsv_ea_handler(char *s, void *data, struct csv_state *state)
 	
 	/* we dont care if memory failed on strdup; we continue */
 	ea_strdup(&sf->routes[sf->nr].ea[ea_nr], s);
-	debug(LOAD_CSV, 6, "Found ea_nr#%d, %s = %s\n",  ea_nr, sf->ea[ea_nr].name, s);
+	debug(LOAD_CSV, 6, "Found ea_nr#%d, %s = %s\n",  ea_nr, sf->ea[ea_nr], s);
 
 	return CSV_VALID_FIELD;
 }
@@ -241,12 +241,12 @@ static int netcsv_validate_header(struct csv_file *cf, void *data)
 {
 	struct subnet_file *sf = data;
 	int i, new_n;
-	struct ipam_ea *new_ea;
+	char **new_ea;
 
 	new_n  = cf->num_fields_registered - ROUTEFILE_STATIC_REGISTERED_FIELDS;
 	/* FIXME, this fixed ROUTEFILE_STATIC_REGISTERED_FIELDS seems fragile */
 	if (new_n > 1) {
-		new_ea = realloc_ea_array(sf->ea, sf->ea_nr, new_n);
+		new_ea = st_realloc(sf->ea,  new_n * sizeof(char *), sf->ea_nr * sizeof(char *), "route EA array");
 		if (new_ea == NULL) /* we don't free original ea, caller should */
 			return -1;
 		sf->ea    = new_ea;
@@ -258,11 +258,11 @@ static int netcsv_validate_header(struct csv_file *cf, void *data)
 		 */
 		for (i = ROUTEFILE_STATIC_REGISTERED_FIELDS + 1; i < cf->num_fields_registered; i++) {
 			/* sf->ea[x].name is freed by free_subnet_file */
-			sf->ea[i - ROUTEFILE_STATIC_REGISTERED_FIELDS].name = st_strdup(cf->csv_field[i].name);
-			if (sf->ea[i - ROUTEFILE_STATIC_REGISTERED_FIELDS].name == NULL)
+			sf->ea[i - ROUTEFILE_STATIC_REGISTERED_FIELDS] = st_strdup(cf->csv_field[i].name);
+			if (sf->ea[i - ROUTEFILE_STATIC_REGISTERED_FIELDS] == NULL)
 				return -1;
 			debug(LOAD_CSV, 4, "Register handler '%s' for EA=%d\n",
-					sf->ea[i - 4].name, i - 4);
+					sf->ea[i - 4], i - 4);
 		}
 	}
 	/* alloc EA for routes[0] */
