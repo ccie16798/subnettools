@@ -16,7 +16,7 @@
 unsigned long total_memory;
 
 #ifdef DEBUG_ST_MEMORY
-void *__st_malloc_nodebug(unsigned long n, const char *s,
+void *__st_malloc_nodebug(unsigned long n, const char *desc,
 		const char *file, const char *func, int line)
 {
 	void *ptr;
@@ -25,19 +25,19 @@ void *__st_malloc_nodebug(unsigned long n, const char *s,
 	if (ptr == NULL) {
 		if (n > 10 * 1024 * 1024)
 			fprintf(stderr, "%s:%s line %d Unable to allocate %lu Mbytes for %s\n",
-					file, func, line, n / (1024 * 1024),  s);
+					file, func, line, n / (1024 * 1024),  desc);
 		else if (n > 10 * 1024)
 			fprintf(stderr, "%s:%s line %d Unable to allocate %lu Kbytes for %s\n",
-					file, func, line, n / (1024),  s);
+					file, func, line, n / (1024),  desc);
 		else
 			fprintf(stderr, "%s:%s line %d Unable to allocate %lu bytes for %s\n",
-					file, func, line, n,  s);
+					file, func, line, n,  desc);
 	}
 	total_memory += n;
 	return ptr;
 }
 
-void *__st_malloc(unsigned long n, const char *s,
+void *__st_malloc(unsigned long n, const char *desc,
 		const char *file, const char *func, int line)
 {
 	void *ptr;
@@ -46,30 +46,30 @@ void *__st_malloc(unsigned long n, const char *s,
 	if (ptr == NULL) {
 		if (n > 10 * 1024 * 1024)
 			fprintf(stderr, "%s:%s line %d Unable to allocate %lu Mbytes for %s\n",
-					file, func, line, n / (1024 * 1024), s);
+					file, func, line, n / (1024 * 1024), desc);
 		else if (n > 10 * 1024)
 			fprintf(stderr, "%s:%s line %d Unable to allocate %lu Kbytes for %s\n",
-					file, func, line, n / (1024), s);
+					file, func, line, n / (1024), desc);
 		else
 			fprintf(stderr, "%s:%s line %d Unable to allocate %lu bytes for %s\n",
-					file, func, line, n, s);
+					file, func, line, n, desc);
 		return NULL;
 	}
 	total_memory += n;
 	if (n > 10 * 1024 * 1024) {
 		debug_memory(3, "%s:%s line %d Allocated %lu Mbytes for %s\n",
-				file, func, line, n / (1024 * 1024), s);
+				file, func, line, n / (1024 * 1024), desc);
 	} else if (n > 10 * 1024) {
 		debug_memory(3, "%s:%s line %d Allocated %lu Kbytes for %s\n",
-				file, func, line, n / (1024), s);
+				file, func, line, n / (1024), desc);
 	} else {
 		debug_memory(3, "%s:%s line %d Allocated %lu bytes for %s\n",
-				file, func, line, n, s);
+				file, func, line, n, desc);
 	}
 	return ptr;
 }
 
-void *__st_realloc(void *ptr, unsigned long new, unsigned long old, const char *s,
+void *__st_realloc(void *ptr, unsigned long new, unsigned long old, const char *desc,
 		const char *file, const char *func, int line)
 {
 	void *new_ptr;
@@ -78,30 +78,30 @@ void *__st_realloc(void *ptr, unsigned long new, unsigned long old, const char *
 	if (new_ptr == NULL) {
 		if (new > 10 * 1024 * 1024)
 			fprintf(stderr, "%s:%s line %d Unable to reallocate %lu Mbytes for %s\n",
-					file, func, line, new / (1024 * 1024), s);
+					file, func, line, new / (1024 * 1024), desc);
 		else if (new > 10 * 1024)
 			fprintf(stderr, "%s:%s line %d Unable to reallocate %lu Kbytes for %s\n",
-					file, func, line, new / (1024), s);
+					file, func, line, new / (1024), desc);
 		else
 			fprintf(stderr, "%s:%s line %d Unable to reallocate %lu bytes for %s\n",
-					file, func, line, new, s);
+					file, func, line, new, desc);
 		return  NULL;
 	}
 	total_memory += (new - old);
 	if (new > 10 * 1024 * 1024) {
 		debug_memory(3, "%s:%s line %d Reallocated %lu Mbytes for %s\n",
-				file, func, line, new / (1024 * 1024), s);
+				file, func, line, new / (1024 * 1024), desc);
 	} else if (new > 10 * 1024) {
 		debug_memory(3, "%s:%s line %d Reallocated %lu Kbytes for %s\n",
-				file, func, line, new / 1024, s);
+				file, func, line, new / 1024, desc);
 	} else {
 		debug_memory(3, "%s:%s line %d Reallocated %lu bytes for %s\n",
-				file, func, line, new, s);
+				file, func, line, new, desc);
 	}
 	return new_ptr;
 }
 
-void *__st_realloc_nodebug(void *ptr, unsigned long new, unsigned long old, const char *s,
+void *__st_realloc_nodebug(void *ptr, unsigned long new, unsigned long old, const char *desc,
 		const char *file, const char *func, int line)
 {
 	void *new_ptr;
@@ -110,13 +110,13 @@ void *__st_realloc_nodebug(void *ptr, unsigned long new, unsigned long old, cons
 	if (new_ptr == NULL) {
 		if (new > 10 * 1024 * 1024)
 			fprintf(stderr, "%s:%s line %d Unable to reallocate %lu Mbytes for %s\n",
-					file, func, line, new / (1024 * 1024), s);
+					file, func, line, new / (1024 * 1024), desc);
 		else if (new > 10 * 1024)
 			fprintf(stderr, "%s:%s line %d Unable to reallocate %lu Kbytes for %s\n",
-					file, func, line, new / (1024), s);
+					file, func, line, new / (1024), desc);
 		else
 			fprintf(stderr, "%s:%s line %d Unable to reallocate %lu bytes for %s\n",
-					file, func, line, new, s);
+					file, func, line, new, desc);
 		return  NULL;
 	}
 	total_memory += (new - old);
