@@ -448,14 +448,10 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 		k = sf_ea_nr;
 		if (found_mask == -1) {
 			for (j = 0; j < ipam->ea_nr; j++) {
-				/* 'comment' get special treatment; it is included in struct route
-				 * by default as route->ea[0]; so if we get 'comment' EA from ipam
-				 *  we need to overwrite it with IPAM value and free previous value
-				 */
-				if (j == comment_index) {
-					sf->routes[i].ea[0].name  = ipam->ea[j];
-					free_ea(&sf->routes[i].ea[0]);
-				} else {
+				/* we didnt find a match in the IPAM for this subnet
+				 * set route EA name, except  for comment that we dont overwrite
+				*/
+				if (j != comment_index) {
 					sf->routes[i].ea[k].name  = ipam->ea[j];
 					free_ea(&sf->routes[i].ea[0]);
 					k++;
@@ -463,6 +459,10 @@ int populate_sf_from_ipam(struct subnet_file *sf, struct ipam_file *ipam)
 			}
 		} else {
 			for (j = 0; j < ipam->ea_nr; j++) {
+				/* 'comment' get special treatment; it is included in struct route
+				 * by default as route->ea[0]; so if we get 'comment' EA from ipam
+				 *  we need to overwrite it with IPAM value and free previous value
+				 */
 				if (j == comment_index) {
 					sf->routes[i].ea[0].name  = ipam->ea[j];
 					free_ea(&sf->routes[i].ea[0]);
