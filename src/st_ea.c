@@ -87,7 +87,7 @@ struct st_ea *realloc_ea_array(struct st_ea *ea,
 	int j;
 	struct st_ea *new_ea;
 
-	if (new_n <= old_n) {
+	if (new_n < old_n) {
 		fprintf(stderr, "BUG, %s called new size < old_size\n", __func__);
 		return NULL;
 	}
