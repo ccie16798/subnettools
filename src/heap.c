@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <time.h>
 #include "heap.h"
 #include "debug.h"
 #include "st_memory.h"
@@ -66,19 +67,19 @@ void free_tas(TAS *tas)
 
 void addTAS(TAS *tas, void *el)
 {
-	unsigned long n, n2;
-
+	unsigned long n, father;
+    int (*func)(void *, void *) = tas->compare;
 	n = tas->nr++;
 	tas->tab[n] = el; /*insert element at the end */
-	n2 = n;
+	father = n;
 
 	while (n) { /* move it up */
-		n2--;
-		n2 >>= 1; /* n2 points to father */
+		father--;
+		father >>= 1; /* father of current n */
 		/* if son is better than father then swap */
-		if (tas->compare(tas->tab[n], tas->tab[n2])) {
-			swap(tas->tab[n2], tas->tab[n]);
-			n = n2; /* move to father */
+		if (func(tas->tab[n], tas->tab[father])) {
+			swap(tas->tab[father], tas->tab[n]);
+			n = father; /* move current to father */
 			continue;
 		}
 		break;
@@ -108,8 +109,9 @@ int addTAS_may_fail(TAS *tas, void *el)
 
 void *popTAS(TAS *tas)
 {
-	unsigned long n, i = 0, i2;
+	unsigned long n, i = 0, left_son, right_son;
 	void *res = tas->tab[0];
+    int (*func)(void *, void *) = tas->compare;
 
 	if (tas->nr == 0)
 		return NULL;
@@ -119,31 +121,31 @@ void *popTAS(TAS *tas)
 	tas->tab[0] = tas->tab[n];
 
 	while (1) { /* move down */
-		i2 =  i << 1;
-		i2++; /* i2 = 2 * i + 1, i2 = left son of i  */
-		if (i2 == n) { /* empty right son */
+		left_son = i << 1;
+		left_son++; /* left son of i */
+		if (left_son > n) /* no more sons */
+			break;
+		if (left_son == n) { /* no right son */
 			/* if father is better, stop */
-			if (tas->compare(tas->tab[i], tas->tab[i2]))
+			if (func(tas->tab[i], tas->tab[left_son]))
 				break;
-			swap(tas->tab[i2], tas->tab[i]); /* swap father & left son */
+			swap(tas->tab[left_son], tas->tab[i]); /* swap father & left son */
 			break;
 		}
-		if (i2 > n) /* no more sons */
-			break;
-
 		/* heap[2i+1] = left son, heap[2i+2] = right son */
-		if (tas->compare(tas->tab[i2], tas->tab[i2 + 1])) {
+        right_son = left_son + 1;
+		if (func(tas->tab[left_son], tas->tab[right_son])) {
 			/* if father is better, stop */
-			if (tas->compare(tas->tab[i], tas->tab[i2]))
+			if (func(tas->tab[i], tas->tab[left_son]))
 				break;
-			swap(tas->tab[i2], tas->tab[i]); /* swap father & left son */
-			i = i2;
+			swap(tas->tab[left_son], tas->tab[i]); /* swap father & left son */
+			i = left_son;
 		} else {
 			/* if father is better, stop */
-			if (tas->compare(tas->tab[i], tas->tab[i2 + 1]))
+			if (func(tas->tab[i], tas->tab[right_son]))
 				break;
-			swap(tas->tab[i2 + 1], tas->tab[i]); /* swap father & right son */
-			i = i2 + 1;
+			swap(tas->tab[right_son], tas->tab[i]); /* swap father & right son */
+			i = right_son;
 		}
 	}
 	return res;
@@ -157,10 +159,12 @@ void print_tas(TAS tas)
 		return;
 
 	for (i = 0; i < tas.nr; i++)  {
-		if (i)
+        if (i)
 			tas.print(tas.tab[(i - 1) / 2]);
-		else
+		else {
 			printf("nr %lu ", tas.nr);
+            continue;
+        }
 		printf(" : ");
 
 		tas.print(tas.tab[i]);
@@ -187,22 +191,36 @@ int main(int argc, char **argv)
 {
 	TAS t;
 	int i;
-	int truc[] = {1008, 45, 56, 76, 7, 5, 8, 127, 129, 2, 5, 8,
+	int static_truc[] = {1008, 45, 56, 76, 7, 5, 8, 127, 129, 2, 5, 8,
 		8, 1, 2, 9, 25, 48, 3, 2, 100, 200, 41, 50, 54, 67,
 		88, 89, 101, 150, 123, 45, 67};
+    int * truc;
 	int j;
-
-	t.tab = (void **)malloc(100 * sizeof(void *));
+    unsigned int size = 100;
+    char *s;
+    if (argc > 1) { /* dynamic from cli */
+        size = atoi(argv[1]);
+        srand(time(NULL));
+        truc = malloc(size * sizeof(int));
+        for (i = 0; i < size; i++){
+                truc[i] = rand() % (4*size);
+        }
+    } else {
+        size = sizeof(static_truc) / sizeof(int);
+        truc = static_truc;
+    }
+	t.tab = (void **)malloc(size * sizeof(void *));
 	t.compare = &compare_int;
 	t.print = &printint;
 	t.nr = 0;
-	for (i = 0; i < sizeof(truc)/4; i++)
+	for (i = 0; i < size; i++)
 		addTAS(&t, (void *)&truc[i]);
-	print_tas(t);
-	for (i = 0; i < sizeof(truc)/4; i++) {
+    //print_tas(t);
+	for (i = 0; i < size; i++) {
 		j = *((int *)popTAS(&t));
 		printf("%d\n", j);
 	}
 	printf("\n");
+    exit(0);
 }
 #endif
