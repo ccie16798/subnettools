@@ -19,23 +19,6 @@
 #define swap(a, b) \
 	do { typeof(a) __tmp = (a); (a) = (b); (b) = __tmp; } while (0)
 
-/* 3 not used functions, commented to silence warnings
- * But i prefer to let them here
- *
-static inline void *father(TAS t, int n)
-{
-	return t.tab[(n - 1) / 2];
-}
-static inline void *leftSon(TAS t, int n)
-{
-	return t.tab[2 * n + 1];
-}
-static inline void *rightSon(TAS t, int n)
-{
-	return t.tab[2 * n + 2];
-}
-*/
-
 int alloc_tas(TAS *tas, unsigned long n, int (*compare)(void *v1, void *v2))
 {
 	if (n > HEAP_MAX_NR) {
@@ -199,13 +182,13 @@ int main(int argc, char **argv)
     unsigned int size = 100;
     char *s;
     if (argc > 1) { /* dynamic from cli */
-        size = atoi(argv[1]);
+        size = atoi(argv[1]); /* no verif ... it is a test */
         srand(time(NULL));
         truc = malloc(size * sizeof(int));
         for (i = 0; i < size; i++){
-                truc[i] = rand() % (4*size);
+            truc[i] = rand() % (4*size);
         }
-    } else {
+    } else { /* static exemple */
         size = sizeof(static_truc) / sizeof(int);
         truc = static_truc;
     }
@@ -220,7 +203,6 @@ int main(int argc, char **argv)
 		j = *((int *)popTAS(&t));
 		printf("%d\n", j);
 	}
-	printf("\n");
     exit(0);
 }
 #endif
