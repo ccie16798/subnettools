@@ -155,6 +155,7 @@ static int option_ecmp(int argc, char **argv, void *st_options);
 static int option_noheader(int argc, char **argv, void *st_options);
 
 struct st_command commands[] = {
+    /*command_name",    function_pointer,   num_args, hidden */
 	{ "echo",		    &run_echo,      	2},
 	{ "print",		    &run_print,     	0},
 	{ "bgpprint",		&run_bgpprint,  	0},
